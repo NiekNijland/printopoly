@@ -1,8 +1,6 @@
 import { EditionBus } from '@/features/edition/bus';
-import {
-    setServices,
-    type EditorServices,
-} from '@/features/edition/editor/services';
+import type { EditorServices } from '@/features/edition/editor/services';
+import { setServices } from '@/features/edition/editor/testing/services';
 import { EditionRepository } from '@/features/edition/repository';
 import { createEdition } from '@/lib/render/edition-changes';
 import { MemoryEditionStorage } from '@/lib/render/edition-storage';

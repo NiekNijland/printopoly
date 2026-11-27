@@ -1,15 +1,33 @@
 import { render } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import {
-    VINTAGE,
-    VintageGuilloche,
-    vintageCovers,
-    vintageLines,
-} from './banknote-styles-vintage-lines';
+import type * as Guilloche from '@/lib/render/banknote-guilloche';
+import { ropeBand, waveNet } from '@/lib/render/banknote-guilloche';
+
+import { NOTE_H, NOTE_W } from './banknote-styles-shared';
+import { VINTAGE, VintageGuilloche } from './banknote-styles-vintage-lines';
+
+vi.mock('@/lib/render/banknote-guilloche', async (importOriginal) => {
+    const actual = await importOriginal<typeof Guilloche>();
+
+    return { ...actual, waveNet: vi.fn(actual.waveNet) };
+});
+
+const vintageCovers = (x: number, y: number) =>
+    vi.mocked(waveNet).mock.calls[0]?.[2]?.(x, y);
 
 describe('the line work of a Vintage note', () => {
     it('keeps the net out of the oval, the banner and the cartouches', () => {
+        render(
+            <VintageGuilloche
+                paper="#F3F0A8"
+                patternInk="#112233"
+                full={false}
+                riso={false}
+                clipId="clip-n"
+            />,
+        );
+
         expect(vintageCovers(VINTAGE.oval.cx, VINTAGE.oval.cy)).toBe(true);
         expect(vintageCovers(VINTAGE.banner.x + 5, VINTAGE.banner.y + 3)).toBe(
             true,
@@ -39,7 +57,17 @@ describe('the line work of a Vintage note', () => {
         }
         expect(
             container.querySelector('[data-pattern="rope"]')?.getAttribute('d'),
-        ).toBe(vintageLines().rope);
+        ).toBe(
+            ropeBand(
+                {
+                    x: VINTAGE.band,
+                    y: VINTAGE.band,
+                    w: NOTE_W - 2 * VINTAGE.band,
+                    h: NOTE_H - 2 * VINTAGE.band,
+                },
+                { amp: 0.5, period: 2.4, strands: 3, corner: 1.2 },
+            ),
+        );
         expect(
             container.querySelector('[data-pattern="hatch"]'),
         ).not.toBeNull();

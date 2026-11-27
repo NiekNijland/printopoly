@@ -4,12 +4,8 @@ import { IndexedDbEditionStorage } from '@/features/edition/indexeddb-storage';
 import { MemoryEditionStorage } from '@/lib/render/edition-storage';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 
-import {
-    getEnvironment,
-    getServices,
-    setEnvironment,
-    setServices,
-} from './services';
+import { getEnvironment, getServices } from './services';
+import { setEnvironment, setServices } from './testing/services';
 
 const info = {
     privateWindow: false,

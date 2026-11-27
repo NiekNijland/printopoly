@@ -1,16 +1,15 @@
 import { MemoryEditionStorage } from '@/lib/render/edition-storage';
-import type { Edition, PhotoRecord } from '@/lib/render/edition-types';
+import {
+    DEFAULT_PARTS,
+    PART_IDS,
+    type Edition,
+    type PhotoRecord,
+} from '@/lib/render/edition-types';
 import { makeEdition, photo } from '@/testing/edition-test-utils';
 import { formOf, requestOf, stubFetch } from '@/testing/fetch';
 
 import { uploadPrintJob } from '../../lib/render/print-api';
-import { photoTargets } from '../../lib/render/print-photo-targets';
-import {
-    loadLocalEdition,
-    neededPhotoIds,
-    printable,
-    rememberPrintJob,
-} from './local-edition';
+import { loadLocalEdition, rememberPrintJob } from './local-edition';
 
 const record = (id: string, editionId: string, text: string): PhotoRecord => {
     return {
@@ -51,7 +50,13 @@ describe('local edition for a job without an account (B80)', () => {
         const { storage, edition } = await stored();
         const upload = await loadLocalEdition('edition-1', 'nl', storage);
 
-        expect(upload?.edition).toEqual(printable(edition));
+        expect(upload?.edition).toEqual({
+            ...edition,
+            parts: {
+                ...DEFAULT_PARTS,
+                ...Object.fromEntries(PART_IDS.map((id) => [id, true])),
+            },
+        });
         expect(Object.keys(upload?.photos ?? {})).toEqual(['photo-shown']);
         expect(await upload?.photos['photo-shown']?.text()).toBe('shown');
         expect(upload?.targets.printer['deed.01#photo']).toEqual({
@@ -111,9 +116,10 @@ describe('local edition for a job without an account (B80)', () => {
         ).resolves.toBeUndefined();
     });
 
-    it('needs the photos on free layers, whatever the layout', () => {
+    it('needs the photos on free layers, whatever the layout', async () => {
+        const storage = new MemoryEditionStorage();
         const edition: Edition = {
-            ...makeEdition(),
+            ...makeEdition({ id: 'edition-3' }),
             elements: {
                 box_lid: {
                     layers: [
@@ -131,9 +137,13 @@ describe('local edition for a job without an account (B80)', () => {
             },
         };
 
-        expect(neededPhotoIds(edition, photoTargets(edition))).toEqual([
-            'on-layer',
-        ]);
+        await storage.createEdition(edition);
+        await storage.putPhoto(record('on-layer', 'edition-3', 'layer'));
+        await storage.putPhoto(record('not-shown', 'edition-3', 'hidden'));
+
+        const upload = await loadLocalEdition('edition-3', 'nl', storage);
+
+        expect(Object.keys(upload?.photos ?? {})).toEqual(['on-layer']);
     });
 
     it('sends the edition, the photos and the targets to the upload route', async () => {

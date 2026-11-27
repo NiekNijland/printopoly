@@ -1,8 +1,8 @@
 import { makeEdition } from '@/testing/edition-test-utils';
 import type { PrintJobData } from '@/types/generated';
 
+import { DEFAULT_INVITATIONS } from './estimate';
 import {
-    NO_CHOICE,
     initialChoices,
     initialSet,
     printEditionOf,
@@ -41,10 +41,14 @@ describe('print-page-setup', () => {
     });
 
     it('takes the choices kept on the job, and none without a job', () => {
-        expect(initialChoices(null)).toEqual({
-            printer: NO_CHOICE,
-            home: NO_CHOICE,
-        });
+        const none = {
+            skipped: [],
+            moneyAmount: null,
+            copies: 1,
+            boardForm: 'panels',
+            invitations: DEFAULT_INVITATIONS,
+        };
+        expect(initialChoices(null)).toEqual({ printer: none, home: none });
         const kept: PrintJobData['choices']['home'] = {
             skipped: ['money'],
             moneyAmount: null,

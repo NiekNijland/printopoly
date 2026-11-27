@@ -1,13 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
     detectEnvironment,
-    detectPrivateWindow,
-    isChromium,
-    isSafari,
-    readStorageUsage,
     requestPersistence,
-    storageLevel,
     type EnvironmentDeps,
+    type StorageManagerLike,
 } from './environment';
 
 const MB = 1024 * 1024;
@@ -42,10 +38,39 @@ const deps = (patch: Partial<EnvironmentDeps> = {}): EnvironmentDeps => {
     };
 };
 
+const environmentOf = (patch: Partial<EnvironmentDeps> = {}) =>
+    detectEnvironment(deps(patch));
+
+const isSafari = async (userAgent: string) =>
+    (await environmentOf({ userAgent })).safariEvictionRisk;
+
+const isChromium = async (userAgent: string) =>
+    (
+        await environmentOf({
+            userAgent,
+            storage: {
+                estimate: () => Promise.resolve({ usage: 0, quota: 100 * MB }),
+            },
+        })
+    ).privateWindow;
+
+const readStorageUsage = async (storage: StorageManagerLike | undefined) =>
+    (await environmentOf({ storage })).storage;
+
+const storageLevel = async (ratio: number) =>
+    (
+        await readStorageUsage({
+            estimate: () => Promise.resolve({ usage: ratio * 100, quota: 100 }),
+        })
+    )?.level;
+
+const detectPrivateWindow = async (of: EnvironmentDeps) =>
+    (await detectEnvironment(of)).privateWindow;
+
 describe('browser detection', () => {
-    it('finds Safari on macOS and iOS only', () => {
-        expect(isSafari(agents.safariMac)).toBe(true);
-        expect(isSafari(agents.safariIos)).toBe(true);
+    it('finds Safari on macOS and iOS only', async () => {
+        expect(await isSafari(agents.safariMac)).toBe(true);
+        expect(await isSafari(agents.safariIos)).toBe(true);
         for (const other of [
             agents.chromeMac,
             agents.chromeIos,
@@ -53,16 +78,16 @@ describe('browser detection', () => {
             agents.firefox,
             agents.androidChrome,
         ]) {
-            expect(isSafari(other)).toBe(false);
+            expect(await isSafari(other)).toBe(false);
         }
     });
 
-    it('finds Chromium browsers', () => {
-        expect(isChromium(agents.chromeMac)).toBe(true);
-        expect(isChromium(agents.edge)).toBe(true);
-        expect(isChromium(agents.chromeIos)).toBe(true);
-        expect(isChromium(agents.firefox)).toBe(false);
-        expect(isChromium(agents.safariMac)).toBe(false);
+    it('finds Chromium browsers', async () => {
+        expect(await isChromium(agents.chromeMac)).toBe(true);
+        expect(await isChromium(agents.edge)).toBe(true);
+        expect(await isChromium(agents.chromeIos)).toBe(true);
+        expect(await isChromium(agents.firefox)).toBe(false);
+        expect(await isChromium(agents.safariMac)).toBe(false);
     });
 });
 
@@ -74,8 +99,8 @@ describe('storage usage', () => {
         [0.97, 'nearly-full'],
         [0.98, 'full'],
         [1.2, 'full'],
-    ] as const)('level at %s is %s', (ratio, level) => {
-        expect(storageLevel(ratio)).toBe(level);
+    ] as const)('level at %s is %s', async (ratio, level) => {
+        expect(await storageLevel(ratio)).toBe(level);
     });
 
     it('reads usage and quota from navigator.storage.estimate', async () => {

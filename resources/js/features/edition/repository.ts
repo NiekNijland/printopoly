@@ -22,7 +22,7 @@ import { copyName } from './copy-name';
 import { summarizeEdition } from './edition-summary';
 import { EditionSession, type Scheduler } from './session';
 
-export const DAY_MS = 24 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 export type RepositoryDeps = {
     storage: EditionStorage;

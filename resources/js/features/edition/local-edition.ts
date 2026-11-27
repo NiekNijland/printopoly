@@ -22,10 +22,7 @@ import {
 } from '../../lib/render/print-photo-targets';
 
 /** The ids of the photos a job needs: those that show in some set, and the photos on free layers. */
-export const neededPhotoIds = (
-    edition: Edition,
-    targets: PhotoTargets,
-): string[] => {
+const neededPhotoIds = (edition: Edition, targets: PhotoTargets): string[] => {
     const ids = new Set<string>();
 
     for (const [key, override] of Object.entries(edition.elements)) {
@@ -80,7 +77,7 @@ export const loadLocalEditionRecord = async (
  * The edition as a print job gets it: every part on, so the photos of each part go up and any part can be made
  * (B198, B210). What goes in the set is chosen on the print page and travels with the job as `skipped`.
  */
-export const printable = (edition: Edition): Edition => {
+const printable = (edition: Edition): Edition => {
     return {
         ...edition,
         parts: PART_IDS.reduce<Parts>((all, id) => ({ ...all, [id]: true }), {

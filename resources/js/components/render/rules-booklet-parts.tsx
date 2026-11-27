@@ -198,7 +198,7 @@ const Header = ({
     );
 };
 
-export const Folio = ({
+const Folio = ({
     page,
     name,
     theme,

@@ -63,7 +63,7 @@ export type Choice = {
     invitations: number;
 };
 
-export const NO_CHOICE: Choice = {
+const NO_CHOICE: Choice = {
     skipped: [],
     moneyAmount: null,
     copies: 1,

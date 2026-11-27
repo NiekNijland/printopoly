@@ -5,8 +5,10 @@ import { defaultPrintSelection } from '@/lib/render/print-selection';
 import { makeEdition } from '@/testing/edition-test-utils';
 import { printJob, printPageEdition } from '@/testing/print-job';
 
-import { NO_CHOICE } from './print-page-setup';
+import { initialChoices } from './print-page-setup';
 import { usePrintCounts } from './use-print-counts';
+
+const NO_CHOICE = initialChoices(null).home;
 
 describe('usePrintCounts', () => {
     const drawn = makeEdition({ id: 'e1' });

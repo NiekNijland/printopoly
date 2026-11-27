@@ -1,7 +1,9 @@
 import { makeEdition } from '@/testing/edition-test-utils';
 
 import { moneyNoteOf, specOf, type SpecInput } from './part-spec';
-import { NO_CHOICE, printEditionOf } from './print-page-setup';
+import { initialChoices, printEditionOf } from './print-page-setup';
+
+const NO_CHOICE = initialChoices(null).home;
 
 const t = (key: string, replacements: Record<string, string | number> = {}) =>
     `${key}${JSON.stringify(replacements)}`;

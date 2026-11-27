@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { setElement } from '../../lib/render/edition-changes';
 import type { Edition } from '../../lib/render/edition-types';
 import { makeEdition } from '../../testing/edition-test-utils';
-import { summarizeDifference, summarizeKeys } from './summary';
+import { summarizeDifference } from './summary';
 
 const base = makeEdition();
 const withKeys = (entries: [string, object][]): Edition =>
@@ -11,72 +11,83 @@ const withKeys = (entries: [string, object][]): Edition =>
             setElement(edition, key, override).edition,
         base,
     );
+const changed = (keys: string[]): [string, object][] =>
+    keys.map((key) => [key, { name: 'x', text: 'x' }]);
+const summaryOf = (
+    entries: [string, object][],
+    language: 'nl' | 'en' = 'nl',
+    settingsChanged = false,
+) => {
+    const next = withKeys(entries);
 
-describe('summarizeKeys', () => {
+    return summarizeDifference(
+        base,
+        settingsChanged ? { ...next, theme: 'riso' } : next,
+        language,
+    );
+};
+
+describe('the summary of changed parts', () => {
     it('names a single space', () => {
-        expect(
-            summarizeKeys(['space.01'], false, 'nl', () => 'Stadspark'),
-        ).toBe('Stadspark aangepast');
+        expect(summaryOf([['space.01', { name: 'Stadspark' }]])).toBe(
+            'Stadspark aangepast',
+        );
     });
 
     it('counts cards, deeds, notes and spaces', () => {
-        expect(
-            summarizeKeys(['card.chance.01', 'card.chest.02'], false, 'nl'),
-        ).toBe('2 kaarten aangepast');
-        expect(summarizeKeys(['card.chance.01'], false, 'nl')).toBe(
+        expect(summaryOf(changed(['card.chance.01', 'card.chest.02']))).toBe(
+            '2 kaarten aangepast',
+        );
+        expect(summaryOf(changed(['card.chance.01']))).toBe(
             '1 kaart aangepast',
         );
-        expect(
-            summarizeKeys(['space.01', 'space.03', 'space.04'], false, 'nl'),
-        ).toBe('3 vakken aangepast');
-        expect(summarizeKeys(['deed.01', 'deed.02'], false, 'nl')).toBe(
+        expect(summaryOf(changed(['space.01', 'space.03', 'space.04']))).toBe(
+            '3 vakken aangepast',
+        );
+        expect(summaryOf(changed(['deed.01', 'deed.02']))).toBe(
             '2 eigendomsbewijzen aangepast',
         );
-        expect(summarizeKeys(['note.5'], false, 'nl')).toBe(
+        expect(summaryOf([['note.5', { color: '#FFFFFF' }]])).toBe(
             '1 biljet aangepast',
         );
-        expect(summarizeKeys(['pawn.01', 'pawn.02'], false, 'nl')).toBe(
+        expect(summaryOf(changed(['pawn.01', 'pawn.02']))).toBe(
             '2 pionnen aangepast',
         );
     });
 
     it('joins several kinds', () => {
         expect(
-            summarizeKeys(
-                ['space.01', 'card.chance.01', 'box_lid'],
-                true,
+            summaryOf(
+                [
+                    ['space.01', { name: 'Stadspark' }],
+                    ...changed(['card.chance.01', 'box_lid']),
+                ],
                 'nl',
-                () => 'Stadspark',
+                true,
             ),
         ).toBe('Stadspark, 1 kaart, Doosdeksel en Instellingen aangepast');
         expect(
-            summarizeKeys(
-                ['space.01', 'card.chance.01'],
-                false,
-                'nl',
-                () => 'Stadspark',
-            ),
+            summaryOf([
+                ['space.01', { name: 'Stadspark' }],
+                ...changed(['card.chance.01']),
+            ]),
         ).toBe('Stadspark en 1 kaart aangepast');
     });
 
     it('speaks English', () => {
         expect(
-            summarizeKeys(['card.chance.01', 'card.chest.02'], false, 'en'),
+            summaryOf(changed(['card.chance.01', 'card.chest.02']), 'en'),
         ).toBe('2 cards edited');
         expect(
-            summarizeKeys(
-                ['board_center', 'house_rules', 'card_back.chance'],
-                false,
+            summaryOf(
+                changed(['board_center', 'house_rules', 'card_back.chance']),
                 'en',
             ),
         ).toBe('Board centre, House rules and Card backs edited');
     });
 
-    it('falls back to the key when the name is unknown and ignores unknown keys', () => {
-        expect(summarizeKeys(['space.01'], false, 'nl')).toBe(
-            'space.01 aangepast',
-        );
-        expect(summarizeKeys(['nonsense'], false, 'nl')).toBe('');
+    it('ignores unknown keys', () => {
+        expect(summaryOf(changed(['nonsense']))).toBe('');
     });
 });
 

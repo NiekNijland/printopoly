@@ -38,7 +38,7 @@ export type RemoteEditionStore = {
 };
 
 /** Local editions that the account does not have yet. */
-export const findLocalOnly = (
+const findLocalOnly = (
     local: readonly EditionSummary[],
     remote: readonly RemoteEditionSummary[],
 ): EditionSummary[] => {
@@ -105,45 +105,4 @@ export const buildSyncQuestion = (
                 ? { limit, room, message: m.overLimit(limit) }
                 : null,
     };
-};
-
-export type UploadReport = {
-    uploaded: string[];
-    /** Editions the server has with another revision: nothing is overwritten, the user chooses (B81). */
-    conflicts: string[];
-    /** Editions the account had no room for. */
-    overLimit: string[];
-};
-
-/** Sends the chosen local editions and their photos to the account. Never overwrites an existing remote edition. */
-export const uploadEditions = async (
-    ids: readonly string[],
-    deps: {
-        remote: RemoteEditionStore;
-        getEdition(id: string): Promise<Edition | undefined>;
-        listPhotos(editionId: string): Promise<PhotoRecord[]>;
-    },
-): Promise<UploadReport> => {
-    const report: UploadReport = { uploaded: [], conflicts: [], overLimit: [] };
-
-    for (const id of ids) {
-        const edition = await deps.getEdition(id);
-        if (edition === undefined) {
-            continue;
-        }
-        const result = await deps.remote.put(edition, null);
-        if (!result.ok) {
-            (result.reason === 'conflict'
-                ? report.conflicts
-                : report.overLimit
-            ).push(id);
-            continue;
-        }
-        for (const photo of await deps.listPhotos(id)) {
-            await deps.remote.putPhoto(photo);
-        }
-        report.uploaded.push(id);
-    }
-
-    return report;
 };

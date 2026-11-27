@@ -13,7 +13,7 @@ const PREVIEW_LONG_SIDE = 1600;
 const PREVIEW_QUALITY = 0.85;
 
 /** Size of the preview: the long side is `longSide` px; small photos are never enlarged. */
-export const previewSize = (size: Size, longSide = PREVIEW_LONG_SIDE): Size => {
+const previewSize = (size: Size, longSide = PREVIEW_LONG_SIDE): Size => {
     const long = Math.max(size.w, size.h);
     if (long <= longSide) return { w: size.w, h: size.h };
     const k = longSide / long;
@@ -24,7 +24,7 @@ export const previewSize = (size: Size, longSide = PREVIEW_LONG_SIDE): Size => {
 };
 
 /** A decoded photo, already turned upright by its EXIF orientation. */
-export type DecodedBitmap = {
+type DecodedBitmap = {
     readonly width: number;
     readonly height: number;
     close(): void;

@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Tabs as TabsPrimitive } from 'radix-ui';
 
 import {
     SegmentedTabs,
-    SegmentedTabsContent,
     SegmentedTabsList,
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
@@ -19,10 +19,10 @@ const Example = () => {
                     Thuisprint-set
                 </SegmentedTabsTrigger>
             </SegmentedTabsList>
-            <SegmentedTabsContent value="printer">
+            <TabsPrimitive.Content value="printer">
                 Drukkerij
-            </SegmentedTabsContent>
-            <SegmentedTabsContent value="home">Thuis</SegmentedTabsContent>
+            </TabsPrimitive.Content>
+            <TabsPrimitive.Content value="home">Thuis</TabsPrimitive.Content>
         </SegmentedTabs>
     );
 };

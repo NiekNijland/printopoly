@@ -12,7 +12,7 @@ import { standardEdition } from '@/lib/render/standard-edition';
  * The amount a friend can propose for a card (B175): within the range of the standard amount and in its direction,
  * or a free amount up to 500 on an extra or new card, paid or received. `null` for a card without an amount.
  */
-export const friendAmountRule = (
+const friendAmountRule = (
     key: string,
 ): { min: number; max: number; sign: 1 | -1 | null } | null => {
     if (newCardDeck(key) !== null || isExtraCardKey(key)) {

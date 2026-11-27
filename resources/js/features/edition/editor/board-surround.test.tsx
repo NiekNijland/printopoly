@@ -2,34 +2,35 @@ import { fireEvent, render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { resolveEdition } from '@/lib/render/edition-resolve';
-import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { sampleEdition } from '@/testing/editions';
 
-import { BoardSurround, placeOnBoard } from './board-surround';
+import { BoardSurround } from './board-surround';
 
-describe('placeOnBoard', () => {
+const placeOf = (selected: string) =>
+    render(
+        <BoardSurround
+            resolved={resolveEdition(sampleEdition())}
+            photos={new Map()}
+            selected={selected}
+            pxPerMm={96 / 25.4}
+            onPick={vi.fn<(key: string) => void>()}
+        />,
+    ).container.querySelector<HTMLElement>('[data-board-surround] > div > div')
+        ?.style.transform;
+
+describe('the place of the shown part on the board', () => {
     it('turns a space so it stands upright, as on the stage', () => {
-        expect(placeOnBoard('space.01', DEFAULT_BOARD_PROFILE)?.rotation).toBe(
-            0,
-        );
-        expect(placeOnBoard('space.11', DEFAULT_BOARD_PROFILE)?.rotation).toBe(
-            90,
-        );
-        expect(placeOnBoard('space.21', DEFAULT_BOARD_PROFILE)?.rotation).toBe(
-            180,
-        );
-        expect(placeOnBoard('space.31', DEFAULT_BOARD_PROFILE)?.rotation).toBe(
-            270,
-        );
+        expect(placeOf('space.01')).toContain('rotate(0deg)');
+        expect(placeOf('space.11')).toContain('rotate(-90deg)');
+        expect(placeOf('space.21')).toContain('rotate(-180deg)');
+        expect(placeOf('space.31')).toContain('rotate(-270deg)');
     });
 
     it('centres on the middle of the board for the centre, and skips other parts', () => {
-        expect(placeOnBoard('board_center', DEFAULT_BOARD_PROFILE)).toEqual({
-            x: 250,
-            y: 250,
-            rotation: 0,
-        });
-        expect(placeOnBoard('card.chance.1', DEFAULT_BOARD_PROFILE)).toBeNull();
+        expect(placeOf('board_center')).toBe(
+            'scale(1) rotate(0deg) translate(-250mm, -250mm)',
+        );
+        expect(placeOf('card.chance.1')).toBeUndefined();
     });
 });
 

@@ -22,3 +22,29 @@ export const mmSize = (element: HTMLElement) => [
     element.style.width,
     element.style.height,
 ];
+
+export const openSides = (space: HTMLElement): string[] => {
+    const drawn = [...space.querySelectorAll('[data-frame] line')].map(
+        (line): string => {
+            const [, , w = 0, h = 0] = (
+                line.closest('svg')?.getAttribute('viewBox') ?? ''
+            )
+                .split(' ')
+                .map(Number);
+
+            if (line.getAttribute('y1') === line.getAttribute('y2')) {
+                return Number(line.getAttribute('y1')) < h / 2
+                    ? 'top'
+                    : 'bottom';
+            }
+
+            return Number(line.getAttribute('x1')) < w / 2 ? 'left' : 'right';
+        },
+    );
+
+    return drawn.length === 0
+        ? []
+        : ['top', 'right', 'bottom', 'left'].filter(
+              (side) => !drawn.includes(side),
+          );
+};

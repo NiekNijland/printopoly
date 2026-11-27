@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import { setEnvironment } from '@/features/edition/editor/services';
+import { setEnvironment } from '@/features/edition/editor/testing/services';
 import { EditionSession } from '@/features/edition/session';
 import { updateElement } from '@/lib/render/edition-changes';
 import { MemoryEditionStorage } from '@/lib/render/edition-storage';

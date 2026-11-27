@@ -101,24 +101,4 @@ const TabsTrigger = ({
     );
 };
 
-const TabsContent = ({
-    className,
-    ...props
-}: ComponentProps<typeof TabsPrimitive.Content>) => {
-    return (
-        <TabsPrimitive.Content
-            data-slot="tabs-content"
-            className={cn('flex-1', className)}
-            {...props}
-        />
-    );
-};
-
-export {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-    tabsListVariants,
-    tabsTriggerVariants,
-};
+export { Tabs, TabsList, TabsTrigger, tabsListVariants, tabsTriggerVariants };

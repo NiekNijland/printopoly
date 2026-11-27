@@ -175,7 +175,7 @@ const NOTE_MARK = { cx: 56.8, cy: 60 - 4.6 };
  * Whether an item carries the set mark (B242): the back of every card (Chance, Community Chest, the house rules card
  * and the deeds), both sides of a title deed, and every banknote. Only when the PDF holds more than one set.
  */
-export const carriesSetMark = (item: PageItem): boolean => {
+const carriesSetMark = (item: PageItem): boolean => {
     if (item.setNumber === undefined) {
         return false;
     }

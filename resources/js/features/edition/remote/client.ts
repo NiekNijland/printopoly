@@ -7,10 +7,7 @@ import { parseJson } from '@/lib/json';
  * `X-XSRF-TOKEN` header, which is what Laravel's web middleware checks.
  */
 
-export type FetchLike = (
-    input: string,
-    init?: RequestInit,
-) => Promise<Response>;
+type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
 export type ApiClientOptions = {
     /** Defaults to the global `fetch`. */
@@ -66,7 +63,7 @@ export type ApiClient = {
     ): Promise<ApiResponse>;
 };
 
-export const readXsrfCookie = (): string | undefined => {
+const readXsrfCookie = (): string | undefined => {
     if (typeof document === 'undefined') {
         return undefined;
     }

@@ -20,7 +20,6 @@ import { STICKER_BLEED } from './print-art-kit';
 import {
     ElementArt,
     ItemArt,
-    carriesSetMark,
     photoOf,
     type ArtContext,
 } from './print-item-art';
@@ -119,7 +118,12 @@ describe('photoOf', () => {
     });
 });
 
-describe('carriesSetMark', () => {
+const carriesSetMark = (page: PageItem) =>
+    render(<ItemArt ctx={contextWith()} item={page} />).container.querySelector(
+        '[data-set-mark]',
+    ) !== null;
+
+describe('the set mark of an item', () => {
     it('marks nothing in a PDF with one set', () => {
         expect(carriesSetMark(item('note'))).toBe(false);
     });

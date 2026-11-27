@@ -19,9 +19,9 @@ const FULL_RATIO = 0.98;
 /** Chromium limits a private window to roughly 100 MB; a smaller quota than this suggests one. */
 const PRIVATE_QUOTA_BYTES = 120 * 1024 * 1024;
 
-export type StorageLevel = 'ok' | 'nearly-full' | 'full';
+type StorageLevel = 'ok' | 'nearly-full' | 'full';
 
-export type StorageUsage = {
+type StorageUsage = {
     usage: number;
     quota: number;
     ratio: number;
@@ -40,7 +40,7 @@ export type EnvironmentInfo = {
 export type PersistResult = 'already' | 'granted' | 'denied' | 'unsupported';
 
 /** Safari on macOS and iOS, not other browsers that say "Safari" in their user agent. */
-export const isSafari = (userAgent: string): boolean => {
+const isSafari = (userAgent: string): boolean => {
     return (
         /Safari\//.test(userAgent) &&
         /Version\//.test(userAgent) &&
@@ -50,14 +50,14 @@ export const isSafari = (userAgent: string): boolean => {
     );
 };
 
-export const isChromium = (userAgent: string): boolean => {
+const isChromium = (userAgent: string): boolean => {
     return (
         /Chrome\/|Chromium\/|CriOS\//.test(userAgent) &&
         !/Firefox|FxiOS/.test(userAgent)
     );
 };
 
-export const storageLevel = (ratio: number): StorageLevel => {
+const storageLevel = (ratio: number): StorageLevel => {
     if (ratio >= FULL_RATIO) return 'full';
     if (ratio >= NEARLY_FULL_RATIO) return 'nearly-full';
 
@@ -65,7 +65,7 @@ export const storageLevel = (ratio: number): StorageLevel => {
 };
 
 /** `null` when the browser cannot tell. */
-export const readStorageUsage = async (
+const readStorageUsage = async (
     storage: StorageManagerLike | undefined,
 ): Promise<StorageUsage | null> => {
     if (storage?.estimate === undefined) {
@@ -110,20 +110,18 @@ export const requestPersistence = async (
  * A guess, since no browser tells. Two signs: IndexedDB cannot be opened, or a Chromium browser reports a small quota.
  * A wrong guess only shows a warning that is too cautious.
  */
-export const detectPrivateWindow = async (
+const detectPrivateWindow = async (
     deps: EnvironmentDeps,
-    usage?: StorageUsage | null,
+    usage: StorageUsage | null,
 ): Promise<boolean> => {
     if (!(await deps.canOpenIndexedDB())) {
         return true;
     }
-    const resolved =
-        usage === undefined ? await readStorageUsage(deps.storage) : usage;
 
     return (
         isChromium(deps.userAgent) &&
-        resolved !== null &&
-        resolved.quota < PRIVATE_QUOTA_BYTES
+        usage !== null &&
+        usage.quota < PRIVATE_QUOTA_BYTES
     );
 };
 

@@ -8,7 +8,7 @@ import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 
 import { BoxLid } from './box-lid';
 import { PawnSheetItem } from './pawn';
-import { scallopedRect, scatter, seedOf, wavePath } from './piece-styles';
+import { Rope, scallopedRect, scatter, seedOf } from './piece-styles';
 
 const STYLES: readonly ('vintage' | 'modern' | 'playful' | undefined)[] = [
     undefined,
@@ -260,7 +260,14 @@ describe('piece style helpers', () => {
         }
         expect(seedOf('Sophie')).toBe(seedOf('Sophie'));
         // A wave covers its whole band, so the rope has no gap at either end.
-        const wave = wavePath(0, 100, 2, 1.5, 4, 1 / 3);
+        const wave =
+            render(
+                <svg>
+                    <Rope length={100} band={4} color="#000000" />
+                </svg>,
+            )
+                .container.querySelectorAll('path')[1]
+                ?.getAttribute('d') ?? '';
         const xs = [...wave.matchAll(/[MQT](-?[\d.]+) /g)].map((m) =>
             Number(m[1]),
         );

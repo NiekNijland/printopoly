@@ -20,7 +20,7 @@ import { mm } from '@/lib/render/units';
  * Where the shown part lies on the board: its centre in mm and the turn that makes it upright, as the stage shows
  * it. `null` for anything that is not on the board.
  */
-export const placeOnBoard = (
+const placeOnBoard = (
     key: string,
     profile: BoardProfile,
 ): { x: number; y: number; rotation: number } | null => {

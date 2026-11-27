@@ -1,7 +1,8 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { getServices, setServices } from '@/features/edition/editor/services';
+import { getServices } from '@/features/edition/editor/services';
+import { setServices } from '@/features/edition/editor/testing/services';
 import PrintShow from '@/pages/print/show';
 import { makeEdition } from '@/testing/edition-test-utils';
 import { stubFetch } from '@/testing/fetch';

@@ -8,16 +8,49 @@ import type { Edition } from '@/lib/render/edition-types';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
 import { renderWithI18n } from '@/testing/render';
 
-import { firstWords } from './card-deck-list';
 import { ElementList } from './element-list';
 
-describe('firstWords', () => {
-    it('keeps a short text and cuts a long one after six words', () => {
-        expect(firstWords('Ga naar Start')).toBe('Ga naar Start');
-        expect(
-            firstWords('Draai om en loop recht naar Start. Je krijgt 200'),
-        ).toBe('Draai om en loop recht naar…');
-        expect(firstWords('  ')).toBe('');
+const open = async (elements: Edition['elements'] = {}) => {
+    installMemoryServices();
+    const storage = new MemoryEditionStorage();
+    const edition = { ...sampleEdition(), elements };
+    await storage.createEdition(edition);
+
+    return new EditionSession(edition, {
+        storage,
+        bus: new EditionBus(null, 'w'),
+        now: () => 5,
+        debounceMs: 1000,
+    });
+};
+
+describe('the text on a card tile', () => {
+    it('keeps a short text and cuts a long one after six words', async () => {
+        const session = await open({
+            'card.chance.02': { text: 'Ga naar Start' },
+            'card.chance.03': {
+                text: 'Draai om en loop recht naar Start. Je krijgt 200',
+            },
+            'card.chance.17': { added: true },
+        });
+        const { container } = renderWithI18n(
+            <ElementList
+                tab="cards"
+                edition={session.edition}
+                interfaceLanguage="nl"
+                selected="card.chance.01"
+                onSelect={() => undefined}
+                warned={new Set()}
+                session={session}
+            />,
+        );
+        const tileText = (key: string) =>
+            container.querySelector(`[data-card-tile="${key}"] span[lang]`)
+                ?.textContent;
+
+        expect(tileText('card.chance.02')).toBe('Ga naar Start');
+        expect(tileText('card.chance.03')).toBe('Draai om en loop recht naar…');
+        expect(tileText('card.chance.17')).toBe('');
     });
 });
 
@@ -49,20 +82,6 @@ describe('ElementList cards', () => {
 });
 
 describe('ElementList extra cards (B135)', () => {
-    const open = async (elements: Edition['elements'] = {}) => {
-        installMemoryServices();
-        const storage = new MemoryEditionStorage();
-        const edition = { ...sampleEdition(), elements };
-        await storage.createEdition(edition);
-
-        return new EditionSession(edition, {
-            storage,
-            bus: new EditionBus(null, 'w'),
-            now: () => 5,
-            debounceMs: 1000,
-        });
-    };
-
     it('adds a card at the end of a deck and opens it', async () => {
         const user = userEvent.setup();
         const session = await open();

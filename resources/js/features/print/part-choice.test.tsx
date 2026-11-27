@@ -3,7 +3,9 @@ import { fireEvent, screen } from '@testing-library/react';
 import { renderWithI18n } from '@/testing/render';
 
 import { PartChoice } from './part-choice';
-import { NO_CHOICE } from './print-page-setup';
+import { initialChoices } from './print-page-setup';
+
+const NO_CHOICE = initialChoices(null).home;
 
 const props = {
     choice: NO_CHOICE,

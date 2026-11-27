@@ -1,7 +1,9 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { Icon, PATH_NAMES } from './icons';
+import { SPACE_ICON_PRESETS } from '@/lib/render/space-icons';
+
+import { Icon, isIconName, type IconName } from './icons';
 
 const svgOf = (container: HTMLElement) =>
     container.querySelector<SVGSVGElement>('svg[data-icon]');
@@ -45,9 +47,10 @@ describe('Icon', () => {
     });
 
     it('has a drawing for every name in the set', () => {
-        expect(PATH_NAMES).toContain('heart');
-        expect(PATH_NAMES).toContain('arrow-left');
-        for (const name of PATH_NAMES) {
+        expect(isIconName('heart')).toBe(true);
+        expect(isIconName('arrow-left')).toBe(true);
+        const names: IconName[] = [...SPACE_ICON_PRESETS, 'pawn'];
+        for (const name of names) {
             const { container, unmount } = render(
                 <Icon name={name} x={0} y={0} size={5} color="#000000" />,
             );
