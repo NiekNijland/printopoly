@@ -20,7 +20,7 @@ export type ChannelLike = {
 
 export type ChannelFactory = (name: string) => ChannelLike;
 
-export const CHANNEL_NAME = 'printopoly-editions';
+const CHANNEL_NAME = 'printopoly-editions';
 
 const isBusMessage = (value: unknown): value is BusMessage => {
     if (!isJsonObject(value)) {
