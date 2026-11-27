@@ -9,6 +9,7 @@ use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Modules\Accounts\Events\AccountDeletingEvent;
 use App\Modules\Print\Listeners\RemoveAccountPrintData;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Tests\Concerns\RefreshesMongoDatabase;
 use Tests\TestCase;
@@ -45,7 +46,7 @@ final class RemoveAccountPrintDataTest extends TestCase
         config(['printopoly.storage.disk' => 'local']);
         $job = PrintJob::factory()->createOne(['user_id' => 'user-anna', 'edition_id' => 'zaterdagclub']);
 
-        event(new AccountDeletingEvent('user-anna'));
+        Event::dispatch(new AccountDeletingEvent('user-anna'));
 
         self::assertNull(PrintJob::query()->find($job->getKey()));
     }

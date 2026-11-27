@@ -9,6 +9,7 @@ use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Modules\Editions\Events\EditionDeletedEvent;
 use App\Modules\Print\Listeners\RemoveEditionPrintData;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Tests\Concerns\RefreshesMongoDatabase;
 use Tests\TestCase;
@@ -46,7 +47,7 @@ final class RemoveEditionPrintDataTest extends TestCase
         config(['printopoly.storage.disk' => 'local']);
         $job = PrintJob::factory()->createOne(['user_id' => 'user-anna', 'edition_id' => 'zaterdagclub']);
 
-        event(new EditionDeletedEvent('user-anna', 'zaterdagclub'));
+        Event::dispatch(new EditionDeletedEvent('user-anna', 'zaterdagclub'));
 
         self::assertNull(PrintJob::query()->find($job->getKey()));
     }
