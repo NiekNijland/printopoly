@@ -42,8 +42,26 @@ describe('EditionBus', () => {
         channel?.onmessage?.({ data: 'nonsense' });
         channel?.onmessage?.({ data: null });
         channel?.onmessage?.({ data: { kind: 'unknown', sender: 'x' } });
-        channel?.onmessage?.({ data: { kind: 'list', sender: 'other' } });
+        channel?.onmessage?.({ data: { kind: 'saved', sender: 'x' } });
+        channel?.onmessage?.({
+            data: {
+                kind: 'saved',
+                editionId: 'e1',
+                revision: '3',
+                sender: 'x',
+            },
+        });
+        channel?.onmessage?.({ data: { kind: 'deleted', sender: 'x' } });
+        channel?.onmessage?.({ data: { kind: 'list', sender: 7 } });
+        channel?.onmessage?.({
+            data: { kind: 'list', sender: 'other', extra: true },
+        });
         expect(heard).toHaveBeenCalledTimes(1);
+        expect(heard).toHaveBeenCalledWith({
+            kind: 'list',
+            sender: 'other',
+            extra: true,
+        });
     });
 
     it('works without BroadcastChannel', () => {
