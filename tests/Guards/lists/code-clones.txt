@@ -1,0 +1,38 @@
+0e6ac49a739a resources/js/features/edition/editor/panel/amount-section.tsx resources/js/features/edition/editor/panel/text-section.tsx
+15bf77e64982 resources/js/features/edition/editor/center-background.tsx resources/js/features/edition/editor/use-layer-actions.ts
+1869dbc8c866 resources/js/components/render/game-card-styles-modern-front.tsx resources/js/components/render/game-card-styles-playful-front.tsx resources/js/components/render/game-card-styles-vintage-front.tsx
+1f2ecd5cf56b resources/js/components/render/board-space-full.tsx resources/js/components/render/board-space-property.tsx
+209d917cc9f9 resources/js/components/render/board-space-full.tsx resources/js/components/render/board-space-property.tsx
+30bdb734b38c resources/js/lib/render/rules-booklet-en.ts resources/js/lib/render/rules-booklet-nl.ts
+3b8db80c4568 resources/js/components/render/box-lid-picture.tsx resources/js/components/render/invitation.tsx
+53a467a4ae68 resources/js/features/edition/editions/new-edition-card.tsx resources/js/features/edition/editions/template-picker.tsx
+53b14a061ec1 resources/js/lib/render/rules-booklet-en.ts resources/js/lib/render/rules-booklet-facts.ts resources/js/lib/render/rules-booklet-nl.ts
+5b3117bd0ea4 resources/js/components/render/edition-title-plate.tsx resources/js/components/render/edition-title-stamp.tsx
+60455f670077 resources/js/lib/render/editor-layer-fold.ts resources/js/lib/render/editor-layers.ts
+61085c17862b resources/js/components/render/title-deed-parts.tsx resources/js/components/render/title-deed-styles-header.tsx
+64e3fc8a53d0 resources/js/components/render/game-card-styles-playful-back.tsx resources/js/components/render/game-card-styles-vintage-back.tsx
+66fdf75c7581 resources/js/lib/render/rules-booklet-en.ts resources/js/lib/render/rules-booklet-nl.ts
+7678e9d27987 resources/js/components/render/board-look.tsx resources/js/components/render/board-space-parts.tsx resources/js/components/render/card-look.tsx resources/js/components/render/corner-art.tsx resources/js/components/render/corner-start.tsx resources/js/components/render/piece-styles.tsx resources/js/components/render/sheet.tsx
+7f54fcc4096f resources/js/components/render/board-space-styles-modern.tsx resources/js/components/render/board-space-styles-playful.tsx resources/js/components/render/board-space-styles-vintage.tsx
+80d39d090764 resources/js/components/render/banknote-face-guilloche.tsx resources/js/components/render/banknote-styles-vintage-lines.tsx
+88bb146f6282 resources/js/components/render/corner-art.tsx resources/js/components/render/title-deed-styles.tsx
+88d9eaa0cc18 resources/js/components/render/edition-title-plate.tsx resources/js/components/render/edition-title-stamp.tsx
+913813dcd98e resources/js/components/render/board-look.tsx resources/js/components/render/card-look.tsx
+97e369048daa resources/js/components/render/game-card-styles-modern-back.tsx resources/js/components/render/game-card-styles-playful-back.tsx resources/js/components/render/game-card-styles-vintage-back.tsx
+a15df850648d resources/js/components/render/edition-title-plain.tsx resources/js/components/render/edition-title-script.tsx
+aad47607ab80 resources/js/lib/render/edition-card-text.ts resources/js/lib/render/edition-words.ts
+b29f14fcb95a app/Http/Requests/Print/StoreAnonymousPrintJobRequest.php app/Http/Requests/Print/StoreAnonymousPrintPhotosRequest.php
+baac6cff32e7 resources/js/components/render/game-card-back.tsx resources/js/components/render/house-rules.tsx
+bb9e05e0b00a resources/js/components/render/game-card-front.tsx resources/js/components/render/game-card-styles-modern-front.tsx resources/js/components/render/game-card-styles-vintage-front.tsx
+bf052e5c8945 app/Modules/Boxes/Support/ShareImageRenderer.php app/Modules/Print/Support/PrintHtmlBuilder.php
+c0ec81c2b550 resources/js/components/render/banknote-plain.tsx resources/js/components/render/banknote-styles-modern.tsx
+c8298263256a resources/js/components/render/game-card-styles-vintage-back.tsx resources/js/components/render/game-card-styles-vintage-front.tsx
+cac21776eca6 resources/js/lib/render/edition-keys.ts resources/js/types/generated.ts
+ceacb01e8501 resources/js/features/edition/editor/panel/amount-section.tsx resources/js/features/edition/editor/panel/text-section.tsx
+d6013525401e resources/js/features/edition/editor/panel/panel-parts.tsx resources/js/features/edition/editor/photo-style-choice.tsx
+dbadfc0a9f91 resources/js/components/render/edition-title-plain.tsx resources/js/components/render/edition-title-script.tsx
+e28d86196090 resources/js/features/edition/editor/big-board.tsx resources/js/features/edition/editor/mini-center.tsx
+f38d0c65e1d2 resources/js/components/render/editor-preview-part.ts resources/js/components/render/print-item-art.tsx
+f4bd037437f6 resources/js/components/render/board-look-vintage.tsx resources/js/components/render/board-space-parts.tsx resources/js/components/render/card-look-engraving.tsx
+fc4b09730965 resources/js/components/render/board-center-content.tsx resources/js/components/render/board-space.tsx resources/js/components/render/edition-title-script.tsx resources/js/components/render/pattern-fill.tsx resources/js/components/render/pawn.tsx
+fe7ebd32a7ff resources/js/lib/render/print-composition.ts resources/js/types/generated.ts
