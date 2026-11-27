@@ -1,5 +1,4 @@
 0e6ac49a739a resources/js/features/edition/editor/panel/amount-section.tsx resources/js/features/edition/editor/panel/text-section.tsx
-15bf77e64982 resources/js/features/edition/editor/center-background.tsx resources/js/features/edition/editor/use-layer-actions.ts
 1869dbc8c866 resources/js/components/render/game-card-styles-modern-front.tsx resources/js/components/render/game-card-styles-playful-front.tsx resources/js/components/render/game-card-styles-vintage-front.tsx
 1f2ecd5cf56b resources/js/components/render/board-space-full.tsx resources/js/components/render/board-space-property.tsx
 209d917cc9f9 resources/js/components/render/board-space-full.tsx resources/js/components/render/board-space-property.tsx
