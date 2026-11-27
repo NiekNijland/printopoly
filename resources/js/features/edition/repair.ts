@@ -1,3 +1,4 @@
+import { is, object } from '@/lib/parse';
 import { defaultCurrency } from '@/lib/render/game-currency';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { standardEdition } from '@/lib/render/standard-edition';
@@ -27,8 +28,7 @@ export type ReadEdition = {
 
 type Obj = Record<string, unknown>;
 
-const isObject = (value: unknown): value is Obj =>
-    typeof value === 'object' && value !== null && !Array.isArray(value);
+const isObject = (value: unknown) => is(object, value);
 
 /**
  * Reads an edition from storage (this browser or the account) and repairs it when it breaks a rule, so the

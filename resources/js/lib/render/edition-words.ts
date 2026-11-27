@@ -1,3 +1,4 @@
+import { is, oneOf } from '@/lib/parse';
 import { standardEdition } from '@/lib/render/standard-edition';
 import {
     STANDARD_BUILDINGS,
@@ -229,11 +230,9 @@ const CARD_TEXT_WORDS = [
 
 export type CardTextWord = (typeof CARD_TEXT_WORDS)[number];
 
-const WORDS: ReadonlySet<string> = new Set(CARD_TEXT_WORDS);
+const cardTextWord = oneOf(CARD_TEXT_WORDS);
 
-export const isCardTextWord = (name: string): name is CardTextWord => {
-    return WORDS.has(name);
-};
+export const isCardTextWord = (name: string) => is(cardTextWord, name);
 
 /** The words a card text can name, singular and plural (B177). */
 export type CardTextWords = Pick<

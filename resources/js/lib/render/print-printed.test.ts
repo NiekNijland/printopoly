@@ -41,5 +41,11 @@ describe('printed editions (R6 Kees, B260)', () => {
 
         window.localStorage.setItem('printopoly.printed', '{broken');
         expect(readPrinted()).toEqual({});
+
+        window.localStorage.setItem(
+            'printopoly.printed',
+            JSON.stringify([{ at: 1, revision: 2 }]),
+        );
+        expect(readPrinted()).toEqual({});
     });
 });

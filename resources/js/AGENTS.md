@@ -26,7 +26,7 @@ Een bestand importeert alleen uit zijn eigen laag en de lagen eronder. De laagst
 - Een component en een hook zijn een const arrow. Geen `forwardRef`, geen `enum`, geen re-export.
 - Een pagina neemt haar props als parameters.
 - Een bestand telt hoogstens 400 regels, een functie en een test hoogstens 80 (lege regels en commentaar niet meegeteld); een `describe` telt niet.
-- Geen `as`, geen `as unknown as`, geen `!`, geen `any`. Vernauw met een type guard of `satisfies`; een test gebruikt een getypte fake (`vi.fn<Fn>()`).
+- Geen `as`, geen `as unknown as`, geen `!`, geen `any`. Vernauw met `satisfies`, met een check waarvan de compiler het predicaat zelf afleidt, of lees een waarde van onbekende vorm met een lezer uit `resources/js/lib/parse.ts`; een test gebruikt een getypte fake (`vi.fn<Fn>()`). Een geschreven typepredicaat (`x is T`) staat alleen in `resources/js/lib/parse.ts` en in `predicateDoors` van `eslint-rules/predicates.js`.
 - Elke regel waar de boom op nul staat, staat bij naam op `error` in `settledCoreRules`, `settledTypedRules`, `settledReactRules`, `settledImportRules` of `settledTestRules`.
 
 ## Eén manier per taak

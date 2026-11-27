@@ -30,7 +30,7 @@ export const spaceAt = (position: number): Space => {
     return space;
 };
 
-export const isOwnable = (space: Space): space is OwnableSpace => {
+export const isOwnable = (space: Space) => {
     return (
         space.type === 'street' ||
         space.type === 'station' ||

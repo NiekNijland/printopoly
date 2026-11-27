@@ -104,6 +104,8 @@ describe('useEditionStatus', () => {
                             homeReadyUntil: null,
                             homeOutdated: true,
                         },
+                        { editionId: 'edition-aaaa', printerOutdated: 'no' },
+                        { editionId: 'edition-aaaa', printerReadyUntil: 1 },
                     ],
                 }),
             ),

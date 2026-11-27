@@ -1,4 +1,5 @@
 import { logWarning } from '@/lib/bugsnag';
+import { is, literal, number, record } from '@/lib/parse';
 
 import type {
     Edition,
@@ -91,7 +92,7 @@ const readEdition = (value: unknown): Edition => {
 
 const readStrings = (value: unknown): string[] => {
     return Array.isArray(value)
-        ? value.filter((item): item is string => typeof item === 'string')
+        ? value.filter((item) => typeof item === 'string')
         : [];
 };
 
@@ -135,13 +136,7 @@ const readCurrent = (response: ApiResponse): Edition => {
     );
 };
 
-const isLimitError = (body: unknown): body is { limit: number } => {
-    return (
-        isJsonObject(body) &&
-        body.code === 'edition_limit' &&
-        typeof body.limit === 'number'
-    );
-};
+const limitError = record({ code: literal('edition_limit'), limit: number });
 
 const changeResult = (response: ApiResponse): RemoteChangeResult => {
     if (response.status === 200) {
@@ -182,7 +177,7 @@ const putResult = (response: ApiResponse): RemotePutResult => {
             current: summaryOf(readCurrent(response)),
         };
     }
-    if (response.status === 422 && isLimitError(response.body)) {
+    if (response.status === 422 && is(limitError, response.body)) {
         return { ok: false, reason: 'limit' };
     }
 
@@ -199,7 +194,7 @@ const duplicateResult = (response: ApiResponse): RemoteDuplicateResult => {
     if (response.status === 404) {
         return { ok: false, reason: 'missing' };
     }
-    if (response.status === 422 && isLimitError(response.body)) {
+    if (response.status === 422 && is(limitError, response.body)) {
         return {
             ok: false,
             reason: 'limit',

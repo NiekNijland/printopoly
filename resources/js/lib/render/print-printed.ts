@@ -6,6 +6,7 @@
 
 import { readStored, writeStored } from '@/lib/browser-storage';
 import { parseJson } from '@/lib/json';
+import { is, number, object, record, type Parser } from '@/lib/parse';
 
 const KEY = 'printopoly.printed';
 
@@ -18,26 +19,25 @@ export type PrintedMark = {
 
 export type PrintedMarks = Readonly<Record<string, PrintedMark>>;
 
-const isMark = (value: unknown): value is PrintedMark => {
-    return (
-        typeof value === 'object' &&
-        value !== null &&
-        'at' in value &&
-        typeof value.at === 'number' &&
-        'revision' in value &&
-        typeof value.revision === 'number'
-    );
-};
+const printedMark: Parser<PrintedMark> = record({
+    at: number,
+    revision: number,
+});
 
 export const readPrinted = (): PrintedMarks => {
     const parsed = parseJson(readStored(KEY) ?? '{}');
-    if (typeof parsed !== 'object' || parsed === null) {
-        return {};
+    const marks: Record<string, PrintedMark> = {};
+    if (!is(object, parsed)) {
+        return marks;
+    }
+    for (const [editionId, value] of Object.entries(parsed)) {
+        const mark = printedMark(value);
+        if (mark.ok) {
+            marks[editionId] = mark.value;
+        }
     }
 
-    return Object.fromEntries(
-        Object.entries(parsed).filter(([, mark]) => isMark(mark)),
-    );
+    return marks;
 };
 
 export const markPrinted = (editionId: string, mark: PrintedMark): void => {

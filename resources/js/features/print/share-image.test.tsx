@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 
-import { isSharePayload, ShareImage, type SharePayload } from './share-image';
+import { ShareImage, type SharePayload } from './share-image';
 
 const placement = {
     photoId: 'p1',
@@ -30,15 +30,6 @@ const payload = (overrides: Partial<SharePayload> = {}): SharePayload => ({
         { id: 'p1', src: 'data:image/jpeg;base64,AAAA', width: 40, height: 30 },
     ],
     ...overrides,
-});
-
-describe('isSharePayload', () => {
-    it('knows the payload of the share picture', () => {
-        expect(isSharePayload(payload())).toBe(true);
-        expect(isSharePayload({ part: 'board' })).toBe(false);
-        expect(isSharePayload(null)).toBe(false);
-        expect(isSharePayload('share')).toBe(false);
-    });
 });
 
 describe('ShareImage', () => {

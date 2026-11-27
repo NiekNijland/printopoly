@@ -25,9 +25,13 @@ export const CARET_ANCHOR = '​';
 const CHIP_CLASS =
     'mx-px inline-block cursor-default select-none rounded-full border-2 border-ink bg-table px-2 text-sm font-semibold leading-6 text-ink aria-[invalid=true]:border-dashed aria-[invalid=true]:border-press';
 
-export const isChip = (node: Node | null): node is HTMLElement => {
-    return node instanceof HTMLElement && node.dataset['token'] !== undefined;
+export const chipOf = (node: Node | null): HTMLElement | null => {
+    return node instanceof HTMLElement && node.dataset['token'] !== undefined
+        ? node
+        : null;
 };
+
+export const isChip = (node: Node | null): boolean => chipOf(node) !== null;
 
 export const isBlank = (node: Node | null): boolean => {
     return (

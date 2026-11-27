@@ -1,14 +1,12 @@
 import { describe, expect, it } from 'vitest';
+import { is, object } from '@/lib/parse';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { makeEdition, photo } from '../../testing/edition-test-utils';
 import { migrateElements, parseEdition, parseOverride } from './edition-schema';
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-    typeof value === 'object' && value !== null && !Array.isArray(value);
-
 const roundTrip = (value: object): Record<string, unknown> => {
     const copy: unknown = JSON.parse(JSON.stringify(value));
-    if (!isRecord(copy)) {
+    if (!is(object, copy)) {
         throw new TypeError('not an object');
     }
 
@@ -247,7 +245,7 @@ describe('amounts (B132)', () => {
 describe('parseOverride', () => {
     it('counts the extra print items as off in an edition stored before they existed (B129)', () => {
         const input = valid();
-        const parts = isRecord(input.parts) ? { ...input.parts } : {};
+        const parts = is(object, input.parts) ? { ...input.parts } : {};
 
         for (const id of ['rulesBooklet', 'foldModels', 'dice', 'invitation']) {
             delete parts[id];

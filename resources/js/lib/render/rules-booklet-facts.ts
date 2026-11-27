@@ -48,31 +48,25 @@ const list = (items: readonly string[], locale: Locale): string => {
 export const streets = (
     spaces: readonly Space[] = standardEdition.spaces,
 ): StreetSpace[] => {
-    return spaces.filter(
-        (space): space is StreetSpace => space.type === 'street',
-    );
+    return spaces.filter((space) => space.type === 'street');
 };
 
 export const stations = (
     spaces: readonly Space[] = standardEdition.spaces,
 ): StationSpace[] => {
-    return spaces.filter(
-        (space): space is StationSpace => space.type === 'station',
-    );
+    return spaces.filter((space) => space.type === 'station');
 };
 
 export const utilities = (
     spaces: readonly Space[] = standardEdition.spaces,
 ): UtilitySpace[] => {
-    return spaces.filter(
-        (space): space is UtilitySpace => space.type === 'utility',
-    );
+    return spaces.filter((space) => space.type === 'utility');
 };
 
 const taxes = (
     spaces: readonly Space[] = standardEdition.spaces,
 ): TaxSpace[] => {
-    return spaces.filter((space): space is TaxSpace => space.type === 'tax');
+    return spaces.filter((space) => space.type === 'tax');
 };
 
 /** How the start money is split, in the order of the standard data: `2 × 500, 2 × 100 ...`. */

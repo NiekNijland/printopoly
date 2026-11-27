@@ -80,6 +80,7 @@ lint-disable                           max  grep   @SOURCE_PATHS,@TEST_PATHS,@FR
 lint-config-off                        max  grep   @LINT_CONFIG  :[[:space:]]*["'](off|warn)["']|["'][^"']+["'][[:space:]]*:[[:space:]]*\[[[:space:]]*["'](off|warn)["']|["'][^"']+["'][[:space:]]*:[[:space:]]*(\[[[:space:]]*)?[01]([^0-9A-Za-z_.]|$)
 lint-config-ignores                    max  block  @LINT_CONFIG  (?:ignores:\s*|globalIgnores\(\s*)\[([^\]]*)\] ["'][^"']+["']
 lint-doors                             max  grep   eslint-rules/doors.js  ^[[:space:]]*['"][^'"]+['"][[:space:]]*:[[:space:]]*\[
+lint-type-predicates                   max  grep   eslint-rules/predicates.js  ^[[:space:]]+[A-Za-z_$][A-Za-z0-9_$]*:[[:space:]]*['"][^'"]+[.]tsx?['"],?[[:space:]]*$
 lint-max-file-lines                    max  number eslint-rules/limits.js  ^export const MAX_FILE_LINES = ([0-9]+);$
 lint-max-function-lines                max  number eslint-rules/limits.js  ^export const MAX_FUNCTION_LINES = ([0-9]+);$
 lint-suppressions                      max  json   @LINT_BASELINE  value *.*.count
@@ -1113,6 +1114,13 @@ lint-doors 0     localStorage: 'lib/browser-storage',
 lint-doors 0     fetch: 'lib/http (or the typed doors lib/render/print-api.ts)',
 lint-doors 0 export const doorFiles = {
 lint-doors 0     'lib/a.ts', ['console'],
+lint-type-predicates 1     isServerElements: 'features/print/print-payload.ts',
+lint-type-predicates 1     isText: "lib/a.tsx"
+lint-type-predicates 2     isA: 'lib/a.ts',~NL~    $isB: 'lib/b.ts',
+lint-type-predicates 0 export const predicateDoors = {
+lint-type-predicates 0 const PARSER = 'lib/parse.ts';
+lint-type-predicates 0     predicate:~NL~        'Read a value with a parser from lib/parse.ts',
+lint-type-predicates 0     type: 'problem',
 lint-max-file-lines 400 export const MAX_FILE_LINES = 400;
 lint-max-file-lines 350 export const MAX_FUNCTION_LINES = 80;~NL~export const MAX_FILE_LINES = 350;
 lint-max-function-lines 80 export const MAX_FILE_LINES = 400;~NL~export const MAX_FUNCTION_LINES = 80;

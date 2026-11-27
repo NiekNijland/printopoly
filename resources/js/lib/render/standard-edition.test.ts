@@ -11,7 +11,7 @@ import {
 
 const locales = ['nl', 'en'] as const;
 const streets = standardEdition.spaces.filter(
-    (space): space is StreetSpace => space.type === 'street',
+    (space) => space.type === 'street',
 );
 
 const groupMembers = (group: GroupId): StreetSpace[] =>

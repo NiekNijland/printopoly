@@ -41,7 +41,7 @@ DOCS_PATHS="docs :(exclude)docs/decisions :(exclude)docs/archive :(exclude)docs/
 DOCS_MAX_AGE_DAYS=180
 # Ratchet rows with no zero target (--final does not fail them). The first three are fixed. Add a row's name, or cap-<key> for a cap,
 # only with a decision row in the plan: the evidence why zero is impossible, or the owner's pin of a major version.
-SHRINK_ONLY="comments code-clones lint-config-ignores lint-doors frontend-test-doubles lint-max-file-lines lint-max-function-lines json-entry-mixed analyser-allow-paths analyser-switches-off test-doubles event-fake-all cap-dependencies-abandoned cap-dependencies-majors-behind"
+SHRINK_ONLY="comments code-clones lint-config-ignores lint-doors lint-type-predicates frontend-test-doubles lint-max-file-lines lint-max-function-lines json-entry-mixed analyser-allow-paths analyser-switches-off test-doubles event-fake-all cap-dependencies-abandoned cap-dependencies-majors-behind"
 # What the min row analyser-switches must reach: the number of switches the catalog names, added up over the configs that hold
 # them (the example: 7 in phpstan.neon and 11 in tsconfig.json). --final fails the row below this number, and without a number.
 ANALYSER_SWITCHES_TARGET=18

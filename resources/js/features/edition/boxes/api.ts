@@ -4,6 +4,7 @@ import { now } from '@/lib/clock';
 import { sendRequest } from '@/lib/http';
 import type { HttpMethod } from '@/lib/http';
 import { parseJson } from '@/lib/json';
+import { oneOf } from '@/lib/parse';
 
 import {
     readAccountBox,
@@ -247,19 +248,22 @@ const OWN_STATES: readonly OwnState[] = [
     'handled',
 ];
 
-const isOwnState = (value: unknown): value is OwnState =>
-    OWN_STATES.some((state) => state === value);
+const ownState = oneOf(OWN_STATES);
 
 const readOwnStates = (value: unknown): Record<string, OwnState> => {
     if (!isJsonObject(value) || !isJsonObject(value.contributions)) {
         throw new Error('The server answer is not a list of states.');
     }
 
-    return Object.fromEntries(
-        Object.entries(value.contributions).filter(
-            (entry): entry is [string, OwnState] => isOwnState(entry[1]),
-        ),
-    );
+    const states: Record<string, OwnState> = {};
+    for (const [receipt, state] of Object.entries(value.contributions)) {
+        const parsed = ownState(state);
+        if (parsed.ok) {
+            states[receipt] = parsed.value;
+        }
+    }
+
+    return states;
 };
 
 export const fetchOwnReceipts = (

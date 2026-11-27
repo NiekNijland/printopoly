@@ -148,7 +148,7 @@ export const VintageBack = ({
                 slot="title"
             />
             <Flourish x={w / 2 - 10} y={cy + 15.6} w={20} color={engr} />
-            {hasText(edition) && (
+            {edition !== undefined && hasText(edition) && (
                 <FitText
                     text={edition}
                     // Inside the oval, clear of its rule: a long name wraps onto a second line (Niek, 22 nov).
@@ -223,7 +223,7 @@ export const VintageArtPlate = ({
                 slot="title"
             />
             <Flourish x={w / 2 - 10} y={cy + 6} w={20} color={engr} />
-            {hasText(edition) && (
+            {edition !== undefined && hasText(edition) && (
                 <FitText
                     text={edition}
                     x={11}

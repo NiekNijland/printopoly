@@ -54,11 +54,7 @@ export const pageLabel = (
     sheet?: { number: number; of: number },
 ): string | null => {
     const values = [
-        ...new Set(
-            page.items
-                .map(noteValue)
-                .filter((value): value is number => value !== null),
-        ),
+        ...new Set(page.items.map(noteValue).filter((value) => value !== null)),
     ];
 
     if (values.length > 0) {

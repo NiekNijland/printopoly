@@ -2,6 +2,7 @@ import {
     CARET_ANCHOR,
     createChip,
     isBlank,
+    chipOf,
     isChip,
     readFrom,
     type DescribeToken,
@@ -72,8 +73,9 @@ const chipAround = (node: Node, root: HTMLElement): HTMLElement | null => {
         at !== null && at !== root;
         at = at.parentNode
     ) {
-        if (isChip(at)) {
-            return at;
+        const chip = chipOf(at);
+        if (chip !== null) {
+            return chip;
         }
     }
 
@@ -138,9 +140,10 @@ export const deleteChipAtCaret = (
     if (range === null || !range.collapsed) {
         return false;
     }
-    const target =
-        neighbour(range, key === 'Backspace' ? 'before' : 'after') ?? null;
-    if (!isChip(target)) {
+    const target = chipOf(
+        neighbour(range, key === 'Backspace' ? 'before' : 'after') ?? null,
+    );
+    if (target === null) {
         return false;
     }
     const parent = target.parentNode;

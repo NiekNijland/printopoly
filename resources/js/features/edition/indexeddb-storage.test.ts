@@ -201,4 +201,64 @@ describe('IndexedDbEditionStorage, moving the bank name (B148)', () => {
         expect((await storage.getEdition('old'))?.id).toBe('old');
         storage.close();
     });
+    const rawPut = (
+        factory: IDBFactory,
+        store: string,
+        rows: readonly unknown[],
+    ): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            const req = factory.open('printopoly');
+            req.onsuccess = () => {
+                const tx = req.result.transaction(store, 'readwrite');
+                for (const row of rows) {
+                    tx.objectStore(store).put(row);
+                }
+                tx.oncomplete = () => {
+                    req.result.close();
+                    resolve();
+                };
+                tx.onerror = () => reject(tx.error ?? new Error('put'));
+            };
+            req.onerror = () => reject(req.error ?? new Error('open'));
+        });
+    };
+
+    it('leaves out stored photos and print jobs of another shape', async () => {
+        const factory = new IDBFactory();
+        const storage = new IndexedDbEditionStorage(factory);
+        await storage.listPrintJobs();
+        storage.close();
+        const photo = {
+            id: 'p1',
+            editionId: 'e',
+            blob: new Blob(['x']),
+            width: 4,
+            height: 3,
+            createdAt: 1,
+        };
+        const job = { token: 't1', editionId: 'e', revision: 0, createdAt: 1 };
+        await rawPut(factory, 'photos', [
+            photo,
+            { ...photo, id: 'p2', width: '4' },
+            { ...photo, id: 'p3', blob: 'x' },
+            { ...photo, id: 'p4', fileName: 4 },
+            { id: 'p5', editionId: 'e' },
+        ]);
+        await rawPut(factory, 'printJobs', [
+            job,
+            { ...job, token: 't2', revision: '0' },
+            { token: 't3', editionId: 'e' },
+        ]);
+
+        const reopened = new IndexedDbEditionStorage(factory);
+        expect(
+            (await reopened.listPhotos('e')).map((stored) => stored.id),
+        ).toEqual(['p1']);
+        expect((await reopened.getPhoto('p1'))?.width).toBe(4);
+        expect(await reopened.getPhoto('p2')).toBeUndefined();
+        expect(
+            (await reopened.listPrintJobs()).map((stored) => stored.token),
+        ).toEqual(['t1']);
+        reopened.close();
+    });
 });

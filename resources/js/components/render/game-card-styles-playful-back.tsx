@@ -158,7 +158,7 @@ export const PlayfulBack = ({
                 color={theme.ink}
                 slot="title"
             />
-            {hasText(edition) && (
+            {edition !== undefined && hasText(edition) && (
                 <PlayfulBackEdition
                     deck={deck}
                     w={w}
@@ -215,7 +215,7 @@ export const PlayfulArtPlate = ({
                 color={theme.ink}
                 slot="title"
             />
-            {hasText(edition) && (
+            {edition !== undefined && hasText(edition) && (
                 <FitText
                     text={edition}
                     x={w / 2 - 12}

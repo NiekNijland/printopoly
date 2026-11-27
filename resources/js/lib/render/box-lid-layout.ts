@@ -157,7 +157,7 @@ const pictureLayout = (
 /** The areas of fixed text on the lid, for the red zone in the editor and the Controle (bug 36). */
 export const lidTextZones = (layout: LidLayout): Rect[] => {
     return [layout.title, layout.subtitle, layout.lines].filter(
-        (rect): rect is Rect => rect !== undefined,
+        (rect) => rect !== undefined,
     );
 };
 

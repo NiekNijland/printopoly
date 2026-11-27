@@ -6,6 +6,7 @@ import type { MoneyStyle } from '@/lib/render/edition-part-styles';
 import { THEME_IDS } from '@/lib/render/edition-types';
 import type { PhotoSource } from '@/lib/render/photo';
 
+import { fakeCanvasContext } from '@/testing/canvas';
 import { Banknote } from './banknote';
 
 const STYLES: readonly MoneyStyle[] = ['vintage', 'modern', 'playful'];
@@ -29,9 +30,6 @@ const note = (
         />,
     ).container;
 };
-
-const isContext2d = (value: object): value is CanvasRenderingContext2D =>
-    'stroke' in value && 'setLineDash' in value && 'clip' in value;
 
 const slotText = (container: HTMLElement, name: string) =>
     [...container.querySelectorAll(`[data-slot="${name}"]`)].map(
@@ -202,12 +200,7 @@ describe('money styles (B270)', () => {
             stroke: (path: { d: string }) => drawn.push(path.d),
             setLineDash: () => undefined,
         };
-        if (!isContext2d(context)) {
-            throw new Error('no 2d context');
-        }
-        const getContext = vi
-            .spyOn(HTMLCanvasElement.prototype, 'getContext')
-            .mockReturnValue(context);
+        const restoreContext = fakeCanvasContext(context);
         const toDataURL = vi
             .spyOn(HTMLCanvasElement.prototype, 'toDataURL')
             .mockImplementation(
@@ -256,7 +249,7 @@ describe('money styles (B270)', () => {
             expect(pictures[2]?.src).not.toBe(pictures[0]?.src);
             expect(toDataURL).toHaveBeenCalledTimes(2);
         } finally {
-            getContext.mockRestore();
+            restoreContext();
             toDataURL.mockRestore();
         }
     });

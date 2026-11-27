@@ -1,3 +1,4 @@
+import { is, oneOf } from '@/lib/parse';
 /** Built-in patterns for card backs and the board background, drawn as flat vector shapes (B83). */
 export type PatternId =
     | 'dots'
@@ -33,9 +34,9 @@ export const PATTERN_NAMES: Readonly<
     confetti: { nl: 'Confetti', en: 'Confetti' },
 };
 
-export const isPatternId = (value: unknown): value is PatternId => {
-    return typeof value === 'string' && PATTERN_IDS.some((id) => id === value);
-};
+const patternId = oneOf(PATTERN_IDS);
+
+export const isPatternId = (value: unknown) => is(patternId, value);
 
 /** Edge of one tile in mm. */
 export const PATTERN_TILE_MM = 6;

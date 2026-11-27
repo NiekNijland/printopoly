@@ -143,15 +143,7 @@ const matchPhotosByName = (
     });
     const result: (string | null)[] = fileNames.map(() => null);
     const taken = new Set<string>();
-    best.map((match, index) => ({ match, index }))
-        .filter(
-            (
-                entry,
-            ): entry is {
-                match: { key: string; score: number };
-                index: number;
-            } => entry.match !== null,
-        )
+    best.flatMap((match, index) => (match === null ? [] : [{ match, index }]))
         .sort((a, b) => b.match.score - a.match.score)
         .forEach(({ match, index }) => {
             if (!taken.has(match.key)) {
@@ -190,7 +182,7 @@ export const planPhotoChoice = (
         fileNames.length > 1 || editKey === null
             ? matchPhotosByName(fileNames, candidates)
             : fileNames.map(() => null);
-    const named = new Set(byName.filter((key): key is string => key !== null));
+    const named = new Set(byName.filter((key) => key !== null));
     const kind = editKey === null ? null : photoKindOf(editKey);
     const fits = (key: string): boolean =>
         kind !== null &&

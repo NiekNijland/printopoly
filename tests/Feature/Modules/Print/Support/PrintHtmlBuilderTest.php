@@ -80,6 +80,38 @@ final class PrintHtmlBuilderTest extends TestCase
         self::assertStringContainsString('<title>Printopoly</title>', $html);
     }
 
+    public function test_the_payloads_of_the_print_page_are_the_fixture_its_parser_reads(): void
+    {
+        config(['printopoly.print.render_base_url' => 'http://render.test', 'printopoly.print.page_height_shave_mm' => 0.05]);
+        $reader = resolve(PrintEditionReader::class);
+        $builder = resolve(PrintHtmlBuilder::class);
+        $full = PrintScenario::editionArray();
+        $withEmptyOverride = [...$full, 'elements' => [...(array) $full['elements'], 'deed.02' => []]];
+
+        $payloads = (object) [
+            'full' => $this->rawPayload($builder->build(
+                PrintPart::BOARD,
+                PrintSet::HOME,
+                $reader->fromArray($withEmptyOverride),
+                ['space.01#photo' => 'http://render.test/print/render/crop/molenweg.jpg'],
+                new ExpectedPdf(pages: 7, widthMm: 210.0, heightMm: 296.95),
+            )),
+            'bare' => $this->rawPayload($builder->build(
+                PrintPart::CARDS,
+                PrintSet::PRINTER,
+                $reader->fromArray(['name' => 'Chrome', 'language' => 'nl', 'elements' => []]),
+                [],
+                new ExpectedPdf(pages: 120, widthMm: 81.0, heightMm: 106.0),
+            )),
+        ];
+
+        self::assertSame(
+            (string) file_get_contents(base_path('resources/js/testing/print-payloads.json')),
+            json_encode($payloads, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR) . "\n",
+            'Write the new payloads to resources/js/testing/print-payloads.json and check that the print page reads them.',
+        );
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -107,5 +139,14 @@ final class PrintHtmlBuilderTest extends TestCase
         self::assertIsArray($photo);
 
         return $photo['src'] ?? null;
+    }
+
+    private function rawPayload(string $html): mixed
+    {
+        self::assertSame(1, preg_match("/window\\.__PRINT__ = JSON\\.parse\\('(.*?)'\\);/", $html, $match));
+        $json = json_decode('"' . ($match[1] ?? '') . '"', true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsString($json);
+
+        return json_decode($json, false, 512, JSON_THROW_ON_ERROR);
     }
 }

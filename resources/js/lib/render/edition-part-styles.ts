@@ -1,4 +1,5 @@
-import PART_STYLE_IDS from './edition-part-styles.json';
+import { is, oneOf } from '@/lib/parse';
+
 import type { ElementOverride, PartId } from './edition-types';
 
 /**
@@ -7,11 +8,11 @@ import type { ElementOverride, PartId } from './edition-types';
  * stay the theme's, so a style works in every theme.
  *
  * HOW TO ADD A STYLE TO A PART (cards, deeds, money, pawns, box lid):
- * 1. Add its id to the part in `part-styles.json` (one line per part). The browser schema (`schema.ts`) and the
- *    server (`App\Edition\PartStyles`, used by `EditionValidator`) both read that file, so the id is valid on both
- *    sides at once.
- * 2. Add the id to the union of the part below (`CardStyle`, `DeedStyle`, …). `part-styles.test.ts` checks that the
- *    unions and the JSON say the same.
+ * 1. Add its id to the part in `part-styles.json` (one line per part). The server (`App\Edition\PartStyles`,
+ *    used by `EditionValidator`) reads that file; the browser schema (`schema.ts`) reads `STYLE_IDS` below, and
+ *    `part-styles.test.ts` checks that both say the same.
+ * 2. Add the id to the union of the part below (`CardStyle`, `DeedStyle`, …) and to its list in `STYLE_IDS`. The
+ *    compiler checks that the list holds only ids of the union.
  * 3. Draw it: the renderer of the part reads `useRender().style?.parts?.<part>` (see `partStyleOf` in
  *    `lib/render/style.ts`). Absent means the theme, as before.
  * 4. Give it a name in `lang/nl.json` and `lang/en.json` under `part_style.<part>.<id>` and a preview in
@@ -59,21 +60,23 @@ export type PartStyleIds = {
 /** The style of each part; a part that is absent follows the theme. */
 export type PartStyles = { [P in StyledPart]?: PartStyleIds[P] };
 
-const STYLE_IDS: Readonly<Record<StyledPart, readonly string[]>> =
-    PART_STYLE_IDS;
-
-export const isPartStyle = <P extends StyledPart>(
-    part: P,
-    value: unknown,
-): value is PartStyleIds[P] => {
-    return typeof value === 'string' && STYLE_IDS[part].includes(value);
+const STYLE_IDS: { readonly [P in StyledPart]: readonly PartStyleIds[P][] } = {
+    board: ['vintage', 'modern', 'playful'],
+    cards: ['vintage', 'modern', 'playful'],
+    deeds: ['vintage', 'modern', 'playful'],
+    money: ['vintage', 'modern', 'playful'],
+    pawns: ['vintage', 'modern', 'playful'],
+    boxLid: ['vintage', 'modern', 'playful'],
 };
+
+export const isPartStyle = <P extends StyledPart>(part: P, value: unknown) =>
+    is(oneOf(STYLE_IDS[part]), value);
 
 /** The styles a part offers, in the order the editor shows them. */
 export const partStyleIds = <P extends StyledPart>(
     part: P,
 ): readonly PartStyleIds[P][] => {
-    return STYLE_IDS[part].filter((id) => isPartStyle(part, id));
+    return STYLE_IDS[part];
 };
 
 /** The parts with at least one style: the editor offers a choice for these only. */

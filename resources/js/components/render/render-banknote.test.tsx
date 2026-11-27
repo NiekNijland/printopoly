@@ -6,14 +6,12 @@ import { lidLayout } from '@/lib/render/box-lid-layout';
 import { mix } from '@/lib/render/color';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { THEMES, type ThemeId } from '@/lib/render/themes';
+import { fakeCanvasContext } from '@/testing/canvas';
 import { css, root } from '@/testing/render-dom';
 import { Banknote } from './banknote';
 import { BoxLid } from './box-lid';
 
 const base = { theme: 'classic', locale: 'nl' } as const;
-
-const isContext2d = (value: object): value is CanvasRenderingContext2D =>
-    'stroke' in value && 'clip' in value && 'scale' in value;
 
 describe('banknote', () => {
     it('always carries the word speelgeld, or play money in English', () => {
@@ -227,12 +225,7 @@ describe('banknote', () => {
             },
             set lineWidth(_value: number) {},
         };
-        if (!isContext2d(context)) {
-            throw new Error('no 2d context');
-        }
-        const getContext = vi
-            .spyOn(HTMLCanvasElement.prototype, 'getContext')
-            .mockReturnValue(context);
+        const restoreContext = fakeCanvasContext(context);
         const toDataURL = vi
             .spyOn(HTMLCanvasElement.prototype, 'toDataURL')
             .mockImplementation(
@@ -268,7 +261,7 @@ describe('banknote', () => {
             expect(pictures[2]?.src).not.toBe(pictures[0]?.src);
             expect(toDataURL).toHaveBeenCalledTimes(2);
         } finally {
-            getContext.mockRestore();
+            restoreContext();
             toDataURL.mockRestore();
         }
     });

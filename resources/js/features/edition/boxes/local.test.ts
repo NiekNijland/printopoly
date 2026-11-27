@@ -99,15 +99,29 @@ describe('friend records', () => {
         expect(list[49]?.receipt).toBe('r3');
     });
 
-    it('skips stored items without a receipt and lists that are no list', () => {
+    it('skips stored items of another shape and lists that are no list', () => {
+        const { sentAt: _, ...withoutTime } = sent('r4');
         writeStored(
             'printopoly.boxes.friend',
             JSON.stringify({
-                sent: { t1: [sent('r1'), { label: 'x' }, 'r2'], t2: 'nope' },
+                sent: {
+                    t1: [
+                        sent('r1'),
+                        { label: 'x' },
+                        'r2',
+                        withoutTime,
+                        { ...sent('r5'), hasPhoto: 'no' },
+                        { ...sent('r6'), extra: 1 },
+                    ],
+                    t2: 'nope',
+                },
             }),
         );
 
-        expect(readSent('t1')).toEqual([sent('r1')]);
+        expect(readSent('t1')).toEqual([
+            sent('r1'),
+            { ...sent('r6'), extra: 1 },
+        ]);
         expect(readSent('t2')).toEqual([]);
     });
 

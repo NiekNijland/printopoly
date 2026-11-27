@@ -1,3 +1,4 @@
+import { is, oneOf } from '@/lib/parse';
 import type { PatternId } from '@/lib/render/patterns';
 import type { PhotoStyle } from '@/lib/render/photo';
 import type { BoardProfile } from '@/lib/render/print-board';
@@ -363,6 +364,6 @@ export type PrintJobRecord = {
     createdAt: number;
 };
 
-export const isThemeId = (value: unknown): value is ThemeId => {
-    return THEME_IDS.some((id) => id === value);
-};
+const themeId = oneOf(THEME_IDS);
+
+export const isThemeId = (value: unknown) => is(themeId, value);

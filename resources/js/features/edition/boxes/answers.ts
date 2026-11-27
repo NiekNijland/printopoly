@@ -1,4 +1,13 @@
 import { isJsonObject } from '@/features/edition/remote/client';
+import {
+    is,
+    nullable,
+    number,
+    oneOf,
+    string,
+    validItems,
+    type Parser,
+} from '@/lib/parse';
 
 import type {
     BoxContributionData,
@@ -19,17 +28,15 @@ const unreadable = (what: string): never => {
     throw new Error(`The server answer is not ${what}.`);
 };
 
-const isNumberOrNull = (value: unknown): value is number | null =>
-    value === null || typeof value === 'number';
+const numberOrNull = nullable(number);
 
-const isStringOrNull = (value: unknown): value is string | null =>
-    value === null || typeof value === 'string';
+const stringOrNull = nullable(string);
 
-const isPart = (value: unknown): value is ContributionPart =>
-    CONTRIBUTION_PARTS.some((part) => part === value);
-
-const isField = (value: unknown): value is BoxContributionData['field'] =>
-    value === 'name' || value === 'text' || value === 'town';
+const field: Parser<BoxContributionData['field']> = oneOf([
+    'name',
+    'text',
+    'town',
+]);
 
 const readContribution = (value: unknown): BoxContributionData => {
     if (
@@ -37,15 +44,15 @@ const readContribution = (value: unknown): BoxContributionData => {
         typeof value.id !== 'string' ||
         typeof value.elementKey !== 'string' ||
         typeof value.firstName !== 'string' ||
-        !isField(value.field) ||
-        !isStringOrNull(value.value) ||
-        !isNumberOrNull(value.amount) ||
+        !is(field, value.field) ||
+        !is(stringOrNull, value.value) ||
+        !is(numberOrNull, value.amount) ||
         !Array.isArray(value.open) ||
         typeof value.hasPhoto !== 'boolean' ||
-        !isNumberOrNull(value.width) ||
-        !isNumberOrNull(value.height) ||
-        !isStringOrNull(value.photoUrl) ||
-        !isNumberOrNull(value.createdAt)
+        !is(numberOrNull, value.width) ||
+        !is(numberOrNull, value.height) ||
+        !is(stringOrNull, value.photoUrl) ||
+        !is(numberOrNull, value.createdAt)
     ) {
         return unreadable('a contribution');
     }
@@ -57,7 +64,7 @@ const readContribution = (value: unknown): BoxContributionData => {
         field: value.field,
         value: value.value,
         amount: value.amount,
-        open: value.open.filter(isPart),
+        open: validItems(oneOf(CONTRIBUTION_PARTS), value.open),
         hasPhoto: value.hasPhoto,
         width: value.width,
         height: value.height,

@@ -24,12 +24,12 @@ const resolve = (element: HTMLElement): HTMLElement => {
     return element;
 };
 
-const usable = (element: EventTarget | null): element is HTMLElement => {
-    return (
-        element instanceof HTMLElement &&
+const usable = (element: EventTarget | null): HTMLElement | null => {
+    return element instanceof HTMLElement &&
         element !== element.ownerDocument.body &&
         element.closest('[role="dialog"], [role="alertdialog"]') === null
-    );
+        ? element
+        : null;
 };
 
 /** Starts following the focus on the page, once, so a menu's button is known after the menu is gone. */
@@ -41,8 +41,9 @@ export const trackFocus = (doc: Document = document): void => {
     listenToDocument(
         'focusin',
         (event) => {
-            if (usable(event.target)) {
-                last = resolve(event.target);
+            const target = usable(event.target);
+            if (target !== null) {
+                last = resolve(target);
             }
         },
         undefined,
@@ -52,9 +53,9 @@ export const trackFocus = (doc: Document = document): void => {
 
 /** The control a dialog that opens now should give the focus back to. */
 export const currentOpener = (doc: Document = document): HTMLElement | null => {
-    const active = doc.activeElement;
+    const active = usable(doc.activeElement);
 
-    return usable(active) ? resolve(active) : last;
+    return active === null ? last : resolve(active);
 };
 
 /** Puts the focus back on `element` when it is still on the page and can take it. */

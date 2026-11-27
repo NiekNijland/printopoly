@@ -81,5 +81,5 @@ export const photoSwapChanges = (
     return [
         setElement(edition, a, withPhotoOf(first, second)).change,
         setElement(edition, b, withPhotoOf(second, first)).change,
-    ].filter((change): change is ElementChange => change !== null);
+    ].filter((change) => change !== null);
 };

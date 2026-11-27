@@ -26,15 +26,6 @@ export type SharePayload = {
     photos?: SharePhoto[];
 };
 
-export const isSharePayload = (payload: unknown): payload is SharePayload => {
-    return (
-        typeof payload === 'object' &&
-        payload !== null &&
-        'part' in payload &&
-        payload.part === 'share'
-    );
-};
-
 /** The page is 1080 CSS pixels square; Chrome prints it and `pdftoppm` makes the 1080 px PNG from it. */
 const PAGE_PX = 1080;
 const BOARD_PX = 880;
