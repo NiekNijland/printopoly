@@ -7,6 +7,7 @@ import { inSource, tester } from './rule-tester.js';
 import {
     generatedUnionRules,
     sourceSyntaxRules,
+    testingSyntaxRules,
     testSyntaxRules,
 } from './syntax.js';
 
@@ -110,6 +111,9 @@ run(
         'const page = { useForm: createUseForm() };',
         'const http = useHttp();',
         "it('works', () => {});",
+        'await new Promise((resolve) => setTimeout(resolve, 0));',
+        'await new Promise((resolve) => setTimeout(resolve));',
+        'setTimeout(done, 50);',
     ],
     [
         [
@@ -130,5 +134,30 @@ run(
             'No focused, skipped',
         ]),
         ['function Card() { return <p />; }', 'A component is a const arrow'],
+        [
+            'await new Promise((resolve) => setTimeout(resolve, 50));',
+            'No real-time wait in a test',
+        ],
+        [
+            'const sleep = (ms) => new Promise((done) => window.setTimeout(done, ms));',
+            'No real-time wait in a test',
+        ],
+    ],
+);
+
+run(
+    'no-restricted-syntax (test helpers)',
+    testingSyntaxRules,
+    inSource('testing/edition-test-utils.ts'),
+    [
+        'await new Promise((resolve) => setTimeout(resolve, 0));',
+        'export const a = 1;',
+    ],
+    [
+        [
+            'await new Promise((resolve) => setTimeout(resolve, 10));',
+            'No real-time wait in a test',
+        ],
+        ['enum Kind { A }', 'No hand-written enum'],
     ],
 );

@@ -132,6 +132,12 @@ const useFormMockRule = {
     message:
         'Fake useForm with the one form-hook factory, not a hand-built object (docs/guards/frontend.md, Tests).',
 };
+const realTimeWaitRule = {
+    selector:
+        'NewExpression[callee.name="Promise"] CallExpression:matches([callee.name="setTimeout"], [callee.property.name="setTimeout"])[arguments.length>=2]:not([arguments.1.value=0])',
+    message:
+        'No real-time wait in a test: wait for what you expect with waitFor, or move time with vi.useFakeTimers (docs/guards/frontend.md, Tests).',
+};
 export const sourceSyntaxRules = [
     componentDeclarationRule,
     hookDeclarationRule,
@@ -158,4 +164,6 @@ export const testSyntaxRules = [
     ...focusedTestRules,
     inertiaMockRule,
     useFormMockRule,
+    realTimeWaitRule,
 ];
+export const testingSyntaxRules = [...sourceSyntaxRules, realTimeWaitRule];

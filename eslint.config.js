@@ -41,6 +41,7 @@ import { SOURCE } from './eslint-rules/source.js';
 import {
     generatedUnionRules,
     sourceSyntaxRules,
+    testingSyntaxRules,
     testSyntaxRules,
 } from './eslint-rules/syntax.js';
 import { toastsPlugin } from './eslint-rules/toasts.js';
@@ -267,6 +268,10 @@ export default [
                 reflectApplyRule,
             ],
         },
+    },
+    {
+        files: [`${SOURCE}/**/testing/**/*.{ts,tsx}`],
+        rules: { 'no-restricted-syntax': ['error', ...testingSyntaxRules] },
     },
     {
         files: [`${SOURCE}/pages/**/!(*.test).tsx`],
