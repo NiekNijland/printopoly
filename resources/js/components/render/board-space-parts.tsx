@@ -21,7 +21,7 @@ export const groupColor = (group: string, theme: Theme): string => {
  * the town under the band looked loose). With a town a fine second line follows the ink line, like the double rules
  * on old play money; without one the pair read as a drawing error (Niek, 24 nov), so the ink line stands alone.
  */
-export const ColorBand = ({
+const ColorBand = ({
     bleed,
     w,
     bar,

@@ -44,12 +44,12 @@ export const EMPTY_START = 'empty';
 export type TemplateChoice = TemplateId | null | typeof EMPTY_START;
 
 /** The names of an empty start on the miniature: every street, station and utility without a name. */
-export const EMPTY_SPACES: Record<number, SpaceOverride> = Object.fromEntries(
+const EMPTY_SPACES: Record<number, SpaceOverride> = Object.fromEntries(
     NAMED_SPACE_KEYS.map((key) => [Number(key.slice(6)), { name: '' }]),
 );
 
 /** The own street names of a template, as the board draws them. */
-export const templateSpaces = (
+const templateSpaces = (
     edition: Edition | undefined,
 ): Record<number, SpaceOverride> => {
     const result: Record<number, SpaceOverride> = {};

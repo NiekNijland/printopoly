@@ -4,7 +4,6 @@ import { spaceAt } from '@/lib/render/standard-edition';
 import { THEMES } from '@/lib/render/themes';
 
 import {
-    ColorBand,
     EngravedOval,
     PriceLine,
     groupColor,
@@ -22,16 +21,16 @@ describe('the pieces of a classic space', () => {
 
     it('draws the band with the town and a fine rule only when there is a town', () => {
         const withTown = render(
-            <ColorBand
+            <StreetBand
+                space={spaceAt(1)}
                 bleed={2}
                 w={30}
                 bar={10}
-                color="#aa0000"
                 town="Delft"
             />,
         ).container;
         const without = render(
-            <ColorBand bleed={2} w={30} bar={10} color="#aa0000" />,
+            <StreetBand space={spaceAt(1)} bleed={2} w={30} bar={10} />,
         ).container;
 
         expect(slot(withTown, 'town')?.textContent).toBe('Delft');

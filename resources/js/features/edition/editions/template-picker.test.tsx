@@ -1,15 +1,17 @@
-import { screen } from '@testing-library/react';
+import { renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { templateEdition } from '@/lib/render/edition-templates';
 import { renderWithI18n } from '@/testing/render';
 
 import {
-    EMPTY_SPACES,
     TemplatePicker,
-    templateSpaces,
+    useTemplatePreview,
     type TemplateChoice,
 } from './template-picker';
+
+const spacesOf = (edition: ReturnType<typeof templateEdition>, empty = false) =>
+    renderHook(() => useTemplatePreview(edition, empty)).result.current.spaces;
 
 const mount = (value: TemplateChoice = null) => {
     const onChange = vi.fn<(choice: TemplateChoice) => void>();
@@ -75,21 +77,23 @@ describe('TemplatePicker', () => {
     });
 });
 
-describe('templateSpaces', () => {
+describe('the spaces of a template preview', () => {
     it('takes the own street names of a template', () => {
         const edition = templateEdition('village', 'nl');
-        const spaces = templateSpaces(edition);
+        const spaces = spacesOf(edition);
 
         expect(spaces[1]?.name).toBe(edition?.elements['space.01']?.name);
         expect(Object.keys(spaces).length).toBeGreaterThan(10);
     });
 
     it('has no names without a template', () => {
-        expect(templateSpaces(undefined)).toEqual({});
+        expect(spacesOf(undefined)).toEqual({});
     });
 
     it('empties every space that has a name on an empty start', () => {
-        expect(EMPTY_SPACES[1]).toEqual({ name: '' });
-        expect(EMPTY_SPACES[2]).toBeUndefined();
+        const spaces = spacesOf(templateEdition('village', 'nl'), true);
+
+        expect(spaces[1]).toEqual({ name: '' });
+        expect(spaces[2]).toBeUndefined();
     });
 });
