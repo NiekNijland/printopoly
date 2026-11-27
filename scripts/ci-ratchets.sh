@@ -77,6 +77,9 @@ event-fake-all                         max  grep   @TEST_PATHS,:(exclude)*.md  E
 lint-disable                           max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  eslint-disable|oxlint-disable|biome-ignore|deno-lint-ignore|istanbul ignore|v8 ignore|c8 ignore|/\*[[:space:]]*eslint[[:space:]]
 lint-config-off                        max  grep   @LINT_CONFIG  :[[:space:]]*["'](off|warn)["']|["'][^"']+["'][[:space:]]*:[[:space:]]*\[[[:space:]]*["'](off|warn)["']|["'][^"']+["'][[:space:]]*:[[:space:]]*(\[[[:space:]]*)?[01]([^0-9A-Za-z_.]|$)
 lint-config-ignores                    max  block  @LINT_CONFIG  (?:ignores:\s*|globalIgnores\(\s*)\[([^\]]*)\] ["'][^"']+["']
+lint-doors                             max  grep   eslint-rules/doors.js  ^[[:space:]]*['"][^'"]+['"][[:space:]]*:[[:space:]]*\[
+lint-max-file-lines                    max  number eslint-rules/limits.js  ^export const MAX_FILE_LINES = ([0-9]+);$
+lint-max-function-lines                max  number eslint-rules/limits.js  ^export const MAX_FUNCTION_LINES = ([0-9]+);$
 lint-suppressions                      max  json   @LINT_BASELINE  value *.*.count
 frontend-functions-over-limit          max  json   @LINT_BASELINE  value *.max-lines-per-function.count
 frontend-inertia-mocks                 max  grep   @FRONTEND_PATHS,:(exclude)*.md,:(exclude)resources/js/testing/setup.ts  vi\.(mock|doMock)\([[:space:]]*["'`]@inertiajs/
@@ -795,6 +798,18 @@ lint-config-off 0     "no-console": "error",
 lint-config-ignores 2 ignores: ['dist', 'build/**'],
 lint-config-ignores 1 globalIgnores(['a'])
 lint-config-ignores 0 ignores: [],
+lint-doors 1     'lib/http.ts': ['fetch', 'XMLHttpRequest'],
+lint-doors 1     "features/edition/remote/*.ts" : [ "fetch" ],
+lint-doors 1 'lib/dom-events.ts':['events'],
+lint-doors 2     'lib/a.ts': ['console'],~NL~    'lib/b.ts': [~NL~        'fetch',~NL~    ],
+lint-doors 0     localStorage: 'lib/browser-storage',
+lint-doors 0     fetch: 'lib/http (or the typed doors lib/render/print-api.ts)',
+lint-doors 0 export const doorFiles = {
+lint-doors 0     'lib/a.ts', ['console'],
+lint-max-file-lines 400 export const MAX_FILE_LINES = 400;
+lint-max-file-lines 350 export const MAX_FUNCTION_LINES = 80;~NL~export const MAX_FILE_LINES = 350;
+lint-max-function-lines 80 export const MAX_FILE_LINES = 400;~NL~export const MAX_FUNCTION_LINES = 80;
+lint-max-function-lines 79 export const MAX_FUNCTION_LINES = 79;
 lint-baseline 3 {"a.ts": {"rule": {"count": 3}}}
 type-baseline 1 one finding per line
 ts-suppressions 1 // @ts-expect-error
