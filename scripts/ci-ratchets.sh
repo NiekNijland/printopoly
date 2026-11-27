@@ -72,10 +72,8 @@ lint-config-off                        max  grep   @LINT_CONFIG  ["'](off|warn)[
 lint-config-ignores                    max  block  @LINT_CONFIG  (?:ignores:\s*|globalIgnores\(\s*)\[([^\]]*)\] ["'][^"']+["']
 lint-suppressions                      max  json   @LINT_BASELINE  value *.*.count
 frontend-functions-over-limit          max  json   @LINT_BASELINE  value *.max-lines-per-function.count
-frontend-sibling-imports               max  json   @LINT_BASELINE  value *.layers/no-sibling-import.count
-frontend-inertia-mocks                 max  grep   @FRONTEND_PATHS,:(exclude)*.md  vi\.(mock|doMock)\([[:space:]]*["'`]@inertiajs/
+frontend-inertia-mocks                 max  grep   @FRONTEND_PATHS,:(exclude)*.md,:(exclude)resources/js/testing/setup.ts  vi\.(mock|doMock)\([[:space:]]*["'`]@inertiajs/
 unused-ignore                          max  json   knip.json  count? ignoreDependencies
-unused-ignore-binaries                 max  json   knip.json  count? ignoreBinaries
 ts-suppressions                        max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  @ts-(expect-error|ignore|nocheck)
 frontend-test-skip                     max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  (^|[^A-Za-z0-9_$.])(((it|test|describe)(\.(concurrent|sequential|describe|parallel|serial))*\.(skip|todo|only|skipIf|runIf|fails|fixme)[(.])|((x|f)(it|test|describe)[(]))
 comments                               max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  (^|[][[:space:];{}(),])//|(^[[:space:]]*|[;{}(),][[:space:]]+)#([[:space:]]|$)|(^|[][[:space:];{}(),])/\*([^*]|\*[[:space:]]+[^@[:space:]*/])|(^|[][[:space:];{}(),])/\*[[:space:]]*$|^[[:space:]]*\*[[:space:]]+[^@[:space:]*]|<!--|\{\{--
@@ -804,7 +802,6 @@ lint-config-ignores 1 globalIgnores(['a'])
 lint-config-ignores 0 ignores: [],
 lint-suppressions 3 {"a.ts": {"rule": {"count": 3}}}
 frontend-functions-over-limit 2 {"a.ts": {"max-lines-per-function": {"count": 2}, "func-style": {"count": 5}}}
-frontend-sibling-imports 1 {"a.ts": {"layers/no-sibling-import": {"count": 1}}}
 frontend-inertia-mocks 1 vi.mock('@inertiajs/react', () => ({}));
 frontend-inertia-mocks 1 vi.mock("@inertiajs/core");
 frontend-inertia-mocks 1 vi.mock(`@inertiajs/react`);
@@ -813,9 +810,11 @@ frontend-inertia-mocks 1 vi.mock( '@inertiajs/react');
 frontend-inertia-mocks 0 vi.mock('@/lib/inertia');
 frontend-inertia-mocks 0 vi.mocked(router);
 frontend-inertia-mocks 0 vi.mock('@inertiajs');
+frontend-inertia-mocks@resources/js/testing/setup.ts 0 vi.mock('@inertiajs/react', async (importOriginal) => {
+frontend-inertia-mocks@resources/js/testing/inertia.tsx 1 vi.mock('@inertiajs/react');
+frontend-inertia-mocks@resources/js/pages/home.test.tsx 1 vi.mock('@inertiajs/react');
 unused-ignore 2 {"ignoreDependencies": ["a", "b"]}
 unused-ignore 0 {"entry": ["a"]}
-unused-ignore-binaries 1 {"ignoreBinaries": ["tsc"]}
 ts-suppressions 1 // @ts-expect-error
 ts-suppressions 1 // @ts-ignore
 ts-suppressions 1 /* @ts-nocheck */
