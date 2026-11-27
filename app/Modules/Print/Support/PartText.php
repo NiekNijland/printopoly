@@ -21,14 +21,14 @@ final class PartText
 {
     /** The parts in the order of the print page and the guide, with the test sheet first. */
     public const array GUIDE_ORDER = [
-        PrintPart::Calibration,
-        PrintPart::Board,
-        PrintPart::Cards,
-        PrintPart::Money,
-        PrintPart::Tokens,
-        PrintPart::BoxLid,
-        PrintPart::Invitation,
-        PrintPart::RulesBooklet,
+        PrintPart::CALIBRATION,
+        PrintPart::BOARD,
+        PrintPart::CARDS,
+        PrintPart::MONEY,
+        PrintPart::TOKENS,
+        PrintPart::BOX_LID,
+        PrintPart::INVITATION,
+        PrintPart::RULES_BOOKLET,
     ];
 
     private const string PRINTER_SECTION = '/^##\s+(Drukkerij-set|Print-shop set)\s*$/';
@@ -60,7 +60,7 @@ final class PartText
      */
     public function forSet(string $markdown, PrintSet $set): string
     {
-        $other = $set === PrintSet::Printer ? self::HOME_SECTION : self::PRINTER_SECTION;
+        $other = $set === PrintSet::PRINTER ? self::HOME_SECTION : self::PRINTER_SECTION;
 
         return implode('', array_filter(
             $this->sections($markdown),
@@ -81,7 +81,7 @@ final class PartText
 
             $printer = $this->heads($section, self::ORDER_PRINTER);
 
-            if ($printer === ($set === PrintSet::Printer)) {
+            if ($printer === ($set === PrintSet::PRINTER)) {
                 return trim(explode("\n", $section, 2)[1] ?? '') . "\n";
             }
         }
@@ -114,9 +114,9 @@ final class PartText
             }
 
             $set = match (true) {
-                $this->heads($section, self::PRINTER_SECTION) => PrintSet::Printer,
-                $this->heads($section, self::HOME_SECTION) => PrintSet::Home,
-                default => PrintSet::Home,
+                $this->heads($section, self::PRINTER_SECTION) => PrintSet::PRINTER,
+                $this->heads($section, self::HOME_SECTION) => PrintSet::HOME,
+                default => PrintSet::HOME,
             };
 
             // One level down: the part is a "##" section of the guide and each set a "###" block in it.
@@ -132,7 +132,7 @@ final class PartText
      */
     private function body(string $markdown): string
     {
-        return preg_match('/\A---\R.*?\R---\R/s', $markdown, $match) === 1 ? substr($markdown, strlen($match[0])) : $markdown;
+        return preg_match('/\A---\R.*?\R---\R/s', $markdown, $match) === 1 ? mb_substr($markdown, mb_strlen($match[0])) : $markdown;
     }
 
     /**

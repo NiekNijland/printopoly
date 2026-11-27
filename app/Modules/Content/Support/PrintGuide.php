@@ -40,7 +40,7 @@ final readonly class PrintGuide
             $sections .= $this->parts->forGuide(
                 $this->parts->markdown($part, $locale),
                 $part,
-                fn (string $section, PrintSet $set): string => $part === PrintPart::Calibration
+                fn (string $section, PrintSet $set): string => $part === PrintPart::CALIBRATION
                     ? $section
                     // The guide shows both forms of the board (B243) and leaves out the numbers that only an order has.
                     : $this->text->fill($section, $part, $edition, $locale, $set, extra: ['guide' => 1, 'board_panels' => 1, 'board_whole' => 1]),

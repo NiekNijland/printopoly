@@ -55,7 +55,7 @@ final class PrintEditionTest extends TestCase
             'moneyAmount' => null, 'elements' => ['space.01' => ['name' => 'A']],
         ], $plain->toCacheArray());
 
-        $changed = $plain->forSet(PrintSet::Printer, MoneyAmount::Four, moneyLeftOut: true, sets: 3, boardForm: BoardForm::Whole)->toCacheArray();
+        $changed = $plain->forSet(PrintSet::PRINTER, MoneyAmount::FOUR, moneyLeftOut: true, sets: 3, boardForm: BoardForm::WHOLE)->toCacheArray();
         self::assertSame(['four', true, 3, 'whole'], [$changed['moneyAmount'], $changed['moneyLeftOut'], $changed['sets'], $changed['boardForm']]);
     }
 
@@ -63,25 +63,25 @@ final class PrintEditionTest extends TestCase
     {
         $edition = resolve(PrintEditionReader::class)->fromArray(['elements' => [], 'moneyAmount' => 'eight']);
 
-        $printer = $edition->forSet(PrintSet::Printer, null, sets: 0, boardForm: BoardForm::Whole, invitations: 0);
-        self::assertSame([MoneyAmount::Eight, 1, BoardForm::Whole, 1], [$printer->moneyAmount, $printer->sets, $printer->boardForm, $printer->invitations]);
+        $printer = $edition->forSet(PrintSet::PRINTER, null, sets: 0, boardForm: BoardForm::WHOLE, invitations: 0);
+        self::assertSame([MoneyAmount::EIGHT, 1, BoardForm::WHOLE, 1], [$printer->moneyAmount, $printer->sets, $printer->boardForm, $printer->invitations]);
 
-        $home = $edition->forSet(PrintSet::Home, MoneyAmount::Full, sets: 3, boardForm: BoardForm::Whole, invitations: 30);
-        self::assertSame([MoneyAmount::Full, 3, BoardForm::Panels, 30], [$home->moneyAmount, $home->sets, $home->boardForm, $home->invitations]);
+        $home = $edition->forSet(PrintSet::HOME, MoneyAmount::FULL, sets: 3, boardForm: BoardForm::WHOLE, invitations: 30);
+        self::assertSame([MoneyAmount::FULL, 3, BoardForm::PANELS, 30], [$home->moneyAmount, $home->sets, $home->boardForm, $home->invitations]);
         self::assertSame(1, $home->oneSet()->sets);
         self::assertSame(30, $home->oneSet()->invitations);
 
         $default = resolve(PrintEditionReader::class)->fromArray(['elements' => []]);
-        self::assertSame(MoneyAmount::Four, $default->forSet(PrintSet::Home, null)->moneyAmount);
-        self::assertSame(MoneyAmount::Full, $default->moneyAmountFor(PrintSet::Printer));
-        self::assertSame(MoneyAmount::Eight, $edition->moneyAmountFor(PrintSet::Home));
+        self::assertSame(MoneyAmount::FOUR, $default->forSet(PrintSet::HOME, null)->moneyAmount);
+        self::assertSame(MoneyAmount::FULL, $default->moneyAmountFor(PrintSet::PRINTER));
+        self::assertSame(MoneyAmount::EIGHT, $edition->moneyAmountFor(PrintSet::HOME));
     }
 
     public function test_only_the_cards_and_the_money_carry_set_marks(): void
     {
         $marked = array_values(array_filter(PrintPart::cases(), PrintEdition::hasSetMarks(...)));
 
-        self::assertSame([PrintPart::Cards, PrintPart::Money], $marked);
+        self::assertSame([PrintPart::CARDS, PrintPart::MONEY], $marked);
     }
 
     public function test_a_part_keeps_its_own_elements_the_sets_and_the_amount_it_prints(): void
@@ -91,30 +91,30 @@ final class PrintEditionTest extends TestCase
             'space.01' => ['name' => 'Molenweg', 'amounts' => ['price' => 60], 'icon' => ['id' => 'star'], 'text' => 'weg'],
             'card.chance.17' => ['text' => 'Extra', 'added' => true],
             'note.5' => ['color' => '#AA3322'],
-        ], 'moneyAmount' => 'eight'])->forSet(PrintSet::Printer, null, moneyLeftOut: true, sets: 2, boardForm: BoardForm::Whole);
+        ], 'moneyAmount' => 'eight'])->forSet(PrintSet::PRINTER, null, moneyLeftOut: true, sets: 2, boardForm: BoardForm::WHOLE);
 
-        $calibration = $edition->onlyFor(PrintPart::Calibration);
+        $calibration = $edition->onlyFor(PrintPart::CALIBRATION);
         self::assertSame(['space.00' => ['name' => 'Start', 'photoStyle' => 'full'], 'space.01' => ['name' => 'Molenweg', 'amounts' => ['price' => 60]]], $calibration->elements);
 
-        $booklet = $edition->onlyFor(PrintPart::RulesBooklet);
+        $booklet = $edition->onlyFor(PrintPart::RULES_BOOKLET);
         self::assertSame([
             'card.chance.17' => ['added' => true],
             'space.00' => ['name' => 'Start'],
             'space.01' => ['name' => 'Molenweg', 'amounts' => ['price' => 60]],
         ], $booklet->elements);
-        self::assertSame([MoneyAmount::Eight, true, 1, BoardForm::Panels], [$booklet->moneyAmount, $booklet->moneyLeftOut, $booklet->sets, $booklet->boardForm]);
+        self::assertSame([MoneyAmount::EIGHT, true, 1, BoardForm::PANELS], [$booklet->moneyAmount, $booklet->moneyLeftOut, $booklet->sets, $booklet->boardForm]);
         self::assertSame(61, $booklet->cardCount());
 
-        $cards = $edition->onlyFor(PrintPart::Cards);
+        $cards = $edition->onlyFor(PrintPart::CARDS);
         self::assertSame(['name' => 'Molenweg', 'amounts' => ['price' => 60], 'icon' => ['id' => 'star']], $cards->elements['space.01']);
         self::assertSame([null, false, 2], [$cards->moneyAmount, $cards->moneyLeftOut, $cards->sets]);
         self::assertSame(['card.chance.17'], $cards->extraCardKeys());
 
-        $board = $edition->onlyFor(PrintPart::Board);
-        self::assertSame([null, 1, BoardForm::Whole], [$board->moneyAmount, $board->sets, $board->boardForm]);
+        $board = $edition->onlyFor(PrintPart::BOARD);
+        self::assertSame([null, 1, BoardForm::WHOLE], [$board->moneyAmount, $board->sets, $board->boardForm]);
         self::assertSame([], $board->extraCardKeys());
 
-        $money = $edition->onlyFor(PrintPart::Money);
-        self::assertSame([['note.5' => ['color' => '#AA3322']], MoneyAmount::Eight, 2], [$money->elements, $money->moneyAmount, $money->sets]);
+        $money = $edition->onlyFor(PrintPart::MONEY);
+        self::assertSame([['note.5' => ['color' => '#AA3322']], MoneyAmount::EIGHT, 2], [$money->elements, $money->moneyAmount, $money->sets]);
     }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Assets\Preview;
 
 use App\Models\Asset;
-use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,6 +15,6 @@ final readonly class ShowController
 {
     public function __invoke(Asset $asset): RedirectResponse
     {
-        return redirect()->away(Storage::disk($asset->disk)->temporaryUrl($asset->preview_path, CarbonImmutable::now()->addMinutes(5)));
+        return redirect()->away(Storage::disk($asset->disk)->temporaryUrl($asset->preview_path, now()->addMinutes(5)));
     }
 }

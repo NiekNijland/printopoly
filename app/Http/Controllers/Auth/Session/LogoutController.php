@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Auth\Session;
 use App\Modules\Accounts\Data\SignedOutData;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +28,7 @@ final readonly class LogoutController
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        $home = route('home', ['locale' => app()->getLocale()]);
+        $home = route('home', ['locale' => App::getLocale()]);
 
         if ($request->expectsJson() && ! $request->headers->has('X-Inertia')) {
             return new SignedOutData(clearLocalCopy: true, redirect: $home)->toResponse($request)->setStatusCode(Response::HTTP_OK);

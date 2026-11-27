@@ -71,7 +71,7 @@ final class PrintCleanupTest extends TestCase
         self::assertNotNull(PrintJob::query()->where('token', $token)->first(), 'the job and the photos of an account stay');
         self::assertSame(1, Asset::query()->where('user_id', $user->publicId())->count());
 
-        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
+        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::CARDS));
 
         PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
         self::assertGreaterThan($callsBefore, PrintScenario::renderer()->calls);

@@ -51,7 +51,7 @@ final readonly class GuardSuiteGuard
 
         foreach (RecursiveFiles::in($this->root . '/' . $this->testsFolder) as $file) {
             if (str_ends_with($file->getFilename(), 'Test.php')) {
-                $tests[substr($file->getPathname(), strlen($this->root) + 1)] = (string) file_get_contents($file->getPathname());
+                $tests[mb_substr($file->getPathname(), mb_strlen($this->root) + 1)] = (string) file_get_contents($file->getPathname());
             }
         }
 

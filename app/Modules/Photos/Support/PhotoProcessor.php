@@ -128,8 +128,8 @@ final readonly class PhotoProcessor
         $head = file_get_contents($path, length: 16);
 
         return is_string($head)
-            && substr($head, 4, 4) === 'ftyp'
-            && in_array(substr($head, 8, 4), ['heic', 'heix', 'hevc', 'hevx', 'mif1', 'msf1'], true);
+            && mb_substr($head, 4, 4, encoding: '8bit') === 'ftyp'
+            && in_array(mb_substr($head, 8, 4, encoding: '8bit'), ['heic', 'heix', 'hevc', 'hevx', 'mif1', 'msf1'], true);
     }
 
     private function assertPixels(string $path): void

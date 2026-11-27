@@ -63,19 +63,19 @@ final class PrintStatusServiceTest extends TestCase
 
         PrintScenario::renderer()->mode = 'timeout';
         PrintScenario::generate($this, $job, 'printer', ['board'])->assertOk();
-        self::assertSame('timeout', PrintScenario::partRow($this, $job, PrintSet::Printer, PrintPart::Board)['reason']);
+        self::assertSame('timeout', PrintScenario::partRow($this, $job, PrintSet::PRINTER, PrintPart::BOARD)['reason']);
 
         PrintScenario::renderer()->mode = 'wrong_count';
         PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
-        self::assertSame('layout', PrintScenario::partRow($this, $job, PrintSet::Printer, PrintPart::Cards)['reason']);
+        self::assertSame('layout', PrintScenario::partRow($this, $job, PrintSet::PRINTER, PrintPart::CARDS)['reason']);
 
         PrintScenario::renderer()->mode = 'crash';
         PrintScenario::generate($this, $job, 'printer', ['board'])->assertOk();
-        self::assertSame('other', PrintScenario::partRow($this, $job, PrintSet::Printer, PrintPart::Board)['reason']);
+        self::assertSame('other', PrintScenario::partRow($this, $job, PrintSet::PRINTER, PrintPart::BOARD)['reason']);
 
         PrintScenario::renderer()->mode = 'ok';
         PrintScenario::generate($this, $job, 'printer', ['board'])->assertOk();
-        self::assertNull(PrintScenario::partRow($this, $job, PrintSet::Printer, PrintPart::Board)['reason'], 'a part that is done has no reason');
+        self::assertNull(PrintScenario::partRow($this, $job, PrintSet::PRINTER, PrintPart::BOARD)['reason'], 'a part that is done has no reason');
     }
 
     public function test_the_status_follows_the_cache_key_when_the_edition_of_an_account_changes(): void
@@ -86,22 +86,22 @@ final class PrintStatusServiceTest extends TestCase
         $job = PrintScenario::printJobFor($this, $user, $edition);
 
         PrintScenario::generate($this, $job, 'printer', ['cards', 'money'])->assertOk();
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
+        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::CARDS));
 
         // Another part changes: cards stay current, money goes stale.
         $edition->forceFill(['elements' => [...$edition->elements, 'note.5' => ['color' => '#AA3322']]])->save();
 
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
-        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Money));
+        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::CARDS));
+        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::MONEY));
 
         $this->get('/api/print/' . $job->token . '/zip/printer')->assertConflict();
 
         // A new release makes everything outdated (B62).
         config(['printopoly.print.release' => 'v2']);
-        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
+        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::CARDS));
 
         PrintScenario::generate($this, $job, 'printer', ['cards', 'money'])->assertOk();
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Money));
+        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::MONEY));
     }
 
     public function test_a_pdf_past_its_seven_days_reads_as_outdated(): void
@@ -112,7 +112,7 @@ final class PrintStatusServiceTest extends TestCase
         $file = PrintFile::query()->where('part', 'cards')->where('kind', 'part')->firstOrFail();
         $file->forceFill(['expires_at' => CarbonImmutable::now()->subMinute()])->save();
 
-        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
+        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::CARDS));
     }
 
     public function test_the_waiting_parts_say_what_they_wait_for(): void
@@ -123,7 +123,7 @@ final class PrintStatusServiceTest extends TestCase
         $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
 
         self::assertTrue($status->json('busy'));
-        $cards = PrintScenario::partRow($this, $job, PrintSet::Printer, PrintPart::Cards);
+        $cards = PrintScenario::partRow($this, $job, PrintSet::PRINTER, PrintPart::CARDS);
         self::assertSame(['waiting', 'board'], [$cards['status'], $cards['waitingFor']]);
     }
 
@@ -136,16 +136,16 @@ final class PrintStatusServiceTest extends TestCase
         $job->forceFill(['states' => $states, 'active_at' => CarbonImmutable::now()->subMinutes(2)])->save();
         $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
         self::assertTrue($status->json('busy'));
-        self::assertSame('running', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
+        self::assertSame('running', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::CARDS));
 
         // Past the timeout: failed, the page offers "Opnieuw proberen", and that starts a new run.
         $job->forceFill(['active_at' => CarbonImmutable::now()->subMinutes(PrintProgress::STALE_AFTER_MINUTES + 1)])->save();
         $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
         self::assertFalse($status->json('busy'));
-        self::assertSame('failed', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
+        self::assertSame('failed', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::CARDS));
 
         PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
+        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::CARDS));
     }
 
     public function test_the_zip_waits_until_everything_requested_is_done(): void

@@ -70,7 +70,7 @@ final readonly class CreateBox
         $box->save();
 
         // Anonymous: only that a box was made today (B206).
-        $this->counter->count(FeatureEvent::BoxCreated);
+        $this->counter->count(FeatureEvent::BOX_CREATED);
 
         return ['box' => $box, 'secret' => $secret];
     }

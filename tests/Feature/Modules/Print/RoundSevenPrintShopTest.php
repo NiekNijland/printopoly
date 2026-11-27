@@ -25,7 +25,7 @@ final class RoundSevenPrintShopTest extends TestCase
         $edition = resolve(PrintEditionReader::class)->fromArray(['name' => 'Westerveen', 'elements' => []]);
         $markdown = "| | |\n| - | - |\n| {if:board_panels} | Aantal | {panels} stuks |\n| {if:board_whole}  | Aantal | 1 stuk |\n{if:board_panels}Losse regel";
 
-        $text = resolve(InstructionText::class)->fill($markdown, PrintPart::Board, $edition, Locale::Dutch);
+        $text = resolve(InstructionText::class)->fill($markdown, PrintPart::BOARD, $edition, Locale::DUTCH);
 
         self::assertStringContainsString("| Aantal | 4 stuks |\n", $text);
         self::assertStringNotContainsString('1 stuk', $text);
@@ -40,7 +40,7 @@ final class RoundSevenPrintShopTest extends TestCase
             'space.03' => ['photo' => self::PHOTO],
         ]]);
 
-        $elements = $edition->onlyFor(PrintPart::Calibration)->elements;
+        $elements = $edition->onlyFor(PrintPart::CALIBRATION)->elements;
 
         self::assertSame(self::PHOTO, $elements['space.01']['photo'] ?? null);
         self::assertSame('full', $elements['space.01']['photoStyle'] ?? null);
@@ -53,7 +53,7 @@ final class RoundSevenPrintShopTest extends TestCase
             'card.chance.17' => ['text' => 'Een eigen kaart', 'added' => true],
         ]]);
 
-        $elements = $edition->onlyFor(PrintPart::RulesBooklet)->elements;
+        $elements = $edition->onlyFor(PrintPart::RULES_BOOKLET)->elements;
 
         self::assertSame(['added' => true], $elements['card.chance.17'] ?? null);
     }
@@ -63,10 +63,10 @@ final class RoundSevenPrintShopTest extends TestCase
         $edition = resolve(PrintEditionReader::class)->fromArray(['name' => 'Boekje', 'elements' => []]);
         $bleed = config()->float('printopoly.print.bleed_mm');
 
-        $shop = PrintLayout::expect(PrintPart::RulesBooklet, PrintSet::Printer, $edition);
+        $shop = PrintLayout::expect(PrintPart::RULES_BOOKLET, PrintSet::PRINTER, $edition);
         self::assertEqualsWithDelta(148 + 2 * ($bleed + PrintLayout::MARKS), $shop->widthMm, 0.001);
 
-        $home = PrintLayout::expect(PrintPart::RulesBooklet, PrintSet::Home, $edition);
+        $home = PrintLayout::expect(PrintPart::RULES_BOOKLET, PrintSet::HOME, $edition);
         self::assertEqualsWithDelta(297, $home->widthMm, 0.001);
         self::assertEqualsWithDelta(210, $home->heightMm, 0.001);
     }

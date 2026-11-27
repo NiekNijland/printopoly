@@ -36,11 +36,11 @@ final class ComposerScripts
         }
 
         if (str_starts_with($command, '@php ')) {
-            return substr($command, strlen('@php '));
+            return mb_substr($command, mb_strlen('@php '));
         }
 
         if (str_starts_with($command, '@composer ')) {
-            return substr($command, 1);
+            return mb_substr($command, 1);
         }
 
         if (preg_match('/^@(\S+)(?:\s+(.*))?$/', $command, $match) === 1) {
