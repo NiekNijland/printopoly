@@ -1,5 +1,6 @@
 import type { AccountEditionStore } from '@/features/edition/remote/store';
 import type { EditionSession } from '@/features/edition/session';
+import { now as clockNow } from '@/lib/clock';
 import { diffEditions } from '@/lib/render/edition-changes';
 import type { Edition } from '@/lib/render/edition-types';
 
@@ -25,7 +26,7 @@ export class RemoteSync {
         private readonly remote: AccountEditionStore,
         private readonly session: EditionSession,
         private readonly emit: (event: RemoteSyncEvent) => void,
-        private readonly now: () => number = () => Date.now(),
+        private readonly now: () => number = clockNow,
     ) {}
 
     /** Looks the edition up in the account and starts following the session. */
