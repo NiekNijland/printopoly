@@ -1,3 +1,4 @@
+import { is, keyOf } from '@/lib/parse';
 import { mm } from '@/lib/render/units';
 
 export type IconName = keyof typeof PATHS;
@@ -330,5 +331,6 @@ export const Icon = ({
 };
 
 /** Every drawing in the set, for tests and the icon picker. */
-export const isIconName = (key: string): key is IconName =>
-    Object.hasOwn(PATHS, key);
+const iconName = keyOf(PATHS);
+
+export const isIconName = (key: string) => is(iconName, key);
