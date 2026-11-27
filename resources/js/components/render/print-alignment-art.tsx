@@ -105,6 +105,87 @@ const Scale = ({ x, y }: { x: number; y: number }) => {
     );
 };
 
+const Target = ({
+    x,
+    y,
+    side,
+}: {
+    x: number;
+    y: number;
+    side: NonNullable<PageItem['side']>;
+}) => {
+    return (
+        <g data-target="">
+            <line
+                x1={x - ARM}
+                y1={y}
+                x2={x + ARM}
+                y2={y}
+                stroke={INK}
+                strokeWidth={0.2}
+            />
+            <line
+                x1={x}
+                y1={y - ARM}
+                x2={x}
+                y2={y + ARM}
+                stroke={INK}
+                strokeWidth={0.2}
+            />
+            {side === 'front' ? (
+                <circle
+                    cx={x}
+                    cy={y}
+                    r={4}
+                    fill="none"
+                    stroke={INK}
+                    strokeWidth={0.2}
+                />
+            ) : (
+                <Scale x={x} y={y} />
+            )}
+        </g>
+    );
+};
+
+const Explanation = ({
+    slot: textSlot,
+    title,
+    body,
+}: {
+    slot: { x: number; y: number; w: number; h: number };
+    title: string;
+    body: string;
+}) => {
+    return (
+        <div
+            data-alignment-text=""
+            style={{
+                position: 'absolute',
+                left: mm(textSlot.x),
+                width: mm(textSlot.w),
+                top: mm(textSlot.y + 2),
+                height: mm(textSlot.h - 4),
+                overflow: 'hidden',
+                fontFamily: FONT,
+                fontSize: mm(2.7),
+                lineHeight: 1.32,
+            }}
+        >
+            <div
+                style={{
+                    fontWeight: 700,
+                    fontSize: mm(3.8),
+                    marginBottom: mm(1.5),
+                }}
+            >
+                {title}
+            </div>
+            {body}
+        </div>
+    );
+};
+
 /**
  * The alignment test of the home cards (B134), on a whole A4 page: the outlines of the nine cards, a
  * crosshair in the middle of five of them and a short explanation. The back has the same crosshairs,
@@ -152,36 +233,7 @@ export const AlignmentArt = ({
                         />
                     ))}
                 {alignmentTargets(side).map((point, index) => (
-                    <g key={index} data-target="">
-                        <line
-                            x1={point.x - ARM}
-                            y1={point.y}
-                            x2={point.x + ARM}
-                            y2={point.y}
-                            stroke={INK}
-                            strokeWidth={0.2}
-                        />
-                        <line
-                            x1={point.x}
-                            y1={point.y - ARM}
-                            x2={point.x}
-                            y2={point.y + ARM}
-                            stroke={INK}
-                            strokeWidth={0.2}
-                        />
-                        {side === 'front' ? (
-                            <circle
-                                cx={point.x}
-                                cy={point.y}
-                                r={4}
-                                fill="none"
-                                stroke={INK}
-                                strokeWidth={0.2}
-                            />
-                        ) : (
-                            <Scale x={point.x} y={point.y} />
-                        )}
-                    </g>
+                    <Target key={index} x={point.x} y={point.y} side={side} />
                 ))}
                 <path
                     d={`M ${String(w / 2 - 14)} ${String(top - 3)} l -2.5 0 l 2.5 -3.5 l 2.5 3.5 z`}
@@ -202,31 +254,11 @@ export const AlignmentArt = ({
                 {text.top}
             </div>
             {textSlot !== undefined && (
-                <div
-                    data-alignment-text=""
-                    style={{
-                        position: 'absolute',
-                        left: mm(textSlot.x),
-                        width: mm(textSlot.w),
-                        top: mm(textSlot.y + 2),
-                        height: mm(textSlot.h - 4),
-                        overflow: 'hidden',
-                        fontFamily: FONT,
-                        fontSize: mm(2.7),
-                        lineHeight: 1.32,
-                    }}
-                >
-                    <div
-                        style={{
-                            fontWeight: 700,
-                            fontSize: mm(3.8),
-                            marginBottom: mm(1.5),
-                        }}
-                    >
-                        {text[side].title}
-                    </div>
-                    {text[side].body}
-                </div>
+                <Explanation
+                    slot={textSlot}
+                    title={text[side].title}
+                    body={text[side].body}
+                />
             )}
         </div>
     );

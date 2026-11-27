@@ -1,58 +1,34 @@
 import type { ReactNode } from 'react';
 
-import { Banknote } from '@/components/render/banknote';
-import { Board, BoardCenter, centerTitleOf } from '@/components/render/board';
-import {
-    boardPropsOf,
-    type BoardSources,
-} from '@/components/render/board-props';
-import { BoardSpace, spaceSize } from '@/components/render/board-space';
-import { BoxLid } from '@/components/render/box-lid';
 import { layerLook, type RenderLayer } from '@/components/render/free-layers';
-import { GameCard } from '@/components/render/game-card';
-import { HouseRulesCard } from '@/components/render/house-rules';
-import { Invitation } from '@/components/render/invitation';
-import { PawnSheetItem } from '@/components/render/pawn';
-import { RulesBookletPage } from '@/components/render/rules-booklet';
 import { SetMark } from '@/components/render/set-mark';
 import { type SpaceIconSource } from '@/components/render/space-icon';
-import { TitleDeed } from '@/components/render/title-deed';
-import { CENTER_PHOTO_BLEED } from '@/lib/render/center-layout';
-import {
-    BOARD_CENTER_KEY,
-    INVITATION_KEY,
-    RULES_BOOKLET_KEY,
-    parseKey,
-    spaceKey,
-} from '@/lib/render/edition-keys';
-import {
-    resolvedCardOf,
-    type ResolvedEdition,
-} from '@/lib/render/edition-resolve';
+import { parseKey } from '@/lib/render/edition-keys';
+import type { ResolvedEdition } from '@/lib/render/edition-resolve';
 import type { Edition, FreeLayer } from '@/lib/render/edition-types';
-import { renderWords } from '@/lib/render/edition-words';
 import type { PhotoSource } from '@/lib/render/photo';
-import { centerRect, spaceRects } from '@/lib/render/print-board';
 import type { PageItem, PrintSet } from '@/lib/render/print-composition';
-import { BLEED, moneyAmountOf } from '@/lib/render/print-composition';
-import { stickerPieces } from '@/lib/render/print-home-stickers';
-import { lidTiles } from '@/lib/render/print-lid-tiles';
-import { splitPanels } from '@/lib/render/print-panels';
-import { rulesContext } from '@/lib/render/rules-context';
-import {
-    deedsFor,
-    spaceAt,
-    standardEdition,
-} from '@/lib/render/standard-edition';
-import { buildStyle } from '@/lib/render/style';
+import { BLEED } from '@/lib/render/print-composition';
 import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
-import type { DeckId } from '@/types/game';
 
 import { AlignmentArt } from './print-alignment-art';
-
-/** Bleed of a home space sticker: the sticker is 0.5 mm inside the space and has 3 mm bleed (B65). */
-const STICKER_BLEED = BLEED - 0.5;
+import { STICKER_BLEED, deckOf, type ArtKit } from './print-art-kit';
+import {
+    CentreTitleArt,
+    HomeCentreArt,
+    HomeSpaceArt,
+    PanelArt,
+    SpaceArt,
+} from './print-board-art';
+import { CardArt } from './print-card-art';
+import {
+    BookletArt,
+    BoxLidArt,
+    InvitationArt,
+    NoteArt,
+    PawnArt,
+} from './print-sheet-art';
 
 export type ArtContext = {
     edition: Edition;
@@ -133,25 +109,6 @@ const iconOf = (ctx: ArtContext, key: string): SpaceIconSource | undefined => {
         : { photo: { src }, aspect: icon.aspect };
 };
 
-/** The icon of the first Chance or Community Chest space that has one, for the standard back of that deck (B136). */
-const deckIconOf = (
-    ctx: ArtContext,
-    deck: DeckId,
-): SpaceIconSource | undefined => {
-    for (const space of standardEdition.spaces) {
-        const icon =
-            space.type === deck
-                ? iconOf(ctx, spaceKey(space.position))
-                : undefined;
-
-        if (icon !== undefined) {
-            return icon;
-        }
-    }
-
-    return undefined;
-};
-
 /**
  * Free layers of an element for the renderers. A photo layer carries its own frame (`w` and `h`), so the
  * server crops it to exactly that; a layer photo shows the crop as it is, without a transform.
@@ -196,518 +153,12 @@ const layersOf = (
     });
 };
 
-const common = (ctx: ArtContext, bleedMm: number) => {
-    const style = buildStyle(ctx.resolved);
-
-    return {
-        theme: ctx.resolved.theme,
-        locale: ctx.resolved.language,
-        currency: ctx.resolved.currency.id,
-        words: renderWords(ctx.resolved.words),
-        bleedMm,
-        ...(style === undefined ? {} : { style }),
-    } as const;
-};
-
-const deckOf = (key: string): DeckId | null => {
-    const deck = key.split('.')[1];
-
-    return deck === 'chance' || deck === 'chest' ? deck : null;
-};
-
-/** A card (deed, Chance or Community Chest) at 63 x 88 mm, with bleed. */
-const CardArt = ({
+const artKitOf = (ctx: ArtContext): ArtKit => ({
     ctx,
-    elementKey,
-    side,
-    bleedMm,
-}: {
-    ctx: ArtContext;
-    elementKey: string;
-    side: 'front' | 'back';
-    bleedMm: number;
-}) => {
-    const kind = parseKey(elementKey)?.kind;
-    const props = common(ctx, bleedMm);
-    const { resolved } = ctx;
-
-    if (kind === 'houseRules') {
-        const rules = resolved.houseRules;
-
-        if (rules === null) {
-            return null;
-        }
-
-        // The rules card has a front only: its back is the plain paper of the theme, so a shop that
-        // prints both sides still gets a pair (B56).
-        return side === 'front' ? (
-            <HouseRulesCard
-                {...props}
-                text={rules.text ?? ''}
-                editionName={resolved.name}
-                photo={photoOf(ctx, elementKey)}
-            />
-        ) : (
-            <div
-                style={{
-                    width: mm(63 + 2 * bleedMm),
-                    height: mm(88 + 2 * bleedMm),
-                    background: THEMES[resolved.theme].paper,
-                }}
-            />
-        );
-    }
-
-    if (kind === 'deed') {
-        const index = Number(elementKey.split('.')[1]) - 1;
-        const deed = resolved.deeds?.[index];
-        // The deed of the edition carries its own amounts (B132).
-        const space = deed?.space ?? deedsFor()[index];
-
-        if (space === undefined || deed === undefined) {
-            return null;
-        }
-
-        return (
-            <TitleDeed
-                {...props}
-                space={space}
-                side={side}
-                name={deed.name}
-                town={deed.town}
-                story={deed.story}
-                photo={side === 'front' ? photoOf(ctx, elementKey) : undefined}
-                icon={
-                    space.type === 'street'
-                        ? undefined
-                        : iconOf(ctx, spaceKey(space.position))
-                }
-                layers={
-                    side === 'back' && resolved.deedBack !== null
-                        ? layersOf(ctx, resolved.deedBack.layers)
-                        : undefined
-                }
-            />
-        );
-    }
-
-    const deck = deckOf(elementKey);
-
-    if (kind !== 'card' || deck === null) {
-        return null;
-    }
-
-    const resolvedCard = resolvedCardOf(resolved, elementKey);
-    const card = resolvedCard?.base;
-    const back = resolved.cardBacks?.[deck];
-
-    if (card === undefined || resolvedCard === undefined) {
-        return null;
-    }
-
-    if (side === 'back') {
-        return (
-            <GameCard
-                {...props}
-                deck={deck}
-                side="back"
-                photo={photoOf(ctx, `card_back.${deck}`)}
-                pattern={back?.pattern}
-                icon={deckIconOf(ctx, deck)}
-                edition={resolved.name}
-                layers={
-                    back === undefined ? undefined : layersOf(ctx, back.layers)
-                }
-            />
-        );
-    }
-
-    return (
-        <GameCard
-            {...props}
-            deck={deck}
-            side="front"
-            card={card}
-            text={resolvedCard.text}
-            amount={resolvedCard.lineAmount}
-            purpose={resolvedCard.purpose}
-            photo={photoOf(ctx, elementKey)}
-        />
-    );
-};
-
-/** One space of the board drawn upright, with the bleed given (0 on the board, 2.5 on a home sticker). */
-const SpaceArt = ({
-    ctx,
-    position,
-    bleedMm,
-    frame,
-}: {
-    ctx: ArtContext;
-    position: number;
-    bleedMm: number;
-    frame: boolean;
-}) => {
-    const space = ctx.resolved.spaces[position];
-
-    if (space === undefined) {
-        return null;
-    }
-
-    return (
-        <BoardSpace
-            {...common(ctx, bleedMm)}
-            space={space.base}
-            profile={ctx.resolved.boardProfile}
-            name={space.name}
-            town={space.town}
-            text={space.text}
-            photo={photoOf(ctx, space.key)}
-            icon={iconOf(ctx, space.key)}
-            frame={frame}
-        />
-    );
-};
-
-const centreName = (ctx: ArtContext): string => {
-    return ctx.resolved.boardCenter.name ?? ctx.resolved.name;
-};
-
-/** The board sources of the print: the crops the server made for each frame (bug 5 of ronde 3). */
-const printSources = (ctx: ArtContext): BoardSources => {
-    return {
-        photo: (key, _placement, _style, field) => photoOf(ctx, key, field),
-        icon: (key) => iconOf(ctx, key),
-        layers: (_key, layers) => layersOf(ctx, layers),
-    };
-};
-
-const FullBoard = ({ ctx }: { ctx: ArtContext }) => {
-    return (
-        <Board {...boardPropsOf(ctx.resolved, printSources(ctx))} bleedMm={0} />
-    );
-};
-
-/** A window onto a bigger piece of artwork: `source` is the part to show, in the artwork's own mm. */
-const Window = ({
-    width,
-    height,
-    x,
-    y,
-    background,
-    children,
-}: {
-    width: number;
-    height: number;
-    x: number;
-    y: number;
-    background: string;
-    children: ReactNode;
-}) => {
-    return (
-        <div
-            style={{
-                position: 'relative',
-                width: mm(width),
-                height: mm(height),
-                overflow: 'hidden',
-                background,
-            }}
-        >
-            <div
-                style={{
-                    position: 'absolute',
-                    left: mm(-x),
-                    top: mm(-y),
-                }}
-            >
-                {children}
-            </div>
-        </div>
-    );
-};
-
-/** Artwork of a given (unrotated) size, turned a number of degrees around its centre inside `box`. */
-const Turned = ({
-    box,
-    width,
-    height,
-    degrees,
-    children,
-}: {
-    box: { w: number; h: number };
-    width: number;
-    height: number;
-    degrees: number;
-    children: ReactNode;
-}) => {
-    return (
-        <div
-            style={{
-                position: 'absolute',
-                left: mm(box.w / 2 - width / 2),
-                top: mm(box.h / 2 - height / 2),
-                width: mm(width),
-                height: mm(height),
-                transform: degrees === 0 ? undefined : `rotate(${degrees}deg)`,
-            }}
-        >
-            {children}
-        </div>
-    );
-};
-
-const PanelArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
-    const profile = ctx.resolved.boardProfile;
-
-    // The whole board for the print shop (B243): the board at full size, with the bleed around it.
-    if (item.id === 'board.whole') {
-        return (
-            <Window
-                width={item.bleed.w}
-                height={item.bleed.h}
-                x={-BLEED}
-                y={-BLEED}
-                background={THEMES[ctx.resolved.theme].boardBackground}
-            >
-                <FullBoard ctx={ctx} />
-            </Window>
-        );
-    }
-
-    const panel = splitPanels(profile).find(
-        (candidate) => `panel.${candidate.id}` === item.id,
-    );
-
-    if (panel === undefined) {
-        return null;
-    }
-
-    return (
-        <Window
-            width={panel.size.w}
-            height={panel.size.h}
-            x={panel.source.x}
-            y={panel.source.y}
-            background={THEMES[ctx.resolved.theme].boardBackground}
-        >
-            <FullBoard ctx={ctx} />
-        </Window>
-    );
-};
-
-const HomeSpaceArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
-    const position = Number(item.id.split('.')[1]);
-    const profile = ctx.resolved.boardProfile;
-    const rect = spaceRects(profile)[position];
-    const space = ctx.resolved.spaces[position]?.base ?? spaceAt(position);
-
-    if (rect === undefined) {
-        return null;
-    }
-
-    const upright = spaceSize(space, profile);
-    const width = upright.w + 2 * STICKER_BLEED;
-    const height = upright.h + 2 * STICKER_BLEED;
-
-    return (
-        <Turned
-            box={item.bleed}
-            width={width}
-            height={height}
-            degrees={rect.rotation + (item.rotated === true ? 90 : 0)}
-        >
-            <SpaceArt
-                ctx={ctx}
-                position={position}
-                bleedMm={STICKER_BLEED}
-                frame={false}
-            />
-        </Turned>
-    );
-};
-
-const HomeCentreArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
-    const profile = ctx.resolved.boardProfile;
-    const piece = stickerPieces(profile).find(
-        (candidate) => candidate.id === item.id,
-    );
-    const centre = centerRect(profile);
-
-    if (piece === undefined) {
-        return null;
-    }
-
-    return (
-        <Turned
-            box={item.bleed}
-            width={piece.size.w}
-            height={piece.size.h}
-            degrees={item.rotated === true ? 90 : 0}
-        >
-            {/* The centre is drawn with the bleed of its photo, so the cut edge of a sticker is photo (R5-03). */}
-            <Window
-                width={piece.size.w}
-                height={piece.size.h}
-                x={piece.source.x - centre.x + CENTER_PHOTO_BLEED}
-                y={piece.source.y - centre.y + CENTER_PHOTO_BLEED}
-                background={THEMES[ctx.resolved.theme].boardBackground}
-            >
-                <BoardCenter
-                    {...common(ctx, CENTER_PHOTO_BLEED)}
-                    editionName={centreName(ctx)}
-                    profile={profile}
-                    layers={layersOf(ctx, ctx.resolved.boardCenter.layers)}
-                    title={centerTitleOf(
-                        ctx.resolved.boardCenter,
-                        photoOf(ctx, BOARD_CENTER_KEY),
-                        photoOf(ctx, BOARD_CENTER_KEY, 'background'),
-                    )}
-                />
-            </Window>
-        </Turned>
-    );
-};
-
-const NoteArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
-    const value = Number((item.elementKey ?? '').split('.')[1]);
-    const note = ctx.resolved.money?.notes.find(
-        (candidate) => candidate.value === value,
-    );
-
-    if (note === undefined) {
-        return null;
-    }
-
-    const photo = photoOf(ctx, note.key);
-
-    return (
-        <Banknote
-            {...common(ctx, 0)}
-            value={note.value}
-            color={note.color}
-            bankName={ctx.resolved.money?.bankName}
-            editionName={ctx.resolved.name}
-            photo={photo}
-        />
-    );
-};
-
-const PawnArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
-    const index = Number((item.elementKey ?? '').split('.')[1]) - 1;
-    const pawn = ctx.resolved.pawns?.find(
-        (candidate) => candidate.index === index + 1,
-    );
-
-    if (pawn === undefined) {
-        return null;
-    }
-
-    return (
-        <PawnSheetItem
-            {...common(ctx, 0)}
-            name={pawn.name}
-            photo={photoOf(ctx, pawn.key)}
-        />
-    );
-};
-
-const BoxLidArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
-    const lid = ctx.resolved.boxLid;
-
-    if (lid === null) {
-        return null;
-    }
-
-    const art = (
-        <BoxLid
-            {...common(ctx, BLEED)}
-            editionName={lid.name ?? ctx.resolved.name}
-            subtitle={lid.subtitle}
-            lines={lid.text}
-            titleOffset={lid.titleOffset}
-            titleBand={lid.titleBand}
-            titleStyle={lid.titleStyle}
-            profile={ctx.resolved.boardProfile}
-            photo={photoOf(ctx, lid.key)}
-            logo={lid.logo}
-            layers={layersOf(ctx, lid.layers)}
-            board={boardPropsOf(ctx.resolved, printSources(ctx))}
-        />
-    );
-    // At home a larger lid comes in pieces of A4 (R5-29): each sheet shows its part of the whole lid.
-    const tile = lidTiles(ctx.resolved.boardProfile.boxLid).tiles.find(
-        (candidate) => candidate.id === item.id,
-    );
-
-    if (ctx.set !== 'home' || tile === undefined) {
-        return art;
-    }
-
-    return (
-        <Window
-            width={tile.visible.w}
-            height={tile.visible.h}
-            x={tile.visible.x + BLEED}
-            y={tile.visible.y + BLEED}
-            background="#fff"
-        >
-            {art}
-        </Window>
-    );
-};
-
-/** One page of the rules booklet; only the cover carries the photo. */
-const BookletArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
-    const booklet = ctx.resolved.rulesBooklet;
-    const page = Number(item.id.split('.')[1]);
-
-    if (booklet === null) {
-        return null;
-    }
-
-    const houseRules =
-        ctx.parts?.houseRules === true
-            ? ctx.resolved.houseRules?.text
-            : undefined;
-
-    return (
-        <RulesBookletPage
-            {...common(ctx, ctx.set === 'printer' ? BLEED : 0)}
-            page={page}
-            context={rulesContext(
-                ctx.resolved,
-                houseRules,
-                ctx.parts?.money === true
-                    ? moneyAmountOf(ctx.edition, ctx.set)
-                    : undefined,
-                ctx.parts !== undefined && ctx.parts.money !== true,
-            )}
-            photo={page === 1 ? photoOf(ctx, RULES_BOOKLET_KEY) : undefined}
-        />
-    );
-};
-
-const InvitationArt = ({ ctx }: { ctx: ArtContext }) => {
-    const invitation = ctx.resolved.invitation;
-
-    if (invitation === null) {
-        return null;
-    }
-
-    return (
-        <Invitation
-            {...common(ctx, ctx.set === 'printer' ? BLEED : 0)}
-            text={invitation.text ?? ''}
-            headline={invitation.name}
-            kicker={invitation.subtitle}
-            editionName={centreName(ctx)}
-            profile={ctx.resolved.boardProfile}
-            board={boardPropsOf(ctx.resolved, printSources(ctx))}
-            photo={photoOf(ctx, INVITATION_KEY)}
-        />
-    );
-};
+    photo: (key, field) => photoOf(ctx, key, field),
+    icon: (key) => iconOf(ctx, key),
+    layers: (layers) => layersOf(ctx, layers),
+});
 
 /** The card frame lies 3 mm inside the cut edge; the set mark sits on it like a stamp (B242). */
 const CARD_FRAME = 3;
@@ -779,13 +230,15 @@ const ItemBody = ({
     ctx: ArtContext;
     item: PageItem;
 }): ReactNode => {
+    const kit = artKitOf(ctx);
+
     switch (item.kind) {
         case 'panel':
-            return <PanelArt ctx={ctx} item={item} />;
+            return <PanelArt kit={kit} item={item} />;
         case 'space':
-            return <HomeSpaceArt ctx={ctx} item={item} />;
+            return <HomeSpaceArt kit={kit} item={item} />;
         case 'center':
-            return <HomeCentreArt ctx={ctx} item={item} />;
+            return <HomeCentreArt kit={kit} item={item} />;
         case 'card':
             // The card is drawn with its full bleed; the item box clips it to the bleed the sheet has room
             // for (1.5 mm between home cards, B134).
@@ -799,7 +252,7 @@ const ItemBody = ({
                     }}
                 >
                     <CardArt
-                        ctx={ctx}
+                        kit={kit}
                         elementKey={item.elementKey}
                         side={item.side}
                         bleedMm={BLEED}
@@ -814,15 +267,15 @@ const ItemBody = ({
                 />
             );
         case 'note':
-            return <NoteArt ctx={ctx} item={item} />;
+            return <NoteArt kit={kit} item={item} />;
         case 'token':
-            return <PawnArt ctx={ctx} item={item} />;
+            return <PawnArt kit={kit} item={item} />;
         case 'box-lid':
-            return <BoxLidArt ctx={ctx} item={item} />;
+            return <BoxLidArt kit={kit} item={item} />;
         case 'booklet-page':
-            return <BookletArt ctx={ctx} item={item} />;
+            return <BookletArt kit={kit} item={item} />;
         case 'invitation':
-            return <InvitationArt ctx={ctx} />;
+            return <InvitationArt kit={kit} />;
         case 'calibration':
             return null;
     }
@@ -849,11 +302,13 @@ export const ElementArt = ({
         trim: { x: 0, y: 0, w: 0, h: 0 },
     });
 
+    const kit = artKitOf(ctx);
+
     switch (parsed?.kind) {
         case 'space':
             return (
                 <SpaceArt
-                    ctx={ctx}
+                    kit={kit}
                     position={Number(elementKey.split('.')[1])}
                     bleedMm={ctx.set === 'home' ? STICKER_BLEED : 0}
                     frame={ctx.set !== 'home'}
@@ -864,7 +319,7 @@ export const ElementArt = ({
         case 'houseRules':
             return (
                 <CardArt
-                    ctx={ctx}
+                    kit={kit}
                     elementKey={elementKey}
                     side="front"
                     bleedMm={BLEED}
@@ -875,7 +330,7 @@ export const ElementArt = ({
 
             return deck === null ? null : (
                 <CardArt
-                    ctx={ctx}
+                    kit={kit}
                     elementKey={`card.${deck}.01`}
                     side="back"
                     bleedMm={BLEED}
@@ -883,33 +338,23 @@ export const ElementArt = ({
             );
         }
         case 'note':
-            return <NoteArt ctx={ctx} item={asItem('note')} />;
+            return <NoteArt kit={kit} item={asItem('note')} />;
         case 'pawn':
-            return <PawnArt ctx={ctx} item={asItem('token')} />;
+            return <PawnArt kit={kit} item={asItem('token')} />;
         case 'boxLid':
-            return <BoxLidArt ctx={ctx} item={asItem('box-lid')} />;
+            return <BoxLidArt kit={kit} item={asItem('box-lid')} />;
         case 'boardCenter':
             // Without free layers: the first photo slot found is the one of the title.
-            return (
-                <BoardCenter
-                    {...common(ctx, 0)}
-                    editionName={centreName(ctx)}
-                    profile={ctx.resolved.boardProfile}
-                    title={centerTitleOf(
-                        ctx.resolved.boardCenter,
-                        photoOf(ctx, BOARD_CENTER_KEY),
-                    )}
-                />
-            );
+            return <CentreTitleArt kit={kit} />;
         case 'rulesBooklet':
             return (
                 <BookletArt
-                    ctx={ctx}
+                    kit={kit}
                     item={{ ...asItem('booklet-page'), id: 'booklet.1' }}
                 />
             );
         case 'invitation':
-            return <InvitationArt ctx={ctx} />;
+            return <InvitationArt kit={kit} />;
         default:
             return null;
     }
