@@ -131,4 +131,43 @@ final class PrintCleanupTest extends TestCase
         self::assertSame(1, PrintFile::query()->count());
         self::assertSame(1, Asset::query()->count());
     }
+
+    public function test_a_run_removes_every_expired_job_file_and_photo_past_one_page(): void
+    {
+        foreach (range(1, 110) as $index) {
+            $job = PrintJob::factory()->createOne(['expires_at' => now()->subMinutes($index)->toImmutable()]);
+            PrintFile::factory()->createOne(['print_job_id' => $job->publicId(), 'expires_at' => now()->addDay()->toImmutable()]);
+            Asset::factory()->createOne(['print_job_id' => $job->publicId(), 'expires_at' => now()->addDay()->toImmutable()]);
+            PrintFile::factory()->createOne(['expires_at' => now()->subMinutes($index)->toImmutable()]);
+            Asset::factory()->createOne(['expires_at' => now()->subMinutes($index)->toImmutable()]);
+        }
+
+        $kept = PrintJob::factory()->createOne(['expires_at' => now()->addDay()->toImmutable()]);
+
+        self::assertSame(['jobs' => 110, 'files' => 220, 'assets' => 220], resolve(PrintCleanup::class)->run());
+        self::assertSame([$kept->publicId()], PrintJob::query()->pluck('id')->all());
+        self::assertSame(0, PrintFile::query()->count());
+        self::assertSame(0, Asset::query()->count());
+    }
+
+    public function test_deleting_a_user_takes_the_files_of_every_job_of_the_user(): void
+    {
+        $jobs = [
+            PrintJob::factory()->createOne(['user_id' => 'sanne', 'edition_id' => 'zaterdagclub']),
+            PrintJob::factory()->createOne(['user_id' => 'sanne', 'edition_id' => 'zondagclub']),
+        ];
+
+        foreach ($jobs as $job) {
+            PrintFile::factory()->createOne(['print_job_id' => $job->publicId()]);
+            Asset::factory()->createOne(['print_job_id' => $job->publicId(), 'user_id' => null, 'edition_id' => null]);
+        }
+
+        $kept = PrintFile::factory()->createOne();
+
+        resolve(PrintCleanup::class)->deleteUser('sanne');
+
+        self::assertSame(0, PrintJob::query()->count());
+        self::assertSame([$kept->getKey()], PrintFile::query()->pluck('id')->all());
+        self::assertSame(0, Asset::query()->count());
+    }
 }
