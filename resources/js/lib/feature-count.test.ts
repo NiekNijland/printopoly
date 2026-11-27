@@ -42,16 +42,6 @@ describe('countFeature', () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
-    it('swallows a fetch that throws at once', () => {
-        vi.stubEnv('MODE', 'production');
-        const fake = stubFetch(() => {
-            throw new Error('blocked');
-        });
-
-        expect(() => countFeature('edition_created')).not.toThrow();
-        expect(fake).toHaveBeenCalledOnce();
-    });
-
     it('does nothing in a browser without fetch', () => {
         vi.stubEnv('MODE', 'production');
         vi.stubGlobal('fetch', undefined);

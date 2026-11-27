@@ -161,15 +161,12 @@ describe('useCollectionBox', () => {
         const hook = mount();
         await loaded(hook);
 
-        await act(() =>
-            expect(hook.result.current.start()).rejects.toThrow(
-                'box action failed',
-            ),
-        );
+        await act(() => hook.result.current.start());
+        expect(hook.result.current.box).toBeNull();
         expect(hook.result.current.errorReason).toBe('too_fast');
 
         message = 'Te veel dozen vandaag.';
-        await act(() => hook.result.current.start().catch(() => undefined));
+        await act(() => hook.result.current.start());
 
         expect(hook.result.current.error).toBe(true);
         expect(hook.result.current.errorReason).toBe('too_many_boxes');
@@ -181,7 +178,7 @@ describe('useCollectionBox', () => {
         const hook = mount();
         await loaded(hook);
 
-        await act(() => hook.result.current.start().catch(() => undefined));
+        await act(() => hook.result.current.start());
 
         expect(hook.result.current.error).toBe(true);
         expect(hook.result.current.errorReason).toBeNull();
