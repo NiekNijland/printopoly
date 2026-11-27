@@ -1,0 +1,97 @@
+{
+    "full": {
+        "part": "board",
+        "set": "home",
+        "assetBase": "http://render.test",
+        "pageShaveMm": 0.05,
+        "edition": {
+            "name": "Zaterdagclub",
+            "language": "nl",
+            "theme": "classic",
+            "currency": "eur",
+            "boardProfile": {
+                "id": "modern-square",
+                "name": "Modern vierkant",
+                "outer": 500,
+                "corner": 70,
+                "border": 0,
+                "panels": 4,
+                "boxLid": {
+                    "w": 267,
+                    "h": 267
+                },
+                "provisional": true
+            },
+            "parts": {
+                "board": true,
+                "deeds": true,
+                "cards": true,
+                "money": true,
+                "pawns": true,
+                "boxLid": true,
+                "houseRules": false
+            },
+            "moneyAmount": null,
+            "sets": 1,
+            "boardForm": "panels",
+            "elements": {
+                "space.01": {
+                    "name": "Molenweg",
+                    "photo": {
+                        "photoId": "photo-ref-0001",
+                        "cx": 0.5,
+                        "cy": 0.5,
+                        "scale": 1,
+                        "rotation": 0,
+                        "grayscale": false,
+                        "target": {
+                            "w": 46,
+                            "h": 76
+                        },
+                        "src": "http://render.test/print/render/crop/molenweg.jpg"
+                    }
+                },
+                "deed.01": {
+                    "name": "Molenweg",
+                    "photo": {
+                        "photoId": "photo-ref-0001",
+                        "cx": 0.5,
+                        "cy": 0.5,
+                        "scale": 1,
+                        "rotation": 0,
+                        "grayscale": false,
+                        "target": {
+                            "w": 46,
+                            "h": 76
+                        }
+                    }
+                },
+                "card.chance.01": {
+                    "text": "Ga naar start"
+                },
+                "box_lid": {
+                    "name": "Zaterdagclub"
+                },
+                "deed.02": []
+            }
+        }
+    },
+    "bare": {
+        "part": "cards",
+        "set": "printer",
+        "assetBase": "http://render.test",
+        "pageShaveMm": 0.05,
+        "edition": {
+            "name": "Chrome",
+            "language": "nl",
+            "theme": null,
+            "currency": null,
+            "boardProfile": null,
+            "parts": {},
+            "moneyAmount": null,
+            "sets": 1,
+            "boardForm": "panels",
+            "elements": {}
+        }
+    }
+}
