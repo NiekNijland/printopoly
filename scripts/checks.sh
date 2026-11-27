@@ -22,7 +22,7 @@
 
 # >>> config: the project sets every value in this block
 # Empty from step 2 on. At the exit of step 10 it becomes "--final", and it stays that.
-DASHBOARD_MODE=""
+DASHBOARD_MODE="--final"
 # The committed coverage floor: one line "threshold: <whole number>". The min ratchet row coverage-floor holds the number.
 COVERAGE_FLOOR_FILE="scripts/coverage-floor.txt"
 # The parts of the checks step, "<part>::<task names split by |>": one pipeline step per part (04-guards.md C4). The part gate

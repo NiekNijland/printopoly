@@ -1,6 +1,6 @@
 # Majors die achterblijven
 
-Status: aanvaard.
+Status: aanvaard. Herzien uiterlijk: 2027-05-27.
 
 ## Context
 

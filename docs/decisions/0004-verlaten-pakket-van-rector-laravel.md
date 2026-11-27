@@ -1,6 +1,6 @@
 # Een verlaten pakket onder rector-laravel
 
-Status: aanvaard.
+Status: aanvaard. Herzien uiterlijk: 2027-05-27.
 
 ## Context
 
