@@ -20,7 +20,7 @@ import {
 } from './client';
 
 /** What the server says after a patch, a replace or a rename. */
-export type RemoteChangeResult =
+type RemoteChangeResult =
     | { ok: true; revision: number; updatedAt: number }
     | { ok: false; reason: 'conflict'; current: Edition }
     | { ok: false; reason: 'missing' };

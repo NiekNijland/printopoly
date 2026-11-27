@@ -5,10 +5,7 @@ import {
     RemoteAuthError,
     RemoteRateLimitError,
 } from '@/features/edition/remote/client';
-import type {
-    AccountEditionStore,
-    RemoteChangeResult,
-} from '@/features/edition/remote/store';
+import type { AccountEditionStore } from '@/features/edition/remote/store';
 import { EditionSession } from '@/features/edition/session';
 import { createEdition } from '@/lib/render/edition-changes';
 import { MemoryEditionStorage } from '@/lib/render/edition-storage';
@@ -18,6 +15,8 @@ import { installMemoryServices } from '@/testing/editions';
 
 import { classifySyncError, wipeLocalCopy } from './account';
 import { RemoteSync, type RemoteSyncEvent } from './remote-sync';
+
+type RemoteChangeResult = Awaited<ReturnType<AccountEditionStore['patch']>>;
 
 const baseEdition = (): Edition => {
     return createEdition(
