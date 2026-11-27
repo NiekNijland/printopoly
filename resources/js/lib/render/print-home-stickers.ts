@@ -112,6 +112,66 @@ type Shelf = {
     x: number;
 };
 
+type Oriented = { id: string; w: number; h: number; rotated: boolean };
+
+type Area = { margin: number; gap: number; uw: number; uh: number };
+
+const orient = (p: StickerPiece, page: Size, area: Area): Oriented => {
+    const wide = p.size.w >= p.size.h;
+    const w = wide ? p.size.w : p.size.h;
+    const h = wide ? p.size.h : p.size.w;
+    const choices = [
+        { w, h, rotated: !wide },
+        { w: h, h: w, rotated: wide },
+    ];
+    const fit = choices.find(
+        (c) => c.w <= area.uw + 1e-9 && c.h <= area.uh + 1e-9,
+    );
+    if (!fit) {
+        throw new Error(
+            `Stikker "${p.id}" van ${formatMm(p.size.w)} × ${formatMm(p.size.h)} mm (met afloop) past niet op een vel van ` +
+                `${formatMm(page.w)} × ${formatMm(page.h)} mm met ${formatMm(area.margin)} mm marge.`,
+        );
+    }
+    return { id: p.id, ...fit };
+};
+
+type PackSheet = { shelves: Shelf[]; placements: Placement[] };
+
+const placeOn = (sheet: PackSheet, it: Oriented, area: Area): boolean => {
+    const { margin, gap, uw, uh } = area;
+    const shelf = sheet.shelves.find(
+        (s) => it.h <= s.h + 1e-9 && s.x + it.w <= uw + 1e-9,
+    );
+    if (shelf) {
+        sheet.placements.push({
+            id: it.id,
+            x: margin + shelf.x,
+            y: margin + shelf.y,
+            w: it.w,
+            h: it.h,
+            rotated: it.rotated,
+        });
+        shelf.x += it.w + gap;
+        return true;
+    }
+    const last = sheet.shelves[sheet.shelves.length - 1];
+    const y = last ? last.y + last.h + gap : 0;
+    if (y + it.h <= uh + 1e-9) {
+        sheet.shelves.push({ y, h: it.h, x: it.w + gap });
+        sheet.placements.push({
+            id: it.id,
+            x: margin,
+            y: margin + y,
+            w: it.w,
+            h: it.h,
+            rotated: it.rotated,
+        });
+        return true;
+    }
+    return false;
+};
+
 /** Deterministic shelf packing onto A4 sticker sheets; throws if a piece (with bleed) cannot fit. */
 export const packStickers = (
     pieces: StickerPiece[],
@@ -120,65 +180,19 @@ export const packStickers = (
     const page = options.sheet ?? SHEET_PRESETS.A4;
     const margin = options.margin ?? 8;
     const gap = options.gap ?? 3;
-    const uw = page.w - 2 * margin;
-    const uh = page.h - 2 * margin;
+    const area = {
+        margin,
+        gap,
+        uw: page.w - 2 * margin,
+        uh: page.h - 2 * margin,
+    };
 
-    const oriented = pieces.map((p) => {
-        const wide = p.size.w >= p.size.h;
-        const w = wide ? p.size.w : p.size.h;
-        const h = wide ? p.size.h : p.size.w;
-        const choices = [
-            { w, h, rotated: !wide },
-            { w: h, h: w, rotated: wide },
-        ];
-        const fit = choices.find((c) => c.w <= uw + 1e-9 && c.h <= uh + 1e-9);
-        if (!fit) {
-            throw new Error(
-                `Stikker "${p.id}" van ${formatMm(p.size.w)} × ${formatMm(p.size.h)} mm (met afloop) past niet op een vel van ` +
-                    `${formatMm(page.w)} × ${formatMm(page.h)} mm met ${formatMm(margin)} mm marge.`,
-            );
-        }
-        return { id: p.id, ...fit };
-    });
+    const oriented = pieces.map((p) => orient(p, page, area));
     oriented.sort((a, b) => b.h - a.h || b.w - a.w || a.id.localeCompare(b.id));
 
-    const sheets: { shelves: Shelf[]; placements: Placement[] }[] = [];
+    const sheets: PackSheet[] = [];
     for (const it of oriented) {
-        let placed = false;
-        for (const sheet of sheets) {
-            const shelf = sheet.shelves.find(
-                (s) => it.h <= s.h + 1e-9 && s.x + it.w <= uw + 1e-9,
-            );
-            if (shelf) {
-                sheet.placements.push({
-                    id: it.id,
-                    x: margin + shelf.x,
-                    y: margin + shelf.y,
-                    w: it.w,
-                    h: it.h,
-                    rotated: it.rotated,
-                });
-                shelf.x += it.w + gap;
-                placed = true;
-                break;
-            }
-            const last = sheet.shelves[sheet.shelves.length - 1];
-            const y = last ? last.y + last.h + gap : 0;
-            if (y + it.h <= uh + 1e-9) {
-                sheet.shelves.push({ y, h: it.h, x: it.w + gap });
-                sheet.placements.push({
-                    id: it.id,
-                    x: margin,
-                    y: margin + y,
-                    w: it.w,
-                    h: it.h,
-                    rotated: it.rotated,
-                });
-                placed = true;
-                break;
-            }
-        }
-        if (!placed) {
+        if (!sheets.some((sheet) => placeOn(sheet, it, area))) {
             sheets.push({
                 shelves: [{ y: 0, h: it.h, x: it.w + gap }],
                 placements: [

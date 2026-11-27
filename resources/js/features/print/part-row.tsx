@@ -1,15 +1,15 @@
 import { useId, type ReactNode } from 'react';
 
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { PartThumb } from '@/features/print/part-thumb';
+import { PartActions } from '@/features/print/part-actions';
 import {
-    canShareFiles,
-    ShareSetButton,
-} from '@/features/print/share-set-button';
+    PartStatusBadge,
+    type Shown,
+} from '@/features/print/part-status-badge';
+import { PartThumb } from '@/features/print/part-thumb';
+import { canShareFiles } from '@/features/print/share-set-button';
 import { useBrowserValue } from '@/hooks/use-browser-value';
 import { useTranslation } from '@/hooks/use-translation';
-import { reportError } from '@/lib/bugsnag';
 import type { Edition } from '@/lib/render/edition-types';
 import type { PhotoInfos } from '@/lib/render/editor-photo-cache';
 import { cn } from '@/lib/utils';
@@ -84,39 +84,24 @@ type PartRowProps = {
 
 const TURN = ['md:-rotate-2', 'md:rotate-1', 'md:-rotate-1', 'md:rotate-2'];
 
-/**
- * One row of the print page (B95): a tick for whether it is in the set (B198), name, what to order, the spec in
- * mono, the status as text and the buttons that fit the status, and a link to the part in the print guide (B205).
- * Colour never carries the status alone (B98).
- */
-export const PartRow = ({
-    set,
-    part,
-    row,
-    included,
-    locked = false,
-    asked = false,
-    guideHref,
-    onToggle,
-    onMake,
-    queued = false,
-    onUnqueue,
-    disabled,
-    cards,
-    edition,
-    photos,
-    note,
-    variant = 'row',
-    index = 0,
-    spec: ownSpec,
-    order: ownOrder,
-    children,
-}: PartRowProps) => {
-    const t = useTranslation();
-    const lockId = useId();
-    const tickId = useId();
-    const status = row?.status ?? 'idle';
-    const trial = variant === 'trial';
+const rowLines = (
+    t: ReturnType<typeof useTranslation>,
+    {
+        part,
+        set,
+        cards,
+        trial,
+        ownOrder,
+        ownSpec,
+    }: {
+        part: PrintPart;
+        set: PrintSet;
+        cards: number;
+        trial: boolean;
+        ownOrder: string | undefined;
+        ownSpec: string | undefined;
+    },
+) => {
     const name = t(`print.part.${part}`);
     const title = trial ? t('print.trial.title') : name;
     // The home set prints the rest itself: its test sheet says "print", not "order" (R5-26).
@@ -135,67 +120,49 @@ export const PartRow = ({
             ? t('print.spec.calibration')
             : t(`print.spec.${set}.${part}`, { cards }));
 
-    const skipped = included === false;
-    const inLine =
-        queued &&
-        !skipped &&
-        (status === 'idle' || status === 'outdated' || status === 'failed');
-    const shown: Shown = skipped ? 'skipped' : inLine ? 'queued' : status;
-    const canShare =
-        typeof navigator !== 'undefined' &&
-        typeof navigator.share === 'function';
-    // Checked after the first render, like the bar: the server knows nothing of the phone.
-    const shareFiles = useBrowserValue(canShareFiles, false);
-    // The picture and the name tick the box too (R5-27, Gerda): the whole head of the row is one big target.
-    const tickable = included !== null && !locked;
-    const Head = tickable ? 'label' : 'span';
-    const headProps = tickable
-        ? { htmlFor: tickId, className: 'cursor-pointer' }
-        : { className: '' };
+    return { name, title, order, spec };
+};
+
+type PartHeadsProps = {
+    tickId: string | null;
+    lockId: string;
+    part: PrintPart;
+    edition: Edition;
+    photos: PhotoInfos | undefined;
+    trial: boolean;
+    index: number;
+    skipped: boolean;
+    locked: boolean;
+    title: string;
+    order: string;
+    note: string | undefined;
+    spec: string;
+};
+
+const PartHeads = ({
+    tickId,
+    lockId,
+    part,
+    edition,
+    photos,
+    trial,
+    index,
+    skipped,
+    locked,
+    title,
+    order,
+    note,
+    spec,
+}: PartHeadsProps) => {
+    const t = useTranslation();
+    const Head = tickId === null ? 'span' : 'label';
+    const headProps =
+        tickId === null
+            ? { className: '' }
+            : { htmlFor: tickId, className: 'cursor-pointer' };
 
     return (
-        <li
-            id={`part-${part}`}
-            data-asked={asked ? 'true' : undefined}
-            className={cn(
-                'relative flex scroll-mt-24 flex-wrap items-center gap-x-4 gap-y-3 border-2 border-ink bg-card py-4 pr-4 pl-6 shadow-print transition-[outline-color] md:gap-x-5',
-                skipped && 'bg-paper shadow-none',
-                asked
-                    ? 'outline-4 outline-offset-4 outline-press'
-                    : 'outline-transparent',
-            )}
-        >
-            <span
-                aria-hidden="true"
-                className={cn(
-                    'absolute inset-y-0 left-0 w-2 border-r-2 border-ink',
-                    BAND[part],
-                    skipped && 'opacity-40',
-                )}
-            />
-            {included === null ? (
-                <span
-                    className="hidden w-5 flex-none md:block"
-                    aria-hidden="true"
-                />
-            ) : (
-                // The label gives the box a 48 px tap area without moving the row.
-                <label
-                    htmlFor={tickId}
-                    className="-m-3 flex size-12 flex-none cursor-pointer items-center justify-center has-disabled:cursor-default"
-                >
-                    <Checkbox
-                        id={tickId}
-                        checked={included}
-                        disabled={locked}
-                        onCheckedChange={onToggle}
-                        aria-label={t('print.in_set', { part: name })}
-                        aria-describedby={locked ? lockId : undefined}
-                        // Locked but ticked: the board reads as in the set, not as switched off.
-                        className="size-6 disabled:border-solid disabled:border-ink data-[state=checked]:disabled:opacity-60 [&_svg]:size-5"
-                    />
-                </label>
-            )}
+        <>
             <Head
                 {...headProps}
                 className={cn(
@@ -249,142 +216,168 @@ export const PartRow = ({
                 )}
                 <span className="font-mono text-xs text-ink-soft">{spec}</span>
             </Head>
-            <span
-                aria-live="polite"
-                className={cn(
-                    'inline-flex items-center gap-2 border-2 border-ink px-2 py-0.5 text-xs font-extrabold tracking-wide uppercase',
-                    shown === 'done' && 'bg-print-green text-ink',
-                    shown === 'failed' && 'bg-press text-white',
-                    (shown === 'running' ||
-                        shown === 'waiting' ||
-                        shown === 'queued' ||
-                        shown === 'outdated') &&
-                        'bg-warning',
-                    (shown === 'idle' || shown === 'skipped') &&
-                        'border-line-strong text-ink-soft',
-                )}
-            >
-                <span aria-hidden="true">{GLYPH[shown]}</span>
-                {statusLabel(shown, row?.waitingFor ?? null, t)}
-            </span>
-            <span className="flex flex-wrap gap-3">
-                {inLine && (
-                    <Button
-                        variant="link"
-                        onClick={onUnqueue}
-                        aria-label={`${t('print.unqueue')}: ${name}`}
-                    >
-                        {t('print.unqueue')}
-                    </Button>
-                )}
-                {!skipped &&
-                    !inLine &&
-                    // A part made before a change is made again by itself, without a button (Niek, 22 nov).
-                    (status === 'idle' || status === 'failed') && (
-                        // Making a part is the same kind of action everywhere on the page, so it has one look: the
-                        // secondary button, as Proefvel maken (R6 Tom). The set button in the bar is the primary one.
-                        <Button
-                            variant="secondary"
-                            onClick={onMake}
-                            disabled={disabled}
-                            aria-label={`${actionLabel(status, t, trial)}: ${name}`}
-                        >
-                            {actionLabel(status, t, trial)}
-                        </Button>
-                    )}
-                {status === 'done' && row?.downloadUrl != null && (
-                    <Button variant="secondary" asChild>
-                        <a
-                            href={row.downloadUrl}
-                            aria-label={t('print.pdf_of', { part: name })}
-                        >
-                            {t('print.pdf')}
-                        </a>
-                    </Button>
-                )}
-                {status === 'done' && row?.imageUrl != null && shareFiles && (
-                    // A part with a picture (the invitation) shares the picture itself, not a link to the PDF:
-                    // a group app shows a picture at once (R6 Sara).
-                    <ShareSetButton
-                        files={[
-                            {
-                                url: row.imageUrl,
-                                name: `${part}.png`,
-                                type: 'image/png',
-                            },
-                        ]}
-                        title={name}
-                        short
-                        variant="secondary"
-                        label={t('print.share_image_of', { part: name })}
-                        className="md:hidden"
-                    />
-                )}
-                {status === 'done' &&
-                    row?.downloadUrl != null &&
-                    canShare &&
-                    !(row.imageUrl != null && shareFiles) && (
-                        <Button
-                            variant="secondary"
-                            className="md:hidden"
-                            aria-label={t('print.share_of', { part: name })}
-                            onClick={() => {
-                                void navigator
-                                    .share({
-                                        title: name,
-                                        url: new URL(
-                                            row.downloadUrl ?? '',
-                                            window.location.href,
-                                        ).href,
-                                    })
-                                    .catch((error: unknown) => {
-                                        // Closing the share sheet is no error.
-                                        if (!(
-                                            error instanceof DOMException &&
-                                            error.name === 'AbortError'
-                                        )) {
-                                            reportError(error);
-                                        }
-                                    });
-                            }}
-                        >
-                            {t('print.share')}
-                        </Button>
-                    )}
-                {status === 'done' && row?.imageUrl != null && (
-                    <Button variant="secondary" asChild>
-                        <a
-                            href={row.imageUrl}
-                            aria-label={t('print.png_of', { part: name })}
-                        >
-                            {t('print.png')}
-                        </a>
-                    </Button>
-                )}
-                {guideHref !== undefined && (
-                    <Button variant="link" asChild>
-                        <a
-                            href={guideHref}
-                            aria-label={t('print.guide_link_of', {
-                                part: name,
-                            })}
-                        >
-                            {t('print.guide_link')}
-                        </a>
-                    </Button>
-                )}
-            </span>
-            {!skipped && !inLine && status === 'failed' && (
+        </>
+    );
+};
+
+const rowState = (
+    t: ReturnType<typeof useTranslation>,
+    props: Pick<
+        PartRowProps,
+        'part' | 'set' | 'row' | 'included' | 'queued' | 'variant' | 'cards'
+    > & { ownOrder: string | undefined; ownSpec: string | undefined },
+) => {
+    const { part, row, included, queued = false, variant = 'row' } = props;
+    const status = row?.status ?? 'idle';
+    const trial = variant === 'trial';
+    const lines = rowLines(t, { ...props, trial });
+    const skipped = included === false;
+    const inLine =
+        queued &&
+        !skipped &&
+        (status === 'idle' || status === 'outdated' || status === 'failed');
+    const shown: Shown = skipped ? 'skipped' : inLine ? 'queued' : status;
+
+    return { ...lines, part, status, trial, skipped, inLine, shown };
+};
+
+const RowFrame = ({
+    part,
+    asked,
+    skipped,
+    children,
+}: {
+    part: PrintPart;
+    asked: boolean;
+    skipped: boolean;
+    children: ReactNode;
+}) => (
+    <li
+        id={`part-${part}`}
+        data-asked={asked ? 'true' : undefined}
+        className={cn(
+            'relative flex scroll-mt-24 flex-wrap items-center gap-x-4 gap-y-3 border-2 border-ink bg-card py-4 pr-4 pl-6 shadow-print transition-[outline-color] md:gap-x-5',
+            skipped && 'bg-paper shadow-none',
+            asked
+                ? 'outline-4 outline-offset-4 outline-press'
+                : 'outline-transparent',
+        )}
+    >
+        <span
+            aria-hidden="true"
+            className={cn(
+                'absolute inset-y-0 left-0 w-2 border-r-2 border-ink',
+                BAND[part],
+                skipped && 'opacity-40',
+            )}
+        />
+        {children}
+    </li>
+);
+
+const RowNotes = ({
+    failed,
+    reason,
+    children,
+}: {
+    failed: boolean;
+    reason: string | null | undefined;
+    children: ReactNode;
+}) => {
+    const t = useTranslation();
+
+    return (
+        <>
+            {failed && (
                 <p className="basis-full text-sm font-semibold text-press">
-                    {t(`print.reason.${failureReason(row?.reason)}`)}
+                    {t(`print.reason.${failureReason(reason)}`)}
                 </p>
             )}
-            {children !== undefined && !skipped && (
+            {children !== undefined && (
                 <div className="basis-full md:pl-[calc(1.25rem+7rem+2.5rem)]">
                     {children}
                 </div>
             )}
-        </li>
+        </>
+    );
+};
+
+/**
+ * One row of the print page (B95): a tick for whether it is in the set (B198), name, what to order, the spec in
+ * mono, the status as text and the buttons that fit the status, and a link to the part in the print guide (B205).
+ * Colour never carries the status alone (B98).
+ */
+export const PartRow = (props: PartRowProps) => {
+    const { part, row, included, locked = false, children } = props;
+    const t = useTranslation();
+    const lockId = useId();
+    const tickId = useId();
+    const state = rowState(t, {
+        ...props,
+        ownOrder: props.order,
+        ownSpec: props.spec,
+    });
+    const { name, skipped, inLine, status } = state;
+    // Checked after the first render, like the bar: the server knows nothing of the phone.
+    const shareFiles = useBrowserValue(canShareFiles, false);
+    // The picture and the name tick the box too (R5-27, Gerda): the whole head of the row is one big target.
+    const tickable = included !== null && !locked;
+
+    return (
+        <RowFrame part={part} asked={props.asked ?? false} skipped={skipped}>
+            {included === null ? (
+                <span
+                    className="hidden w-5 flex-none md:block"
+                    aria-hidden="true"
+                />
+            ) : (
+                // The label gives the box a 48 px tap area without moving the row.
+                <label
+                    htmlFor={tickId}
+                    className="-m-3 flex size-12 flex-none cursor-pointer items-center justify-center has-disabled:cursor-default"
+                >
+                    <Checkbox
+                        id={tickId}
+                        checked={included}
+                        disabled={locked}
+                        onCheckedChange={props.onToggle}
+                        aria-label={t('print.in_set', { part: name })}
+                        aria-describedby={locked ? lockId : undefined}
+                        // Locked but ticked: the board reads as in the set, not as switched off.
+                        className="size-6 disabled:border-solid disabled:border-ink data-[state=checked]:disabled:opacity-60 [&_svg]:size-5"
+                    />
+                </label>
+            )}
+            <PartHeads
+                {...state}
+                tickId={tickable ? tickId : null}
+                lockId={lockId}
+                edition={props.edition}
+                photos={props.photos}
+                index={props.index ?? 0}
+                locked={locked}
+                note={props.note}
+            />
+            <PartStatusBadge
+                shown={state.shown}
+                waitingFor={row?.waitingFor ?? null}
+            />
+            <PartActions
+                {...state}
+                row={row}
+                disabled={props.disabled}
+                shareFiles={shareFiles}
+                guideHref={props.guideHref}
+                onMake={props.onMake}
+                onUnqueue={props.onUnqueue}
+            />
+            <RowNotes
+                failed={!skipped && !inLine && status === 'failed'}
+                reason={row?.reason}
+            >
+                {skipped ? undefined : children}
+            </RowNotes>
+        </RowFrame>
     );
 };
 
@@ -393,59 +386,4 @@ const REASONS = ['timeout', 'photos', 'layout', 'edition', 'other'] as const;
 /** The reason code from the server, or `other` for anything it does not know (an older run). */
 const failureReason = (reason: string | null | undefined): string => {
     return REASONS.find((known) => known === reason) ?? 'other';
-};
-
-type Shown = PrintPartStatusData['status'] | 'skipped' | 'queued';
-
-/** A shape next to the words, so the status never rests on colour alone (B98). */
-const GLYPH: Record<Shown, string> = {
-    idle: '○',
-    skipped: '–',
-    waiting: '…',
-    queued: '…',
-    running: '◐',
-    done: '✓',
-    failed: '!',
-    outdated: '…',
-};
-
-const actionLabel = (
-    status: 'idle' | 'failed',
-    t: (key: string) => string,
-    trial: boolean,
-): string => {
-    if (status === 'failed') {
-        return t('print.retry');
-    }
-
-    return trial ? t('print.make_trial') : t('print.make_part');
-};
-
-const statusLabel = (
-    status: Shown,
-    waitingFor: PrintPart | null,
-    t: (key: string, replacements?: Record<string, string | number>) => string,
-): string => {
-    switch (status) {
-        case 'waiting':
-            return waitingFor === null
-                ? t('print.status.waiting_generic')
-                : t('print.status.waiting', {
-                      part: t(`print.part.${waitingFor}`),
-                  });
-        case 'queued':
-            return t('print.status.queued');
-        case 'running':
-            return t('print.status.running');
-        case 'done':
-            return t('print.status.done');
-        case 'failed':
-            return t('print.status.failed');
-        case 'outdated':
-            return t('print.status.outdated');
-        case 'idle':
-            return t('print.status.idle');
-        case 'skipped':
-            return t('print.status.skipped');
-    }
 };

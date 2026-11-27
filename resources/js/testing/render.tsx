@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react';
 import { LaravelReactI18nProvider } from 'laravel-react-internationalization';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 import type { Locale } from '@/types/generated';
 
@@ -23,3 +23,13 @@ export const renderWithI18n = (
         </LaravelReactI18nProvider>,
     );
 };
+
+export const I18nWrapper = ({ children }: { children: ReactNode }) => (
+    <LaravelReactI18nProvider
+        locale="nl"
+        fallbackLocale="nl"
+        files={{ '/lang/nl.json': nl, '/lang/en.json': en }}
+    >
+        {children}
+    </LaravelReactI18nProvider>
+);

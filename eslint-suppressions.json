@@ -1,80 +1,4 @@
 {
-  "resources/js/features/print/calibration-art.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/print/invitation-count.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/print/money-choice.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/print/part-row.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/print/part-thumb.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/print/print-bar.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/print/review-list.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/print/share-image.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/print/share-set-button.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/print-api.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/print-composition.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/print-home-stickers.ts": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/pages/boxes/show.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    }
-  },
-  "resources/js/pages/editions/create.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/pages/editions/editions-flow.test.tsx": {
     "layers/no-sibling-import": {
       "count": 3
@@ -82,33 +6,7 @@
   },
   "resources/js/pages/editions/editions.test.tsx": {
     "layers/no-sibling-import": {
-      "count": 2
-    },
-    "max-lines": {
       "count": 1
-    }
-  },
-  "resources/js/pages/editions/index.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/pages/editions/sample.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/pages/print/show.test.tsx": {
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/pages/print/show.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
     }
   }
 }

@@ -42,6 +42,63 @@ export const reviewQuery = (
         : { element: issue.elementKey, field: issue.field };
 };
 
+const ReviewItem = ({
+    listed: { issue, count, message },
+    edition,
+    locale,
+}: {
+    listed: ListedIssue;
+} & Pick<ReviewListProps, 'edition' | 'locale'>) => {
+    const t = useTranslation();
+    const openable = parseKey(issue.elementKey) !== null;
+    const what =
+        count > 1
+            ? t(
+                  issue.code === 'card.empty'
+                      ? 'editor.tab_cards'
+                      : 'editor.tab_board',
+              )
+            : (issue.about?.[locale] ??
+              (openable
+                  ? sectionOfKey(issue.elementKey) === null
+                      ? elementLabel(issue.elementKey, edition, locale)
+                      : `${t('print.review.edition')} · ${elementLabel(issue.elementKey, edition, locale)}`
+                  : t('print.review.edition')));
+    const href = editorShow(
+        { locale, edition: edition.id },
+        { query: reviewQuery(issue) },
+    ).url;
+
+    return (
+        <li className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-ink/20 py-3 first:border-t-0">
+            <span className="flex min-w-0 flex-[1_1_16rem] items-start gap-2">
+                <WarningIcon
+                    size={20}
+                    aria-hidden="true"
+                    className="mt-0.5 flex-none text-press"
+                />
+                <span className="min-w-0">
+                    <strong className="block">{what}</strong>
+                    <span className="sr-only">
+                        {issue.severityLabel[locale]}:{' '}
+                    </span>
+                    {message[locale]}
+                </span>
+            </span>
+            <Button asChild variant="secondary" size="sm">
+                <a
+                    href={href}
+                    aria-label={t('print.review.open_of', {
+                        what: `${what}, ${message[locale]}`,
+                    })}
+                >
+                    {t('print.review.open')}
+                </a>
+            </Button>
+        </li>
+    );
+};
+
 /**
  * "Nog even nakijken" (B197): everything the Controle still has open, as the step before printing. Each message has
  * a button that opens the editor at its field. Printing never waits for it. Nothing shows when there is nothing to
@@ -58,58 +115,14 @@ export const ReviewList = ({ issues, edition, locale }: ReviewListProps) => {
 
     // Many empty cards or names of an edition emptied on purpose are one row each kind (R5-13).
     const rows = listIssues(issues);
-    const item = ({ issue, count, message }: ListedIssue) => {
-        const openable = parseKey(issue.elementKey) !== null;
-        const what =
-            count > 1
-                ? t(
-                      issue.code === 'card.empty'
-                          ? 'editor.tab_cards'
-                          : 'editor.tab_board',
-                  )
-                : (issue.about?.[locale] ??
-                  (openable
-                      ? sectionOfKey(issue.elementKey) === null
-                          ? elementLabel(issue.elementKey, edition, locale)
-                          : `${t('print.review.edition')} · ${elementLabel(issue.elementKey, edition, locale)}`
-                      : t('print.review.edition')));
-        const href = editorShow(
-            { locale, edition: edition.id },
-            { query: reviewQuery(issue) },
-        ).url;
-
-        return (
-            <li
-                key={issue.id}
-                className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-ink/20 py-3 first:border-t-0"
-            >
-                <span className="flex min-w-0 flex-[1_1_16rem] items-start gap-2">
-                    <WarningIcon
-                        size={20}
-                        aria-hidden="true"
-                        className="mt-0.5 flex-none text-press"
-                    />
-                    <span className="min-w-0">
-                        <strong className="block">{what}</strong>
-                        <span className="sr-only">
-                            {issue.severityLabel[locale]}:{' '}
-                        </span>
-                        {message[locale]}
-                    </span>
-                </span>
-                <Button asChild variant="secondary" size="sm">
-                    <a
-                        href={href}
-                        aria-label={t('print.review.open_of', {
-                            what: `${what}, ${message[locale]}`,
-                        })}
-                    >
-                        {t('print.review.open')}
-                    </a>
-                </Button>
-            </li>
-        );
-    };
+    const item = (listed: ListedIssue) => (
+        <ReviewItem
+            key={listed.issue.id}
+            listed={listed}
+            edition={edition}
+            locale={locale}
+        />
+    );
 
     const first = rows.slice(0, SHOWN);
     const rest = rows.slice(SHOWN);

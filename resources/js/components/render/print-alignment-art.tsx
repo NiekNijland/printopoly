@@ -1,9 +1,9 @@
 import {
-    CARD,
     alignmentTargets,
     type PageItem,
 } from '@/lib/render/print-composition';
 import { duplexCardSheets } from '@/lib/render/print-imposition';
+import { CARD } from '@/lib/render/print-page-frame';
 import { mm } from '@/lib/render/units';
 import type { Locale } from '@/types/game';
 

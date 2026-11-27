@@ -3,11 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { carriesSetMark } from '@/components/render/print-item-art';
 
 import {
-    BLEED,
-    MARKS,
     composePages,
     type PrintEdition,
 } from '../../lib/render/print-composition';
+import { BLEED, MARKS } from '../../lib/render/print-page-frame';
 import { describeEstimate, partQuantity, setEstimate } from './estimate';
 import { pageLabel } from './labels';
 

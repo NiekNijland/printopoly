@@ -5,7 +5,7 @@ import { spaceKey } from '@/lib/render/edition-keys';
 import type { FreeLayer } from '@/lib/render/edition-types';
 import { renderWords } from '@/lib/render/edition-words';
 import type { PhotoSource } from '@/lib/render/photo';
-import { BLEED } from '@/lib/render/print-composition';
+import { BLEED } from '@/lib/render/print-page-frame';
 import { standardEdition } from '@/lib/render/standard-edition';
 import { buildStyle } from '@/lib/render/style';
 import type { DeckId } from '@/types/game';

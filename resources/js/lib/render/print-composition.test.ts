@@ -2,13 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { defined } from '@/testing/defined';
 import { DEFAULT_BOARD_PROFILE } from './print-board';
 import {
-    BLEED,
-    MARKS,
     alignmentTargets,
     cardKeys,
     composePages,
     type PrintEdition,
 } from './print-composition';
+import { BLEED, MARKS } from './print-page-frame';
 
 /** Only the overrides are stored (B59), so an edition without elements still has 60 cards. */
 const edition: PrintEdition = { elements: {} };

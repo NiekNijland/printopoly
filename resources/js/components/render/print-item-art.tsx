@@ -9,7 +9,7 @@ import { isObject } from '@/lib/render/edition-schema-values';
 import type { Edition, FreeLayer } from '@/lib/render/edition-types';
 import type { PhotoSource } from '@/lib/render/photo';
 import type { PageItem, PrintSet } from '@/lib/render/print-composition';
-import { BLEED } from '@/lib/render/print-composition';
+import { BLEED } from '@/lib/render/print-page-frame';
 import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 

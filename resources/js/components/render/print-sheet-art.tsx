@@ -5,9 +5,10 @@ import { Invitation } from '@/components/render/invitation';
 import { PawnSheetItem } from '@/components/render/pawn';
 import { RulesBookletPage } from '@/components/render/rules-booklet';
 import { INVITATION_KEY, RULES_BOOKLET_KEY } from '@/lib/render/edition-keys';
+import { moneyAmountOf } from '@/lib/render/print-compose-pieces';
 import type { PageItem } from '@/lib/render/print-composition';
-import { BLEED, moneyAmountOf } from '@/lib/render/print-composition';
 import { lidTiles } from '@/lib/render/print-lid-tiles';
+import { BLEED } from '@/lib/render/print-page-frame';
 import { rulesContext } from '@/lib/render/rules-context';
 
 import { centreName, common, printSources, type ArtKit } from './print-art-kit';

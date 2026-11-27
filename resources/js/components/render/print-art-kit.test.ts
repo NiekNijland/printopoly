@@ -1,7 +1,7 @@
 import { spaceKey } from '@/lib/render/edition-keys';
 import { resolveEdition } from '@/lib/render/edition-resolve';
-import { BLEED } from '@/lib/render/print-composition';
 import { allPartsOn } from '@/lib/render/print-edition';
+import { BLEED } from '@/lib/render/print-page-frame';
 import { sampleEdition } from '@/lib/render/sample-edition';
 
 import {

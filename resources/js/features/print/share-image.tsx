@@ -45,11 +45,7 @@ const PAPER = '#fffdf7';
 const TABLE = '#e9e3d3';
 const PRESS = '#c8321f';
 
-/**
- * A board on the kitchen table: a sheet of paper under it, a red label above and the address below. The board is the
- * one of the editor: names, words, colours and photos (R5-24).
- */
-export const ShareImage = ({ payload }: { payload: SharePayload }) => {
+const useShareBoard = (payload: SharePayload) => {
     const resolved = useMemo(
         () => resolveEdition(allPartsOn(toEdition(payload.edition))),
         [payload.edition],
@@ -75,6 +71,54 @@ export const ShareImage = ({ payload }: { payload: SharePayload }) => {
     // The 4 px border takes 8 px of the width.
     const scale = (BOARD_PX - 8) / (profile.outer * PX_PER_MM);
 
+    return { board, profile, scale };
+};
+
+const ShareLabel = ({ text }: { text: string }) => (
+    <div
+        style={{
+            position: 'absolute',
+            left: '50%',
+            top: 34,
+            transform: 'translateX(-50%) rotate(-1.5deg)',
+            background: PRESS,
+            color: '#fff',
+            padding: '10px 28px',
+            borderRadius: 6,
+            border: `3px solid ${INK}`,
+            fontWeight: 600,
+            fontSize: 30,
+            whiteSpace: 'nowrap',
+        }}
+    >
+        {text}
+    </div>
+);
+
+const ShareFooter = ({ text }: { text: string }) => (
+    <div
+        style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 22,
+            textAlign: 'center',
+            fontWeight: 600,
+            fontSize: 28,
+            letterSpacing: 1,
+        }}
+    >
+        {text}
+    </div>
+);
+
+/**
+ * A board on the kitchen table: a sheet of paper under it, a red label above and the address below. The board is the
+ * one of the editor: names, words, colours and photos (R5-24).
+ */
+export const ShareImage = ({ payload }: { payload: SharePayload }) => {
+    const { board, profile, scale } = useShareBoard(payload);
+
     return (
         <section
             data-share-image
@@ -88,24 +132,7 @@ export const ShareImage = ({ payload }: { payload: SharePayload }) => {
                 color: INK,
             }}
         >
-            <div
-                style={{
-                    position: 'absolute',
-                    left: '50%',
-                    top: 34,
-                    transform: 'translateX(-50%) rotate(-1.5deg)',
-                    background: PRESS,
-                    color: '#fff',
-                    padding: '10px 28px',
-                    borderRadius: 6,
-                    border: `3px solid ${INK}`,
-                    fontWeight: 600,
-                    fontSize: 30,
-                    whiteSpace: 'nowrap',
-                }}
-            >
-                {payload.labels.kicker}
-            </div>
+            <ShareLabel text={payload.labels.kicker} />
 
             <div
                 style={{
@@ -145,20 +172,7 @@ export const ShareImage = ({ payload }: { payload: SharePayload }) => {
                 </div>
             </div>
 
-            <div
-                style={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    bottom: 22,
-                    textAlign: 'center',
-                    fontWeight: 600,
-                    fontSize: 28,
-                    letterSpacing: 1,
-                }}
-            >
-                {payload.labels.footer}
-            </div>
+            <ShareFooter text={payload.labels.footer} />
         </section>
     );
 };
