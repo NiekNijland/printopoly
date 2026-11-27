@@ -65,6 +65,8 @@ analyser-baseline                      max  neon   @ANALYSER_CONFIGS,@ANALYSER_B
 analyser-ignore                        max  grep   @ANALYSER_CONFIGS,@SOURCE_PATHS,@TEST_PATHS,:(exclude)*.md  @phpstan-ignore|@psalm-suppress|@noRector|@infection-ignore-all|@codeCoverageIgnore|phpcs:(ignore|disable)|^[[:space:]]*excludePaths:|^[[:space:]]*(reportUnmatchedIgnoredErrors|treatPhpDocTypesAsCertain|checkMissingIterableValueType):[[:space:]]*(false|False|FALSE|no|No|NO)([^A-Za-z0-9_]|$)
 analyser-level                         max  grep   @ANALYSER_CONFIGS  ^[[:space:]]+level:[[:space:]]+["']?[0-9]["']?[[:space:]]*(#.*)?$
 analyser-switches                      min  grep   @ANALYSER_CONFIGS,@TYPE_CHECKER_CONFIGS  @ANALYSER_SWITCHES
+analyser-allow-paths                   max  block  @ANALYSER_CONFIGS  (?:^|\n)[\t\x20]*(?:dis)?allow(?:Except)?In:[\t\x20]*(?:\[([^\]\n]*)\]|\n((?:[\t\x20]*-[^\n]*(?:\n|$)|[\t\x20]*(?:#[^\n]*)?\n)+)) (?:^|\n)[\t\x20]*-[\t\x20]+[^\s#]|(?:^|,)[\t\x20]*[^\s,#-]
+analyser-switches-off                  max  grep   @ANALYSER_CONFIGS  (^|[{,])[[:space:]]*[A-Za-z_][A-Za-z0-9_]*[[:space:]]*:[[:space:]]*(false|False|FALSE|(no|No|NO|off|Off|OFF)([^A-Za-z0-9_]|$))
 refactor-skip                          max  block  @REFACTOR_CONFIG  (?:withSkip|->skip)\(\s*\[(.*?)\]\s*\)|withSkipPath\(([^)]*)\) ::class|["'][^"']+["']
 refactor-sets                          min  grep   @REFACTOR_CONFIG  @REFACTOR_SETS
 formatter-rules                        min  grep   @FORMATTER_CONFIG  @FORMATTER_RULES
@@ -110,7 +112,8 @@ strict-types-missing                   max  without @SOURCE_PATHS,@TEST_PATHS  (
 loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS,:(exclude)tests/Guards,:(exclude)tests/Support/Architecture  (^|[^=!<>])(==|!=|<>)([^=]|$)
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
-mixed-outside-json-entry               max  grep   @SOURCE_PATHS,:(exclude)app/Support/JsonShape.php,:(exclude)app/Modules/Editions/Support,:(exclude)app/Http/Requests  (\(|,)[[:space:]]*mixed[[:space:]]+(&[[:space:]]*)?\$|\)[[:space:]]*:[[:space:]]*mixed([^A-Za-z0-9_]|$)|(readonly|public|private|protected|static)[[:space:]]+mixed[[:space:]]
+mixed-outside-json-entry               max  grep   @SOURCE_PATHS,:(exclude)app/Support/JsonShape.php,:(exclude)app/Modules/Editions/Support/BoardProfileParser.php,:(exclude)app/Modules/Editions/Support/CardFieldParser.php,:(exclude)app/Modules/Editions/Support/EditionSettingsParser.php,:(exclude)app/Modules/Editions/Support/EditionValidator.php,:(exclude)app/Modules/Editions/Support/ElementFieldParser.php,:(exclude)app/Modules/Editions/Support/ElementMigration.php,:(exclude)app/Modules/Editions/Support/ElementOverrideParser.php,:(exclude)app/Modules/Editions/Support/ElementRepairer.php,:(exclude)app/Modules/Editions/Support/ElementsParser.php,:(exclude)app/Modules/Editions/Support/JsonValue.php,:(exclude)app/Modules/Editions/Support/LayerParser.php,:(exclude)app/Modules/Editions/Support/PartStyles.php,:(exclude)app/Modules/Editions/Support/PhotoParser.php,:(exclude)app/Modules/Editions/Support/PrintSelection.php,:(exclude)app/Modules/Editions/Support/SpaceFieldParser.php  (\(|,)[[:space:]]*mixed[[:space:]]+(&[[:space:]]*)?\$|\)[[:space:]]*:[[:space:]]*mixed([^A-Za-z0-9_]|$)|(readonly|public|private|protected|static)[[:space:]]+mixed[[:space:]]
+json-entry-mixed                       max  grep   app/Modules/Editions/Support  (\(|,)[[:space:]]*mixed[[:space:]]+(&[[:space:]]*)?\$|\)[[:space:]]*:[[:space:]]*mixed([^A-Za-z0-9_]|$)|(readonly|public|private|protected|static)[[:space:]]+mixed[[:space:]]
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(For)?\([[:space:]]*(\[[[:space:]]*\])?[[:space:]]*(\)|$)
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
@@ -697,6 +700,30 @@ analyser-ignore 1     reportUnmatchedIgnoredErrors: false
 analyser-ignore 1     treatPhpDocTypesAsCertain: false
 analyser-ignore 0     reportUnmatchedIgnoredErrors: true
 analyser-ignore 0 $x = 1;
+analyser-allow-paths 2             allowIn:~NL~                - tests/*~NL~                - app/Providers/*
+analyser-allow-paths 3             allowExceptIn:~NL~                - app/*~NL~~NL~                # the boot files~NL~                - bootstrap/*~NL~                - config/*~NL~            message: 'x'
+analyser-allow-paths 1             disallowIn:~NL~                - app/Http/*
+analyser-allow-paths 2             allowIn: [tests/*, app/Providers/*]
+analyser-allow-paths 1     allowIn:~NL~    - tests/*~NL~allowInFunctions:~NL~    - foo()
+analyser-allow-paths 0             allowInFunctions:~NL~                - 'App\\foo()'
+analyser-allow-paths 0             # allowIn:~NL~            #    - tests/*
+analyser-allow-paths 0             allowIn: []
+analyser-switches-off 1         dynamicCallOnStaticMethod: false
+analyser-switches-off 1             deadEnumCases: False
+analyser-switches-off 1                 neverRead: FALSE
+analyser-switches-off 1     checkUninitializedProperties: no
+analyser-switches-off 1     checkUninitializedProperties: No
+analyser-switches-off 1     checkUninitializedProperties: NO
+analyser-switches-off 1     checkUninitializedProperties: off
+analyser-switches-off 1     checkUninitializedProperties: Off
+analyser-switches-off 1     checkUninitializedProperties: OFF
+analyser-switches-off 1     checkUninitializedProperties: no # measured with the rule on
+analyser-switches-off 2     deadProperties: {neverRead: false, neverWritten: false}
+analyser-switches-off 1     reportUnmatchedIgnoredErrors: false # the baseline is gone
+analyser-switches-off 0     # dynamicCallOnStaticMethod: false
+analyser-switches-off 0     deadEnumCases: true
+analyser-switches-off 0     message: 'a call that returns false: check it'
+analyser-switches-off 0     checkUninitializedProperties: nothing
 analyser-switches 1     checkOctaneCompatibility: true
 analyser-switches 1     noEnvCallsOutsideOfConfig : true
 analyser-switches 1         "strict": true,
@@ -899,6 +926,30 @@ strict-types-missing@x.php 1 <?php~NL~final class A {}
 strict-types-missing@x.php 0 <?php~NL~declare(strict_types=1);~NL~final class A {}
 strict-types-missing@page.blade.php 0 <div></div>
 strict-types-missing@\303\234ni.php 1 <?php
+mixed-outside-json-entry 1     public function parse(mixed $value): ?array
+mixed-outside-json-entry 1     public function amount(string $key, mixed &$value): int
+mixed-outside-json-entry 1     public static function migrate(): mixed
+mixed-outside-json-entry 1     private readonly mixed $value;
+mixed-outside-json-entry 1     public mixed $value;
+mixed-outside-json-entry 1     private mixed $value;
+mixed-outside-json-entry 1     protected mixed $value;
+mixed-outside-json-entry 1     static mixed $value;
+mixed-outside-json-entry 2     $read = static fn (mixed $value): mixed => $value;
+mixed-outside-json-entry 0     /** @param array<string, mixed> $data */
+mixed-outside-json-entry 0     public function mixedUp(): mixedValue
+mixed-outside-json-entry 0     $mixed = $value;
+json-entry-mixed 1     public function parse(mixed $value): ?array
+json-entry-mixed 1     public function amount(string $key, mixed &$value): int
+json-entry-mixed 1     public static function migrate(): mixed
+json-entry-mixed 1     private readonly mixed $value;
+json-entry-mixed 1     public mixed $value;
+json-entry-mixed 1     private mixed $value;
+json-entry-mixed 1     protected mixed $value;
+json-entry-mixed 1     static mixed $value;
+json-entry-mixed 2     $read = static fn (mixed $value): mixed => $value;
+json-entry-mixed 0     /** @param array<string, mixed> $data */
+json-entry-mixed 0     public function mixedUp(): mixedValue
+json-entry-mixed 0     $mixed = $value;
 loose-comparisons 1 if ($a == $b) {
 loose-comparisons 1 $x = $a != $b;
 loose-comparisons 1 $x = $a <> $b;

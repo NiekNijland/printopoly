@@ -76,6 +76,15 @@ final class CiContractArchitectureTest extends TestCase
         yield 'credentials that the checkout drops' => [CiExamples::inJob($kit, 'checks-main', 'fetch-depth: 0', "fetch-depth: 0\n          persist-credentials: false"), 'persist-credentials: false'];
         yield 'a head that the job does not check out' => [CiExamples::inJob($kit, 'checks', 'CHECK_BASE: ${{ github.base_ref }}', "CHECK_BASE: \${{ github.base_ref }}\n      CHECK_HEAD: \${{ github.event.pull_request.head.sha }}"), 'sets CHECK_HEAD but does not check out that revision'];
         yield 'no base for the ratchets' => [CiExamples::inJob($kit, 'checks', "    env:\n      CHECK_BASE: \${{ github.base_ref }}\n", ''), 'does not set CHECK_BASE'];
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function narrowedToolsServicesAndJobs(): iterable
+    {
+        $kit = self::kitWorkflow();
+
         yield 'a tool downloaded without its checksum' => [CiExamples::change($kit, "          echo \"\${GITLEAKS_SHA256}  gitleaks.tgz\" | sha256sum -c -\n", ''), 'checks no checksum'];
         yield 'a download piped into a shell' => [CiExamples::inJob($kit, 'smoke', 'npm run ssr:check', 'curl -sSfL https://example.test/install.sh | sh'), 'pipes a download into a shell'];
         yield 'a tool run without its version' => [CiExamples::change($kit, '@puppeteer/browsers@3.3.0', '@puppeteer/browsers'), 'with npx without an exact version'];
@@ -119,6 +128,7 @@ final class CiContractArchitectureTest extends TestCase
     }
 
     #[DataProvider('narrowedWorkflows')]
+    #[DataProvider('narrowedToolsServicesAndJobs')]
     public function test_it_detects_a_workflow_that_narrows_a_check_or_skips_a_run(string $workflow, string $reason): void
     {
         self::assertStringContainsString($reason, $this->violations([self::KIT => $workflow]));

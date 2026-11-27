@@ -54,8 +54,8 @@ Een job, mail of listener in de wachtrij draagt zijn klassenaam in de payload va
 - Een geplande taak heeft `withoutOverlapping(<minuten>)` (`ScheduledTaskGuard`).
 - Een migratie noemt geen applicatieklasse (`MigrationClassGuard`). Een index staat in een migratie in zijn documentvorm voor MongoDB.
 - Een type vernauw je met een controle die de analyser kent en die bij runtime faalt, nooit met een inline `@var` (`InlineVarCastGuard`).
-- `mixed` als type staat alleen in de JSON-ingangen: `app/Support/JsonShape.php`, `app/Modules/Editions/Support` en `app/Http/Requests` (`docs/decisions/0003-mixed-bij-de-json-ingang.md`, ratchetrij `mixed-outside-json-entry`).
-- De verboden aanroepen staan in `phpstan.neon`, elk met een melding die de vervanger noemt. De tijd komt uit `now()`, config uit de getypte accessors van `Config`.
+- `mixed` als type staat alleen in de JSON-ingangen: `app/Support/JsonShape.php` en de parsers in `app/Modules/Editions/Support` die de rij `mixed-outside-json-entry` bij naam uitzondert. De rij `json-entry-mixed` houdt hun aantal vast (`docs/decisions/0007-mixed-per-bestand.md`).
+- De verboden aanroepen staan in `phpstan.neon`, elk met een melding die de vervanger noemt. De paden onder `allowIn` en `allowExceptIn` telt de rij `analyser-allow-paths`; dat aantal mag alleen dalen. Een regel van de analyser die uit staat (`false`, `no` of `off` in `phpstan.neon` of `phpstan-tests.neon`) telt de rij `analyser-switches-off`; alleen `dynamicCallOnStaticMethod` staat uit, om de querybuilder. De tijd komt uit `now()`, config uit de getypte accessors van `Config`.
 
 ### Teksten
 

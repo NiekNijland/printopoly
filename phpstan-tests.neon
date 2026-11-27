@@ -14,9 +14,3 @@ parameters:
         - tests
 
     level: 10
-
-    shipmonkDeadCode:
-        detect:
-            deadEnumCases: false
-            deadProperties:
-                neverRead: false

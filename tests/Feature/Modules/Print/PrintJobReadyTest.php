@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\Print;
 
+use App\Http\Requests\Print\ListPrintJobReadyRequest;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Models\User;
 use Illuminate\Contracts\Auth\Factory;
-use Illuminate\Support\Str;
 use Tests\Concerns\CreatesPrintFixtures;
 use Tests\Concerns\RefreshesMongoDatabase;
 use Tests\Support\PrintScenario;
@@ -48,7 +48,7 @@ final class PrintJobReadyTest extends TestCase
     {
         $job = PrintScenario::createAnonymousJob($this);
 
-        $this->postJson('/api/print-jobs/ready', ['tokens' => [Str::random(40), $job->token]])
+        $this->postJson('/api/print-jobs/ready', ['tokens' => [str_repeat('0', 40), $job->token]])
             ->assertOk()
             ->assertExactJson(['jobs' => []]);
     }
@@ -96,9 +96,22 @@ final class PrintJobReadyTest extends TestCase
         $this->postJson('/api/print-jobs/ready', [])->assertUnprocessable();
         $this->postJson('/api/print-jobs/ready', ['tokens' => ['../../etc']])->assertUnprocessable();
         $this->postJson('/api/print-jobs/ready', ['tokens' => [['$ne' => null]]])->assertUnprocessable();
-        $this->postJson('/api/print-jobs/ready', [
-            'tokens' => array_map(static fn (): string => Str::random(40), range(1, 51)),
-        ])->assertUnprocessable();
+        $this->postJson('/api/print-jobs/ready', ['tokens' => $this->tokens(ListPrintJobReadyRequest::MAX_TOKENS + 1)])->assertUnprocessable();
         self::assertSame(0, PrintJob::query()->count());
+    }
+
+    public function test_it_answers_for_as_many_tokens_as_the_request_allows(): void
+    {
+        $this->postJson('/api/print-jobs/ready', ['tokens' => $this->tokens(ListPrintJobReadyRequest::MAX_TOKENS)])
+            ->assertOk()
+            ->assertExactJson(['jobs' => []]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function tokens(int $count): array
+    {
+        return array_map(static fn (int $n): string => sprintf('%040d', $n), range(1, $count));
     }
 }

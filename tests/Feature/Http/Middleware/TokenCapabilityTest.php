@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\Concerns\RefreshesMongoDatabase;
 use Tests\Support\Feature\AppRoutes;
+use Tests\Support\UniqueValue;
 use Tests\TestCase;
 
 final class TokenCapabilityTest extends TestCase
@@ -76,7 +77,7 @@ final class TokenCapabilityTest extends TestCase
 
         foreach ($this->capabilityRoutes() as $route) {
             $world = $this->world();
-            $other = CollectionBox::factory()->createOne(['token' => Str::random(40)]);
+            $other = CollectionBox::factory()->createOne(['token' => UniqueValue::token(40)]);
             $foreign = $this->contribution($other);
             $overrides = array_intersect_key(['contributionId' => $foreign->publicId(), 'receipt' => $foreign->receipt], array_flip($this->names($route)));
 
@@ -96,7 +97,7 @@ final class TokenCapabilityTest extends TestCase
     public function test_the_account_that_made_a_box_manages_it_without_the_secret(): void
     {
         $owner = User::factory()->createOne();
-        $box = CollectionBox::factory()->createOne(['user_id' => $owner->publicId(), 'token' => Str::random(40)]);
+        $box = CollectionBox::factory()->createOne(['user_id' => $owner->publicId(), 'token' => UniqueValue::token(40)]);
 
         $this->actingAs($owner)->getJson('/api/boxes/' . $box->publicId())->assertOk();
         $this->actingAs(User::factory()->createOne())->getJson('/api/boxes/' . $box->publicId())->assertNotFound();
@@ -104,10 +105,10 @@ final class TokenCapabilityTest extends TestCase
 
     public function test_a_link_that_a_new_link_replaced_still_opens_the_page_that_says_so(): void
     {
-        $box = CollectionBox::factory()->createOne(['token' => Str::random(40)]);
+        $box = CollectionBox::factory()->createOne(['token' => UniqueValue::token(40)]);
         $old = $box->token;
         $box->replaced_tokens = [CollectionBox::tokenHash($old)];
-        $box->token = Str::random(40);
+        $box->token = UniqueValue::token(40);
         $box->save();
 
         $this->get('/nl/box/' . $old)->assertOk();
@@ -130,7 +131,7 @@ final class TokenCapabilityTest extends TestCase
      */
     private function closedSecrets(): array
     {
-        $expired = static fn (): CollectionBox => CollectionBox::factory()->createOne(['token' => Str::random(40), 'owner_hash' => BoxAccess::hash('expired'), 'expires_at' => now()->subMinute()]);
+        $expired = static fn (): CollectionBox => CollectionBox::factory()->createOne(['token' => UniqueValue::token(40), 'owner_hash' => BoxAccess::hash('expired'), 'expires_at' => now()->subMinute()]);
 
         return [
             'an unknown secret' => static fn (array $world): array => [['token' => Str::random(40), 'boxId' => '0123456789abcdef01234567', 'id' => Str::random(40)], [BoxAccess::HEADER => $world['secret']], null],
@@ -148,7 +149,7 @@ final class TokenCapabilityTest extends TestCase
     {
         Storage::fake('local');
         $secret = Str::random(48);
-        $box = CollectionBox::factory()->createOne(['token' => Str::random(40), 'owner_hash' => BoxAccess::hash($secret)]);
+        $box = CollectionBox::factory()->createOne(['token' => UniqueValue::token(40), 'owner_hash' => BoxAccess::hash($secret)]);
         $contribution = $this->contribution($box);
         $id = Str::random(40);
         $this->app->make(ShareImages::class)->failed($id);

@@ -45,6 +45,13 @@ final class ElementMessagesTest extends TestCase
         yield 'icon aspect' => ['space.05', ['icon' => ['photo' => self::PHOTO, 'aspect' => 21]], ['elements.space.05.icon: aspect must be a number between 0.05 and 20']];
         yield 'icon photo' => ['space.05', ['icon' => ['photo' => 'x', 'aspect' => 1]], ['elements.space.05.icon.photo: photo must be an object']];
         yield 'style unknown' => ['style.box_lid', ['style' => 'neon'], ['elements.style.box_lid.style: must be one of vintage, modern, playful']];
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed, list<string>}>
+     */
+    public static function wrongFieldValues(): iterable
+    {
         yield 'name too long' => ['space.01', ['name' => str_repeat('x', 121)], ['elements.space.01.name: must be a string of at most 120 characters']];
         yield 'word too long' => ['words.house', ['name' => str_repeat('x', 41)], ['elements.words.house.name: must be a string of at most 40 characters']];
         yield 'bank name fits a name' => ['words.bank', ['name' => str_repeat('x', 121)], ['elements.words.bank.name: must be a string of at most 120 characters']];
@@ -108,6 +115,7 @@ final class ElementMessagesTest extends TestCase
      * @param list<string> $messages
      */
     #[DataProvider('wrongOverrides')]
+    #[DataProvider('wrongFieldValues')]
     public function test_a_wrong_override_names_what_is_wrong(string $key, mixed $override, array $messages): void
     {
         $errors = [];

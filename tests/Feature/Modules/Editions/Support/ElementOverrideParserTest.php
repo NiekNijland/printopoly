@@ -47,6 +47,13 @@ final class ElementOverrideParserTest extends TestCase
         yield 'amounts on a card space' => ['space.02', ['amounts' => ['price' => 1]]];
         yield 'amount not whole' => ['space.01', ['amounts' => ['price' => 60.5]]];
         yield 'amounts as list' => ['space.01', ['amounts' => [60]]];
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function invalidShapesAndValues(): iterable
+    {
         yield 'override as list' => ['space.01', ['a', 'b']];
         yield 'override as string' => ['space.01', 'name'];
         yield 'photo cx out of range' => ['space.01', ['photo' => ['photoId' => 'p', 'cx' => 1.1, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
@@ -107,6 +114,7 @@ final class ElementOverrideParserTest extends TestCase
     }
 
     #[DataProvider('invalidElements')]
+    #[DataProvider('invalidShapesAndValues')]
     public function test_it_rejects_an_invalid_element(string $key, mixed $override): void
     {
         if ($override === ['name' => 'x...']) {
