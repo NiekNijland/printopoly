@@ -121,6 +121,8 @@ one-pattern-list                       max  grep   tests/Guards/lists/one-patter
 model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
 test-method-indent                     max  grep   @TEST_PATHS,:(exclude)*.md  ^        (public|private|protected)( static)? function 
 compose-latest-images                  max  grep   compose.yaml?  :latest['"]?[[:space:]]*(#.*)?$
+cleanup-load-all                       max  grep   app/Modules/*/Support/*Cleanup.php  ->(get\(\)|pluck\()|::all\(\)
+quota-count-checks                     max  grep   @SOURCE_PATHS,:(exclude)*.md  ->count\(\)[[:space:]]*(>=|<)
 TABLE
 }
 
@@ -1152,6 +1154,18 @@ compose-latest-images 1         image: "redis:latest"
 compose-latest-images 0         image: 'mongo:8'
 compose-latest-images 0         image: 'example/latest-tools:1.2'
 compose-latest-images 0         # image: redis:latested
+cleanup-load-all 1         foreach (Box::query()->where('expires_at', '<', $now)->get() as $box) {
+cleanup-load-all 1         $known = Box::query()->pluck('id')->all();
+cleanup-load-all 1         foreach (Photo::all() as $photo) {
+cleanup-load-all 0         Box::query()->where('expires_at', '<', $now)->chunkById(100, $delete);
+cleanup-load-all 0         foreach (Box::query()->whereIn('_id', $ids)->lazyById(100) as $box) {
+cleanup-load-all 0         $files = $storage->allFiles();
+quota-count-checks 1         if ($query->count() >= Config::integer('printopoly.boxes.max_contributions')) {
+quota-count-checks 1         throw_if(Edition::query()->where('user_id', $id)->count()>= $limit, Full::class);
+quota-count-checks 1         if ($query->count() < $limit) {
+quota-count-checks 0         if (count($held) >= $limit) {
+quota-count-checks 0         $event = new BoxActivityEvent($box, $query->count());
+quota-count-checks 0         if ($query->count() > 0) {
 CASES
 }
 
