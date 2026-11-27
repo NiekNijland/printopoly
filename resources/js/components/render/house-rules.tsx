@@ -15,7 +15,7 @@ export type HouseRulesCardProps = {
 } & ElementProps;
 
 /** The rules as numbered lines; empty lines are dropped. */
-export const houseRuleLines = (text: string): string[] => {
+const houseRuleLines = (text: string): string[] => {
     return text
         .split('\n')
         .map((line) => line.trim())
