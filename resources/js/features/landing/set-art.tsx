@@ -1,10 +1,9 @@
+import { CardFan, SpacePiece } from '@/components/render/table-pieces';
 import {
-    CardFan,
     CropMarks,
     NoteSheet,
     PanelStack,
-    SpacePiece,
-} from '@/components/render/table-pieces';
+} from '@/components/render/table-sheets';
 import { Stage, TableItem } from '@/components/render/table-stage';
 
 /** The printed matter of a set (B109): what arrives from the print shop, or what comes out of your printer. */
