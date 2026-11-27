@@ -35,9 +35,9 @@ export type PrintSet = GeneratedPrintSet;
  */
 export type PrintEdition = {
     name?: string;
-    language?: string;
-    theme?: string;
-    currency?: string;
+    language?: string | null;
+    theme?: string | null;
+    currency?: string | null;
     /** `null` when the edition has none (the server writes JSON null). */
     boardProfile?: BoardProfile | null;
     parts?: Record<string, boolean>;

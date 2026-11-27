@@ -44,9 +44,9 @@ const elements: Parser<Elements> = (input) =>
 
 const printEdition: Parser<PrintEdition> = record({
     name: optional(string),
-    language: optional(string),
-    theme: optional(string),
-    currency: optional(string),
+    language: optional(nullable(string)),
+    theme: optional(nullable(string)),
+    currency: optional(nullable(string)),
     boardProfile: optional(nullable(boardProfile)),
     parts: optional(dictionary(boolean)),
     moneyAmount: optional(nullable(string)),
