@@ -91,6 +91,21 @@ final class MigrationRollbackTest extends TestCase
         self::assertSame(1, DB::connection('mongodb')->table('editions')->count());
     }
 
+    public function test_every_migration_has_a_rollback_case(): void
+    {
+        $covered = [
+            ...array_map(static fn (array $case): string => $case[0], iterator_to_array(self::rollbacks(), false)),
+            '2026_11_21_180000_move_bank_name_into_words.php',
+            '2026_11_26_120000_create_lookup_indexes.php',
+        ];
+        $found = glob(database_path('migrations/*.php'));
+        self::assertIsArray($found);
+        $migrations = array_map(basename(...), $found);
+        sort($covered);
+
+        self::assertSame($covered, $migrations, 'a migration without a rollback case here or in LookupIndexesTest');
+    }
+
     /**
      * @param array<string, list<array<string, int>>> $indexes
      */
