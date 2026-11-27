@@ -11,7 +11,7 @@ import { Stage, TableItem } from '@/components/render/table-stage';
  * table, one corner of the sticker peeled back, with cards, a deed, notes and three pawns
  * around it; no dice, those come from your own box (B200). All drawn by the real renderers; the edition name runs along the diagonal.
  */
-export function HeroTable() {
+export const HeroTable = () => {
     return (
         <Stage width={560} height={520}>
             <TableItem left={22} top={34} rotate={-5} z={1} delay={0}>
@@ -46,4 +46,4 @@ export function HeroTable() {
             </TableItem>
         </Stage>
     );
-}
+};

@@ -1,7 +1,12 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { MemoryEditionStorage } from '../../lib/render/edition-storage';
-import type { Edition, EditionSummary } from '../../lib/render/edition-types';
-import { makeEdition } from '../../testing/edition-test-utils';
+import type {
+    Edition,
+    EditionSummary,
+    PhotoRecord,
+} from '../../lib/render/edition-types';
+import { makeEdition, photo } from '../../testing/edition-test-utils';
+import { edition, json, setup } from './remote/testing/store';
 import {
     buildSyncQuestion,
     findLocalOnly,
@@ -11,7 +16,7 @@ import {
     type RemoteEditionSummary,
 } from './sync';
 
-function summary(id: string, name = id): EditionSummary {
+const summary = (id: string, name = id): EditionSummary => {
     return {
         id,
         name,
@@ -24,7 +29,7 @@ function summary(id: string, name = id): EditionSummary {
         customizedElements: 0,
         customizedPercent: 0,
     };
-}
+};
 
 const remote = (id: string): RemoteEditionSummary => ({
     id,
@@ -207,6 +212,43 @@ describe('uploadEditions', () => {
             uploaded: [],
             conflicts: [],
             overLimit: ['a'],
+        });
+    });
+});
+
+describe('uploadEditions with the account store', () => {
+    it('works as the remote of uploadEditions: uploaded, conflicts and limit', async () => {
+        const { store } = setup(
+            json({ edition: edition({ id: 'a' }) }, 201),
+            json({ code: 'conflict', current: edition({ id: 'b' }) }, 409),
+            json({ code: 'edition_limit', limit: 20 }, 422),
+        );
+        const editions = new Map(
+            ['a', 'b', 'c'].map((id) => [id, edition({ id })]),
+        );
+        const photos = vi.fn(() =>
+            Promise.resolve<PhotoRecord[]>([
+                {
+                    id: photo().photoId,
+                    editionId: 'a',
+                    blob: new Blob(['x']),
+                    width: 1,
+                    height: 1,
+                    createdAt: 1,
+                },
+            ]),
+        );
+
+        const report = await uploadEditions(['a', 'b', 'c'], {
+            remote: store,
+            getEdition: (id) => Promise.resolve(editions.get(id)),
+            listPhotos: photos,
+        });
+
+        expect(report).toEqual({
+            uploaded: ['a'],
+            conflicts: ['b'],
+            overLimit: ['c'],
         });
     });
 });

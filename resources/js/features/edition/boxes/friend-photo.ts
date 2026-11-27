@@ -14,11 +14,11 @@ export type FriendPhoto =
  * A friend's chosen photo, checked in the browser first (type by content, size, pixels) with the same rules as
  * the owner's (B69). HEIC from an iPhone becomes a JPEG here. The server checks again, because it trusts nothing.
  */
-export async function prepareFriendPhoto(
+export const prepareFriendPhoto = async (
     file: File,
     locale: Locale,
     onStage?: (stage: 'converting' | 'resizing') => void,
-): Promise<FriendPhoto> {
+): Promise<FriendPhoto> => {
     const prepared = await preparePhoto(
         file,
         browserPreviewDeps(decodeHeic),
@@ -34,4 +34,4 @@ export async function prepareFriendPhoto(
               height: prepared.size.h,
           }
         : { ok: false, message: formatPhotoError(prepared.error, locale) };
-}
+};

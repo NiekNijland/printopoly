@@ -15,7 +15,7 @@ export type PatchResult =
  * What the repository needs from the browser. `IndexedDbEditionStorage` is the real one, `MemoryEditionStorage` is
  * for tests and for browsers without IndexedDB.
  */
-export interface EditionStorage {
+export type EditionStorage = {
     listEditions(): Promise<Edition[]>;
     getEdition(id: string): Promise<Edition | undefined>;
     /** Throws when an edition with this id exists. */
@@ -38,19 +38,19 @@ export interface EditionStorage {
     /** Keeps a print job next to its edition; only the newest `PRINT_JOBS_PER_EDITION` per edition stay. */
     addPrintJob(job: PrintJobRecord): Promise<void>;
     listPrintJobs(): Promise<PrintJobRecord[]>;
-}
+};
 
 /** Print jobs kept per edition. Files stay 7 days, so older jobs have nothing left to show. */
 const PRINT_JOBS_PER_EDITION = 5;
 
 /** The jobs of one edition that fall off the list, oldest last in `jobs`. */
-export function surplusPrintJobs(
+export const surplusPrintJobs = (
     jobs: readonly PrintJobRecord[],
-): PrintJobRecord[] {
+): PrintJobRecord[] => {
     return [...jobs]
         .sort((a, b) => b.createdAt - a.createdAt)
         .slice(PRINT_JOBS_PER_EDITION);
-}
+};
 
 /** A stored edition that no longer passes the schema. Only that edition is lost; the rest keeps working. */
 export class CorruptEditionError extends Error {
@@ -60,16 +60,17 @@ export class CorruptEditionError extends Error {
     }
 }
 
-export function isCorruptError(error: unknown): boolean {
+export const isCorruptError = (error: unknown): boolean => {
     return error instanceof CorruptEditionError;
-}
+};
 
 /** True for the error browsers throw when storage is full. */
-export function isQuotaError(error: unknown): boolean {
+export const isQuotaError = (error: unknown): boolean => {
     if (typeof error !== 'object' || error === null) {
         return false;
     }
-    const { name, code } = error as { name?: unknown; code?: unknown };
+    const name = 'name' in error ? error.name : undefined;
+    const code = 'code' in error ? error.code : undefined;
 
     return (
         name === 'QuotaExceededError' ||
@@ -77,7 +78,7 @@ export function isQuotaError(error: unknown): boolean {
         code === 22 ||
         code === 1014
     );
-}
+};
 
 export class MemoryEditionStorage implements EditionStorage {
     private readonly editions = new Map<string, Edition>();

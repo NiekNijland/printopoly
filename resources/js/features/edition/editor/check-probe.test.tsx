@@ -6,7 +6,7 @@ import { sampleEdition } from '@/testing/editions';
 
 import { useChecks } from './check-probe';
 
-function Count({ edition }: { edition: Edition }) {
+const Count = ({ edition }: { edition: Edition }) => {
     const { issues, probe } = useChecks(edition, new Map());
 
     return (
@@ -19,7 +19,7 @@ function Count({ edition }: { edition: Edition }) {
             {probe}
         </>
     );
-}
+};
 
 describe('useChecks', () => {
     it('reads the drawn elements again when a text measures itself again (Controle on phone and desktop)', async () => {

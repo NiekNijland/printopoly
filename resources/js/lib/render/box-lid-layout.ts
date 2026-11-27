@@ -6,7 +6,7 @@ import type { Rect, Size } from '@/types/print';
  */
 export type LidPhoto = 'none' | 'framed' | 'full' | 'logo';
 
-export interface LidLayoutInput {
+export type LidLayoutInput = {
     photo: LidPhoto;
     /** Where the title sits on a photo over the whole lid, -1 (top) to 1 (bottom); 0 is the standard place (B170). */
     offset?: number;
@@ -14,10 +14,10 @@ export interface LidLayoutInput {
     subtitle: boolean;
     /** Whether there are own lines under the subtitle (B169). */
     lines: boolean;
-}
+};
 
 /** Where the fixed text of the box lid goes, in mm from the top left of the lid. */
-export interface LidLayout {
+export type LidLayout = {
     /** The photo frame; `undefined` without a photo, the whole lid (plus bleed) for a full photo. */
     photo: Rect | undefined;
     /** The block behind the text on a full photo: the band, or the fade when the band is off. */
@@ -32,7 +32,7 @@ export interface LidLayout {
     picture: Rect | undefined;
     /** The strip of the street colours along the bottom of a lid without an own photo (B256). */
     strip: Rect | undefined;
-}
+};
 
 const MARGIN = 12;
 
@@ -40,7 +40,7 @@ const MARGIN = 12;
  * The places of the title, the subtitle and the own lines on the box lid. The renderer and the Controle use the
  * same numbers, so a free layer that covers the fixed text is found (bug 36 of ronde 3).
  */
-export function lidLayout(size: Size, input: LidLayoutInput): LidLayout {
+export const lidLayout = (size: Size, input: LidLayoutInput): LidLayout => {
     const { w, h } = size;
     const inner = w - 2 * MARGIN;
     // The subtitle and the own lines grow with the lid, so they read from across the table (R5-29, Sophie, Sem).
@@ -106,17 +106,17 @@ export function lidLayout(size: Size, input: LidLayoutInput): LidLayout {
         picture: undefined,
         strip: undefined,
     };
-}
+};
 
 /**
  * A lid without an own photo (B256): the name on the plate of the theme at the top, the board of the edition as
  * the picture in the middle, the subtitle and own lines under it, and the street colours along the bottom.
  */
-function pictureLayout(
+const pictureLayout = (
     size: Size,
     input: LidLayoutInput,
     linesHeight: number,
-): LidLayout {
+): LidLayout => {
     const { w, h } = size;
     const inner = w - 2 * MARGIN;
     const titleTop = h * 0.07;
@@ -152,17 +152,17 @@ function pictureLayout(
         },
         strip: { x: MARGIN, y: stripTop, w: inner, h: stripHeight },
     };
-}
+};
 
 /** The areas of fixed text on the lid, for the red zone in the editor and the Controle (bug 36). */
-export function lidTextZones(layout: LidLayout): Rect[] {
+export const lidTextZones = (layout: LidLayout): Rect[] => {
     return [layout.title, layout.subtitle, layout.lines].filter(
         (rect): rect is Rect => rect !== undefined,
     );
-}
+};
 
 /** The box around a free layer, turned by its rotation, in mm. */
-function boundsOf(layer: Rect & { rotation?: number }): Rect {
+const boundsOf = (layer: Rect & { rotation?: number }): Rect => {
     const turn = ((layer.rotation ?? 0) * Math.PI) / 180;
     const cos = Math.abs(Math.cos(turn));
     const sin = Math.abs(Math.sin(turn));
@@ -175,13 +175,13 @@ function boundsOf(layer: Rect & { rotation?: number }): Rect {
         w,
         h,
     };
-}
+};
 
 /** Whether a free layer covers fixed text by more than a sliver (1 mm²). */
-export function coversText(
+export const coversText = (
     layer: Rect & { rotation?: number },
     zones: readonly Rect[],
-): boolean {
+): boolean => {
     const box = boundsOf(layer);
 
     return zones.some((zone) => {
@@ -192,4 +192,4 @@ export function coversText(
 
         return w > 0 && h > 0 && w * h > 1;
     });
-}
+};

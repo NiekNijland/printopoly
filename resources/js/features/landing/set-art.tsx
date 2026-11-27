@@ -8,7 +8,7 @@ import {
 import { Stage, TableItem } from '@/components/render/table-stage';
 
 /** The printed matter of a set (B109): what arrives from the print shop, or what comes out of your printer. */
-export function SetArt({ set }: { set: 'shop' | 'home' }) {
+export const SetArt = ({ set }: { set: 'shop' | 'home' }) => {
     return (
         <div className="overflow-hidden rounded-control border-2 border-ink bg-paper">
             <Stage width={320} height={210}>
@@ -47,4 +47,4 @@ export function SetArt({ set }: { set: 'shop' | 'home' }) {
             </Stage>
         </div>
     );
-}
+};

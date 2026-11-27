@@ -6,10 +6,10 @@ import PublicLayout from '@/layouts/public-layout';
  * open from a "Samen maken" link (B123) has its own small header, without the
  * menu of the site.
  */
-export function resolvePageLayout(name: string): typeof PublicLayout | null {
+export const resolvePageLayout = (name: string): typeof PublicLayout | null => {
     if (name.startsWith('editor/') || name.startsWith('boxes/')) {
         return null;
     }
 
     return PublicLayout;
-}
+};

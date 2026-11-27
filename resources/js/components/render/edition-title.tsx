@@ -8,7 +8,7 @@ import { FitText } from './fit-text';
 import { PhotoSlot } from './photo-slot';
 import { useRender } from './sheet';
 
-export interface PlateLook {
+export type PlateLook = {
     fill: string;
     flap: string | undefined;
     text: string;
@@ -28,7 +28,7 @@ export interface PlateLook {
     radius: number;
     /** The tagline in the heading font of the theme, instead of League Spartan. */
     tagInHeading?: boolean;
-}
+};
 
 /** Colours of the plate per theme (B125). Flat print colours, no gradients (B87). */
 const PLATE: Record<ThemeId, PlateLook> = {
@@ -150,7 +150,7 @@ const MARK: Record<ThemeId, { ink: string; on: string }> = {
 };
 
 /** "Balk": a straight block in the strong ink with an ink edge and a light inner line, like the title of the game. */
-function barLook(theme: Theme): PlateLook {
+const barLook = (theme: Theme): PlateLook => {
     const mark = MARK[theme.id];
 
     return {
@@ -168,43 +168,43 @@ function barLook(theme: Theme): PlateLook {
         radius: 0,
         tagInHeading: true,
     };
-}
+};
 
 /** The plate of a style that has one (the theme, Lint, Balk), also for the small pictures in the editor. */
-export function plateLookOf(
+export const plateLookOf = (
     style: TitleStyle | undefined,
     theme: Theme,
-): PlateLook {
+): PlateLook => {
     return style === 'ribbon'
         ? RIBBON[theme.id]
         : style === 'bar'
           ? barLook(theme)
           : PLATE[theme.id];
-}
+};
 
 /** The strong ink of a theme for the stamp and the script. */
-export function titleMarkOf(theme: Theme): string {
+export const titleMarkOf = (theme: Theme): string => {
     return MARK[theme.id].ink;
-}
+};
 
 const SPARTAN = "'League Spartan', 'Instrument Sans', sans-serif";
 const GREAT_VIBES = "'Great Vibes', 'Playfair Display', cursive";
 const PLAYFAIR = "'Playfair Display', Georgia, serif";
 
 /** The font of the name in a title style. */
-interface NameFont {
+type NameFont = {
     family: string;
     weight: number;
     /** How much larger than League Spartan the name may grow: a script has small letters for its size. */
     scale: number;
     upper: boolean;
-}
+};
 
 /** The font of the name per style: the title font of the theme, or a font of the style itself. */
-export function titleFontOf(
+export const titleFontOf = (
     style: TitleStyle | undefined,
     theme: Theme,
-): NameFont {
+): NameFont => {
     switch (style) {
         case 'bar':
         case 'stamp':
@@ -229,9 +229,9 @@ export function titleFontOf(
                 upper: false,
             };
     }
-}
+};
 
-export interface EditionTitleProps {
+export type EditionTitleProps = {
     name: string;
     /** The line under the name; `undefined` leaves it out. */
     tagline: string | undefined;
@@ -249,31 +249,31 @@ export interface EditionTitleProps {
     unit: number;
     /** The look of the name (Niek, 22 nov); `undefined` is the plate of the theme. */
     titleStyle?: TitleStyle;
-}
+};
 
 type TitleProps = EditionTitleProps & { withPhoto: boolean };
 
 /** The size of a photo of the given shape that fits a box, without cropping it. */
-function scaleToFit(
+const scaleToFit = (
     aspect: number,
     maxW: number,
     maxH: number,
-): { w: number; h: number } {
+): { w: number; h: number } => {
     const h = Math.min(maxH, maxW / aspect);
 
     return { w: h * aspect, h };
-}
+};
 
-function turnedAspect(aspect: number, rotation: number): number {
+const turnedAspect = (aspect: number, rotation: number): number => {
     return Math.round(rotation / 90) % 2 === 0 ? aspect : 1 / aspect;
-}
+};
 
 /**
  * The edition title in the middle of the board (B125): the name on a tilted plate in the colours of the
  * theme, an optional photo standing on the plate, or a logo instead of the name. Drawn in the frame of the
  * diagonal (left to right along the diagonal), so the caller rotates it.
  */
-export function EditionTitle(props: EditionTitleProps) {
+export const EditionTitle = (props: EditionTitleProps) => {
     // A logo is drawn by the centre itself (B187): straight or on the diagonal, in its own place.
     const withPhoto = props.mode === 'photo' && props.photo !== undefined;
 
@@ -287,16 +287,16 @@ export function EditionTitle(props: EditionTitleProps) {
         default:
             return <PlateTitle {...props} withPhoto={withPhoto} />;
     }
-}
+};
 
 /** The name as drawn: in capitals for a style that sets it so, in the language of the edition. */
-function useShownName(name: string, upper: boolean): string {
+const useShownName = (name: string, upper: boolean): string => {
     const { locale } = useRender();
 
     return upper ? name.toLocaleUpperCase(locale) : name;
-}
+};
 
-function PlateTitle({
+const PlateTitle = ({
     name: typed,
     tagline,
     photo,
@@ -308,7 +308,7 @@ function PlateTitle({
     h,
     unit,
     titleStyle,
-}: TitleProps) {
+}: TitleProps) => {
     const { theme } = useRender();
     const look = plateLookOf(titleStyle, theme);
     const font = titleFontOf(titleStyle, theme);
@@ -533,7 +533,7 @@ function PlateTitle({
             )}
         </>
     );
-}
+};
 
 /** The paper around a framed photo, in mm per side, on a full ribbon (`unit` 1). */
 export const FRAME_INSET = 2.4;
@@ -542,7 +542,7 @@ export const FRAME_INSET = 2.4;
  * The photo of "Naam met foto" (B125): in a paper frame with an ink edge, a little askew like a photo laid on the
  * board, or without a frame for a cut-out PNG. `x`, `y`, `w` and `h` are the photo itself; the frame lies around it.
  */
-export function FramedPhoto({
+export const FramedPhoto = ({
     x,
     y,
     w,
@@ -563,7 +563,7 @@ export function FramedPhoto({
     unit: number;
     /** The tilt of the plate of the theme; the frame leans the other way. */
     tilt: number;
-}) {
+}) => {
     const { theme } = useRender();
 
     return (
@@ -591,13 +591,13 @@ export function FramedPhoto({
             <PhotoSlot x={0} y={0} w={w} h={h} photo={photo} />
         </div>
     );
-}
+};
 
 /**
  * The photo of "Naam met foto" over the middle, standing on a title that is no plate (Niek, 22 nov): the same size as
  * on the plate, with its foot `top` mm from the top of the title area.
  */
-function PhotoOnTitle({
+const PhotoOnTitle = ({
     props,
     top,
     tilt,
@@ -605,7 +605,7 @@ function PhotoOnTitle({
     props: TitleProps;
     top: number;
     tilt: number;
-}) {
+}) => {
     const { photo, photoAspect, photoRotation, photoFrame, w, unit } = props;
     const aspect = turnedAspect(photoAspect ?? 4 / 3, photoRotation);
     const inset = photoFrame ? FRAME_INSET * unit : 0;
@@ -624,31 +624,31 @@ function PhotoOnTitle({
             tilt={tilt}
         />
     );
-}
+};
 
 /** The tagline, or `null` when there is none. */
-function taglineOf(tagline: string | undefined): string | null {
+const taglineOf = (tagline: string | undefined): string | null => {
     return tagline === undefined || tagline.trim() === '' ? null : tagline;
-}
+};
 
 /** How far the stamp leans, in degrees. */
 const STAMP_TILT = 3;
 
 /** A five-pointed star of radius `r` around (cx, cy), for the stamp. */
-function starPoints(cx: number, cy: number, r: number): string {
+const starPoints = (cx: number, cy: number, r: number): string => {
     return Array.from({ length: 10 }, (_, index) => {
         const radius = index % 2 === 0 ? r : r * 0.45;
         const angle = (Math.PI / 5) * index - Math.PI / 2;
 
         return `${cx + radius * Math.cos(angle)},${cy + radius * Math.sin(angle)}`;
     }).join(' ');
-}
+};
 
 /**
  * "Stempel" (Niek, 22 nov): the name in capitals in the strong ink of the theme on paper, inside a double edge with
  * rounded corners, a little askew like a rubber stamp. The tagline sits under a thin line between two stars.
  */
-function StampTitle(props: TitleProps) {
+const StampTitle = (props: TitleProps) => {
     const { name: typed, tagline, withPhoto, w, h, unit } = props;
     const { theme } = useRender();
     const mark = MARK[theme.id].ink;
@@ -822,18 +822,18 @@ function StampTitle(props: TitleProps) {
             )}
         </>
     );
-}
+};
 
 /** A diamond of half-size `r` around (cx, cy), for the script rule. */
-function diamondPoints(cx: number, cy: number, r: number): string {
+const diamondPoints = (cx: number, cy: number, r: number): string => {
     return `${cx},${cy - r} ${cx + r},${cy} ${cx},${cy + r} ${cx - r},${cy}`;
-}
+};
 
 /**
  * "Sierlijk" (Niek, 22 nov): the name in the script of Gala in the strong ink of the theme, with no shape behind it,
  * and under it a fine rule with a diamond on each side of the tagline in serif capitals.
  */
-function ScriptTitle(props: TitleProps) {
+const ScriptTitle = (props: TitleProps) => {
     const { name, tagline, withPhoto, w, h, unit } = props;
     const { theme } = useRender();
     const mark = MARK[theme.id].ink;
@@ -964,13 +964,13 @@ function ScriptTitle(props: TitleProps) {
             )}
         </>
     );
-}
+};
 
 /**
  * "Alleen tekst" (Niek, 22 nov): the name in the title font of the theme in ink, the tagline under it in the body
  * font, and nothing behind them.
  */
-function PlainTitle(props: TitleProps) {
+const PlainTitle = (props: TitleProps) => {
     const { name, tagline, withPhoto, w, h, unit } = props;
     const { theme } = useRender();
     const font = titleFontOf('plain', theme);
@@ -1060,4 +1060,4 @@ function PlainTitle(props: TitleProps) {
             )}
         </>
     );
-}
+};

@@ -1,7 +1,12 @@
 import { getServices } from '@/features/edition/editor/services';
 import { withDeedPhotos } from '@/lib/render/edition-deed-photos';
 import type { EditionStorage } from '@/lib/render/edition-storage';
-import { PART_IDS, type Edition, type Parts } from '@/lib/render/edition-types';
+import {
+    DEFAULT_PARTS,
+    PART_IDS,
+    type Edition,
+    type Parts,
+} from '@/lib/render/edition-types';
 import type { Locale } from '@/types/game';
 
 import type { LocalEditionUpload } from '../../lib/render/print-api';
@@ -15,10 +20,10 @@ import {
 } from '../../lib/render/print-photo-targets';
 
 /** The ids of the photos a job needs: those that show in some set, and the photos on free layers. */
-export function neededPhotoIds(
+export const neededPhotoIds = (
     edition: Edition,
     targets: PhotoTargets,
-): string[] {
+): string[] => {
     const ids = new Set<string>();
 
     for (const [key, override] of Object.entries(edition.elements)) {
@@ -53,32 +58,34 @@ export function neededPhotoIds(
     }
 
     return [...ids];
-}
+};
 
 /**
  * The edition of this browser. With no id the most recently changed edition is taken, so "/print" works
  * for whoever has one.
  */
-export async function loadLocalEditionRecord(
+export const loadLocalEditionRecord = async (
     editionId: string | null,
     locale: Locale,
     storage: EditionStorage = getServices(locale).storage,
-): Promise<Edition | undefined> {
+): Promise<Edition | undefined> => {
     return editionId === null
         ? latest(await storage.listEditions())
         : storage.getEdition(editionId);
-}
+};
 
 /**
  * The edition as a print job gets it: every part on, so the photos of each part go up and any part can be made
  * (B198, B210). What goes in the set is chosen on the print page and travels with the job as `skipped`.
  */
-export function printable(edition: Edition): Edition {
+export const printable = (edition: Edition): Edition => {
     return {
         ...edition,
-        parts: Object.fromEntries(PART_IDS.map((id) => [id, true])) as Parts,
+        parts: PART_IDS.reduce<Parts>((all, id) => ({ ...all, [id]: true }), {
+            ...DEFAULT_PARTS,
+        }),
     };
-}
+};
 
 /** The upload of an edition of this browser, with the edition itself. */
 export type LocalEdition = LocalEditionUpload & { edition: Edition };
@@ -88,11 +95,11 @@ export type LocalEdition = LocalEditionUpload & { edition: Edition };
  * B80): the edition JSON, the original of every needed photo from IndexedDB, and the frame size of each
  * visible photo taken from the renderers. Returns `null` when there is no such edition in this browser.
  */
-export async function loadLocalEdition(
+export const loadLocalEdition = async (
     editionId: string | null,
     locale: Locale,
     storage: EditionStorage = getServices(locale).storage,
-): Promise<LocalEdition | null> {
+): Promise<LocalEdition | null> => {
     const record = await loadLocalEditionRecord(editionId, locale, storage);
 
     if (record === undefined) {
@@ -130,22 +137,22 @@ export async function loadLocalEdition(
         // The language of the site, not of the edition: the instructions and file names follow it (B184).
         locale,
     };
-}
+};
 
-function latest(editions: Edition[]): Edition | undefined {
+const latest = (editions: Edition[]): Edition | undefined => {
     return [...editions].sort((a, b) => b.updatedAt - a.updatedAt)[0];
-}
+};
 
 /**
  * Keeps the job that was just made for an edition of this browser next to it, so Mijn edities can say a set is
  * ready without an account (bug 14 of the integration check). Losing it only loses that line, so it never throws.
  */
-export async function rememberPrintJob(
+export const rememberPrintJob = async (
     edition: Edition,
     token: string,
     storage: EditionStorage,
     now: number = Date.now(),
-): Promise<void> {
+): Promise<void> => {
     try {
         await storage.addPrintJob({
             token,
@@ -156,20 +163,20 @@ export async function rememberPrintJob(
     } catch {
         // Storage full or gone: the job itself is fine.
     }
-}
+};
 
 /**
  * A new revision that only changed what goes in the set (B198) keeps the job this browser made for the revision
  * before, so the print page still opens on it and Mijn edities still counts it as current. A job for an older
  * revision is left alone: the edition changed since. Never throws.
  */
-export async function carryPrintJob(
+export const carryPrintJob = async (
     storage: EditionStorage,
     token: string,
     editionId: string,
     fromRevision: number,
     toRevision: number,
-): Promise<void> {
+): Promise<void> => {
     try {
         const job = (await storage.listPrintJobs()).find(
             (entry) => entry.token === token && entry.editionId === editionId,
@@ -181,4 +188,4 @@ export async function carryPrintJob(
     } catch {
         // Storage full or gone: the next visit uploads the edition again, nothing worse.
     }
-}
+};

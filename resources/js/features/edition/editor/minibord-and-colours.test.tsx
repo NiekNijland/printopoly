@@ -1,8 +1,11 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import type { EditionSession } from '@/features/edition/session';
+import { EditionBus } from '@/features/edition/bus';
+import { EditionSession } from '@/features/edition/session';
 import { resolveEdition } from '@/lib/render/edition-resolve';
+import { MemoryEditionStorage } from '@/lib/render/edition-storage';
+import type { Edition } from '@/lib/render/edition-types';
 import type { PhotoInfos } from '@/lib/render/editor-photo-cache';
 import { photo } from '@/testing/edition-test-utils';
 import { sampleEdition } from '@/testing/editions';
@@ -10,6 +13,13 @@ import { renderWithI18n } from '@/testing/render';
 
 import { BoardNavigator } from './board-navigator';
 import { GroupColorField } from './style-controls';
+
+const sessionOf = (edition: Edition) =>
+    new EditionSession(edition, {
+        storage: new MemoryEditionStorage(),
+        bus: new EditionBus(null, 'w'),
+        now: () => 0,
+    });
 
 describe('the colour of a street group (bug 32, ronde 4)', () => {
     it('shows the colour the board really prints, and its swatch as chosen, in Riso', () => {
@@ -23,7 +33,7 @@ describe('the colour of a street group (bug 32, ronde 4)', () => {
 
         renderWithI18n(
             <GroupColorField
-                session={{} as EditionSession}
+                session={sessionOf(edition)}
                 edition={edition}
                 resolved={resolved}
                 group="brown"
@@ -45,7 +55,7 @@ describe('the colour of a street group (bug 32, ronde 4)', () => {
 
         renderWithI18n(
             <GroupColorField
-                session={{} as EditionSession}
+                session={sessionOf(edition)}
                 edition={edition}
                 resolved={resolveEdition(edition)}
                 group="darkblue"

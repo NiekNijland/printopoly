@@ -1,4 +1,4 @@
-import { Board, type SpaceOverride } from '@/components/render';
+import { Board, type SpaceOverride } from '@/components/render/board';
 import { Die, Pawn } from '@/components/render/table-pieces';
 import { Scaled } from '@/components/render/table-scaled';
 import { Stage, TableItem } from '@/components/render/table-stage';
@@ -10,7 +10,7 @@ import { buildStyle } from '@/lib/render/style';
  * The top of the friends' page (B128): the edition's own board lying on the table, with a printed photo next to it
  * (what a friend can send), a pawn and a die. Decoration only.
  */
-export function FriendArt({ resolved }: { resolved: ResolvedEdition }) {
+export const FriendArt = ({ resolved }: { resolved: ResolvedEdition }) => {
     const spaces: Record<number, SpaceOverride> = {};
     for (const space of resolved.spaces) {
         spaces[space.position] = {
@@ -53,10 +53,10 @@ export function FriendArt({ resolved }: { resolved: ResolvedEdition }) {
             </TableItem>
         </Stage>
     );
-}
+};
 
 /** A photo printed on paper with a white edge: what a friend sends for a space. */
-function PhotoPrint() {
+const PhotoPrint = () => {
     return (
         <div className="w-[150px] bg-paper p-2 pb-7 shadow-sheet">
             <svg
@@ -76,4 +76,4 @@ function PhotoPrint() {
             </svg>
         </div>
     );
-}
+};

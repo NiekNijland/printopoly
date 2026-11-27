@@ -6,26 +6,26 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { formatClock } from '@/features/edition/save-status';
-import type { EditionConflict } from '@/features/edition/session';
+import type { EditionConflict } from '@/features/edition/session-conflict';
 import { useTranslation } from '@/hooks/use-translation';
 import { messages } from '@/lib/render/edition-strings';
 import type { Locale } from '@/types/game';
 
-interface ConflictDialogProps {
+type ConflictDialogProps = {
     conflict: EditionConflict | null;
     locale: Locale;
     onResolve: (choice: 'mine' | 'theirs') => void;
-}
+};
 
 /**
  * Two windows changed the same edition (B60, B81, Staten): nothing wins silently, the person
  * picks which version stays. The dialog cannot be dismissed without a choice.
  */
-export function ConflictDialog({
+export const ConflictDialog = ({
     conflict,
     locale,
     onResolve,
-}: ConflictDialogProps) {
+}: ConflictDialogProps) => {
     const t = useTranslation();
     const m = messages[locale].conflict;
 
@@ -80,4 +80,4 @@ export function ConflictDialog({
             </DialogContent>
         </Dialog>
     );
-}
+};

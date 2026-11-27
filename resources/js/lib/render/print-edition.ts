@@ -8,8 +8,8 @@ import {
     type Edition,
     type Elements,
 } from '@/lib/render/edition-types';
+import { defaultCurrency } from '@/lib/render/game-currency';
 import { deedsFor, standardEdition } from '@/lib/render/standard-edition';
-import { defaultCurrency } from '@/lib/render/strings';
 import type { CurrencyId, Locale } from '@/types/game';
 
 import { DEFAULT_BOARD_PROFILE } from './print-board';
@@ -21,7 +21,7 @@ import { isMoneyAmount } from './print-money';
  * it into the `Edition` the renderers and `resolveEdition` read. Parts that are not mentioned count as on,
  * the way the server counts them (`PrintEdition::enabledParts`); the board is always on.
  */
-export function toEdition(print: PrintEdition): Edition {
+export const toEdition = (print: PrintEdition): Edition => {
     const language: Locale = print.language === 'en' ? 'en' : 'nl';
     const currency: CurrencyId =
         standardEdition.currencies.find((entry) => entry.id === print.currency)
@@ -52,10 +52,10 @@ export function toEdition(print: PrintEdition): Edition {
         createdAt: 0,
         updatedAt: 0,
     };
-}
+};
 
 /** All parts on: which parts print is decided by the print job, not by the renderer. */
-export function allPartsOn(edition: Edition): Edition {
+export const allPartsOn = (edition: Edition): Edition => {
     const parts = { ...edition.parts };
 
     for (const id of PART_IDS) {
@@ -63,10 +63,10 @@ export function allPartsOn(edition: Edition): Edition {
     }
 
     return { ...edition, parts };
-}
+};
 
 /** The number of cards the "cards" part prints (`PrintEdition::cardCount`). */
-export function cardCountOf(edition: Edition): number {
+export const cardCountOf = (edition: Edition): number => {
     // The cards part always holds the deeds and both decks; whether it is in the set is chosen on the print page (B198).
     const deeds = deedsFor().length;
     const decks =
@@ -76,4 +76,4 @@ export function cardCountOf(edition: Edition): number {
         extraCardKeys(edition.elements, 'chest').length;
 
     return deeds + decks + (hasHouseRulesCard(edition) ? 1 : 0);
-}
+};

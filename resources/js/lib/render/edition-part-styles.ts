@@ -47,41 +47,39 @@ export type PawnStyle = 'vintage' | 'modern' | 'playful';
 /** The frame and decoration of the box lid, around the name plate of B265: the same three styles. */
 export type BoxLidStyle = 'vintage' | 'modern' | 'playful';
 
-export interface PartStyleIds {
+export type PartStyleIds = {
     board: BoardStyle;
     cards: CardStyle;
     deeds: DeedStyle;
     money: MoneyStyle;
     pawns: PawnStyle;
     boxLid: BoxLidStyle;
-}
+};
 
 /** The style of each part; a part that is absent follows the theme. */
 export type PartStyles = { [P in StyledPart]?: PartStyleIds[P] };
 
-/** The styles a part offers, in the order the editor shows them. */
-export function partStyleIds<P extends StyledPart>(
-    part: P,
-): readonly PartStyleIds[P][] {
-    return (PART_STYLE_IDS as Record<StyledPart, readonly string[]>)[
-        part
-    ] as readonly PartStyleIds[P][];
-}
+const STYLE_IDS: Readonly<Record<StyledPart, readonly string[]>> =
+    PART_STYLE_IDS;
 
-export function isPartStyle<P extends StyledPart>(
+export const isPartStyle = <P extends StyledPart>(
     part: P,
     value: unknown,
-): value is PartStyleIds[P] {
-    return (
-        typeof value === 'string' &&
-        (partStyleIds(part) as readonly string[]).includes(value)
-    );
-}
+): value is PartStyleIds[P] => {
+    return typeof value === 'string' && STYLE_IDS[part].includes(value);
+};
+
+/** The styles a part offers, in the order the editor shows them. */
+export const partStyleIds = <P extends StyledPart>(
+    part: P,
+): readonly PartStyleIds[P][] => {
+    return STYLE_IDS[part].filter((id) => isPartStyle(part, id));
+};
 
 /** The parts with at least one style: the editor offers a choice for these only. */
-export function partsWithStyles(): StyledPart[] {
+export const partsWithStyles = (): StyledPart[] => {
     return STYLED_PARTS.filter((part) => partStyleIds(part).length > 0);
-}
+};
 
 const KEY_NAME: Record<StyledPart, string> = {
     board: 'board',
@@ -93,24 +91,24 @@ const KEY_NAME: Record<StyledPart, string> = {
 };
 
 /** The element that holds the style of a part: `style.board`, `style.box_lid`. */
-export function partStyleKey(part: StyledPart): string {
+export const partStyleKey = (part: StyledPart): string => {
     return `style.${KEY_NAME[part]}`;
-}
+};
 
 /** The part of a style key, or `null` when the key is no style key. */
-export function partOfStyleKey(key: string): StyledPart | null {
+export const partOfStyleKey = (key: string): StyledPart | null => {
     const [head, name, ...rest] = key.split('.');
     if (head !== 'style' || rest.length > 0) {
         return null;
     }
 
     return STYLED_PARTS.find((part) => KEY_NAME[part] === name) ?? null;
-}
+};
 
 /** The style of every part as stored in the elements of an edition; unknown ids are left out. */
-export function partStylesOf(
+export const partStylesOf = (
     elements: Readonly<Record<string, ElementOverride | undefined>>,
-): PartStyles {
+): PartStyles => {
     const styles: Record<string, string> = {};
 
     for (const part of STYLED_PARTS) {
@@ -121,4 +119,4 @@ export function partStylesOf(
     }
 
     return styles;
-}
+};

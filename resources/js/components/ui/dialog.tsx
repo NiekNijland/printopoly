@@ -1,27 +1,28 @@
+import { useLaravelReactI18n } from 'laravel-react-internationalization';
 import { Dialog as DialogPrimitive } from 'radix-ui';
 import { useEffect, useRef, type ComponentProps } from 'react';
 
-import { CloseIcon } from '@/components/icons';
-import { useTranslation } from '@/hooks/use-translation';
+import { CloseIcon } from '@/components/ui/icons';
 import { currentOpener, returnFocus, trackFocus } from '@/lib/focus-return';
+import { mediaMatches } from '@/lib/media-query';
 import { cn } from '@/lib/utils';
 
-function Dialog(props: ComponentProps<typeof DialogPrimitive.Root>) {
+const Dialog = (props: ComponentProps<typeof DialogPrimitive.Root>) => {
     return <DialogPrimitive.Root data-slot="dialog" {...props} />;
-}
+};
 
-function DialogPortal(props: ComponentProps<typeof DialogPrimitive.Portal>) {
+const DialogPortal = (props: ComponentProps<typeof DialogPrimitive.Portal>) => {
     return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
-}
+};
 
-function DialogClose(props: ComponentProps<typeof DialogPrimitive.Close>) {
+const DialogClose = (props: ComponentProps<typeof DialogPrimitive.Close>) => {
     return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
-}
+};
 
-function DialogOverlay({
+const DialogOverlay = ({
     className,
     ...props
-}: ComponentProps<typeof DialogPrimitive.Overlay>) {
+}: ComponentProps<typeof DialogPrimitive.Overlay>) => {
     return (
         <DialogPrimitive.Overlay
             data-slot="dialog-overlay"
@@ -29,14 +30,14 @@ function DialogOverlay({
             {...props}
         />
     );
-}
+};
 
 /**
  * shadcn/ui's Dialog in the house style (B195): a modal on a card with a 2 px ink border (Staten design). Radix traps the focus,
  * closes on Escape and labels the dialog by its title. On closing, the focus goes back to the control that
  * opened it, also when that was an item of a menu that is gone by then (bug 16, ronde 3).
  */
-function DialogContent({
+const DialogContent = ({
     className,
     children,
     onOpenAutoFocus,
@@ -46,8 +47,8 @@ function DialogContent({
 }: ComponentProps<typeof DialogPrimitive.Content> & {
     /** The close button in the corner; on a wide screen Escape and the dialog's own buttons close it. */
     showCloseButton?: boolean;
-}) {
-    const t = useTranslation();
+}) => {
+    const { t } = useLaravelReactI18n();
     const opener = useRef<HTMLElement | null>(null);
 
     useEffect(() => trackFocus(), []);
@@ -67,10 +68,12 @@ function DialogContent({
                     // On a touch screen a focused field opens the keyboard at once and covers the dialog.
                     if (
                         !event.defaultPrevented &&
-                        window.matchMedia('(pointer: coarse)').matches
+                        mediaMatches('(pointer: coarse)')
                     ) {
                         event.preventDefault();
-                        (event.currentTarget as HTMLElement).focus();
+                        if (event.currentTarget instanceof HTMLElement) {
+                            event.currentTarget.focus();
+                        }
                     }
                 }}
                 onCloseAutoFocus={(event) => {
@@ -97,9 +100,9 @@ function DialogContent({
             </DialogPrimitive.Content>
         </DialogPortal>
     );
-}
+};
 
-function DialogHeader({ className, ...props }: ComponentProps<'div'>) {
+const DialogHeader = ({ className, ...props }: ComponentProps<'div'>) => {
     return (
         <div
             data-slot="dialog-header"
@@ -107,12 +110,12 @@ function DialogHeader({ className, ...props }: ComponentProps<'div'>) {
             {...props}
         />
     );
-}
+};
 
-function DialogTitle({
+const DialogTitle = ({
     className,
     ...props
-}: ComponentProps<typeof DialogPrimitive.Title>) {
+}: ComponentProps<typeof DialogPrimitive.Title>) => {
     return (
         <DialogPrimitive.Title
             data-slot="dialog-title"
@@ -123,12 +126,12 @@ function DialogTitle({
             {...props}
         />
     );
-}
+};
 
-function DialogDescription({
+const DialogDescription = ({
     className,
     ...props
-}: ComponentProps<typeof DialogPrimitive.Description>) {
+}: ComponentProps<typeof DialogPrimitive.Description>) => {
     return (
         <DialogPrimitive.Description
             data-slot="dialog-description"
@@ -136,7 +139,7 @@ function DialogDescription({
             {...props}
         />
     );
-}
+};
 
 export {
     Dialog,

@@ -8,21 +8,21 @@ import {
 import type { EditionSummary } from '@/lib/render/edition-types';
 
 /** The window's edition services (storage, repository, bus), created on first use in the browser. */
-export function useServices(): EditorServices {
+export const useServices = (): EditorServices => {
     const { locale } = usePage().props;
 
     return useMemo(() => getServices(locale), [locale]);
-}
+};
 
-export interface EditionListState {
+export type EditionListState = {
     /** `null` while loading. */
     editions: EditionSummary[] | null;
     refresh: () => void;
     error: boolean;
-}
+};
 
 /** "Mijn edities": the list from this browser, newest first, reloaded when another window changes it. */
-export function useEditionList(): EditionListState {
+export const useEditionList = (): EditionListState => {
     const { repository, bus } = useServices();
     const [editions, setEditions] = useState<EditionSummary[] | null>(null);
     const [error, setError] = useState(false);
@@ -64,4 +64,4 @@ export function useEditionList(): EditionListState {
     );
 
     return { editions, refresh, error };
-}
+};

@@ -14,34 +14,34 @@ const HEIC_BRANDS = new Set([
 ]);
 const HEIF_GENERIC_BRANDS = new Set(['mif1', 'msf1']);
 
-function ascii(b: Uint8Array, offset: number, length: number): string {
+const ascii = (b: Uint8Array, offset: number, length: number): string => {
     let s = '';
     for (let i = 0; i < length; i++)
         s += String.fromCharCode(b[offset + i] ?? 0);
     return s;
-}
+};
 
-function u16be(b: Uint8Array, o: number): number {
+const u16be = (b: Uint8Array, o: number): number => {
     return ((b[o] ?? 0) << 8) | (b[o + 1] ?? 0);
-}
+};
 
-function u16le(b: Uint8Array, o: number): number {
+const u16le = (b: Uint8Array, o: number): number => {
     return (b[o] ?? 0) | ((b[o + 1] ?? 0) << 8);
-}
+};
 
-function u24le(b: Uint8Array, o: number): number {
+const u24le = (b: Uint8Array, o: number): number => {
     return (b[o] ?? 0) | ((b[o + 1] ?? 0) << 8) | ((b[o + 2] ?? 0) << 16);
-}
+};
 
-function u32be(b: Uint8Array, o: number): number {
+const u32be = (b: Uint8Array, o: number): number => {
     return (
         (b[o] ?? 0) * 0x1000000 +
         (((b[o + 1] ?? 0) << 16) | ((b[o + 2] ?? 0) << 8) | (b[o + 3] ?? 0))
     );
-}
+};
 
 /** Detects the format from the first bytes only. The extension and MIME type are ignored (B69). */
-export function detectFormat(b: Uint8Array): PhotoFormat | null {
+export const detectFormat = (b: Uint8Array): PhotoFormat | null => {
     if (b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff)
         return 'jpeg';
     if (
@@ -71,9 +71,9 @@ export function detectFormat(b: Uint8Array): PhotoFormat | null {
             return 'heic';
     }
     return null;
-}
+};
 
-function jpegSize(b: Uint8Array): Size | null {
+const jpegSize = (b: Uint8Array): Size | null => {
     let i = 2;
     while (i + 4 <= b.length) {
         if (b[i] !== 0xff) {
@@ -111,16 +111,16 @@ function jpegSize(b: Uint8Array): Size | null {
         i += 2 + length;
     }
     return null;
-}
+};
 
-function pngSize(b: Uint8Array): Size | null {
+const pngSize = (b: Uint8Array): Size | null => {
     if (b.length < 24 || ascii(b, 12, 4) !== 'IHDR') return null;
     const w = u32be(b, 16);
     const h = u32be(b, 20);
     return w > 0 && h > 0 ? { w, h } : null;
-}
+};
 
-function webpSize(b: Uint8Array): Size | null {
+const webpSize = (b: Uint8Array): Size | null => {
     const chunk = ascii(b, 12, 4);
     if (chunk === 'VP8 ') {
         if (b.length < 30 || b[23] !== 0x9d || b[24] !== 0x01 || b[25] !== 0x2a)
@@ -145,16 +145,20 @@ function webpSize(b: Uint8Array): Size | null {
         return { w: 1 + u24le(b, 24), h: 1 + u24le(b, 27) };
     }
     return null;
-}
+};
 
-interface Box {
+type Box = {
     type: string;
     /** Start and end of the box contents. */
     start: number;
     end: number;
-}
+};
 
-function* boxes(b: Uint8Array, from: number, to: number): Generator<Box> {
+const boxes = function* boxes(
+    b: Uint8Array,
+    from: number,
+    to: number,
+): Generator<Box> {
     let o = from;
     while (o + 8 <= to) {
         let size = u32be(b, o);
@@ -174,10 +178,10 @@ function* boxes(b: Uint8Array, from: number, to: number): Generator<Box> {
         };
         o += size;
     }
-}
+};
 
 /** Largest `ispe` (image spatial extents) in `meta/iprp/ipco`: the main image, not a thumbnail. */
-function heicSize(b: Uint8Array): Size | null {
+const heicSize = (b: Uint8Array): Size | null => {
     let best: Size | null = null;
     for (const meta of boxes(b, 0, b.length)) {
         if (meta.type !== 'meta') continue;
@@ -197,13 +201,13 @@ function heicSize(b: Uint8Array): Size | null {
         }
     }
     return best;
-}
+};
 
 /** Pixel size read from the header, without decoding. Null when the header is damaged or cut off. */
-export function readDimensions(
+export const readDimensions = (
     b: Uint8Array,
     format: PhotoFormat,
-): Size | null {
+): Size | null => {
     switch (format) {
         case 'jpeg':
             return jpegSize(b);
@@ -214,4 +218,4 @@ export function readDimensions(
         case 'heic':
             return heicSize(b);
     }
-}
+};

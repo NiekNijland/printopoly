@@ -55,23 +55,23 @@ type BoardForm = 'panels' | 'whole';
 const MAX_SETS = 40;
 
 /** The photo of an element, as the edition stores it, with the crop the server made of it. */
-interface PrintPhoto {
+type PrintPhoto = {
     photoId: string;
     /** Signed URL of the pre-cropped JPEG, filled in by the print job. */
     src?: string;
-}
+};
 
-interface PrintElement {
+type PrintElement = {
     photo?: PrintPhoto;
     [key: string]: unknown;
-}
+};
 
 /**
  * The part of an edition the print pipeline needs: the `Edition` of lib/render/edition-types.ts. The elements are
  * only the overrides of the standard data (B59), so which cards exist comes from `parts` and the standard
  * edition, plus the extra cards marked `added` (B135).
  */
-export interface PrintEdition {
+export type PrintEdition = {
     name?: string;
     language?: string;
     theme?: string;
@@ -91,7 +91,7 @@ export interface PrintEdition {
     /** How many invitations the set counts with (B244). Only the counts follow it, never the PDF. */
     invitations?: number;
     elements: Record<string, PrintElement>;
-}
+};
 
 type PageItemKind =
     | 'panel'
@@ -106,7 +106,7 @@ type PageItemKind =
     | 'invitation'
     | 'calibration';
 
-export interface PageItem {
+export type PageItem = {
     id: string;
     kind: PageItemKind;
     /** Edition element to draw, when there is one (B60 keys). */
@@ -124,15 +124,15 @@ export interface PageItem {
      * carries the mark "SET 2".
      */
     setNumber?: number;
-}
+};
 
-export interface PageSpec {
+export type PageSpec = {
     size: Size;
     label: string | null;
     items: PageItem[];
     cropMarks: Segment[];
     foldLines: Segment[];
-}
+};
 
 export const BLEED = 3;
 /**
@@ -151,7 +151,7 @@ const TOKEN_COUNT = 8;
  * cards the edition added (B135). The cards part always holds all of them: whether it is in the set is chosen on
  * the print page (B198).
  */
-export function cardKeys(edition: PrintEdition): string[] {
+export const cardKeys = (edition: PrintEdition): string[] => {
     const keys: string[] = [];
 
     for (let i = 1; i <= standardEdition.components.titleDeeds; i++) {
@@ -168,38 +168,38 @@ export function cardKeys(edition: PrintEdition): string[] {
     }
 
     return keys;
-}
+};
 
 /**
  * The house rules card prints with the cards when it has a rule on it (B210): the editor always shows it (B198), so
  * the old switch `parts.houseRules` no longer counts. An empty card is left out of the set (bug 20 of test round 3).
  * `PrintEdition::hasHouseRules` counts the same way.
  */
-export function hasHouseRulesCard(edition: {
+export const hasHouseRulesCard = (edition: {
     elements: Readonly<Record<string, object | undefined>>;
-}): boolean {
+}): boolean => {
     const element = edition.elements[HOUSE_RULES_KEY];
     const text =
         element !== undefined && 'text' in element ? element.text : undefined;
 
     return typeof text === 'string' && text.trim() !== '';
-}
+};
 
 /** The amount of play money of a set: the choice the edition or the print page made, else the default (B156). */
-export function moneyAmountOf(
+export const moneyAmountOf = (
     edition: Pick<PrintEdition, 'moneyAmount'>,
     set: PrintSet,
-): MoneyAmount {
+): MoneyAmount => {
     return isMoneyAmount(edition.moneyAmount)
         ? edition.moneyAmount
         : defaultMoneyAmount(set);
-}
+};
 
 /**
  * The note a banknote index is: every note of the amount, dealt out value by value like cards (1, 5, 10, 20, 50,
  * 100, 500, 1, 5 …), so each sheet carries a mix and the PDF does not open on pages of only 1s (R5-29, Ria).
  */
-function noteKeys(amount: MoneyAmount): string[] {
+const noteKeys = (amount: MoneyAmount): string[] => {
     const left = noteCounts(amount).map((note) => ({ ...note }));
     const keys: string[] = [];
 
@@ -213,13 +213,13 @@ function noteKeys(amount: MoneyAmount): string[] {
     }
 
     return keys;
-}
+};
 
-function fromImposition(
+const fromImposition = (
     imp: Imposition,
     kind: PageItemKind,
     itemFor: (index: number) => { key: string | null; label: string },
-): PageSpec[] {
+): PageSpec[] => {
     return imp.sheets.map((sheet) => ({
         size: imp.sheet,
         label: sheet.label,
@@ -238,13 +238,13 @@ function fromImposition(
             };
         }),
     }));
-}
+};
 
 /**
  * A print-shop page that is one piece with bleed, with room around it for crop marks (B160): the page grows by
  * MARKS on every side and the marks sit in that room, outside the bleed.
  */
-function withCropMarks(page: PageSpec): PageSpec {
+const withCropMarks = (page: PageSpec): PageSpec => {
     const shift = <T extends { x: number; y: number }>(rect: T): T => ({
         ...rect,
         x: rect.x + MARKS,
@@ -264,9 +264,9 @@ function withCropMarks(page: PageSpec): PageSpec {
             cropMarksFor(item.trim, BLEED, MARKS - 1),
         ),
     };
-}
+};
 
-function boardPrinter(profile: BoardProfile): PageSpec[] {
+const boardPrinter = (profile: BoardProfile): PageSpec[] => {
     return splitPanels(profile).map((panel) => ({
         size: panel.size,
         label: `Paneel ${panel.id}`,
@@ -288,13 +288,13 @@ function boardPrinter(profile: BoardProfile): PageSpec[] {
             },
         ],
     }));
-}
+};
 
 /**
  * The whole board in one piece for the print shop (B243): one page at full size with 3 mm bleed, for foam board,
  * dibond or a poster.
  */
-function boardWhole(profile: BoardProfile): PageSpec[] {
+const boardWhole = (profile: BoardProfile): PageSpec[] => {
     const size = { w: profile.outer + 2 * BLEED, h: profile.outer + 2 * BLEED };
 
     return [
@@ -320,22 +320,22 @@ function boardWhole(profile: BoardProfile): PageSpec[] {
             ],
         },
     ];
-}
+};
 
 /** The number of sets a PDF holds: at least one, at most MAX_SETS. */
-function setsOf(edition: Pick<PrintEdition, 'sets'>): number {
+const setsOf = (edition: Pick<PrintEdition, 'sets'>): number => {
     const sets = edition.sets;
 
     return typeof sets === 'number' && Number.isFinite(sets)
         ? Math.min(MAX_SETS, Math.max(1, Math.floor(sets)))
         : 1;
-}
+};
 
 /**
  * The pages of one set, again for every set (B242): with more than one set every item gets its set number and every
  * page says which set it holds, so a stack that comes off the printer sorts itself.
  */
-function perSet(sets: number, pages: () => PageSpec[]): PageSpec[] {
+const perSet = (sets: number, pages: () => PageSpec[]): PageSpec[] => {
     if (sets < 2) {
         return pages();
     }
@@ -353,9 +353,9 @@ function perSet(sets: number, pages: () => PageSpec[]): PageSpec[] {
             })),
         })),
     ).flat();
-}
+};
 
-function boardHome(profile: BoardProfile): PageSpec[] {
+const boardHome = (profile: BoardProfile): PageSpec[] => {
     const pieces = stickerPieces(profile);
     const byId = new Map(pieces.map((piece) => [piece.id, piece]));
 
@@ -395,9 +395,9 @@ function boardHome(profile: BoardProfile): PageSpec[] {
             foldLines: [],
         };
     });
-}
+};
 
-function cardsPrinter(edition: PrintEdition): PageSpec[] {
+const cardsPrinter = (edition: PrintEdition): PageSpec[] => {
     const keys = cardKeys(edition);
 
     return printShopCardPages(keys.length, CARD, BLEED).map((page) => ({
@@ -417,14 +417,14 @@ function cardsPrinter(edition: PrintEdition): PageSpec[] {
             },
         ],
     }));
-}
+};
 
 /**
  * The alignment test for printing both sides (B134): a front and a back page with crosshairs at the
  * centres of the corner cards and the middle card. On the back they are mirrored like the cards, so on a
  * printer that turns the sheet straight they fall exactly behind each other.
  */
-function alignmentPages(): PageSpec[] {
+const alignmentPages = (): PageSpec[] => {
     const plan = duplexCardSheets(9, CARD);
     const sheet = plan.pages[0];
 
@@ -451,13 +451,15 @@ function alignmentPages(): PageSpec[] {
     });
 
     return [page('front'), page('back')];
-}
+};
 
 /** The points the alignment test marks: the middle of the four corner cards and of the middle card. */
-export function alignmentTargets(side: 'front' | 'back'): {
+export const alignmentTargets = (
+    side: 'front' | 'back',
+): {
     x: number;
     y: number;
-}[] {
+}[] => {
     const plan = duplexCardSheets(9, CARD);
     const sheet = plan.pages[0];
 
@@ -486,13 +488,13 @@ export function alignmentTargets(side: 'front' | 'back'): {
                   },
               ];
     });
-}
+};
 
 /**
  * Home cards (B134): first the alignment test, then for every sheet a page of fronts and a page of backs
  * mirrored for turning over the long edge.
  */
-function cardsHome(edition: PrintEdition): PageSpec[] {
+const cardsHome = (edition: PrintEdition): PageSpec[] => {
     const keys = cardKeys(edition);
     const plan = duplexCardSheets(keys.length, CARD, 'Kaarten');
     const side = (
@@ -524,9 +526,9 @@ function cardsHome(edition: PrintEdition): PageSpec[] {
             ]),
         ),
     ];
-}
+};
 
-function money(sheet: 'A4' | 'SRA3', amount: MoneyAmount): PageSpec[] {
+const money = (sheet: 'A4' | 'SRA3', amount: MoneyAmount): PageSpec[] => {
     const keys = noteKeys(amount);
 
     return fromImposition(
@@ -537,17 +539,17 @@ function money(sheet: 'A4' | 'SRA3', amount: MoneyAmount): PageSpec[] {
             label: keys[index] ?? '',
         }),
     );
-}
+};
 
 /** The pawns the edition keeps in the set: a pawn taken out has `hidden` (bug 32 of ronde 3). */
-export function pawnKeysOf(edition: PrintEdition): string[] {
+export const pawnKeysOf = (edition: PrintEdition): string[] => {
     return Array.from({ length: TOKEN_COUNT }, (_, i) => pawnKey(i + 1)).filter(
         (key) => edition.elements[key]?.hidden !== true,
     );
-}
+};
 
 /** One slot per pawn in the set, so the heading says "Pionnen 1 t/m 5" for five pawns (bug 32 of ronde 3). */
-function tokens(edition: PrintEdition): PageSpec[] {
+const tokens = (edition: PrintEdition): PageSpec[] => {
     const keys = pawnKeysOf(edition);
 
     return fromImposition(
@@ -567,9 +569,9 @@ function tokens(edition: PrintEdition): PageSpec[] {
             label: `Pion ${String(index + 1)}`,
         }),
     );
-}
+};
 
-function boxLid(profile: BoardProfile, set: PrintSet): PageSpec[] {
+const boxLid = (profile: BoardProfile, set: PrintSet): PageSpec[] => {
     const item = profile.boxLid;
 
     if (set === 'printer') {
@@ -634,10 +636,10 @@ function boxLid(profile: BoardProfile, set: PrintSet): PageSpec[] {
             ],
         };
     });
-}
+};
 
 /** One A5 page of the booklet, with 3 mm bleed for the print shop. */
-function bookletPrinter(): PageSpec[] {
+const bookletPrinter = (): PageSpec[] => {
     const size = {
         w: BOOKLET_PAGE.w + 2 * BLEED,
         h: BOOKLET_PAGE.h + 2 * BLEED,
@@ -659,13 +661,13 @@ function bookletPrinter(): PageSpec[] {
             },
         ],
     }));
-}
+};
 
 /**
  * The booklet for the home printer: two A5 pages side by side on A4 landscape, in the order that folds into a
  * booklet when the sheets are printed on both sides (flip on the short edge) and folded in half.
  */
-function bookletHome(): PageSpec[] {
+const bookletHome = (): PageSpec[] => {
     // A4 landscape, with the two A5 pages in the middle and the fold exactly halfway.
     const size = { w: A4.h, h: A4.w };
     const fold = size.w / 2;
@@ -693,10 +695,10 @@ function bookletHome(): PageSpec[] {
             items: [item(left, fold - BOOKLET_PAGE.w), item(right, fold)],
         };
     });
-}
+};
 
 /** One A6 card with bleed for the print shop; four on an A4 sheet for home, divided by dashed lines. */
-function invitation(set: PrintSet): PageSpec[] {
+const invitation = (set: PrintSet): PageSpec[] => {
     if (set === 'printer') {
         const size = {
             w: INVITATION.w + 2 * BLEED,
@@ -739,9 +741,9 @@ function invitation(set: PrintSet): PageSpec[] {
             })),
         },
     ];
-}
+};
 
-function calibration(profile: BoardProfile): PageSpec[] {
+const calibration = (profile: BoardProfile): PageSpec[] => {
     const sheet = calibrationSheet(profile);
     const item = (id: string, rect: Rect, label: string): PageItem => ({
         id,
@@ -783,18 +785,18 @@ function calibration(profile: BoardProfile): PageSpec[] {
             ],
         },
     ];
-}
+};
 
 /**
  * Which element goes on which page and where (B54, B56, B101). The renderer only draws what this returns,
  * so swapping the placeholder renderer for the real ones touches nothing here.
  */
-export function composePages(
+export const composePages = (
     part: PrintPart,
     set: PrintSet,
     edition: PrintEdition,
     profile: BoardProfile = DEFAULT_BOARD_PROFILE,
-): PageSpec[] {
+): PageSpec[] => {
     switch (part) {
         case 'board':
             if (set === 'home') {
@@ -836,4 +838,4 @@ export function composePages(
         case 'calibration':
             return calibration(profile);
     }
-}
+};

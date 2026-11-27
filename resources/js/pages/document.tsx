@@ -3,11 +3,11 @@ import { PageHero, type Tone } from '@/components/render/table-page-hero';
 import { Seo } from '@/components/seo';
 import type { ContentPageData } from '@/types/generated';
 
-interface DocumentProps {
+type DocumentProps = {
     document: ContentPageData;
     /** Which drawing and colour the page gets; privacy and terms differ. */
     variant?: 'privacy' | 'terms';
-}
+};
 
 const TONE: Record<NonNullable<DocumentProps['variant']>, Tone> = {
     privacy: 'chest',
@@ -15,10 +15,7 @@ const TONE: Record<NonNullable<DocumentProps['variant']>, Tone> = {
 };
 
 /** A long text from a content file: privacy and terms (B67). The text stays in a comfortable column. */
-export default function Document({
-    document,
-    variant = 'privacy',
-}: DocumentProps) {
+const Document = ({ document, variant = 'privacy' }: DocumentProps) => {
     return (
         <>
             <Seo title={document.seoTitle} description={document.description} />
@@ -43,4 +40,5 @@ export default function Document({
             </article>
         </>
     );
-}
+};
+export default Document;

@@ -15,7 +15,7 @@ import { ScaledElement } from './scaled-element';
 
 const PREVIEW_PHOTO_ID = 'box-contribution-preview';
 
-interface ContributionPreviewProps {
+type ContributionPreviewProps = {
     edition: Edition;
     contribution: Pick<
         BoxContributionData,
@@ -26,20 +26,20 @@ interface ContributionPreviewProps {
     photos: PhotoInfos;
     maxWidth?: number;
     maxHeight?: number;
-}
+};
 
 /**
  * What an element would look like with a contribution on it (B128), drawn by the real renderers on a copy of the
  * edition. Nothing is applied: the owner looks first and decides after.
  */
-export function ContributionPreview({
+export const ContributionPreview = ({
     edition,
     contribution,
     photoUrl,
     photos,
     maxWidth = 280,
     maxHeight = 260,
-}: ContributionPreviewProps) {
+}: ContributionPreviewProps) => {
     const withPhoto = photoUrl !== null;
     const draft = useMemo<Edition>(() => {
         const current = edition.elements[contribution.elementKey] ?? {};
@@ -115,4 +115,4 @@ export function ContributionPreview({
             />
         </ScaledElement>
     );
-}
+};

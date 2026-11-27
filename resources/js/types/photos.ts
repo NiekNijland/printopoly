@@ -11,7 +11,7 @@ export type Rotation = 0 | 90 | 180 | 270;
  * - `rotation`: clockwise quarter turns, in degrees.
  * - `grayscale`: black and white, baked into the print source.
  */
-export interface PhotoTransform {
+export type PhotoTransform = {
     x: number;
     y: number;
     scale: number;
@@ -22,6 +22,6 @@ export interface PhotoTransform {
      * may go below 1, so a logo or a panorama shows whole with the paper of the element around it.
      */
     fit?: boolean;
-}
+};
 
 export type PhotoFormat = 'jpeg' | 'png' | 'webp' | 'heic';

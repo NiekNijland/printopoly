@@ -24,17 +24,17 @@ import { cn } from '@/lib/utils';
 import type { Locale } from '@/types/game';
 
 /** What the proposals of friends need from the editor, in "Van vrienden" and in the overview of Samen maken. */
-export interface ProposalContext {
+export type ProposalContext = {
     edition: Edition;
     locale: Locale;
     decision: ContributionDecision;
     secret: string | null;
     busy: boolean;
     photos: PhotoInfos;
-}
+};
 
 /** "Betaal € 18" or "Ontvang € 18", in the words of the cards. */
-function amountLine(amount: number, edition: Edition): string {
+const amountLine = (amount: number, edition: Edition): string => {
     const text = formatMoney(
         Math.abs(amount),
         edition.currency,
@@ -46,9 +46,9 @@ function amountLine(amount: number, edition: Edition): string {
     const words = STRINGS[edition.language];
 
     return amount < 0 ? words.pay(text) : words.receive(text);
-}
+};
 
-function Thumb({
+const Thumb = ({
     contribution,
     secret,
     className,
@@ -56,7 +56,7 @@ function Thumb({
     contribution: BoxContributionData;
     secret: string | null;
     className?: string;
-}) {
+}) => {
     const photo = useContributionPhoto(contribution, secret);
 
     return (
@@ -71,10 +71,96 @@ function Thumb({
             )}
         </span>
     );
-}
+};
+
+const OptionActions = ({
+    group,
+    contribution,
+    context,
+    looking,
+    onLook,
+}: {
+    group: PartGroup;
+    contribution: BoxContributionData;
+    context: ProposalContext;
+    looking: boolean;
+    onLook: () => void;
+}) => {
+    const t = useTranslation();
+    const { decision, busy } = context;
+    const parts: ContributionPart[] = [group.part];
+    const working = decision.working === `${contribution.id}:${group.part}`;
+    const disabled = decision.working !== null || busy;
+
+    return (
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <Button
+                variant="secondary"
+                disabled={disabled}
+                onClick={() =>
+                    void decision.decide(contribution, 'accept', parts)
+                }
+            >
+                {working ? t('collect.working') : t('collect.accept')}
+            </Button>
+            <button
+                type="button"
+                disabled={disabled}
+                onClick={() =>
+                    void decision.decide(contribution, 'reject', parts)
+                }
+                className="min-h-11 cursor-pointer border-0 bg-transparent px-2 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
+            >
+                {t('collect.pass')}
+            </button>
+            {group.part !== 'amount' && (
+                <button
+                    type="button"
+                    aria-pressed={looking}
+                    onClick={onLook}
+                    className="min-h-11 cursor-pointer border-0 bg-transparent px-2 text-sm text-ink-soft underline underline-offset-4"
+                >
+                    {looking ? t('collect.preview_hide') : t('collect.preview')}
+                </button>
+            )}
+        </div>
+    );
+};
+
+const OptionPreview = ({
+    group,
+    contribution,
+    context,
+    photo,
+}: {
+    group: PartGroup;
+    contribution: BoxContributionData;
+    context: ProposalContext;
+    photo: string | null;
+}) => {
+    const { edition, photos } = context;
+
+    return (
+        <div className="flex justify-center rounded-control bg-table p-2">
+            <ContributionPreview
+                edition={edition}
+                contribution={{
+                    ...contribution,
+                    elementKey: group.elementKey,
+                    amount: null,
+                    value: group.part === 'photo' ? null : contribution.value,
+                }}
+                photoUrl={group.part === 'photo' ? photo : null}
+                photos={photos}
+                maxWidth={220}
+                maxHeight={200}
+            />
+        </div>
+    );
+};
 
 /** One proposal for one field: what it says, who sent it, Toepassen and Niet gebruiken. */
-function Option({
+const Option = ({
     group,
     contribution,
     context,
@@ -84,9 +170,9 @@ function Option({
     contribution: BoxContributionData;
     context: ProposalContext;
     competing: boolean;
-}) {
+}) => {
     const t = useTranslation();
-    const { decision, edition, secret, busy, photos } = context;
+    const { edition, secret } = context;
     const [looking, setLooking] = useState(false);
     const photo = useContributionPhoto(
         group.part === 'photo'
@@ -94,9 +180,6 @@ function Option({
             : { ...contribution, photoUrl: null },
         secret,
     );
-    const parts: ContributionPart[] = [group.part];
-    const working = decision.working === `${contribution.id}:${group.part}`;
-    const disabled = decision.working !== null || busy;
 
     return (
         <li
@@ -134,70 +217,32 @@ function Option({
                 </p>
             </div>
             {looking && group.part !== 'amount' && (
-                <div className="flex justify-center rounded-control bg-table p-2">
-                    <ContributionPreview
-                        edition={edition}
-                        contribution={{
-                            ...contribution,
-                            elementKey: group.elementKey,
-                            amount: null,
-                            value:
-                                group.part === 'photo'
-                                    ? null
-                                    : contribution.value,
-                        }}
-                        photoUrl={group.part === 'photo' ? photo : null}
-                        photos={photos}
-                        maxWidth={220}
-                        maxHeight={200}
-                    />
-                </div>
+                <OptionPreview
+                    group={group}
+                    contribution={contribution}
+                    context={context}
+                    photo={photo}
+                />
             )}
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <Button
-                    variant="secondary"
-                    disabled={disabled}
-                    onClick={() =>
-                        void decision.decide(contribution, 'accept', parts)
-                    }
-                >
-                    {working ? t('collect.working') : t('collect.accept')}
-                </Button>
-                <button
-                    type="button"
-                    disabled={disabled}
-                    onClick={() =>
-                        void decision.decide(contribution, 'reject', parts)
-                    }
-                    className="min-h-11 cursor-pointer border-0 bg-transparent px-2 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
-                >
-                    {t('collect.pass')}
-                </button>
-                {group.part !== 'amount' && (
-                    <button
-                        type="button"
-                        aria-pressed={looking}
-                        onClick={() => setLooking((now) => !now)}
-                        className="min-h-11 cursor-pointer border-0 bg-transparent px-2 text-sm text-ink-soft underline underline-offset-4"
-                    >
-                        {looking
-                            ? t('collect.preview_hide')
-                            : t('collect.preview')}
-                    </button>
-                )}
-            </div>
+            <OptionActions
+                group={group}
+                contribution={contribution}
+                context={context}
+                looking={looking}
+                onLook={() => setLooking((now) => !now)}
+            />
         </li>
     );
-}
+};
 
 /** The proposals for one field of one element; two or more sit side by side, and the owner picks one (B175). */
-function PartBlock({
+const PartBlock = ({
     group,
     context,
 }: {
     group: PartGroup;
     context: ProposalContext;
-}) {
+}) => {
     const t = useTranslation();
     const competing = group.options.length > 1;
 
@@ -233,16 +278,16 @@ function PartBlock({
             </ul>
         </div>
     );
-}
+};
 
 /** A new card a friend proposed (B175): it goes in whole, as the next extra card of its deck. */
-function NewCard({
+const NewCard = ({
     contribution,
     context,
 }: {
     contribution: BoxContributionData;
     context: ProposalContext;
-}) {
+}) => {
     const t = useTranslation();
     const { decision, edition, secret, busy } = context;
     const working = decision.working === contribution.id;
@@ -297,30 +342,30 @@ function NewCard({
             </div>
         </div>
     );
-}
+};
 
 /** The title of a new card: "Nieuwe kaart voor Kans". */
-export function newCardTitle(
+export const newCardTitle = (
     key: string,
     edition: Edition,
     locale: Locale,
     t: ReturnType<typeof useTranslation>,
-): string | null {
+): string | null => {
     const deck = newCardDeck(key);
 
     return deck === null
         ? null
         : t('collect.new_card', { deck: deckLabel(edition, deck, locale) });
-}
+};
 
 /** The proposals for one element, per field; or a new card. */
-export function ProposalGroupView({
+export const ProposalGroupView = ({
     group,
     context,
 }: {
     group: ProposalGroup;
     context: ProposalContext;
-}) {
+}) => {
     if (group.newCard !== null) {
         return <NewCard contribution={group.newCard} context={context} />;
     }
@@ -336,4 +381,4 @@ export function ProposalGroupView({
             ))}
         </div>
     );
-}
+};

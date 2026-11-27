@@ -9,7 +9,7 @@ const SET_MARK_HEIGHT = 3.4;
  * one set is made, so the sets of different tables do not get mixed up. It sits on the frame line of the card or the
  * note like a stamp, with its centre at (`cx`, `cy`) in mm of the element.
  */
-export function SetMark({
+export const SetMark = ({
     number,
     theme,
     cx,
@@ -19,7 +19,7 @@ export function SetMark({
     theme: Theme;
     cx: number;
     cy: number;
-}) {
+}) => {
     return (
         <div
             data-set-mark={number}
@@ -64,4 +64,4 @@ export function SetMark({
             </span>
         </div>
     );
-}
+};

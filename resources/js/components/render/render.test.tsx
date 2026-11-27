@@ -1,6 +1,10 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
+import {
+    BANKNOTE_SIZE_MM,
+    RasterNotePattern,
+} from '@/components/render/banknote-parts';
 import { noteIcons, noteInk } from '@/lib/render/banknote-pattern';
 import { lidLayout } from '@/lib/render/box-lid-layout';
 import { mix } from '@/lib/render/color';
@@ -10,12 +14,7 @@ import { spaceAt, standardEdition } from '@/lib/render/standard-edition';
 import { THEMES, type ThemeId } from '@/lib/render/themes';
 import type { Card, OwnableSpace } from '@/types/game';
 
-import {
-    Banknote,
-    BANKNOTE_SIZE_MM,
-    RasterNotePattern,
-    noteColor,
-} from './banknote';
+import { Banknote, noteColor } from './banknote';
 import { Board, BoardCenter, cardSpots } from './board';
 import { BoardSpace } from './board-space';
 import { BoxLid } from './box-lid';
@@ -32,7 +31,7 @@ import { TitleDeed } from './title-deed';
 const base = { theme: 'classic', locale: 'nl' } as const;
 
 /** The outer element of what was just rendered. */
-function root(container: HTMLElement): HTMLElement {
+const root = (container: HTMLElement): HTMLElement => {
     const element = container.firstElementChild;
 
     if (!(element instanceof HTMLElement)) {
@@ -40,16 +39,16 @@ function root(container: HTMLElement): HTMLElement {
     }
 
     return element;
-}
+};
 
 /** How the browser normalises a colour, so tests can compare with what is in the style. */
-function css(color: string): string {
+const css = (color: string): string => {
     const probe = document.createElement('div');
 
     probe.style.background = color;
 
     return probe.style.background;
-}
+};
 
 const mmSize = (element: HTMLElement) => [
     element.style.width,
@@ -1245,7 +1244,7 @@ describe('PhotoSlot', () => {
 describe('FitText', () => {
     const slot = { x: 0, y: 0, w: 20, h: 5, maxFontMm: 4, minFontMm: 2 };
 
-    function renderInSheet(ui: React.ReactNode) {
+    const renderInSheet = (ui: React.ReactNode) => {
         return render(
             <Sheet
                 {...base}
@@ -1257,7 +1256,7 @@ describe('FitText', () => {
                 {ui}
             </Sheet>,
         );
-    }
+    };
 
     it('keeps the maximum size for short text', () => {
         const { container } = renderInSheet(<FitText {...slot} text="Kans" />);

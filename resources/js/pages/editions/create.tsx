@@ -29,8 +29,9 @@ import {
 import { useServices } from '@/features/edition/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import { messages } from '@/lib/render/edition-strings';
+import { isOfferedTemplate } from '@/lib/render/edition-template-ids';
 import { template, templateEdition } from '@/lib/render/edition-templates';
-import { DEFAULT_PARTS, isOfferedTemplate } from '@/lib/render/edition-types';
+import { DEFAULT_PARTS } from '@/lib/render/edition-types';
 import { emptiedEdition } from '@/lib/render/editor-clear-names';
 import { defaultCurrency } from '@/lib/render/game-currency';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
@@ -41,11 +42,11 @@ import type { CurrencyId, Locale } from '@/types/game';
  * The values a starting point fills in: name and theme. `null` is the blank edition. The parts are no choice here
  * (B198): every new edition starts with the same set, board and cards (B225), and the print page changes it.
  */
-function startValues(
+const startValues = (
     choice: TemplateChoice,
     language: Locale,
     blankName: string,
-): Pick<EditionFieldValues, 'name' | 'theme' | 'parts'> {
+): Pick<EditionFieldValues, 'name' | 'theme' | 'parts'> => {
     const data =
         choice === null || choice === EMPTY_START
             ? undefined
@@ -56,7 +57,7 @@ function startValues(
         theme: data?.theme ?? 'classic',
         parts: { ...DEFAULT_PARTS },
     };
-}
+};
 
 const LANGUAGES: readonly Locale[] = ['nl', 'en'];
 
@@ -67,11 +68,11 @@ const subscribeNothing = () => () => undefined;
  * currency, and give it a name next to the button. The theme and the currency come with the starting point and the
  * language, and stay folded until you change them.
  */
-export default function EditionsCreate({
+const EditionsCreate = ({
     template: templateParam = null,
 }: {
     template?: string | null;
-}) {
+}) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const { repository } = useServices();
@@ -337,4 +338,5 @@ export default function EditionsCreate({
             </form>
         </>
     );
-}
+};
+export default EditionsCreate;

@@ -7,12 +7,12 @@ import type { PhotoSource, PhotoStyle } from '@/lib/render/photo';
 import type { PhotoTransform } from '@/types/photos';
 
 /** A stored photo ready to show: an object URL of the preview and the pixel size of the original. */
-export interface PhotoInfo {
+export type PhotoInfo = {
     id: string;
     url: string;
     width: number;
     height: number;
-}
+};
 
 export type PhotoInfos = ReadonlyMap<string, PhotoInfo>;
 
@@ -94,9 +94,9 @@ export class PhotoCache {
     }
 }
 
-export function placementToTransform(
+export const placementToTransform = (
     placement: PhotoPlacement,
-): PhotoTransform {
+): PhotoTransform => {
     return {
         x: placement.cx,
         y: placement.cy,
@@ -105,14 +105,14 @@ export function placementToTransform(
         grayscale: placement.grayscale,
         ...(placement.fit === true ? { fit: true } : {}),
     };
-}
+};
 
 /** What the renderers need to draw a placement, or `undefined` while the photo is still loading. */
 /** The icon of a special space for the renderers (B136); an uploaded image that is not loaded yet is left out. */
-export function iconSource(
+export const iconSource = (
     icon: SpaceIcon | undefined,
     infos: PhotoInfos,
-): SpaceIconSource | undefined {
+): SpaceIconSource | undefined => {
     if (icon === undefined) {
         return undefined;
     }
@@ -122,13 +122,13 @@ export function iconSource(
     const photo = photoSource(icon.photo, infos);
 
     return photo === undefined ? undefined : { photo, aspect: icon.aspect };
-}
+};
 
-export function photoSource(
+export const photoSource = (
     placement: PhotoPlacement | undefined,
     infos: PhotoInfos,
     style?: PhotoStyle,
-): PhotoSource | undefined {
+): PhotoSource | undefined => {
     if (placement === undefined) {
         return undefined;
     }
@@ -149,4 +149,4 @@ export function photoSource(
         height: info.height,
         transform: placementToTransform(shown),
     };
-}
+};

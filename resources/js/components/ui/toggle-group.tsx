@@ -24,7 +24,7 @@ const ToggleGroupContext = createContext<
  * spacing the items stand apart as separate controls (a grid of icons, say). Radix gives the roving focus: Tab
  * enters the group, the arrow keys move, Space or Enter chooses.
  */
-function ToggleGroup({
+const ToggleGroup = ({
     className,
     variant,
     size,
@@ -32,14 +32,18 @@ function ToggleGroup({
     children,
     ...props
 }: ComponentProps<typeof ToggleGroupPrimitive.Root> &
-    VariantProps<typeof toggleVariants> & { spacing?: number }) {
+    VariantProps<typeof toggleVariants> & { spacing?: number }) => {
+    const style: CSSProperties & Record<`--${string}`, number> = {
+        '--gap': spacing,
+    };
+
     return (
         <ToggleGroupPrimitive.Root
             data-slot="toggle-group"
             data-variant={variant}
             data-size={size}
             data-spacing={spacing}
-            style={{ '--gap': spacing } as CSSProperties}
+            style={style}
             className={cn(
                 'group/toggle-group flex w-fit items-center gap-[--spacing(var(--gap))] rounded-control',
                 spacing === 0 &&
@@ -54,16 +58,16 @@ function ToggleGroup({
             </ToggleGroupContext.Provider>
         </ToggleGroupPrimitive.Root>
     );
-}
+};
 
-function ToggleGroupItem({
+const ToggleGroupItem = ({
     className,
     children,
     variant,
     size,
     ...props
 }: ComponentProps<typeof ToggleGroupPrimitive.Item> &
-    VariantProps<typeof toggleVariants>) {
+    VariantProps<typeof toggleVariants>) => {
     const context = useContext(ToggleGroupContext);
     const look = context.variant ?? variant;
     const joined = context.spacing === 0;
@@ -88,6 +92,6 @@ function ToggleGroupItem({
             {children}
         </ToggleGroupPrimitive.Item>
     );
-}
+};
 
 export { ToggleGroup, ToggleGroupItem };

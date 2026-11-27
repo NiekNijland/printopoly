@@ -31,9 +31,9 @@ Een bestand importeert alleen uit zijn eigen laag en de lagen eronder. De laagst
 
 ## Eén manier per taak
 
-- Storage, `matchMedia`, `fetch`, window- en document-events en `Intl` hebben elk één deur. De lijst `doors` in `eslint.config.js` noemt per API het bestand dat haar mag aanraken; `resources/js/hooks/use-media-query.ts` is de deur voor `matchMedia`.
+- Storage, `matchMedia`, `fetch`, window- en document-events en `Intl` hebben elk één deur. De lijst `doors` in `eslint.config.js` noemt per API het bestand dat haar mag aanraken; `resources/js/lib/media-query.ts` is de deur voor `matchMedia` (een component leest hem met `resources/js/hooks/use-media-query.ts`), `resources/js/lib/browser-storage.ts` voor storage, `resources/js/lib/dom-events.ts` voor window- en document-events, `resources/js/lib/number-format.ts` en `resources/js/lib/datetime.ts` voor `Intl`.
 - Een verzoek naar de server gaat via de HTTP-hook van Inertia. De uitzondering is de getypte `fetch` voor de offline sync en de print-API (D-16, Q-16): alleen `resources/js/features/edition/remote` en `resources/js/lib/render/print-api.ts` doen dat.
-- Geen schrijven naar `location`, geen zelfgebouwde downloadlink, geen succes-toast van de client, geen laadstatus in `onStart`/`onFinish`. Navigeren gaat met `router.visit`, een succes meldt de server met een flash.
+- Geen schrijven naar `location`, geen zelfgebouwde downloadlink, geen succes-toast van de client, geen laadstatus in `onStart`/`onFinish`. Navigeren gaat met `router.visit`, een succes meldt de server met een flash; een volledige paginalading gaat via `resources/js/lib/full-page-navigation.ts`.
 - Een test staat naast zijn bestand (`<file>.test.tsx`). Geen focused, skipped of todo-test, geen snapshot, geen eigen `vi.mock` van `@inertiajs`: de gedeelde fake komt uit `resources/js/testing/setup.ts`.
 
 Review controleert, de guard niet: of een hook geen domein kent, en of een component met veel logica een hook had moeten zijn (rubric item 17).

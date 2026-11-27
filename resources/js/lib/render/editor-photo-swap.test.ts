@@ -11,11 +11,11 @@ import {
     swapsPhoto,
 } from './editor-photo-swap';
 
-function withElements(elements: Edition['elements']): Edition {
+const withElements = (elements: Edition['elements']): Edition => {
     const edition = makeEdition();
 
     return { ...edition, elements: { ...edition.elements, ...elements } };
-}
+};
 
 describe('photos between spaces (B238)', () => {
     it('lets streets, stations and utilities trade photos, not corners or card spaces', () => {

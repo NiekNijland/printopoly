@@ -19,13 +19,13 @@ const PX_PER_MM = 96 / 25.4;
  * the theme, the photo or logo, the photo over the whole centre and the ribbon with the same line breaks as the
  * preview and the PDF, because it is the same renderer.
  */
-export function MiniCenter({
+export const MiniCenter = ({
     edition,
     photos,
 }: {
     edition: Edition;
     photos?: PhotoInfos;
-}) {
+}) => {
     const box = useRef<HTMLSpanElement>(null);
     const [width, setWidth] = useState(0);
     const resolved = useMemo(() => resolveEdition(edition), [edition]);
@@ -79,4 +79,4 @@ export function MiniCenter({
             </span>
         </span>
     );
-}
+};

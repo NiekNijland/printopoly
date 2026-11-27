@@ -23,6 +23,7 @@ import { editionFromSnapshot } from '@/features/edition/boxes/snapshot';
 import type { FriendBox } from '@/features/edition/boxes/types';
 import { BoardNavigator } from '@/features/edition/editor/board-navigator';
 import { useTranslation } from '@/hooks/use-translation';
+import { reportUnlessOffline } from '@/lib/bugsnag';
 import { friendCanAddToSpace } from '@/lib/render/boxes-labels';
 import { groupColor, groupTitle } from '@/lib/render/edition-group-names';
 import {
@@ -41,9 +42,9 @@ import { home } from '@/routes';
 
 type Tab = 'board' | 'towns' | 'cards' | 'pawns';
 
-interface BoxShowProps {
+type BoxShowProps = {
     box: FriendBox;
-}
+};
 
 const NO_WARNINGS: ReadonlySet<string> = new Set();
 
@@ -64,7 +65,7 @@ const STATE_TEXT: Record<OwnState, string> = {
  * pawn, add a photo and/or a suggestion with their first name. No account. Nothing here shows what other friends
  * sent; a friend only sees their own contributions, kept in this browser.
  */
-export default function BoxShow({ box }: BoxShowProps) {
+const BoxShow = ({ box }: BoxShowProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const edition = useMemo(
@@ -98,7 +99,7 @@ export default function BoxShow({ box }: BoxShowProps) {
                 records.map((record) => record.receipt),
             )
                 .then(setStates)
-                .catch(() => undefined);
+                .catch(reportUnlessOffline);
         }
     }, [box.token]);
 
@@ -654,4 +655,5 @@ export default function BoxShow({ box }: BoxShowProps) {
             </footer>
         </div>
     );
-}
+};
+export default BoxShow;

@@ -13,7 +13,7 @@ let instance: ReverbEcho | null | undefined;
  * status endpoint. Private channels are authorised by /broadcasting/auth with the session cookie
  * and the CSRF token from the page.
  */
-export function getEcho(): ReverbEcho | null {
+export const getEcho = (): ReverbEcho | null => {
     if (instance !== undefined) {
         return instance;
     }
@@ -31,7 +31,7 @@ export function getEcho(): ReverbEcho | null {
     const port = reverb.port ?? (secure ? 443 : 80);
 
     // Echo looks for Pusher on window; the Reverb protocol is Pusher-compatible.
-    (window as unknown as { Pusher: typeof Pusher }).Pusher = Pusher;
+    Object.assign(window, { Pusher });
 
     instance = new Echo({
         broadcaster: 'reverb',
@@ -44,4 +44,4 @@ export function getEcho(): ReverbEcho | null {
     });
 
     return instance;
-}
+};

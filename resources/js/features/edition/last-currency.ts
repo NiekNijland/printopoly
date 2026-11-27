@@ -1,3 +1,4 @@
+import { readStored, writeStored } from '@/lib/browser-storage';
 import type { CurrencyId } from '@/types/game';
 
 /**
@@ -11,20 +12,13 @@ const KEY = 'printopoly.lastCurrency';
 
 const KNOWN: readonly CurrencyId[] = ['eur', 'gbp', 'usd', 'play'];
 
-export function readLastCurrency(): CurrencyId | null {
-    try {
-        const value = window.localStorage.getItem(KEY);
+export const readLastCurrency = (): CurrencyId | null => {
+    const value = readStored(KEY);
 
-        return KNOWN.find((id) => id === value) ?? null;
-    } catch {
-        return null;
-    }
-}
+    return KNOWN.find((id) => id === value) ?? null;
+};
 
-export function rememberCurrency(currency: CurrencyId): void {
-    try {
-        window.localStorage.setItem(KEY, currency);
-    } catch {
-        // Private window or full storage: the next edition starts with the currency of its language.
-    }
-}
+export const rememberCurrency = (currency: CurrencyId): void => {
+    // Private window or full storage: the next edition starts with the currency of its language.
+    writeStored(KEY, currency);
+};

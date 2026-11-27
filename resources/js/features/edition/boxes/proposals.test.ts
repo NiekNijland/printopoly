@@ -1,20 +1,21 @@
 import { EditionBus } from '@/features/edition/bus';
-import type { EditionRepository } from '@/features/edition/repository';
+import { EditionRepository } from '@/features/edition/repository';
 import { EditionSession } from '@/features/edition/session';
+import { MemoryEditionStorage } from '@/lib/render/edition-storage';
 import type { Edition } from '@/lib/render/edition-types';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
-import { inOrder, stubFetch } from '@/testing/fetch';
+import { inOrder, jsonOf, requestOf, stubFetch } from '@/testing/fetch';
 
 import { makeShareImage } from './api';
 import { ApplyError, applyContribution } from './apply';
 import { nextContributionElement, proposalGroups } from './proposals';
 import type { BoxContributionData } from './types';
 
-function proposal(
+const proposal = (
     id: string,
     elementKey: string,
     overrides: Partial<BoxContributionData> = {},
-): BoxContributionData {
+): BoxContributionData => {
     return {
         id,
         elementKey,
@@ -30,7 +31,7 @@ function proposal(
         createdAt: null,
         ...overrides,
     };
-}
+};
 
 describe('proposalGroups (B175)', () => {
     it('groups per element and per field, with competing proposals together', () => {
@@ -112,7 +113,7 @@ describe('nextContributionElement (bug 30)', () => {
 });
 
 describe('applyContribution with parts (B175)', () => {
-    async function session(elements: Edition['elements'] = {}) {
+    const session = async (elements: Edition['elements'] = {}) => {
         const services = installMemoryServices();
         const edition = sampleEdition();
         edition.elements = { ...edition.elements, ...elements };
@@ -124,11 +125,16 @@ describe('applyContribution with parts (B175)', () => {
             now: () => Date.now(),
             debounceMs: 5,
         });
-    }
+    };
 
     const deps = (current: EditionSession) => ({
         session: current,
-        repository: {} as EditionRepository,
+        repository: new EditionRepository({
+            storage: new MemoryEditionStorage(),
+            bus: new EditionBus(null, 'w'),
+            now: () => Date.now(),
+            newId: () => 'unused',
+        }),
         fetchPhoto: () => Promise.reject(new Error('no photo here')),
         locale: 'nl' as const,
         storageFullMessage: 'vol',
@@ -211,9 +217,7 @@ describe('makeShareImage (B174)', () => {
         );
 
         expect(await blob.text()).toBe('png');
-        expect(
-            JSON.parse(fetchMock.mock.calls[0]?.[1]?.body as string),
-        ).toEqual({
+        expect(jsonOf(requestOf(fetchMock).init)).toEqual({
             edition: { name: 'Zaterdagclub' },
             photos: [],
         });

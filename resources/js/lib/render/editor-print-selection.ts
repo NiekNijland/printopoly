@@ -15,16 +15,16 @@ export const EDITOR_PARTS: Readonly<Parts> = Object.fromEntries(
 ) as Parts;
 
 /** The edition as the editor shows it: every part on, whatever was chosen for the last set (B198). */
-export function editorView(edition: Edition): Edition {
+export const editorView = (edition: Edition): Edition => {
     return { ...edition, parts: EDITOR_PARTS };
-}
+};
 
 /**
  * The parts of the set chosen last on the print page (B198). The print page keeps them on the edition as
  * `printSelection`; an edition without one (never printed, or older) has the set the print page would open with,
  * `defaultPrintSelection`, so the editor and the print page agree from the first moment (R5-20, B225).
  */
-export function partsInSet(edition: Edition): ReadonlySet<PartId> {
+export const partsInSet = (edition: Edition): ReadonlySet<PartId> => {
     const chosen = (edition as { printSelection?: { parts?: unknown } })
         .printSelection?.parts;
 
@@ -37,18 +37,18 @@ export function partsInSet(edition: Edition): ReadonlySet<PartId> {
             (PART_IDS as readonly string[]).includes(part as string),
         ),
     );
-}
+};
 
 /** Whether a part is in the last chosen set; the board always is. */
-export function inSet(edition: Edition, part: PartId): boolean {
+export const inSet = (edition: Edition, part: PartId): boolean => {
     return part === 'board' || partsInSet(edition).has(part);
-}
+};
 
 /**
  * The edition the editor checks: only the parts that go into the set, so a part you do not print gives no
  * messages while you work (B197, B198).
  */
-export function checkView(edition: Edition): Edition {
+export const checkView = (edition: Edition): Edition => {
     const set = partsInSet(edition);
 
     return {
@@ -60,4 +60,4 @@ export function checkView(edition: Edition): Edition {
             ]),
         ) as Parts,
     };
-}
+};

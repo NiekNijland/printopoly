@@ -6,11 +6,11 @@ import { useEditionSession } from '@/features/edition/use-edition-session';
 import { useTranslation } from '@/hooks/use-translation';
 import { index as editionsIndex } from '@/routes/editions';
 
-interface EditorShowProps {
+type EditorShowProps = {
     editionId: string;
-}
+};
 
-function Message({ title, body }: { title: string; body?: string }) {
+const Message = ({ title, body }: { title: string; body?: string }) => {
     const { locale } = usePage().props;
     const t = useTranslation();
 
@@ -28,13 +28,13 @@ function Message({ title, body }: { title: string; body?: string }) {
             </Button>
         </main>
     );
-}
+};
 
 /**
  * The editor page (B73). The edition comes from this browser's storage, so the page renders on
  * the client only (B66). Editions that do not exist here get a short message instead.
  */
-export default function EditorShow({ editionId }: EditorShowProps) {
+const EditorShow = ({ editionId }: EditorShowProps) => {
     const t = useTranslation();
     const state = useEditionSession(editionId);
 
@@ -65,4 +65,5 @@ export default function EditorShow({ editionId }: EditorShowProps) {
             <EditorWorkspace session={state.session} />
         </>
     );
-}
+};
+export default EditorShow;

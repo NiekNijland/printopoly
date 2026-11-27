@@ -24,14 +24,14 @@ const target = placementTarget(
 const STANDING = { width: 3024, height: 4032 };
 const LYING = { width: 4032, height: 3024 };
 
-function over(placement: PhotoPlacement): Edition {
+const over = (placement: PhotoPlacement): Edition => {
     const edition = sampleEdition({ parts: { board: true } });
 
     return {
         ...edition,
         elements: { [BOARD_CENTER_KEY]: { background: placement } },
     };
-}
+};
 
 describe('a photo over the whole centre and the folds (R6 Tom, Sara; B261)', () => {
     it('starts a lying photo with its middle in the left half, clear of the vertical fold', () => {

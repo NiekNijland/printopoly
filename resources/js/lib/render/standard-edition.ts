@@ -1,3 +1,4 @@
+import { formatNumber } from '@/lib/number-format';
 import data from '../../../data/standard-edition.json';
 import type {
     CornerSpace,
@@ -15,7 +16,7 @@ import type {
 
 export const standardEdition = data as unknown as StandardEdition;
 
-export function spaceAt(position: number): Space {
+export const spaceAt = (position: number): Space => {
     const space = standardEdition.spaces[position];
 
     if (space === undefined || space.position !== position) {
@@ -23,18 +24,18 @@ export function spaceAt(position: number): Space {
     }
 
     return space;
-}
+};
 
-export function isOwnable(space: Space): space is OwnableSpace {
+export const isOwnable = (space: Space): space is OwnableSpace => {
     return (
         space.type === 'street' ||
         space.type === 'station' ||
         space.type === 'utility'
     );
-}
+};
 
 /** Rent table of a street (6 values) or a station (4 values). Throws for other spaces. */
-export function rentTable(position: number): StreetRent | StationRent {
+export const rentTable = (position: number): StreetRent | StationRent => {
     const space = spaceAt(position);
 
     if (space.type === 'street' || space.type === 'station') {
@@ -42,10 +43,10 @@ export function rentTable(position: number): StreetRent | StationRent {
     }
 
     throw new TypeError(`Space ${position} has no rent table`);
-}
+};
 
 /** Rent of an unimproved street when the owner has the whole colour group: twice the base rent. */
-export function setRent(position: number): number {
+export const setRent = (position: number): number => {
     const space = spaceAt(position);
 
     if (space.type !== 'street') {
@@ -53,9 +54,9 @@ export function setRent(position: number): number {
     }
 
     return space.rent[0] * 2;
-}
+};
 
-function ownableAt(position: number): OwnableSpace {
+const ownableAt = (position: number): OwnableSpace => {
     const space = spaceAt(position);
 
     if (!isOwnable(space)) {
@@ -63,19 +64,19 @@ function ownableAt(position: number): OwnableSpace {
     }
 
     return space;
-}
+};
 
-export function mortgage(position: number): number {
+export const mortgage = (position: number): number => {
     return ownableAt(position).mortgage;
-}
+};
 
 /** Mortgage plus 10%, rounded to a whole amount. */
-export function unmortgage(position: number): number {
+export const unmortgage = (position: number): number => {
     return Math.round((mortgage(position) * 11) / 10);
-}
+};
 
 /** The 36 non-corner spaces per side of the board, plus the four corners. */
-export function spacesBySide(): SpacesBySide {
+export const spacesBySide = (): SpacesBySide => {
     const spaces = standardEdition.spaces;
 
     return {
@@ -87,19 +88,19 @@ export function spacesBySide(): SpacesBySide {
         top: spaces.slice(21, 30),
         right: spaces.slice(31, 40),
     };
-}
+};
 
-export function groupMembers(group: GroupId): StreetSpace[] {
+export const groupMembers = (group: GroupId): StreetSpace[] => {
     return standardEdition.spaces.filter(
         (space): space is StreetSpace =>
             space.type === 'street' && space.group === group,
     );
-}
+};
 
 /** The 28 ownable spaces, in board order. */
-export function deedsFor(): OwnableSpace[] {
+export const deedsFor = (): OwnableSpace[] => {
     return standardEdition.spaces.filter(isOwnable);
-}
+};
 
 const numberLocale: Record<Locale, string> = { nl: 'nl-NL', en: 'en-GB' };
 
@@ -107,26 +108,26 @@ const numberLocale: Record<Locale, string> = { nl: 'nl-NL', en: 'en-GB' };
  * Puts the currency sign before every amount in a standard card text ("pay 15" becomes "pay M15" or
  * "betaal € 15"). A multiplier of the dice ("10 keer", "10 times") is not an amount and stays a number.
  */
-export function withCurrency(
+export const withCurrency = (
     text: string,
     currency: CurrencyId,
     locale: Locale,
     symbol?: string,
-): string {
+): string => {
     return text.replace(
         /(?<![\w.,])(\d+)(?!\w|[.,]\d|\s+(?:keer|times)\b)/g,
         (_, digits: string) =>
             formatMoney(Number(digits), currency, locale, symbol),
     );
-}
+};
 
 /** `€ 1.500` in Dutch, `€1,500` in English. An edition's own `symbol` replaces the one of the currency. */
-export function formatMoney(
+export const formatMoney = (
     amount: number,
     currency: CurrencyId,
     locale: Locale,
     symbol?: string,
-): string {
+): string => {
     const entry = standardEdition.currencies.find(
         (candidate) => candidate.id === currency,
     );
@@ -135,9 +136,9 @@ export function formatMoney(
         throw new RangeError(`Unknown currency ${currency}`);
     }
 
-    const number = new Intl.NumberFormat(numberLocale[locale], {
+    const number = formatNumber(amount, numberLocale[locale], {
         maximumFractionDigits: 0,
-    }).format(amount);
+    });
 
     const sign = symbol ?? entry.symbol;
 
@@ -146,4 +147,4 @@ export function formatMoney(
     return locale === 'nl' || (symbol !== undefined && /\p{L}$/u.test(sign))
         ? `${sign}\u00A0${number}`
         : `${sign}${number}`;
-}
+};

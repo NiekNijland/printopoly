@@ -21,10 +21,10 @@ export type ElementKind =
     | 'themeAccent'
     | 'partStyle';
 
-export interface ParsedKey {
+export type ParsedKey = {
     kind: ElementKind;
     part: PartId;
-}
+};
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -90,54 +90,64 @@ export const GROUP_IDS: readonly GroupId[] = standardEdition.groups.map(
     (group) => group.id,
 );
 
-function inRange(text: string, min: number, max: number): boolean {
+const inRange = (text: string, min: number, max: number): boolean => {
     if (!/^\d{2}$/.test(text)) {
         return false;
     }
     const n = Number(text);
 
     return n >= min && n <= max;
-}
+};
 
-/** Returns what an element key is, or `null` when it is not a valid key. */
-export function parseKey(key: string): ParsedKey | null {
-    const parts = key.split('.');
-    const [head, second, third] = parts;
+type KeyParser = (parts: readonly string[], key: string) => ParsedKey | null;
 
-    switch (head) {
-        case 'space':
-            return parts.length === 2 &&
-                second !== undefined &&
-                inRange(second, 0, spaceCount - 1)
-                ? { kind: 'space', part: 'board' }
-                : null;
-        case 'deed':
-            return parts.length === 2 &&
-                second !== undefined &&
-                inRange(second, 1, deedCount)
-                ? { kind: 'deed', part: 'deeds' }
-                : null;
-        case 'card':
+const single =
+    (kind: ElementKind, part: PartId): KeyParser =>
+    (parts) =>
+        parts.length === 1 ? { kind, part } : null;
+
+const numbered =
+    (kind: ElementKind, part: PartId, min: number, max: number): KeyParser =>
+    ([, second, ...rest]) =>
+        rest.length === 0 && second !== undefined && inRange(second, min, max)
+            ? { kind, part }
+            : null;
+
+const KEY_PARSERS: ReadonlyMap<string, KeyParser> = new Map<string, KeyParser>([
+    ['space', numbered('space', 'board', 0, spaceCount - 1)],
+    ['deed', numbered('deed', 'deeds', 1, deedCount)],
+    [
+        'card',
+        (parts) => {
+            const [, second, third] = parts;
+
             return parts.length === 3 &&
                 (second === 'chance' || second === 'chest') &&
                 third !== undefined &&
                 inRange(third, 1, MAX_DECK_SIZE)
                 ? { kind: 'card', part: 'cards' }
                 : null;
-        case 'note':
+        },
+    ],
+    [
+        'note',
+        (parts) => {
+            const [, second] = parts;
+
             return parts.length === 2 &&
                 second !== undefined &&
                 noteValues.has(Number(second)) &&
                 String(Number(second)) === second
                 ? { kind: 'note', part: 'money' }
                 : null;
-        case 'pawn':
-            return parts.length === 2 &&
-                second !== undefined &&
-                inRange(second, 1, PAWN_COUNT)
-                ? { kind: 'pawn', part: 'pawns' }
-                : null;
-        case 'card_back':
+        },
+    ],
+    ['pawn', numbered('pawn', 'pawns', 1, PAWN_COUNT)],
+    [
+        'card_back',
+        (parts) => {
+            const [, second] = parts;
+
             return parts.length === 2 &&
                 (second === 'chance' || second === 'chest' || second === 'deed')
                 ? {
@@ -145,51 +155,53 @@ export function parseKey(key: string): ParsedKey | null {
                       part: second === 'deed' ? 'deeds' : 'cards',
                   }
                 : null;
-        case 'box_lid':
-            return parts.length === 1
-                ? { kind: 'boxLid', part: 'boxLid' }
-                : null;
-        case 'board_center':
-            return parts.length === 1
-                ? { kind: 'boardCenter', part: 'board' }
-                : null;
-        case 'house_rules':
-            return parts.length === 1
-                ? { kind: 'houseRules', part: 'houseRules' }
-                : null;
-        case 'rules_booklet':
-            return parts.length === 1
-                ? { kind: 'rulesBooklet', part: 'rulesBooklet' }
-                : null;
-        case 'invitation':
-            return parts.length === 1
-                ? { kind: 'invitation', part: 'invitation' }
-                : null;
-        case 'group':
-            return parts.length === 2 &&
-                second !== undefined &&
-                (GROUP_IDS as readonly string[]).includes(second)
+        },
+    ],
+    ['box_lid', single('boxLid', 'boxLid')],
+    ['board_center', single('boardCenter', 'board')],
+    ['house_rules', single('houseRules', 'houseRules')],
+    ['rules_booklet', single('rulesBooklet', 'rulesBooklet')],
+    ['invitation', single('invitation', 'invitation')],
+    [
+        'group',
+        (parts) => {
+            const [, second] = parts;
+
+            return parts.length === 2 && GROUP_IDS.some((id) => id === second)
                 ? { kind: 'group', part: 'board' }
                 : null;
-        case 'words':
-            return parts.length === 2 &&
-                (WORD_IDS as readonly string[]).includes(second ?? '')
+        },
+    ],
+    [
+        'words',
+        (parts) => {
+            const [, second] = parts;
+
+            return parts.length === 2 && WORD_IDS.some((id) => id === second)
                 ? { kind: 'words', part: 'board' }
                 : null;
-        case 'theme_accent':
-            return parts.length === 1
-                ? { kind: 'themeAccent', part: 'board' }
-                : null;
-        case 'style': {
+        },
+    ],
+    ['theme_accent', single('themeAccent', 'board')],
+    [
+        'style',
+        (_parts, key) => {
             // The style of a part (B268): `style.board`, `style.cards`, … `style.box_lid`.
             const part = partOfStyleKey(key);
 
             return part === null ? null : { kind: 'partStyle', part };
-        }
-        default:
-            return null;
-    }
-}
+        },
+    ],
+]);
+
+/** Returns what an element key is, or `null` when it is not a valid key. */
+export const parseKey = (key: string): ParsedKey | null => {
+    const parts = key.split('.');
+    const [head] = parts;
+    const parser = head === undefined ? undefined : KEY_PARSERS.get(head);
+
+    return parser?.(parts, key) ?? null;
+};
 
 /** Which fields an element kind accepts. Amounts of the board and of cards stay within 20% of the standard (B132). */
 export const ALLOWED_FIELDS: Readonly<
@@ -250,49 +262,52 @@ export const ALLOWED_FIELDS: Readonly<
 };
 
 /** The part an element key belongs to, or `null` for an invalid key. */
-export function partOfKey(key: string): PartId | null {
+export const partOfKey = (key: string): PartId | null => {
     return parseKey(key)?.part ?? null;
-}
+};
 
 /** Whether a key is an extra card after the standard ones (B135): `card.chance.17` to `card.chance.32`. */
-export function isExtraCardKey(key: string): boolean {
+export const isExtraCardKey = (key: string): boolean => {
     const parsed = parseKey(key);
 
     return (
         parsed?.kind === 'card' &&
         Number(key.split('.')[2]) > STANDARD_DECK_SIZE
     );
-}
+};
 
 /** The extra cards of a deck that the edition added (B135), in order. */
-export function extraCardKeys(
+export const extraCardKeys = (
     elements: Readonly<Record<string, object | undefined>>,
     deck: 'chance' | 'chest',
-): string[] {
+): string[] => {
     const keys: string[] = [];
     for (let i = STANDARD_DECK_SIZE + 1; i <= MAX_DECK_SIZE; i++) {
-        const element = elements[cardKey(deck, i)] as
-            { added?: unknown } | undefined;
-        if (element?.added === true) {
+        const element = elements[cardKey(deck, i)];
+        if (
+            element !== undefined &&
+            'added' in element &&
+            element.added === true
+        ) {
             keys.push(cardKey(deck, i));
         }
     }
 
     return keys;
-}
+};
 
 /** Every card of a deck: the 16 standard ones, then the extra ones (B135). */
-export function deckCardKeys(
+export const deckCardKeys = (
     elements: Readonly<Record<string, object | undefined>>,
     deck: 'chance' | 'chest',
-): string[] {
+): string[] => {
     return [
         ...Array.from({ length: STANDARD_DECK_SIZE }, (_, i) =>
             cardKey(deck, i + 1),
         ),
         ...extraCardKeys(elements, deck),
     ];
-}
+};
 
 /**
  * "Namen leegmaken" (B201): the safety net next to "Kaarten leegmaken" (B194) for a template whose street names do

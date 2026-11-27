@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
  * NL / EN as a segmented switch (B110). Plain links and a full page load, so
  * the other language's catalogue and the server-rendered HTML arrive together.
  */
-export function LanguageSwitch({ className }: { className?: string }) {
+export const LanguageSwitch = ({ className }: { className?: string }) => {
     const { locale, locales, localizedUrls } = usePage().props;
     const t = useTranslation();
 
@@ -42,4 +42,4 @@ export function LanguageSwitch({ className }: { className?: string }) {
             })}
         </nav>
     );
-}
+};

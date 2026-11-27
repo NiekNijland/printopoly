@@ -10,7 +10,7 @@ import { useRender } from './sheet';
 /** `title` is the big name of the edition (the plate and the lid): a script in Gala, the heading elsewhere. */
 type FontRole = 'heading' | 'title' | 'body' | 'mono';
 
-export interface FitTextProps {
+export type FitTextProps = {
     text: string;
     x: number;
     y: number;
@@ -47,7 +47,7 @@ export interface FitTextProps {
      * (bug 14 of test round 3). Controle says so before it is printed.
      */
     clip?: boolean;
-}
+};
 
 const JUSTIFY = {
     left: 'flex-start',
@@ -64,7 +64,7 @@ const ALIGN = {
  * Text in a box that shrinks to fit (B55). It never hyphenates, and `data-fits` and
  * `data-overflow-chars` tell the check step whether the text fits at the minimum size.
  */
-export function FitText({
+export const FitText = ({
     text,
     x,
     y,
@@ -86,7 +86,7 @@ export function FitText({
     onFit,
     slot,
     clip = false,
-}: FitTextProps) {
+}: FitTextProps) => {
     const { theme } = useRender();
     const family =
         ownFamily ??
@@ -168,4 +168,4 @@ export function FitText({
             <div style={inner}>{text}</div>
         </div>
     );
-}
+};

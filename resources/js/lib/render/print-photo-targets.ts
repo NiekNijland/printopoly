@@ -21,10 +21,10 @@ import { deedsFor, spaceAt } from '@/lib/render/standard-edition';
 import type { PrintSet } from './print-composition';
 import { allPartsOn } from './print-edition';
 
-export interface PhotoTarget {
+export type PhotoTarget = {
     w: number;
     h: number;
-}
+};
 
 /** Per set, `element#photo` to the frame the photo is cropped to, in mm and with bleed. */
 export type PhotoTargets = Record<PrintSet, Record<string, PhotoTarget>>;
@@ -39,7 +39,7 @@ const ICON_FILLED =
  * Where the uploaded icon of a special space is drawn (B136): on the space, on the deed of a station or a
  * utility, and on the standard back of its deck. Each key is drawn only when its part is on.
  */
-function iconHosts(key: string, edition: Edition): string[] {
+const iconHosts = (key: string, edition: Edition): string[] => {
     const position = Number(key.split('.')[1]);
     const space = spaceAt(position);
     const hosts = [key];
@@ -63,16 +63,16 @@ function iconHosts(key: string, edition: Edition): string[] {
 
         return part !== null && edition.parts[part];
     });
-}
+};
 
 /** The largest frame an uploaded icon is drawn in within one set, so the crop is sharp everywhere it shows. */
-function measureIcon(
+const measureIcon = (
     key: string,
     edition: Edition,
     full: Edition,
     resolved: ReturnType<typeof resolveEdition>,
     set: PrintSet,
-): PhotoTarget | undefined {
+): PhotoTarget | undefined => {
     const ctx: ArtContext = {
         edition: full,
         resolved,
@@ -101,10 +101,10 @@ function measureIcon(
     }
 
     return best;
-}
+};
 
 /** The print frame of every uploaded icon (B136) in the printer set, for the checks: `space.NN` to its size. */
-export function iconTargets(edition: Edition): Record<string, PhotoTarget> {
+export const iconTargets = (edition: Edition): Record<string, PhotoTarget> => {
     const full = allPartsOn(edition);
     const resolved = resolveEdition(full);
     const out: Record<string, PhotoTarget> = {};
@@ -122,7 +122,7 @@ export function iconTargets(edition: Edition): Record<string, PhotoTarget> {
     }
 
     return out;
-}
+};
 
 /**
  * The size of the frame each placed photo has when printed, taken from the renderers themselves: every
@@ -133,7 +133,7 @@ export function iconTargets(edition: Edition): Record<string, PhotoTarget> {
  * A photo the layout does not show (the "text" layout) has no slot and so no target: the server does not
  * crop it. Photos on free layers carry their own size and are not listed.
  */
-export function photoTargets(stored: Edition): PhotoTargets {
+export const photoTargets = (stored: Edition): PhotoTargets => {
     // A deed shows the photo of its space (B157): it needs a crop of its own frame, so it gets a placement.
     const edition = withDeedPhotos(stored);
     const full = allPartsOn(edition);
@@ -204,4 +204,4 @@ export function photoTargets(stored: Edition): PhotoTargets {
     }
 
     return targets;
-}
+};

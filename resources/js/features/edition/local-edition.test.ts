@@ -4,10 +4,7 @@ import { makeEdition, photo } from '@/testing/edition-test-utils';
 import { formOf, requestOf, stubFetch } from '@/testing/fetch';
 
 import { uploadPrintJob } from '../../lib/render/print-api';
-import {
-    photoTargets,
-    type PhotoTargets,
-} from '../../lib/render/print-photo-targets';
+import { photoTargets } from '../../lib/render/print-photo-targets';
 import {
     loadLocalEdition,
     neededPhotoIds,
@@ -15,7 +12,7 @@ import {
     rememberPrintJob,
 } from './local-edition';
 
-function record(id: string, editionId: string, text: string): PhotoRecord {
+const record = (id: string, editionId: string, text: string): PhotoRecord => {
     return {
         id,
         editionId,
@@ -24,12 +21,12 @@ function record(id: string, editionId: string, text: string): PhotoRecord {
         height: 3000,
         createdAt: 1,
     };
-}
+};
 
-async function stored(): Promise<{
+const stored = async (): Promise<{
     storage: MemoryEditionStorage;
     edition: Edition;
-}> {
+}> => {
     const storage = new MemoryEditionStorage();
     const base = makeEdition({ id: 'edition-1' });
     const edition: Edition = {
@@ -44,7 +41,10 @@ async function stored(): Promise<{
     await storage.putPhoto(record('photo-hidden', 'edition-1', 'hidden'));
 
     return { storage, edition };
-}
+};
+
+const textOf = (value: FormDataEntryValue | null): string =>
+    typeof value === 'string' ? value : '';
 
 describe('local edition for a job without an account (B80)', () => {
     it('gives the edition, the photos it shows and the frame of each', async () => {
@@ -160,12 +160,13 @@ describe('local edition for a job without an account (B80)', () => {
 
         const body = formOf(requestOf(fetchMock).init);
 
-        expect(JSON.parse(body.get('edition') as string)).toMatchObject({
+        expect(JSON.parse(textOf(body.get('edition')))).toMatchObject({
             id: 'edition-1',
         });
-        expect(
-            (JSON.parse(body.get('targets') as string) as PhotoTargets).printer,
-        ).toHaveProperty('deed.01#photo');
+        expect(JSON.parse(textOf(body.get('targets')))).toHaveProperty([
+            'printer',
+            'deed.01#photo',
+        ]);
         expect(body.get('photos[photo-shown]')).toBeInstanceOf(Blob);
         expect(body.get('photos[photo-hidden]')).toBeNull();
     });

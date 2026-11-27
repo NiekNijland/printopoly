@@ -11,7 +11,7 @@ const FORMS: readonly BoardForm[] = ['panels', 'whole'];
  * whole board in one piece. The same segmented bar as "Hoeveel geld?" (shadcn ToggleGroup, B195), so the print page
  * keeps one kind of choice. The line under it says what the chosen form is and who makes it.
  */
-export function BoardFormChoice({
+export const BoardFormChoice = ({
     value,
     onChange,
     disabled = false,
@@ -22,7 +22,7 @@ export function BoardFormChoice({
     disabled?: boolean;
     /** The size of the whole board, such as "50 × 50 cm". */
     size: string;
-}) {
+}) => {
     const t = useTranslation();
     const label = useId();
 
@@ -63,4 +63,4 @@ export function BoardFormChoice({
             </p>
         </div>
     );
-}
+};

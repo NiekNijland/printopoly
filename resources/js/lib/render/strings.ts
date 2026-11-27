@@ -3,7 +3,7 @@ import type { Locale } from '@/types/game';
 import { capitalize, type WordPair } from './words';
 
 /** Default texts on the printed elements, per language. Names and card texts come from the game data. */
-export interface RenderStrings {
+export type RenderStrings = {
     titleDeed: string;
     rent: string;
     rentFullSet: string;
@@ -36,20 +36,20 @@ export interface RenderStrings {
     /** Tagline under the edition name on the board centre (B125). */
     centerTagline: string;
     cardSpot: string;
-}
+};
 
 /**
  * " voor je taalcursus" after the amount of a card. Someone who types "voor de schoonmaker" in Waarvoor gets one
  * "voor", not "Betaal € 18 voor voor de schoonmaker" (Mo, R5-12).
  */
-function forPurpose(word: string, purpose: string | undefined): string {
+const forPurpose = (word: string, purpose: string | undefined): string => {
     const rest = purpose
         ?.trim()
         .replace(new RegExp(`^${word}(?:\\s+|$)`, 'iu'), '')
         .trim();
 
     return rest === undefined || rest === '' ? '' : ` ${word} ${rest}`;
-}
+};
 
 export const STRINGS: Record<Locale, RenderStrings> = {
     nl: {
@@ -124,4 +124,3 @@ export const STRINGS: Record<Locale, RenderStrings> = {
 };
 
 /** An edition's currency when it names none: euros in Dutch, pounds in English (B154). */
-export { defaultCurrency } from '@/lib/render/game-currency';

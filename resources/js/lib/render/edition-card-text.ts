@@ -1,3 +1,4 @@
+import { formatNumber } from '@/lib/number-format';
 import { formatMoney, standardEdition } from '@/lib/render/standard-edition';
 import { STANDARD_BUILDINGS } from '@/lib/render/words';
 import type { Locale } from '@/types/game';
@@ -51,13 +52,13 @@ export type CardTextWord = (typeof CARD_TEXT_WORDS)[number];
 
 const WORDS: ReadonlySet<string> = new Set(CARD_TEXT_WORDS);
 
-function isCardTextWord(name: string): name is CardTextWord {
+const isCardTextWord = (name: string): name is CardTextWord => {
     return WORDS.has(name);
-}
+};
 
-export function wordToken(word: CardTextWord): string {
+export const wordToken = (word: CardTextWord): string => {
     return `{${word}}`;
-}
+};
 
 export type CardTextToken = Exclude<CardTextSegment, { type: 'text' }>;
 
@@ -71,11 +72,11 @@ const POSITIONS: ReadonlySet<number> = new Set(
 export const CURRENCY_TOKEN = '{currency}';
 export const AMOUNT_TOKEN = '{amount}';
 
-export function spaceToken(position: number): string {
+export const spaceToken = (position: number): string => {
     return `{space:${String(position)}}`;
-}
+};
 
-function tokenOf(raw: string, name: string, value: string | undefined) {
+const tokenOf = (raw: string, name: string, value: string | undefined) => {
     if (name === 'currency' && value === undefined) {
         return { type: 'currency' } as const;
     }
@@ -95,9 +96,9 @@ function tokenOf(raw: string, name: string, value: string | undefined) {
     }
 
     return { type: 'unknown', raw } as const;
-}
+};
 
-export function parseCardText(text: string): CardTextSegment[] {
+export const parseCardText = (text: string): CardTextSegment[] => {
     const segments: CardTextSegment[] = [];
     let last = 0;
 
@@ -114,9 +115,9 @@ export function parseCardText(text: string): CardTextSegment[] {
     }
 
     return segments;
-}
+};
 
-export function serializeToken(token: CardTextToken): string {
+export const serializeToken = (token: CardTextToken): string => {
     switch (token.type) {
         case 'space':
             return spaceToken(token.position);
@@ -129,20 +130,20 @@ export function serializeToken(token: CardTextToken): string {
         case 'unknown':
             return token.raw;
     }
-}
+};
 
-export function serializeCardText(
+export const serializeCardText = (
     segments: readonly CardTextSegment[],
-): string {
+): string => {
     return segments
         .map((segment) =>
             segment.type === 'text' ? segment.text : serializeToken(segment),
         )
         .join('');
-}
+};
 
 /** What the tokens of a text turn into. */
-export interface CardTextContext {
+export type CardTextContext = {
     /** Current name of the space, or `undefined` for a position that does not exist. */
     spaceName: (position: number) => string | undefined;
     currencySymbol: string;
@@ -155,7 +156,7 @@ export interface CardTextContext {
     money?: (amount: number) => string;
     /** The word of the edition for a word variable, such as "bushalte" for `{station}`. */
     word: (word: CardTextWord) => string;
-}
+};
 
 /** The words a card text can name, singular and plural (B177). */
 export type CardTextWords = Pick<
@@ -164,7 +165,7 @@ export type CardTextWords = Pick<
 >;
 
 /** The word for a word variable. */
-export function wordOf(words: CardTextWords, word: CardTextWord): string {
+export const wordOf = (words: CardTextWords, word: CardTextWord): string => {
     switch (word) {
         case 'station':
             return words.station.singular;
@@ -185,15 +186,15 @@ export function wordOf(words: CardTextWords, word: CardTextWord): string {
         case 'jail':
             return words.jail;
     }
-}
+};
 
 const numberLocale: Record<Locale, string> = { nl: 'nl-NL', en: 'en-GB' };
 
 /** The text of a token as it is printed; `undefined` when it cannot be filled in. */
-export function tokenValue(
+export const tokenValue = (
     token: CardTextToken,
     context: CardTextContext,
-): string | undefined {
+): string | undefined => {
     switch (token.type) {
         case 'space':
             return context.spaceName(token.position);
@@ -202,23 +203,25 @@ export function tokenValue(
         case 'amount':
             return context.amount === undefined
                 ? undefined
-                : new Intl.NumberFormat(numberLocale[context.locale], {
-                      maximumFractionDigits: 2,
-                      // "Pay {amount}" never reads "Pay -15": the sign only says which way the money goes.
-                  }).format(Math.abs(context.amount));
+                : // "Pay {amount}" never reads "Pay -15": the sign only says which way the money goes.
+                  formatNumber(
+                      Math.abs(context.amount),
+                      numberLocale[context.locale],
+                      { maximumFractionDigits: 2 },
+                  );
         case 'word':
             return context.word(token.word);
         case 'unknown':
             return undefined;
     }
-}
+};
 
 /** Whether the `{amount}` at `index` already has a currency sign before it: `{currency} {amount}` or "€ {amount}". */
-function hasCurrencyBefore(
+const hasCurrencyBefore = (
     segments: readonly CardTextSegment[],
     index: number,
     symbol: string,
-): boolean {
+): boolean => {
     const before = segments[index - 1];
     if (before?.type === 'currency') {
         return true;
@@ -233,14 +236,17 @@ function hasCurrencyBefore(
         (symbol !== '' && rest.endsWith(symbol)) ||
         /[€$£¤]$/u.test(rest)
     );
-}
+};
 
 /**
  * The text as it is printed. A token that cannot be filled in (unknown, or `{amount}` on a card
  * without an amount) stays as typed. An `{amount}` without a currency sign before it gets one, so
  * "Betaal {amount}" reads "Betaal dk 50" like the standard cards (round 4, bug 4).
  */
-export function renderCardText(text: string, context: CardTextContext): string {
+export const renderCardText = (
+    text: string,
+    context: CardTextContext,
+): string => {
     const segments = parseCardText(text);
     let printed = '';
 
@@ -270,7 +276,7 @@ export function renderCardText(text: string, context: CardTextContext): string {
     });
 
     return printed;
-}
+};
 
 /** "The", "De" and "Het" before a name written in sentence case: "The wedding car", "De proeverij". */
 const LEADING_ARTICLE = /^(The|De|Het)(?= \p{Ll})/u;
@@ -280,20 +286,20 @@ const LEADING_ARTICLE = /^(The|De|Het)(?= \p{Ll})/u;
  * proeverij" (R6 Tom). Only a name in sentence case changes; a name that capitalises the word after the article
  * ("The Hague", "De Smederij") is a proper name and stays as it is, and so does a name at the start of a sentence.
  */
-function articleInSentence(name: string, before: string): string {
+const articleInSentence = (name: string, before: string): string => {
     const rest = before.trimEnd();
     if (rest === '' || /[.!?:;]["'\u201d\u2019)]*$/u.test(rest)) {
         return name;
     }
 
     return name.replace(LEADING_ARTICLE, (article) => article.toLowerCase());
-}
+};
 
 /** Current name of a space: its override, else the standard name in the language of the edition. */
-export function spaceNameOf(
+export const spaceNameOf = (
     edition: Pick<Edition, 'elements' | 'language'>,
     position: number,
-): string | undefined {
+): string | undefined => {
     const space = standardEdition.spaces.find(
         (candidate) => candidate.position === position,
     );
@@ -305,16 +311,16 @@ export function spaceNameOf(
     return override === undefined || override === ''
         ? space.name[edition.language]
         : override;
-}
+};
 
-export function cardTextContext(
+export const cardTextContext = (
     edition: Pick<Edition, 'elements' | 'language' | 'currency'>,
     amount: number | undefined,
     /** The symbol the edition chose for its currency (a custom word), instead of the standard one. */
     symbol?: string,
     /** The words of the edition; the standard words of its language when left out. */
     words?: CardTextWords,
-): CardTextContext {
+): CardTextContext => {
     const currency = standardEdition.currencies.find(
         (candidate) => candidate.id === edition.currency,
     );
@@ -336,13 +342,13 @@ export function cardTextContext(
                       formatMoney(value, currency.id, edition.language, symbol),
               }),
     };
-}
+};
 
 /** Applies `change` to the plain text between the tokens of a text; the tokens stay as they are. */
-export function mapCardTextSegments(
+export const mapCardTextSegments = (
     text: string,
     change: (plain: string) => string,
-): string {
+): string => {
     return serializeCardText(
         parseCardText(text).map((segment) =>
             segment.type === 'text'
@@ -350,7 +356,7 @@ export function mapCardTextSegments(
                 : segment,
         ),
     );
-}
+};
 
 export type CardTextProblem =
     | { kind: 'unknown-token'; token: string }
@@ -366,12 +372,12 @@ export type CardTextProblem =
     | { kind: 'stale-name'; was: string; now: string };
 
 /** Whether the text holds the amount as a number of its own ("Betaal 50"), not as a part of a bigger number. */
-function mentionsAmount(plain: string, amount: number): boolean {
+const mentionsAmount = (plain: string, amount: number): boolean => {
     const digits = String(Math.abs(amount));
     const formatted = new Set([
         digits,
-        new Intl.NumberFormat('nl-NL').format(Math.abs(amount)),
-        new Intl.NumberFormat('en-GB').format(Math.abs(amount)),
+        formatNumber(Math.abs(amount), 'nl-NL'),
+        formatNumber(Math.abs(amount), 'en-GB'),
     ]);
 
     return [...formatted].some((form) =>
@@ -379,7 +385,7 @@ function mentionsAmount(plain: string, amount: number): boolean {
             plain,
         ),
     );
-}
+};
 
 /**
  * The text with the first mention of `amount` as money replaced by `{amount}`, or `null` when it has none. With
@@ -387,13 +393,13 @@ function mentionsAmount(plain: string, amount: number): boolean {
  * and follows the amount field. "Bedrag aanpassen" uses it, so fixing one warning does not raise "the amount is
  * already at the bottom" (R5-11).
  */
-export function amountIntoText(text: string, amount: number): string | null {
+export const amountIntoText = (text: string, amount: number): string | null => {
     const value = Math.abs(amount);
     const forms = [
         ...new Set([
             String(value),
-            new Intl.NumberFormat('nl-NL').format(value),
-            new Intl.NumberFormat('en-GB').format(value),
+            formatNumber(value, 'nl-NL'),
+            formatNumber(value, 'en-GB'),
         ]),
     ].map(escapeRegExp);
     // Not a part of a bigger number, and never inside a token such as `{space:24}`.
@@ -407,7 +413,7 @@ export function amountIntoText(text: string, amount: number): string | null {
     }
 
     return `${text.slice(0, match.index)}${AMOUNT_TOKEN}${text.slice(match.index + match[0].length)}`;
-}
+};
 
 /** Stands in for the currency token in the plain text, so "{currency} 15" still reads as money. */
 const CURRENCY_MARK = '¤';
@@ -423,7 +429,7 @@ const MONEY_SIGN = /(?:[€$£¤]|(?:^|\s)M)\s*$/u;
  * The amounts of money a text names, as positive numbers: a number after a currency sign or after a word
  * like "betaal" or "collect". Numbers that are not money ("Ga 3 vakjes terug", "groep 6") do not count.
  */
-function moneyInText(plain: string): number[] {
+const moneyInText = (plain: string): number[] => {
     const found: number[] = [];
     const number =
         /(?<![\p{L}\p{N}.,])(\d{1,3}(?:[.,]\d{3})+|\d+)(?![\p{L}\p{N}]|[.,]\d)/gu;
@@ -435,7 +441,7 @@ function moneyInText(plain: string): number[] {
     }
 
     return found;
-}
+};
 
 /** Words that say the player pays, and words that say the player receives, as whole words. */
 const PAY_WORDS =
@@ -466,7 +472,7 @@ const PAID_TO_PLAYER = [
 ];
 
 /** Which way the text says the money goes: pay, receive, both, or nothing said. */
-function directionInText(text: string): 'pay' | 'receive' | 'both' | null {
+const directionInText = (text: string): 'pay' | 'receive' | 'both' | null => {
     const plain = PAID_TO_PLAYER.reduce(
         (rest, phrase) => rest.replace(phrase, ' receive '),
         text,
@@ -478,22 +484,22 @@ function directionInText(text: string): 'pay' | 'receive' | 'both' | null {
     }
 
     return pay ? 'pay' : receive ? 'receive' : null;
-}
+};
 
-function escapeRegExp(value: string): string {
+const escapeRegExp = (value: string): string => {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+};
 
 /**
  * What the Controle has to say about a card text: tokens that are unknown, `{amount}` without an
  * amount, and a plain-text mention of a standard name of a space that has been renamed since
  * (the text predates the variables and would stay behind on a rename).
  */
-export function cardTextProblems(
+export const cardTextProblems = (
     text: string,
     edition: Pick<Edition, 'elements' | 'language'>,
     amount: number | undefined,
-): CardTextProblem[] {
+): CardTextProblem[] => {
     const segments = parseCardText(text);
     const problems: CardTextProblem[] = [];
     const seen = new Set<string>();
@@ -578,4 +584,4 @@ export function cardTextProblems(
     }
 
     return problems;
-}
+};

@@ -43,12 +43,12 @@ import { SpaceIconArt, type SpaceIconSource } from './space-icon';
  */
 
 /** The paper a card is printed on in a style: it runs into the bleed. */
-export function cardPaper(
+export const cardPaper = (
     theme: Theme,
     style: CardStyle,
     deck: DeckId,
     side: 'front' | 'back',
-): string {
+): string => {
     switch (style) {
         case 'vintage':
             return creamed(theme.deck[deck], 0.5);
@@ -57,9 +57,9 @@ export function cardPaper(
         case 'playful':
             return theme.deck[deck];
     }
-}
+};
 
-export interface StyledFrontProps {
+export type StyledFrontProps = {
     style: CardStyle;
     deck: DeckId;
     w: number;
@@ -74,13 +74,13 @@ export interface StyledFrontProps {
     /** The photo fills the whole card (B124). */
     full: boolean;
     bleed: number;
-}
+};
 
-function deckIcon(deck: DeckId): 'dice' | 'chest' {
+const deckIcon = (deck: DeckId): 'dice' | 'chest' => {
     return deck === 'chance' ? 'dice' : 'chest';
-}
+};
 
-export function StyledCardFront(props: StyledFrontProps) {
+export const StyledCardFront = (props: StyledFrontProps) => {
     switch (props.style) {
         case 'vintage':
             return <VintageFront {...props} />;
@@ -89,10 +89,10 @@ export function StyledCardFront(props: StyledFrontProps) {
         case 'playful':
             return <PlayfulFront {...props} />;
     }
-}
+};
 
 /** A photo in a box with rounded corners, cut to the box. */
-function RoundedPhoto({
+const RoundedPhoto = ({
     x,
     y,
     w,
@@ -106,7 +106,7 @@ function RoundedPhoto({
     h: number;
     radius: number;
     photo: PhotoSource;
-}) {
+}) => {
     return (
         <Abs
             x={x}
@@ -118,13 +118,13 @@ function RoundedPhoto({
             <PhotoSlot x={0} y={0} w={w} h={h} photo={photo} />
         </Abs>
     );
-}
+};
 
 /** Border inset and band width of Vintage on a card. */
 const V_INSET = 2.4;
 const V_BAND = 2;
 
-function VintageFront({
+const VintageFront = ({
     deck,
     w,
     h,
@@ -135,7 +135,7 @@ function VintageFront({
     photo,
     full,
     bleed,
-}: StyledFrontProps) {
+}: StyledFrontProps) => {
     const { theme } = useRender();
     const accent = theme.deckAccent[deck];
     const engr = engraving(theme, accent);
@@ -342,10 +342,10 @@ function VintageFront({
             )}
         </>
     );
-}
+};
 
 /** The block of Modern: the deck colour from the top edge into the bleed. */
-function ModernBlock({
+const ModernBlock = ({
     deck,
     w,
     height,
@@ -357,7 +357,7 @@ function ModernBlock({
     height: number;
     bleed: number;
     slot: string;
-}) {
+}) => {
     const { theme } = useRender();
     const accent = theme.deckAccent[deck];
     const on = readableOn(accent);
@@ -384,9 +384,9 @@ function ModernBlock({
             </div>
         </Abs>
     );
-}
+};
 
-function ModernFront({
+const ModernFront = ({
     deck,
     w,
     h,
@@ -397,7 +397,7 @@ function ModernFront({
     photo,
     full,
     bleed,
-}: StyledFrontProps) {
+}: StyledFrontProps) => {
     const { theme } = useRender();
     const accent = theme.deckAccent[deck];
     const on = readableOn(accent);
@@ -529,13 +529,13 @@ function ModernFront({
             )}
         </>
     );
-}
+};
 
 /** Where the sticker with the name sits on a Speels card. */
 const P_TITLE = { y: 6.6, h: 9.6 };
 
 /** The name of a Speels card on a tilted sticker, with the deck symbol on a scalloped badge at its start. */
-function PlayfulTitle({
+const PlayfulTitle = ({
     deck,
     w,
     name,
@@ -547,7 +547,7 @@ function PlayfulTitle({
     name: string;
     icon?: SpaceIconSource;
     slot?: string;
-}) {
+}) => {
     const { theme } = useRender();
     const accent = theme.deckAccent[deck];
     const pillX = 13.5;
@@ -608,14 +608,14 @@ function PlayfulTitle({
             />
         </>
     );
-}
+};
 
 /** The colours of confetti: the accents of the theme and its ink. */
-function confettiColors(theme: Theme, deck: DeckId): string[] {
+const confettiColors = (theme: Theme, deck: DeckId): string[] => {
     return [theme.deckAccent[deck], theme.secondaryAccent, theme.ink];
-}
+};
 
-function PlayfulFront({
+const PlayfulFront = ({
     deck,
     w,
     h,
@@ -626,7 +626,7 @@ function PlayfulFront({
     photo,
     full,
     bleed,
-}: StyledFrontProps) {
+}: StyledFrontProps) => {
     const { theme } = useRender();
     const accent = theme.deckAccent[deck];
     const framed = photo !== undefined && !full;
@@ -779,9 +779,9 @@ function PlayfulFront({
             )}
         </>
     );
-}
+};
 
-export interface StyledBackProps {
+export type StyledBackProps = {
     style: CardStyle;
     deck: DeckId;
     w: number;
@@ -789,10 +789,10 @@ export interface StyledBackProps {
     name: string;
     edition?: string;
     icon?: SpaceIconSource;
-}
+};
 
 /** The standard back of a card in a style: no photo or pattern of its own. */
-export function StyledCardBack(props: StyledBackProps) {
+export const StyledCardBack = (props: StyledBackProps) => {
     switch (props.style) {
         case 'vintage':
             return <VintageBack {...props} />;
@@ -801,13 +801,13 @@ export function StyledCardBack(props: StyledBackProps) {
         case 'playful':
             return <PlayfulBack {...props} />;
     }
-}
+};
 
-function hasText(text: string | undefined): text is string {
+const hasText = (text: string | undefined): text is string => {
     return text !== undefined && text.trim() !== '';
-}
+};
 
-function VintageBack({ deck, w, h, name, edition, icon }: StyledBackProps) {
+const VintageBack = ({ deck, w, h, name, edition, icon }: StyledBackProps) => {
     const { theme } = useRender();
     const accent = theme.deckAccent[deck];
     const engr = engraving(theme, accent);
@@ -928,9 +928,9 @@ function VintageBack({ deck, w, h, name, edition, icon }: StyledBackProps) {
             )}
         </>
     );
-}
+};
 
-function ModernBack({ deck, w, h, name, edition, icon }: StyledBackProps) {
+const ModernBack = ({ deck, w, h, name, edition, icon }: StyledBackProps) => {
     const { theme } = useRender();
     const accent = theme.deckAccent[deck];
     const on = readableOn(accent);
@@ -1005,9 +1005,9 @@ function ModernBack({ deck, w, h, name, edition, icon }: StyledBackProps) {
             )}
         </>
     );
-}
+};
 
-function PlayfulBack({ deck, w, h, name, edition, icon }: StyledBackProps) {
+const PlayfulBack = ({ deck, w, h, name, edition, icon }: StyledBackProps) => {
     const { theme } = useRender();
     const accent = theme.deckAccent[deck];
     const cy = h / 2 - 4;
@@ -1110,13 +1110,13 @@ function PlayfulBack({ deck, w, h, name, edition, icon }: StyledBackProps) {
             )}
         </>
     );
-}
+};
 
 /**
  * The plate in the middle of a back made of a photo or a pattern (B56, B130), in a style: a cartouche in Vintage,
  * a block across the card in Modern, a scalloped badge in Speels. It names the deck so the two backs stay apart.
  */
-export function StyledArtPlate({
+export const StyledArtPlate = ({
     style,
     deck,
     w,
@@ -1132,7 +1132,7 @@ export function StyledArtPlate({
     name: string;
     edition?: string;
     bleed: number;
-}) {
+}) => {
     const { theme } = useRender();
     const accent = theme.deckAccent[deck];
     const cy = h / 2;
@@ -1316,4 +1316,4 @@ export function StyledArtPlate({
                 </>
             );
     }
-}
+};

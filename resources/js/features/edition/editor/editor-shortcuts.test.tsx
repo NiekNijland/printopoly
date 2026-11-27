@@ -36,7 +36,7 @@ vi.mock('@/features/edition/editor/check-probe', () => ({
     useChecks: () => ({ issues: [issue, photoIssue], probe: null }),
 }));
 
-async function open() {
+const open = async () => {
     const services = installMemoryServices();
     const edition = sampleEdition();
     await services.storage.createEdition(edition);
@@ -47,7 +47,7 @@ async function open() {
         now: () => Date.now(),
         debounceMs: 5,
     });
-}
+};
 
 describe('editor shortcuts', () => {
     it('undoes and redoes with Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z and Ctrl+Y outside text fields', async () => {

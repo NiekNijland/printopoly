@@ -5,110 +5,101 @@
  * and writing never throw, and the pages work with an empty store.
  */
 
+import { isJsonObject } from '@/features/edition/remote/client';
+import { readStored, writeStored } from '@/lib/browser-storage';
+
 const OWNER_KEY = 'printopoly.boxes.owner';
 const FRIEND_KEY = 'printopoly.boxes.friend';
 
-export interface OwnerRecord {
+export type OwnerRecord = {
     id: string;
     secret: string;
-}
+};
 
-export interface SentRecord {
+export type SentRecord = {
     receipt: string;
     elementKey: string;
     label: string;
     value: string;
     hasPhoto: boolean;
     sentAt: number;
-}
+};
 
-function readObject(key: string): Record<string, unknown> {
+const readObject = (key: string): Record<string, unknown> => {
+    const raw = readStored(key);
+    if (raw === null) {
+        return {};
+    }
     try {
-        const raw = window.localStorage.getItem(key);
-        const parsed: unknown = raw === null ? null : JSON.parse(raw);
+        const parsed: unknown = JSON.parse(raw);
 
-        return typeof parsed === 'object' &&
-            parsed !== null &&
-            !Array.isArray(parsed)
-            ? (parsed as Record<string, unknown>)
-            : {};
+        return isJsonObject(parsed) ? parsed : {};
     } catch {
         return {};
     }
-}
+};
 
-function writeObject(key: string, value: Record<string, unknown>): void {
-    try {
-        window.localStorage.setItem(key, JSON.stringify(value));
-    } catch {
-        // Private window or full storage: the page keeps working this session.
-    }
-}
+const writeObject = (key: string, value: Record<string, unknown>): void => {
+    // Private window or full storage: the page keeps working this session.
+    writeStored(key, JSON.stringify(value));
+};
 
-export function readOwnerRecord(editionId: string): OwnerRecord | null {
+export const readOwnerRecord = (editionId: string): OwnerRecord | null => {
     const record = readObject(OWNER_KEY)[editionId];
 
     if (
-        typeof record === 'object' &&
-        record !== null &&
-        typeof (record as OwnerRecord).id === 'string' &&
-        typeof (record as OwnerRecord).secret === 'string'
+        isJsonObject(record) &&
+        typeof record.id === 'string' &&
+        typeof record.secret === 'string'
     ) {
-        const { id, secret } = record as OwnerRecord;
-
-        return { id, secret };
+        return { id: record.id, secret: record.secret };
     }
 
     return null;
-}
+};
 
-export function writeOwnerRecord(editionId: string, record: OwnerRecord): void {
+export const writeOwnerRecord = (
+    editionId: string,
+    record: OwnerRecord,
+): void => {
     writeObject(OWNER_KEY, { ...readObject(OWNER_KEY), [editionId]: record });
-}
+};
 
-export function forgetOwnerRecord(editionId: string): void {
+export const forgetOwnerRecord = (editionId: string): void => {
     const { [editionId]: removed, ...rest } = readObject(OWNER_KEY);
     void removed;
     writeObject(OWNER_KEY, rest);
-}
+};
 
-export function readFirstName(): string {
+export const readFirstName = (): string => {
     const name = readObject(FRIEND_KEY).firstName;
 
     return typeof name === 'string' ? name : '';
-}
+};
 
-export function writeFirstName(firstName: string): void {
+export const writeFirstName = (firstName: string): void => {
     writeObject(FRIEND_KEY, { ...readObject(FRIEND_KEY), firstName });
-}
+};
 
 /** What this friend sent through one link, newest first. */
-export function readSent(token: string): SentRecord[] {
+export const readSent = (token: string): SentRecord[] => {
     const sent = readObject(FRIEND_KEY).sent;
-    const list =
-        typeof sent === 'object' && sent !== null
-            ? (sent as Record<string, unknown>)[token]
-            : undefined;
+    const list = isJsonObject(sent) ? sent[token] : undefined;
 
     return Array.isArray(list)
         ? list.filter(
               (item): item is SentRecord =>
-                  typeof item === 'object' &&
-                  item !== null &&
-                  typeof (item as SentRecord).receipt === 'string',
+                  isJsonObject(item) && typeof item.receipt === 'string',
           )
         : [];
-}
+};
 
-export function addSent(token: string, record: SentRecord): void {
+export const addSent = (token: string, record: SentRecord): void => {
     const all = readObject(FRIEND_KEY);
-    const sent =
-        typeof all.sent === 'object' && all.sent !== null
-            ? (all.sent as Record<string, unknown>)
-            : {};
+    const sent = isJsonObject(all.sent) ? all.sent : {};
 
     writeObject(FRIEND_KEY, {
         ...all,
         sent: { ...sent, [token]: [record, ...readSent(token)].slice(0, 50) },
     });
-}
+};

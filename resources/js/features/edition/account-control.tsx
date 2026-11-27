@@ -1,7 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useRef, useState } from 'react';
 
-import { ChevronDownIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -10,6 +9,7 @@ import {
     DialogDescription,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { ChevronDownIcon } from '@/components/ui/icons';
 import { Input } from '@/components/ui/input';
 import {
     classifySyncError,
@@ -22,6 +22,7 @@ import {
 } from '@/features/edition/remote/account';
 import { useDisclosure } from '@/hooks/use-disclosure';
 import { useTranslation } from '@/hooks/use-translation';
+import { loadFullPage } from '@/lib/full-page-navigation';
 import { redirect as googleRedirect } from '@/routes/auth/google';
 
 /**
@@ -29,7 +30,7 @@ import { redirect as googleRedirect } from '@/routes/auth/google';
  * (B90, B91). Logging in is optional, so without Google credentials the
  * button is not shown at all (B78).
  */
-export function AccountControl() {
+export const AccountControl = () => {
     const { auth } = usePage().props;
     const t = useTranslation();
 
@@ -47,23 +48,14 @@ export function AccountControl() {
     }
 
     return <AccountMenu />;
-}
+};
 
-/** The menu of a logged-in user (Staten "Accountmenu", B91): Privacy, Uitloggen, Account verwijderen. */
-function AccountMenu() {
-    const { auth, locale, pageUrls } = usePage().props;
+const useAccountActions = (onMenuClose: () => void) => {
+    const { locale } = usePage().props;
     const t = useTranslation();
-    const containerRef = useRef<HTMLDivElement>(null);
-    const menu = useDisclosure(containerRef);
-    const [deleting, setDeleting] = useState(false);
     const [confirmation, setConfirmation] = useState('');
     const [problem, setProblem] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
-
-    if (auth.user === null) {
-        return null;
-    }
-    const { name, email } = auth.user;
 
     // Both leave the page: the local copy is wiped first, so a shared computer keeps nothing (Staten).
     const leave = async (
@@ -73,11 +65,11 @@ function AccountMenu() {
         if (result.clearLocalCopy !== false) {
             await wipeLocalCopy(getServices(locale).repository);
         }
-        window.location.assign(result.redirect);
+        loadFullPage(result.redirect);
     };
 
     const onLogout = (): void => {
-        menu.close();
+        onMenuClose();
         setBusy(true);
         leave(() => logoutRequest()).catch(() => {
             setBusy(false);
@@ -116,6 +108,99 @@ function AccountMenu() {
                 );
             });
     };
+
+    return {
+        confirmation,
+        setConfirmation,
+        problem,
+        busy,
+        onLogout,
+        onDelete,
+    };
+};
+
+type AccountActions = ReturnType<typeof useAccountActions>;
+
+type DeleteAccountDialogProps = {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    email: string;
+    actions: AccountActions;
+};
+
+const DeleteAccountDialog = ({
+    open,
+    onOpenChange,
+    email,
+    actions,
+}: DeleteAccountDialogProps) => {
+    const t = useTranslation();
+    const { confirmation, setConfirmation, problem, busy, onDelete } = actions;
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <form
+                    className="flex flex-col gap-4"
+                    onSubmit={(event) => {
+                        event.preventDefault();
+                        onDelete();
+                    }}
+                >
+                    <DialogTitle>{t('auth.delete_title')}</DialogTitle>
+                    <DialogDescription>
+                        {t('auth.delete_body', { email })}
+                    </DialogDescription>
+                    <label className="flex flex-col gap-1 text-sm font-semibold">
+                        {t('auth.delete_email_label')}
+                        <Input
+                            type="email"
+                            value={confirmation}
+                            autoComplete="off"
+                            aria-invalid={problem !== null}
+                            onChange={(event) =>
+                                setConfirmation(event.target.value)
+                            }
+                        />
+                    </label>
+                    {problem !== null && (
+                        <p role="alert" className="m-0 text-sm text-press">
+                            {problem}
+                        </p>
+                    )}
+                    <div className="flex justify-end gap-3">
+                        <DialogClose asChild>
+                            <Button variant="secondary">
+                                {t('app.cancel')}
+                            </Button>
+                        </DialogClose>
+                        <Button
+                            type="submit"
+                            disabled={busy || confirmation.trim() === ''}
+                        >
+                            {t('auth.delete_account')}
+                        </Button>
+                    </div>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+/** The menu of a logged-in user (Staten "Accountmenu", B91): Privacy, Uitloggen, Account verwijderen. */
+const AccountMenu = () => {
+    const { auth, pageUrls } = usePage().props;
+    const t = useTranslation();
+    const containerRef = useRef<HTMLDivElement>(null);
+    const menu = useDisclosure(containerRef);
+    const [deleting, setDeleting] = useState(false);
+    const actions = useAccountActions(menu.close);
+
+    if (auth.user === null) {
+        return null;
+    }
+    const { name, email } = auth.user;
+    const { problem, busy, onLogout } = actions;
 
     return (
         <div ref={containerRef} className="relative">
@@ -175,52 +260,12 @@ function AccountMenu() {
                 </div>
             )}
 
-            <Dialog open={deleting} onOpenChange={setDeleting}>
-                <DialogContent>
-                    <form
-                        className="flex flex-col gap-4"
-                        onSubmit={(event) => {
-                            event.preventDefault();
-                            onDelete();
-                        }}
-                    >
-                        <DialogTitle>{t('auth.delete_title')}</DialogTitle>
-                        <DialogDescription>
-                            {t('auth.delete_body', { email })}
-                        </DialogDescription>
-                        <label className="flex flex-col gap-1 text-sm font-semibold">
-                            {t('auth.delete_email_label')}
-                            <Input
-                                type="email"
-                                value={confirmation}
-                                autoComplete="off"
-                                aria-invalid={problem !== null}
-                                onChange={(event) =>
-                                    setConfirmation(event.target.value)
-                                }
-                            />
-                        </label>
-                        {problem !== null && (
-                            <p role="alert" className="m-0 text-sm text-press">
-                                {problem}
-                            </p>
-                        )}
-                        <div className="flex justify-end gap-3">
-                            <DialogClose asChild>
-                                <Button variant="secondary">
-                                    {t('app.cancel')}
-                                </Button>
-                            </DialogClose>
-                            <Button
-                                type="submit"
-                                disabled={busy || confirmation.trim() === ''}
-                            >
-                                {t('auth.delete_account')}
-                            </Button>
-                        </div>
-                    </form>
-                </DialogContent>
-            </Dialog>
+            <DeleteAccountDialog
+                open={deleting}
+                onOpenChange={setDeleting}
+                email={email}
+                actions={actions}
+            />
         </div>
     );
-}
+};

@@ -25,14 +25,14 @@ describe('previewSize', () => {
     });
 });
 
-function input(bytes: Uint8Array, name: string): PhotoInput {
-    return Object.assign(new Blob([bytes as BlobPart]), { name });
-}
+const input = (bytes: Uint8Array, name: string): PhotoInput => {
+    return Object.assign(new Blob([new Uint8Array(bytes)]), { name });
+};
 
-function fakeDeps(
+const fakeDeps = (
     width = 4000,
     height = 3000,
-): PreviewDeps & { closed: () => boolean } {
+): PreviewDeps & { closed: () => boolean } => {
     let closed = false;
     const bitmap: DecodedBitmap = {
         width,
@@ -49,7 +49,7 @@ function fakeDeps(
         ),
         closed: () => closed,
     };
-}
+};
 
 describe('preparePhoto', () => {
     it('validates, makes a 1600 px WebP preview and closes the bitmap', async () => {

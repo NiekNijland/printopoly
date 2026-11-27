@@ -4,10 +4,10 @@ import { fetchContributionPhoto } from '@/features/edition/boxes/api';
 import type { BoxContributionData } from '@/features/edition/boxes/types';
 
 /** The small version of a contribution's photo as an object URL; only the owner may fetch it. */
-export function useContributionPhoto(
+export const useContributionPhoto = (
     contribution: BoxContributionData,
     secret: string | null,
-): string | null {
+): string | null => {
     const [url, setUrl] = useState<string | null>(null);
     const source = contribution.photoUrl;
 
@@ -37,4 +37,4 @@ export function useContributionPhoto(
     }, [source, secret]);
 
     return url;
-}
+};

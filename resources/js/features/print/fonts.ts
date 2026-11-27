@@ -16,12 +16,12 @@ const LATIN =
 const LATIN_EXT =
     'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF';
 
-interface FontFile {
+type FontFile = {
     family: string;
     weight: string;
     url: string;
     range: string;
-}
+};
 
 /** The fonts of the four themes (themes.ts), self-hosted through @fontsource (B75). */
 const FILES: readonly FontFile[] = [
@@ -103,17 +103,17 @@ const FILES: readonly FontFile[] = [
  * Where a built asset can be fetched from by a page that has no origin: the print server answers with a
  * CORS header on `print-assets/build/...` only (B105), and Vite writes the font URLs as `/build/...`.
  */
-function assetUrl(url: string, base: string | undefined): string {
+const assetUrl = (url: string, base: string | undefined): string => {
     return base !== undefined && url.startsWith('/build/')
         ? `${base}/print-assets${url}`
         : url;
-}
+};
 
 /**
  * Loads every font the themes use before anything is drawn, so text fitting measures with the real fonts
  * (B54, B55). Resolves when all are loaded; rejects when one cannot be fetched.
  */
-export async function loadPrintFonts(base?: string): Promise<void> {
+export const loadPrintFonts = async (base?: string): Promise<void> => {
     const faces = FILES.map(
         (file) =>
             new FontFace(
@@ -135,4 +135,4 @@ export async function loadPrintFonts(base?: string): Promise<void> {
     }
 
     await document.fonts.ready;
-}
+};

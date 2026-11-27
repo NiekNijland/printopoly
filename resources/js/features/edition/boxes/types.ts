@@ -1,7 +1,7 @@
 import type { Locale } from '@/types/game';
 
 /** What "Samen maken" (B128) keeps of an edition: names and texts, no photos. */
-export interface BoxSnapshot {
+export type BoxSnapshot = {
     theme: string;
     currency: string | null;
     parts: { cards: boolean; pawns: boolean };
@@ -12,14 +12,14 @@ export interface BoxSnapshot {
     >;
     /** The owner keeps the card texts to themselves (B176): the friends' page gets none. */
     cardsHidden?: true;
-}
+};
 
 type BoxStatus = 'open' | 'closed';
 
 /** What a contribution proposes, part by part (B175): its name, text or town, its photo and its amount. */
 export type ContributionPart = 'name' | 'text' | 'town' | 'photo' | 'amount';
 
-export interface BoxContributionData {
+export type BoxContributionData = {
     id: string;
     elementKey: string;
     firstName: string;
@@ -36,10 +36,10 @@ export interface BoxContributionData {
     /** Route of the photo; only the owner can read it. */
     photoUrl: string | null;
     createdAt: number | null;
-}
+};
 
 /** The box as its owner sees it. */
-export interface OwnerBox {
+export type OwnerBox = {
     id: string;
     editionId: string;
     /** The link for friends. */
@@ -53,10 +53,10 @@ export interface OwnerBox {
     /** Public Reverb channel only the owner knows. */
     channel: string;
     contributions: BoxContributionData[];
-}
+};
 
 /** What the page of a friend gets. */
-export interface FriendBox {
+export type FriendBox = {
     token: string;
     editionName: string;
     language: Locale;
@@ -69,9 +69,9 @@ export interface FriendBox {
         firstName: number;
         photoMegabytes: number;
     };
-}
+};
 
-export interface CreatedBox extends OwnerBox {
+export type CreatedBox = {
     /** Only in the answer that creates a box: the browser keeps it. */
     ownerSecret?: string;
-}
+} & OwnerBox;

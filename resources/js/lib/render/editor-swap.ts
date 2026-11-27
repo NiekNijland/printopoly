@@ -8,27 +8,29 @@ import type {
 import { deedsFor, spaceAt } from '@/lib/render/standard-edition';
 
 /** The kind of space two spaces must share to be swapped: streets, stations and utilities only. */
-function swapKind(position: number): 'street' | 'station' | 'utility' | null {
+const swapKind = (
+    position: number,
+): 'street' | 'station' | 'utility' | null => {
     const type = spaceAt(position).type;
 
     return type === 'street' || type === 'station' || type === 'utility'
         ? type
         : null;
-}
+};
 
 /** Whether the user's content may move between two board positions. */
-export function canSwap(a: number, b: number): boolean {
+export const canSwap = (a: number, b: number): boolean => {
     const kind = swapKind(a);
 
     return a !== b && kind !== null && kind === swapKind(b);
-}
+};
 
 /** The positions a space can be swapped with, in board order. */
-export function swapTargets(position: number): number[] {
+export const swapTargets = (position: number): number[] => {
     return Array.from({ length: 40 }, (_, index) => index).filter((other) =>
         canSwap(position, other),
     );
-}
+};
 
 /**
  * The changes that swap what the user made of two spaces: the name and the photo (with its transform and
@@ -38,11 +40,11 @@ export function swapTargets(position: number): number[] {
  * carry a light blue price, which the edition rejects on the next read. All changes go to the session in one
  * `apply`, so they are one undo step.
  */
-export function swapChanges(
+export const swapChanges = (
     edition: Edition,
     a: number,
     b: number,
-): ElementChange[] {
+): ElementChange[] => {
     if (!canSwap(a, b)) {
         return [];
     }
@@ -77,16 +79,16 @@ export function swapChanges(
     }
 
     return changes;
-}
+};
 
 /** `override` with the own amounts of the position it moves to, instead of its own. */
-function withAmountsOf(
+const withAmountsOf = (
     override: ElementOverride | undefined,
     amounts: ElementOverride['amounts'],
-): ElementOverride | undefined {
+): ElementOverride | undefined => {
     const { amounts: _moved, ...rest } = override ?? {};
     const next: ElementOverride =
         amounts === undefined ? rest : { ...rest, amounts };
 
     return Object.keys(next).length === 0 ? undefined : next;
-}
+};

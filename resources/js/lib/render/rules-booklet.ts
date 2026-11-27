@@ -1,3 +1,4 @@
+import { formatNumber } from '@/lib/number-format';
 import { formatMoney, standardEdition } from '@/lib/render/standard-edition';
 import type {
     CurrencyId,
@@ -18,7 +19,7 @@ import type {
  */
 
 /** Names the booklet uses for the pieces; the edition's own words replace them through `RulesContext.words`. */
-export interface RulesWords {
+export type RulesWords = {
     house: string;
     houses: string;
     hotel: string;
@@ -36,9 +37,9 @@ export interface RulesWords {
     /** The names of the corners Free Parking and Go to Jail, as on the board. */
     parking: string;
     goToJail: string;
-}
+};
 
-export interface RulesContext {
+export type RulesContext = {
     locale: Locale;
     currency: CurrencyId;
     /** The edition's own currency sign, when it has one (bug 7 of test round 3). */
@@ -60,7 +61,7 @@ export interface RulesContext {
     spaces?: readonly Space[];
     /** Cards per deck, with the extra cards (B135); 16 each when absent. */
     cards?: { chance: number; chest: number };
-}
+};
 
 export const DEFAULT_WORDS: Record<Locale, RulesWords> = {
     nl: {
@@ -105,14 +106,14 @@ export type RulesBlock =
     | { type: 'list'; items: string[]; numbered?: boolean }
     | { type: 'tip'; text: string };
 
-interface TextPage {
+type TextPage = {
     kind: 'text';
     kicker: string;
     title: string;
     blocks: RulesBlock[];
-}
+};
 
-interface PriceRow {
+type PriceRow = {
     name: string;
     group: GroupId | 'station' | 'utility';
     /** Plain numbers, formatted for the language; the heading says which currency. */
@@ -121,9 +122,9 @@ interface PriceRow {
     hotel: string;
     house: string;
     mortgage: string;
-}
+};
 
-export interface PriceListPage {
+export type PriceListPage = {
     kind: 'prices';
     kicker: string;
     title: string;
@@ -141,9 +142,9 @@ export interface PriceListPage {
         rows: PriceRow[];
     }[];
     note: string;
-}
+};
 
-interface HouseRulesPage {
+type HouseRulesPage = {
     kind: 'houseRules';
     kicker: string;
     title: string;
@@ -151,29 +152,29 @@ interface HouseRulesPage {
     rules: string[];
     /** Empty lines to write on when the edition has no house rules yet. */
     blankLines: number;
-}
+};
 
-interface NotesPage {
+type NotesPage = {
     kind: 'notes';
     kicker: string;
     title: string;
     intro: string;
     players: string;
     lines: number;
-}
+};
 
-interface CoverPage {
+type CoverPage = {
     kind: 'cover';
     title: string;
     subtitle: string;
-}
+};
 
-interface BackPage {
+type BackPage = {
     kind: 'back';
     title: string;
     line: string;
     credit: string;
-}
+};
 
 export type BookletPageContent =
     | CoverPage
@@ -194,50 +195,52 @@ const copy = {
     },
 } as const;
 
-function plain(amount: number, locale: Locale): string {
-    return new Intl.NumberFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', {
+const plain = (amount: number, locale: Locale): string => {
+    return formatNumber(amount, locale === 'nl' ? 'nl-NL' : 'en-GB', {
         maximumFractionDigits: 0,
-    }).format(amount);
-}
+    });
+};
 
-function list(items: readonly string[], locale: Locale): string {
+const list = (items: readonly string[], locale: Locale): string => {
     const and = locale === 'nl' ? 'en' : 'and';
     const head = items.slice(0, -1);
     const last = items[items.length - 1] ?? '';
 
     return head.length === 0 ? last : `${head.join(', ')} ${and} ${last}`;
-}
+};
 
-function streets(
+const streets = (
     spaces: readonly Space[] = standardEdition.spaces,
-): StreetSpace[] {
+): StreetSpace[] => {
     return spaces.filter(
         (space): space is StreetSpace => space.type === 'street',
     );
-}
+};
 
-function stations(
+const stations = (
     spaces: readonly Space[] = standardEdition.spaces,
-): StationSpace[] {
+): StationSpace[] => {
     return spaces.filter(
         (space): space is StationSpace => space.type === 'station',
     );
-}
+};
 
-function utilities(
+const utilities = (
     spaces: readonly Space[] = standardEdition.spaces,
-): UtilitySpace[] {
+): UtilitySpace[] => {
     return spaces.filter(
         (space): space is UtilitySpace => space.type === 'utility',
     );
-}
+};
 
-function taxes(spaces: readonly Space[] = standardEdition.spaces): TaxSpace[] {
+const taxes = (
+    spaces: readonly Space[] = standardEdition.spaces,
+): TaxSpace[] => {
     return spaces.filter((space): space is TaxSpace => space.type === 'tax');
-}
+};
 
 /** How the start money is split, in the order of the standard data: `2 × 500, 2 × 100 ...`. */
-function startSplit(ctx: RulesContext): string {
+const startSplit = (ctx: RulesContext): string => {
     return list(
         standardEdition.money.startingCash.split.map(
             (part) =>
@@ -245,15 +248,15 @@ function startSplit(ctx: RulesContext): string {
         ),
         ctx.locale,
     );
-}
+};
 
-function priceList(
+const priceList = (
     ctx: RulesContext,
     kicker: string,
     title: string,
     ids: (GroupId | 'station' | 'utility')[],
     note: string,
-): PriceListPage {
+): PriceListPage => {
     const { locale } = ctx;
     // The edition's own sign and word for a hotel head the columns (bug 7 and 17 of test round 3).
     const symbol =
@@ -358,14 +361,14 @@ function priceList(
             };
         }),
     };
-}
+};
 
-function capitalize(text: string): string {
+const capitalize = (text: string): string => {
     return text.charAt(0).toUpperCase() + text.slice(1);
-}
+};
 
 /** All sixteen pages of the booklet, in reading order. */
-export function bookletPages(ctx: RulesContext): BookletPageContent[] {
+export const bookletPages = (ctx: RulesContext): BookletPageContent[] => {
     const { locale, words } = ctx;
     const money = (amount: number) =>
         formatMoney(amount, ctx.currency, locale, ctx.symbol);
@@ -781,4 +784,4 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
         },
         { ...back },
     ];
-}
+};

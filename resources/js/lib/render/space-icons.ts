@@ -91,32 +91,54 @@ export const ICON_CATEGORIES = [
 
 type IconCategory = (typeof ICON_CATEGORIES)[number];
 
-export interface LucideCatalogueEntry {
+export type LucideCatalogueEntry = {
     id: LucideSpaceIcon;
     categories: readonly IconCategory[];
     nl: string;
     en: string;
-}
+};
+
+const hasLucidePrefix = (value: string): value is LucideSpaceIcon => {
+    return value.startsWith('lucide:');
+};
+
+const isIconCategory = (value: string): value is IconCategory => {
+    return ICON_CATEGORIES.some((category) => category === value);
+};
+
+const toCatalogueEntry = (
+    entry: (typeof lucideCatalogue)[number],
+): LucideCatalogueEntry => {
+    const { id, categories, nl, en } = entry;
+    if (!hasLucidePrefix(id) || !categories.every(isIconCategory)) {
+        throw new TypeError(`Broken lucide icon ${id}`);
+    }
+
+    return { id, categories, nl, en };
+};
 
 /** The curated lucide set (B196). The server validates against the same file. */
-export const LUCIDE_CATALOGUE =
-    lucideCatalogue as readonly LucideCatalogueEntry[];
+export const LUCIDE_CATALOGUE: readonly LucideCatalogueEntry[] =
+    lucideCatalogue.map(toCatalogueEntry);
 
 const LUCIDE_IDS: ReadonlySet<string> = new Set(
     LUCIDE_CATALOGUE.map((entry) => entry.id),
 );
 
-function isLucideSpaceIcon(value: string): value is LucideSpaceIcon {
+const isLucideSpaceIcon = (value: string): value is LucideSpaceIcon => {
     return LUCIDE_IDS.has(value);
-}
+};
 
-export function isSpaceIconPreset(value: unknown): value is SpaceIconPreset {
+const isOwnSpaceIcon = (value: string): value is OwnSpaceIcon => {
+    return SPACE_ICON_PRESETS.some((id) => id === value);
+};
+
+export const isSpaceIconPreset = (value: unknown): value is SpaceIconPreset => {
     return (
         typeof value === 'string' &&
-        ((SPACE_ICON_PRESETS as readonly string[]).includes(value) ||
-            isLucideSpaceIcon(value))
+        (isOwnSpaceIcon(value) || isLucideSpaceIcon(value))
     );
-}
+};
 
 /** The icons offered per kind of space, the standard one first. Any preset is valid on any special space. */
 export const ICONS_BY_KIND: Readonly<
@@ -227,19 +249,23 @@ const CORNER_KINDS: Record<CornerKind, IconKind> = {
 };
 
 /** The kind of icon a space takes, or `null` for a street, which has none. */
-export function iconKindOf(space: Space): IconKind | null {
+export const iconKindOf = (space: Space): IconKind | null => {
     switch (space.type) {
         case 'corner':
             return CORNER_KINDS[space.corner];
         case 'street':
             return null;
-        default:
+        case 'utility':
+        case 'station':
+        case 'tax':
+        case 'chance':
+        case 'chest':
             return space.type;
     }
-}
+};
 
 /** The icon a space has without a choice; tax spaces have none. */
-export function defaultSpaceIcon(space: Space): OwnSpaceIcon | null {
+export const defaultSpaceIcon = (space: Space): OwnSpaceIcon | null => {
     switch (space.type) {
         case 'corner':
             return ICONS_BY_KIND[CORNER_KINDS[space.corner]][0] ?? null;
@@ -251,10 +277,11 @@ export function defaultSpaceIcon(space: Space): OwnSpaceIcon | null {
             return 'dice';
         case 'chest':
             return 'chest';
-        default:
+        case 'street':
+        case 'tax':
             return null;
     }
-}
+};
 
 export const SPACE_ICON_NAMES: Readonly<
     Record<OwnSpaceIcon, Record<Locale, string>>
@@ -312,10 +339,8 @@ const LUCIDE_NAMES: ReadonlyMap<string, LucideCatalogueEntry> = new Map(
 );
 
 /** The name of any icon in the language of the site, for its label and for the search (B196). */
-export function spaceIconName(id: SpaceIconPreset, locale: Locale): string {
-    const own = (SPACE_ICON_NAMES as Record<string, Record<Locale, string>>)[
-        id
-    ];
+export const spaceIconName = (id: SpaceIconPreset, locale: Locale): string => {
+    const own = isOwnSpaceIcon(id) ? SPACE_ICON_NAMES[id][locale] : undefined;
 
-    return own?.[locale] ?? LUCIDE_NAMES.get(id)?.[locale] ?? id;
-}
+    return own ?? LUCIDE_NAMES.get(id)?.[locale] ?? id;
+};

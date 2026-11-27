@@ -10,9 +10,9 @@ import type { Edition, NewEditionInput } from '@/lib/render/edition-types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 
 /** Installs in-memory services, so pages and hooks work without a browser database. */
-export function installMemoryServices(): EditorServices & {
+export const installMemoryServices = (): EditorServices & {
     storage: MemoryEditionStorage;
-} {
+} => {
     const storage = new MemoryEditionStorage();
     const bus = new EditionBus(null, 'test-window');
     let counter = 0;
@@ -28,11 +28,11 @@ export function installMemoryServices(): EditorServices & {
     setServices(services);
 
     return services;
-}
+};
 
-export function sampleEdition(
+export const sampleEdition = (
     overrides: Partial<NewEditionInput> & { id?: string } = {},
-): Edition {
+): Edition => {
     const { id = 'sample-edition-1', ...input } = overrides;
 
     return createEdition(
@@ -45,4 +45,4 @@ export function sampleEdition(
         },
         { id, now: 1_000 },
     );
-}
+};

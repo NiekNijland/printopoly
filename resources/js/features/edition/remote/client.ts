@@ -10,21 +10,21 @@ export type FetchLike = (
     init?: RequestInit,
 ) => Promise<Response>;
 
-export interface ApiClientOptions {
+export type ApiClientOptions = {
     /** Defaults to the global `fetch`. */
     fetch?: FetchLike;
     /** Prefix for every path; empty for the same origin. */
     baseUrl?: string;
     /** Defaults to reading the `XSRF-TOKEN` cookie. */
     getCsrfToken?: () => string | undefined;
-}
+};
 
-export interface ApiResponse {
+export type ApiResponse = {
     status: number;
     ok: boolean;
     /** The parsed JSON body, or `undefined` when there is none (204, an HTML error page). */
     body: unknown;
-}
+};
 
 /** The server turned the request down in a way the caller cannot fix by retrying. */
 export class RemoteApiError extends Error {
@@ -56,41 +56,43 @@ export class RemoteRateLimitError extends RemoteApiError {
     }
 }
 
-export interface ApiClient {
+export type ApiClient = {
     request(
         method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
         path: string,
         body?: unknown,
     ): Promise<ApiResponse>;
-}
+};
 
-export function readXsrfCookie(): string | undefined {
+export const readXsrfCookie = (): string | undefined => {
     if (typeof document === 'undefined') {
         return undefined;
     }
     const match = /(?:^|;\s*)XSRF-TOKEN=([^;]*)/.exec(document.cookie);
 
     return match?.[1] === undefined ? undefined : decodeURIComponent(match[1]);
-}
+};
 
-async function readBody(response: Response): Promise<unknown> {
+const readBody = async (response: Response): Promise<unknown> => {
     const text = await response.text();
     if (text === '') {
         return undefined;
     }
     try {
-        return JSON.parse(text) as unknown;
+        const parsed: unknown = JSON.parse(text);
+
+        return parsed;
     } catch {
         return undefined;
     }
-}
+};
 
 /**
  * Returns the response for every status the callers handle themselves (2xx,
  * 404, 409, 422). A network failure rejects with the original error; 401,
  * 419, 429 and 5xx throw.
  */
-export function createApiClient(options: ApiClientOptions = {}): ApiClient {
+export const createApiClient = (options: ApiClientOptions = {}): ApiClient => {
     const doFetch: FetchLike =
         options.fetch ?? ((input, init) => globalThis.fetch(input, init));
     const baseUrl = options.baseUrl ?? '';
@@ -140,10 +142,10 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
             };
         },
     };
-}
+};
 
 export type JsonObject = Record<string, unknown>;
 
-export function isJsonObject(value: unknown): value is JsonObject {
+export const isJsonObject = (value: unknown): value is JsonObject => {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
+};

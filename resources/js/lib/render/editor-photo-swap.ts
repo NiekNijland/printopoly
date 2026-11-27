@@ -17,16 +17,16 @@ import { standardEdition } from '@/lib/render/standard-edition';
  */
 
 /** Whether a space can give or take a photo in a swap: a street, a station or a utility. */
-export function swapsPhoto(key: string): boolean {
+export const swapsPhoto = (key: string): boolean => {
     return (
         parseKey(key)?.kind === 'space' &&
         holdsPhoto(key) &&
         photoKindOf(key) !== null
     );
-}
+};
 
 /** The spaces the photo of `key` can go to, in board order. */
-export function photoSwapTargets(key: string): string[] {
+export const photoSwapTargets = (key: string): string[] => {
     if (!swapsPhoto(key)) {
         return [];
     }
@@ -34,18 +34,18 @@ export function photoSwapTargets(key: string): string[] {
     return standardEdition.spaces
         .map((space) => spaceKey(space.position))
         .filter((other) => other !== key && swapsPhoto(other));
-}
+};
 
 /** Whether `key` has a photo that can move to another space. */
-export function canSwapPhoto(edition: Edition, key: string): boolean {
+export const canSwapPhoto = (edition: Edition, key: string): boolean => {
     return swapsPhoto(key) && edition.elements[key]?.photo !== undefined;
-}
+};
 
 /** `override` with the photo (and how it stands, B124) of `from` instead of its own. */
-function withPhotoOf(
+const withPhotoOf = (
     override: ElementOverride | undefined,
     from: ElementOverride | undefined,
-): ElementOverride | undefined {
+): ElementOverride | undefined => {
     const { photo: _photo, photoStyle: _style, ...rest } = override ?? {};
     const next: ElementOverride = { ...rest };
     if (from?.photo !== undefined) {
@@ -58,17 +58,17 @@ function withPhotoOf(
     }
 
     return Object.keys(next).length === 0 ? undefined : next;
-}
+};
 
 /**
  * The changes that trade the photos of `a` and `b`, or move the photo of `a` to `b` when `b` has none. Both
  * changes go to the session in one `apply`, so they are one undo step.
  */
-export function photoSwapChanges(
+export const photoSwapChanges = (
     edition: Edition,
     a: string,
     b: string,
-): ElementChange[] {
+): ElementChange[] => {
     if (a === b || !swapsPhoto(a) || !swapsPhoto(b)) {
         return [];
     }
@@ -82,4 +82,4 @@ export function photoSwapChanges(
         setElement(edition, a, withPhotoOf(first, second)).change,
         setElement(edition, b, withPhotoOf(second, first)).change,
     ].filter((change): change is ElementChange => change !== null);
-}
+};

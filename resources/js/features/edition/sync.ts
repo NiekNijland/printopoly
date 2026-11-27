@@ -9,12 +9,12 @@ import type {
 /** Editions per account (B70). Read from config on the server; this is the default for the question. */
 const ACCOUNT_EDITION_LIMIT = 20;
 
-export interface RemoteEditionSummary {
+export type RemoteEditionSummary = {
     id: string;
     name: string;
     revision: number;
     updatedAt: number;
-}
+};
 
 export type RemotePutResult =
     | { ok: true; revision: number }
@@ -25,7 +25,7 @@ export type RemotePutResult =
  * What the server offers once there is an account (B81). The network code comes later; the editor and the sync
  * question only depend on this interface.
  */
-export interface RemoteEditionStore {
+export type RemoteEditionStore = {
     list(): Promise<RemoteEditionSummary[]>;
     get(id: string): Promise<Edition | undefined>;
     /** Stores an edition when `expectedRevision` matches (`null` for a new one). */
@@ -35,29 +35,29 @@ export interface RemoteEditionStore {
     ): Promise<RemotePutResult>;
     putPhoto(photo: PhotoRecord): Promise<void>;
     delete(id: string): Promise<void>;
-}
+};
 
 /** Local editions that the account does not have yet. */
-export function findLocalOnly(
+export const findLocalOnly = (
     local: readonly EditionSummary[],
     remote: readonly RemoteEditionSummary[],
-): EditionSummary[] {
+): EditionSummary[] => {
     const known = new Set(remote.map((edition) => edition.id));
 
     return local.filter((edition) => !known.has(edition.id));
-}
+};
 
 /** Account editions this browser does not have: they come down as the local cache. */
-export function findRemoteOnly(
+export const findRemoteOnly = (
     local: readonly EditionSummary[],
     remote: readonly RemoteEditionSummary[],
-): RemoteEditionSummary[] {
+): RemoteEditionSummary[] => {
     const known = new Set(local.map((edition) => edition.id));
 
     return remote.filter((edition) => !known.has(edition.id));
-}
+};
 
-export interface SyncQuestion {
+export type SyncQuestion = {
     count: number;
     editions: EditionSummary[];
     /** "Welkom, Niek. Je hebt 3 edities in deze browser." */
@@ -68,23 +68,23 @@ export interface SyncQuestion {
     decline: string;
     /** Set when not everything fits in the account: the user has to choose. */
     overLimit: { limit: number; room: number; message: string } | null;
-}
+};
 
-export interface SyncQuestionOptions {
+export type SyncQuestionOptions = {
     locale: Locale;
     userName?: string;
     limit?: number;
-}
+};
 
 /**
  * The one question after login (B81): "Je hebt 2 edities op dit apparaat. Wil je ze in je account bewaren?"
  * Returns `null` when there is nothing to ask.
  */
-export function buildSyncQuestion(
+export const buildSyncQuestion = (
     local: readonly EditionSummary[],
     remote: readonly RemoteEditionSummary[],
     options: SyncQuestionOptions,
-): SyncQuestion | null {
+): SyncQuestion | null => {
     const editions = findLocalOnly(local, remote);
     if (editions.length === 0) {
         return null;
@@ -105,25 +105,25 @@ export function buildSyncQuestion(
                 ? { limit, room, message: m.overLimit(limit) }
                 : null,
     };
-}
+};
 
-export interface UploadReport {
+export type UploadReport = {
     uploaded: string[];
     /** Editions the server has with another revision: nothing is overwritten, the user chooses (B81). */
     conflicts: string[];
     /** Editions the account had no room for. */
     overLimit: string[];
-}
+};
 
 /** Sends the chosen local editions and their photos to the account. Never overwrites an existing remote edition. */
-export async function uploadEditions(
+export const uploadEditions = async (
     ids: readonly string[],
     deps: {
         remote: RemoteEditionStore;
         getEdition(id: string): Promise<Edition | undefined>;
         listPhotos(editionId: string): Promise<PhotoRecord[]>;
     },
-): Promise<UploadReport> {
+): Promise<UploadReport> => {
     const report: UploadReport = { uploaded: [], conflicts: [], overLimit: [] };
 
     for (const id of ids) {
@@ -146,4 +146,4 @@ export async function uploadEditions(
     }
 
     return report;
-}
+};

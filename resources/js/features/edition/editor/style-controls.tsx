@@ -32,7 +32,7 @@ const NO_PATTERN = 'none';
 const capitalize = (text: string): string =>
     text.charAt(0).toUpperCase() + text.slice(1);
 
-interface ColorFieldProps {
+type ColorFieldProps = {
     /** Unique within the page, for the labels. */
     id: string;
     label: string;
@@ -48,14 +48,59 @@ interface ColorFieldProps {
     hideReset?: boolean;
     /** Swatches before the palette of the theme, such as the colours the board really uses for its groups. */
     leading?: readonly Swatch[];
-}
+};
+
+const Swatches = ({
+    swatches,
+    value,
+    onChoose,
+}: {
+    swatches: readonly Swatch[];
+    value: string;
+    onChoose: (hex: string) => void;
+}) => {
+    const t = useTranslation();
+    const { locale } = usePage().props;
+
+    return (
+        <div
+            className="grid grid-cols-6 gap-2"
+            role="group"
+            aria-label={t('editor.style_palette')}
+        >
+            {swatches
+                .filter(
+                    (swatch, index, all) =>
+                        all.findIndex((other) => other.hex === swatch.hex) ===
+                        index,
+                )
+                .map((swatch) => (
+                    <button
+                        key={swatch.hex}
+                        type="button"
+                        aria-label={swatch.name[locale]}
+                        aria-pressed={value.toUpperCase() === swatch.hex}
+                        title={swatch.name[locale]}
+                        onClick={() => onChoose(swatch.hex)}
+                        className={cn(
+                            'aspect-square min-h-9 w-full cursor-pointer rounded-control border-2 p-0',
+                            value.toUpperCase() === swatch.hex
+                                ? 'border-ink shadow-[inset_0_0_0_2px_var(--color-card)] outline-3 outline-offset-1 outline-ink'
+                                : 'border-line-strong',
+                        )}
+                        style={{ background: swatch.hex }}
+                    />
+                ))}
+        </div>
+    );
+};
 
 /**
  * Picks a colour: the palette of the theme, or any colour as hex or with the system picker. A
  * colour that print ink cannot reproduce is toned down at once, and the field says so (B75). The label
  * has the "Standaard" button when the edition has its own colour (B142).
  */
-export function ColorField({
+export const ColorField = ({
     id,
     label,
     value,
@@ -65,9 +110,8 @@ export function ColorField({
     tag,
     hideReset = false,
     leading = [],
-}: ColorFieldProps) {
+}: ColorFieldProps) => {
     const t = useTranslation();
-    const { locale } = usePage().props;
     const [draft, setDraft] = useState<string | null>(null);
     const [softened, setSoftened] = useState(false);
 
@@ -95,36 +139,11 @@ export function ColorField({
                     }
                 />
             )}
-            <div
-                className="grid grid-cols-6 gap-2"
-                role="group"
-                aria-label={t('editor.style_palette')}
-            >
-                {[...leading, ...PALETTES[edition.theme]]
-                    .filter(
-                        (swatch, index, all) =>
-                            all.findIndex(
-                                (other) => other.hex === swatch.hex,
-                            ) === index,
-                    )
-                    .map((swatch) => (
-                        <button
-                            key={swatch.hex}
-                            type="button"
-                            aria-label={swatch.name[locale]}
-                            aria-pressed={value.toUpperCase() === swatch.hex}
-                            title={swatch.name[locale]}
-                            onClick={() => choose(swatch.hex)}
-                            className={cn(
-                                'aspect-square min-h-9 w-full cursor-pointer rounded-control border-2 p-0',
-                                value.toUpperCase() === swatch.hex
-                                    ? 'border-ink shadow-[inset_0_0_0_2px_var(--color-card)] outline-3 outline-offset-1 outline-ink'
-                                    : 'border-line-strong',
-                            )}
-                            style={{ background: swatch.hex }}
-                        />
-                    ))}
-            </div>
+            <Swatches
+                swatches={[...leading, ...PALETTES[edition.theme]]}
+                value={value}
+                onChoose={choose}
+            />
             <div className="flex items-center gap-2">
                 <input
                     type="color"
@@ -159,9 +178,9 @@ export function ColorField({
             )}
         </div>
     );
-}
+};
 
-interface GroupColorFieldProps {
+type GroupColorFieldProps = {
     session: EditionSession;
     edition: Edition;
     resolved: ResolvedEdition;
@@ -170,20 +189,20 @@ interface GroupColorFieldProps {
     label: string;
     /** "geldt voor alle 3 bruine straten". */
     tag?: string;
-}
+};
 
 /**
  * The colour of a street group (B130), the same field wherever it shows: in the panel of a street and in the
  * colours of the edition.
  */
-export function GroupColorField({
+export const GroupColorField = ({
     session,
     edition,
     resolved,
     group,
     label,
     tag,
-}: GroupColorFieldProps) {
+}: GroupColorFieldProps) => {
     // The colour the board prints the group in, also in Riso and Strak (bug 32).
     const color =
         resolved.groups.find((candidate) => candidate.id === group)?.color ??
@@ -221,25 +240,25 @@ export function GroupColorField({
             }
         />
     );
-}
+};
 
-interface PatternPickerProps {
+type PatternPickerProps = {
     label: string;
     /** A first tile for "no pattern"; off where the choice row above has it already. */
     withNone?: boolean;
     value: PatternId | undefined;
     color: string;
     onChange: (pattern: PatternId | undefined) => void;
-}
+};
 
 /** The built-in patterns as small tiles, with a first tile for "none". */
-export function PatternPicker({
+export const PatternPicker = ({
     label,
     withNone = true,
     value,
     color,
     onChange,
-}: PatternPickerProps) {
+}: PatternPickerProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const labelId = useId();
@@ -290,4 +309,4 @@ export function PatternPicker({
             </ToggleGroup>
         </div>
     );
-}
+};

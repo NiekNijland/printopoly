@@ -5,18 +5,18 @@ import {
 import type { EditionRepository } from '@/features/edition/repository';
 
 /** Removes every edition and photo from this browser. Used after logging out or deleting the account. */
-export async function wipeLocalCopy(
+export const wipeLocalCopy = async (
     repository: EditionRepository,
-): Promise<void> {
+): Promise<void> => {
     for (const edition of await repository.list()) {
         await repository.delete(edition.id);
     }
-}
+};
 
 export type SyncProblem = 'login' | 'rate-limit' | 'failed';
 
 /** What a failed call to the account means for the person. */
-export function classifySyncError(error: unknown): SyncProblem {
+export const classifySyncError = (error: unknown): SyncProblem => {
     if (error instanceof RemoteAuthError) {
         return 'login';
     }
@@ -25,4 +25,4 @@ export function classifySyncError(error: unknown): SyncProblem {
     }
 
     return 'failed';
-}
+};

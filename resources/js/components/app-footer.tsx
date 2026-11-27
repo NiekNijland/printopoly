@@ -5,7 +5,7 @@ import { RegistrationStrip } from '@/components/registration-strip';
 import { useTranslation } from '@/hooks/use-translation';
 
 /** The footer of public pages (B110): ink, with the process colours as accents. */
-export function AppFooter() {
+export const AppFooter = () => {
     const { pageUrls } = usePage().props;
     const t = useTranslation();
 
@@ -64,4 +64,4 @@ export function AppFooter() {
             </div>
         </footer>
     );
-}
+};

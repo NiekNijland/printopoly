@@ -283,7 +283,7 @@ const PATHS = {
     ],
 } satisfies Record<string, string[]>;
 
-export interface IconProps {
+export type IconProps = {
     name: IconName;
     /** Position of the top-left corner and side of the square icon, in mm. */
     x: number;
@@ -291,17 +291,17 @@ export interface IconProps {
     size: number;
     color: string;
     strokeWidth?: number;
-}
+};
 
 /** One icon set (B87): viewBox 20, round line ends, drawn as flat lines. */
-export function Icon({
+export const Icon = ({
     name,
     x,
     y,
     size,
     color,
     strokeWidth = 1.75,
-}: IconProps) {
+}: IconProps) => {
     return (
         <svg
             style={{
@@ -327,7 +327,7 @@ export function Icon({
             ))}
         </svg>
     );
-}
+};
 
 /** Every drawing in the set, for tests and the icon picker. */
 export const PATH_NAMES = Object.keys(PATHS) as IconName[];

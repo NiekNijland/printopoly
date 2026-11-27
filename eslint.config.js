@@ -513,7 +513,8 @@ const importPaths = [
 const doors = {
     localStorage: 'lib/browser-storage',
     sessionStorage: 'lib/browser-storage',
-    matchMedia: 'hooks/use-media-query',
+    matchMedia:
+        'lib/media-query (useMediaQuery in hooks/use-media-query for a component)',
     fetch: 'lib/render/print-api.ts or features/edition/remote; any other request is the Inertia HTTP hook',
     XMLHttpRequest: 'features/edition/remote',
 };
@@ -527,19 +528,23 @@ const doorGlobals = (except = []) => [
     ...Object.entries(doors)
         .filter(([name]) => !except.includes(name))
         .map(([name, door]) => ({ name, message: doorMessage(door) })),
-    ...['addEventListener', 'removeEventListener'].map((name) => ({
-        name,
-        message: domEventMessage,
-    })),
+    ...(except.includes('events')
+        ? []
+        : ['addEventListener', 'removeEventListener'].map((name) => ({
+              name,
+              message: domEventMessage,
+          }))),
 ];
 const doorProperties = (except = []) => [
-    ...['addEventListener', 'removeEventListener'].flatMap((property) =>
-        ['window', 'document', 'globalThis'].map((object) => ({
-            object,
-            property,
-            message: domEventMessage,
-        })),
-    ),
+    ...(except.includes('events')
+        ? []
+        : ['addEventListener', 'removeEventListener'].flatMap((property) =>
+              ['window', 'document', 'globalThis'].map((object) => ({
+                  object,
+                  property,
+                  message: domEventMessage,
+              })),
+          )),
     ...Object.entries(doors)
         .filter(([name]) => !except.includes(name))
         .flatMap(([property, door]) =>
@@ -549,9 +554,13 @@ const doorProperties = (except = []) => [
                 message: doorMessage(door),
             })),
         ),
-    ...['NumberFormat', 'DateTimeFormat', 'RelativeTimeFormat'].map(
-        (property) => ({ object: 'Intl', property, message: formatMessage }),
-    ),
+    ...['NumberFormat', 'DateTimeFormat', 'RelativeTimeFormat']
+        .filter((property) => !except.includes(property))
+        .map((property) => ({
+            object: 'Intl',
+            property,
+            message: formatMessage,
+        })),
     ...['toLocaleString', 'toLocaleDateString', 'toLocaleTimeString'].map(
         (property) => ({ property, message: formatMessage }),
     ),
@@ -1038,6 +1047,13 @@ const navigationPlugin = {
                 },
             },
             create: (context) => {
+                // The door itself is the one file that leaves the app.
+                if (
+                    fromSource(context).join('/') ===
+                    'lib/full-page-navigation.ts'
+                ) {
+                    return {};
+                }
                 const report = (node) =>
                     context.report({ node, messageId: 'write' });
 
@@ -1272,9 +1288,19 @@ export default [
             ],
         },
     })),
+    // A declaration file merges into the types of a package or of the window, which only an interface can.
+    {
+        files: [`${SOURCE}/types/*.d.ts`],
+        rules: {
+            '@typescript-eslint/consistent-type-definitions': [
+                'error',
+                'interface',
+            ],
+        },
+    },
     // The doors: each file that owns an API gets the same lists without its own entry.
     {
-        files: [`${SOURCE}/hooks/use-media-query.ts`],
+        files: [`${SOURCE}/lib/media-query.ts`],
         rules: {
             'no-restricted-globals': ['error', ...doorGlobals(['matchMedia'])],
             'no-restricted-properties': [
@@ -1284,6 +1310,22 @@ export default [
             ],
         },
     },
+    ...[
+        ['lib/browser-storage.ts', ['localStorage', 'sessionStorage']],
+        ['lib/dom-events.ts', ['events']],
+        ['lib/number-format.ts', ['NumberFormat']],
+        ['lib/datetime.ts', ['DateTimeFormat']],
+    ].map(([file, except]) => ({
+        files: [`${SOURCE}/${file}`],
+        rules: {
+            'no-restricted-globals': ['error', ...doorGlobals(except)],
+            'no-restricted-properties': [
+                'error',
+                ...doorProperties(except),
+                reflectApplyRule,
+            ],
+        },
+    })),
     {
         files: [
             `${SOURCE}/lib/render/print-api.ts`,

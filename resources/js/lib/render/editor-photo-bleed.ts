@@ -7,7 +7,10 @@ import { BLEED } from '@/lib/render/print-composition';
  * no bleed. A full photo runs on into the bleed of the element as it prints: 3 mm on cards, deeds and the
  * lid, 2.5 mm on a home-print space sticker, and none on money and pawns (they have their own frame).
  */
-export function photoBleed(key: string, style: PhotoStyle | undefined): number {
+export const photoBleed = (
+    key: string,
+    style: PhotoStyle | undefined,
+): number => {
     // A card back photo covers the whole card, so it always runs into the bleed (B56, B130).
     if (parseKey(key)?.kind === 'cardBack') {
         return BLEED;
@@ -27,4 +30,4 @@ export function photoBleed(key: string, style: PhotoStyle | undefined): number {
         default:
             return 0;
     }
-}
+};

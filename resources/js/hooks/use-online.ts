@@ -1,20 +1,22 @@
 import { useSyncExternalStore } from 'react';
 
-function subscribe(onChange: () => void): () => void {
-    window.addEventListener('online', onChange);
-    window.addEventListener('offline', onChange);
+import { listenToWindow } from '@/lib/dom-events';
+
+const subscribe = (onChange: () => void): (() => void) => {
+    const stopOnline = listenToWindow('online', onChange);
+    const stopOffline = listenToWindow('offline', onChange);
 
     return () => {
-        window.removeEventListener('online', onChange);
-        window.removeEventListener('offline', onChange);
+        stopOnline();
+        stopOffline();
     };
-}
+};
 
 /** Whether the browser has a connection, as it says itself; true on the server. */
-export function useOnline(): boolean {
+export const useOnline = (): boolean => {
     return useSyncExternalStore(
         subscribe,
         () => navigator.onLine,
         () => true,
     );
-}
+};

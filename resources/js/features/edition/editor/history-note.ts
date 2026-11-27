@@ -35,8 +35,14 @@ const NOTED_FIELDS = [
 
 type NotedField = (typeof NOTED_FIELDS)[number];
 
+const isNoted = (field: string | undefined): field is NotedField =>
+    NOTED_FIELDS.some((noted) => noted === field);
+
+const fieldsOf = (override: ElementOverride): ElementField[] =>
+    Object.keys(override).filter((key): key is ElementField => key in override);
+
 /** What an undo or redo touched, for the short note and for the jump (UX 7, ronde 3). */
-export interface HistoryStepInfo {
+export type HistoryStepInfo = {
     target: HistoryTarget | undefined;
     /** The element the note names; `undefined` when more than one element changed. */
     elementKey: string | undefined;
@@ -44,25 +50,23 @@ export interface HistoryStepInfo {
     field: NotedField | undefined;
     /** How many elements changed. */
     count: number;
-}
+};
 
-function changedFields(change: ElementChange): string[] {
+const changedFields = (change: ElementChange): string[] => {
     const before: ElementOverride = change.before ?? {};
     const after: ElementOverride = change.after ?? {};
-    const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
+    const keys = new Set([...fieldsOf(before), ...fieldsOf(after)]);
 
     return [...keys].filter(
-        (key) =>
-            JSON.stringify(before[key as ElementField]) !==
-            JSON.stringify(after[key as ElementField]),
+        (key) => JSON.stringify(before[key]) !== JSON.stringify(after[key]),
     );
-}
+};
 
 /** The place in the editor that shows an element key. */
-function targetOfKey(
+const targetOfKey = (
     key: string,
     fields: readonly string[] = [],
-): HistoryTarget | undefined {
+): HistoryTarget | undefined => {
     const section = sectionOfKey(key);
     if (section !== null) {
         return { kind: 'edition', section };
@@ -93,15 +97,27 @@ function targetOfKey(
                 ? undefined
                 : { kind: 'element', key: street, deed: false };
         }
-        default:
+        case 'space':
+        case 'card':
+        case 'note':
+        case 'pawn':
+        case 'cardBack':
+        case 'boxLid':
+        case 'boardCenter':
+        case 'houseRules':
+        case 'rulesBooklet':
+        case 'invitation':
+        case 'words':
+        case 'themeAccent':
+        case 'partStyle':
             return { kind: 'element', key, deed: false };
     }
-}
+};
 
 /** What an undo or redo did, in terms the editor can show and say. */
-export function describeHistoryStep(
+export const describeHistoryStep = (
     changes: readonly ElementChange[],
-): HistoryStepInfo {
+): HistoryStepInfo => {
     // Undo gives the changes back in reverse; the note and the jump go to the first one in the edition's order.
     const ordered = [...changes].sort((a, b) =>
         a.key.localeCompare(b.key, 'en', { numeric: true }),
@@ -122,10 +138,7 @@ export function describeHistoryStep(
         target:
             first === undefined ? undefined : targetOfKey(first.key, fields),
         elementKey: changes.length === 1 ? first?.key : undefined,
-        field:
-            same && (NOTED_FIELDS as readonly string[]).includes(only)
-                ? (only as NotedField)
-                : undefined,
+        field: same && isNoted(only) ? only : undefined,
         count: changes.length,
     };
-}
+};
