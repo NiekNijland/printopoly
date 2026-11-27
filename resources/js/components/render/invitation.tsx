@@ -47,15 +47,7 @@ export const INVITATION_KICKER = {
     en: 'Game night',
 } as const;
 
-const Card = ({
-    text,
-    editionName,
-    profile,
-    board: boardProps,
-    headline,
-    kicker,
-    photo,
-}: Pick<
+type CardProps = Pick<
     InvitationProps,
     | 'text'
     | 'editionName'
@@ -64,65 +56,62 @@ const Card = ({
     | 'headline'
     | 'kicker'
     | 'photo'
->) => {
-    const { theme, locale, currency, words, style } = useRender();
-    const { w, h } = INVITATION;
-    const hasPhoto = photo !== undefined;
-    const board = hasPhoto ? 50 : 68;
-    const boardProfile =
-        boardProps?.profile ?? profile ?? DEFAULT_BOARD_PROFILE;
-    const scale = board / boardProfile.outer;
-    const head =
-        headline === undefined || headline.trim() === ''
-            ? INVITATION_HEAD[locale]
-            : headline;
-    const small = kicker ?? INVITATION_KICKER[locale];
+>;
 
-    const top = hasPhoto ? 38 : 10;
-    const body = text.trim() === '' ? defaultInvitationText(locale) : text;
-    const boardTop = top + (hasPhoto ? 22 : 29);
+const InvitationKicker = ({
+    small,
+    top,
+    hasPhoto,
+}: {
+    small: string;
+    top: number;
+    hasPhoto: boolean;
+}) => {
+    const { theme } = useRender();
+    const { w } = INVITATION;
+
+    return (
+        <Abs
+            x={9}
+            y={top - (hasPhoto ? 1 : 0)}
+            w={w - 18}
+            h={4}
+            slot="invitation-kicker"
+        >
+            <span
+                style={{
+                    display: 'block',
+                    textAlign: 'center',
+                    fontFamily: theme.monoFont,
+                    fontSize: mm(2.5),
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    color: brandColor(theme),
+                }}
+            >
+                {small}
+            </span>
+        </Abs>
+    );
+};
+
+const InvitationHeadings = ({
+    head,
+    editionName,
+    top,
+}: {
+    head: string;
+    editionName: string;
+    top: number;
+}) => {
+    const { theme } = useRender();
+    const { w } = INVITATION;
 
     return (
         <>
-            <Frame
-                ornate
-                x={4}
-                y={4}
-                w={w - 8}
-                h={h - 8}
-                color={theme.ink}
-                strokeMm={theme.frameMm + 0.2}
-                radiusMm={Math.max(0, theme.cardRadiusMm - 1)}
-            />
-            {hasPhoto && (
-                <PhotoSlot x={9} y={9} w={w - 18} h={26} photo={photo} />
-            )}
-            {small.trim() !== '' && (
-                <Abs
-                    x={9}
-                    y={top - (hasPhoto ? 1 : 0)}
-                    w={w - 18}
-                    h={4}
-                    slot="invitation-kicker"
-                >
-                    <span
-                        style={{
-                            display: 'block',
-                            textAlign: 'center',
-                            fontFamily: theme.monoFont,
-                            fontSize: mm(2.5),
-                            letterSpacing: '0.16em',
-                            textTransform: 'uppercase',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            color: brandColor(theme),
-                        }}
-                    >
-                        {small}
-                    </span>
-                </Abs>
-            )}
             <FitText
                 text={head}
                 x={9}
@@ -151,42 +140,122 @@ const Card = ({
                 color={brandColor(theme)}
                 slot="invitation-edition"
             />
+        </>
+    );
+};
+
+const InvitationBoard = ({
+    board,
+    boardTop,
+    boardProfile,
+    boardProps,
+    editionName,
+}: {
+    board: number;
+    boardTop: number;
+    boardProfile: BoardProfile;
+    boardProps: BoardProps | undefined;
+    editionName: string;
+}) => {
+    const { theme, locale, currency, words, style } = useRender();
+    const { w } = INVITATION;
+    const scale = board / boardProfile.outer;
+
+    return (
+        <div
+            style={{
+                position: 'absolute',
+                left: mm((w - board) / 2),
+                top: mm(boardTop),
+                width: mm(board),
+                height: mm(board),
+                transform: 'rotate(-3deg)',
+                boxShadow: `0 0 0 ${mm(0.4)} ${theme.ink}`,
+                overflow: 'hidden',
+            }}
+        >
             <div
                 style={{
                     position: 'absolute',
-                    left: mm((w - board) / 2),
-                    top: mm(boardTop),
-                    width: mm(board),
-                    height: mm(board),
-                    transform: 'rotate(-3deg)',
-                    boxShadow: `0 0 0 ${mm(0.4)} ${theme.ink}`,
-                    overflow: 'hidden',
+                    left: 0,
+                    top: 0,
+                    width: mm(boardProfile.outer),
+                    height: mm(boardProfile.outer),
+                    transform: `scale(${String(scale)})`,
+                    transformOrigin: 'top left',
                 }}
             >
-                <div
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: 0,
-                        width: mm(boardProfile.outer),
-                        height: mm(boardProfile.outer),
-                        transform: `scale(${String(scale)})`,
-                        transformOrigin: 'top left',
-                    }}
-                >
-                    <Board
-                        theme={theme.id}
-                        locale={locale}
-                        currency={currency}
-                        words={words}
-                        {...(style === undefined ? {} : { style })}
-                        editionName={editionName}
-                        {...boardProps}
-                        profile={boardProfile}
-                        bleedMm={0}
-                    />
-                </div>
+                <Board
+                    theme={theme.id}
+                    locale={locale}
+                    currency={currency}
+                    words={words}
+                    {...(style === undefined ? {} : { style })}
+                    editionName={editionName}
+                    {...boardProps}
+                    profile={boardProfile}
+                    bleedMm={0}
+                />
             </div>
+        </div>
+    );
+};
+
+const Card = ({
+    text,
+    editionName,
+    profile,
+    board: boardProps,
+    headline,
+    kicker,
+    photo,
+}: CardProps) => {
+    const { theme, locale } = useRender();
+    const { w, h } = INVITATION;
+    const hasPhoto = photo !== undefined;
+    const board = hasPhoto ? 50 : 68;
+    const boardProfile =
+        boardProps?.profile ?? profile ?? DEFAULT_BOARD_PROFILE;
+    const head =
+        headline === undefined || headline.trim() === ''
+            ? INVITATION_HEAD[locale]
+            : headline;
+    const small = kicker ?? INVITATION_KICKER[locale];
+
+    const top = hasPhoto ? 38 : 10;
+    const body = text.trim() === '' ? defaultInvitationText(locale) : text;
+    const boardTop = top + (hasPhoto ? 22 : 29);
+
+    return (
+        <>
+            <Frame
+                ornate
+                x={4}
+                y={4}
+                w={w - 8}
+                h={h - 8}
+                color={theme.ink}
+                strokeMm={theme.frameMm + 0.2}
+                radiusMm={Math.max(0, theme.cardRadiusMm - 1)}
+            />
+            {hasPhoto && (
+                <PhotoSlot x={9} y={9} w={w - 18} h={26} photo={photo} />
+            )}
+            {small.trim() !== '' && (
+                <InvitationKicker small={small} top={top} hasPhoto={hasPhoto} />
+            )}
+            <InvitationHeadings
+                head={head}
+                editionName={editionName}
+                top={top}
+            />
+            <InvitationBoard
+                board={board}
+                boardTop={boardTop}
+                boardProfile={boardProfile}
+                boardProps={boardProps}
+                editionName={editionName}
+            />
             <FitText
                 text={body}
                 x={10}
