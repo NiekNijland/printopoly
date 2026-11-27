@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { getServices } from '@/features/edition/editor/services';
 import { setServices } from '@/features/edition/editor/testing/services';
 import PrintShow from '@/pages/print/show';
-import { makeEdition } from '@/testing/edition-test-utils';
+import { makeEdition, settle } from '@/testing/edition-test-utils';
 import { stubFetch } from '@/testing/fetch';
 import { visit } from '@/testing/inertia';
 import { printJob, printPageEdition } from '@/testing/print-job';
@@ -141,9 +141,7 @@ describe('the edition on the print page', () => {
             />,
         );
 
-        await act(async () => {
-            await new Promise((resolve) => setTimeout(resolve, 50));
-        });
+        await act(settle);
         expect(document.querySelector('[data-check-note]')).toBeNull();
         expect(
             screen.queryByRole('region', { name: 'Nog even nakijken' }),
