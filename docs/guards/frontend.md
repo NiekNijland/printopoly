@@ -30,10 +30,10 @@ Een bestand importeert alleen uit zijn eigen laag en de lagen eronder. `render` 
 | `layouts` | alles hierboven |
 | `pages` | alles hierboven; nooit een andere pagina |
 
-`layers/final-folder` faalt op een bestand buiten deze mappen (zoals `lib/<domain>` of `components/<domain>`); de entrybestanden `app.tsx`, `ssr.tsx`, `print.tsx` en `testing/` zijn vrij. De features zijn `edition` (de editor, Mijn edities, de boxen, de foto's), `print` en `landing`.
+`layers/final-folder` faalt op een bestand buiten deze mappen (zoals `lib/<domain>` of `components/<domain>`); de entrybestanden `app.tsx`, `ssr.tsx` en `print.tsx` met hun tests, en `testing/`, zijn vrij. De features zijn `edition` (de editor, Mijn edities, de boxen, de foto's), `print` en `landing`.
 
 ## Getelde lijsten
 
-De overtredingen van vandaag staan in `eslint-suppressions.json` (`eslint --suppress-all`), nooit in een disable-comment. Ratchet-rijen: `lint-suppressions` (alles), `frontend-functions-over-limit` en `frontend-sibling-imports` (per regel) en `frontend-inertia-mocks` (tekst). Typeassertions, `!`, `as unknown as` en imports over de lagen staan op nul en de lintregel houdt ze daar. Dode code: knip met alleen de echte entrypoints en nul bevindingen. Zijn ignore-lijsten tellen `unused-ignore` en `unused-ignore-binaries`; de enige ignore is de binary `php`, die `concurrently` start in de npm-scripts `dev:all` en `dev:all:ssr`.
+Een overtreding wordt opgelost, niet weggezet: er is geen `eslint-suppressions.json` en geen disable-comment. De ratchetrij `lint-suppressions` staat op nul en faalt zodra dat bestand terugkomt (`eslint --suppress-all`); `frontend-functions-over-limit` telt daarin de regel voor functielengte. `frontend-inertia-mocks` telt elke `vi.mock` van `@inertiajs/` buiten de gedeelde fake in `resources/js/testing/setup.ts`. ESLint slaat over wat git negeert (de regels van `.gitignore`) en de ontwerpprototypes in `docs/design`, verder niets; `lint-config-ignores` telt de namen die met de hand in die lijst staan. Typeassertions, `!`, `as unknown as` en imports over de lagen staan op nul en de lintregel houdt ze daar. Dode code: knip met alleen de echte entrypoints en nul bevindingen. `unused-ignore` telt de dependencies die knip negeert. Binaries negeert knip niet: de npm-scripts `dev:all` en `dev:all:ssr` starten `./artisan`, niet `php`.
 
 Review controleert, de guard niet: of een hook geen domein kent, en of een component met veel logica een hook had moeten zijn (rubric item 17).

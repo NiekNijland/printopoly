@@ -11,6 +11,5 @@
         "!resources/js/types/generated.ts",
         "!resources/js/{actions,routes,wayfinder}/**",
         "scripts/**/*.mjs"
-    ],
-    "ignoreBinaries": ["php"]
+    ]
 }

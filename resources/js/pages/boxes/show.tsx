@@ -1,12 +1,11 @@
 import { Head, usePage } from '@inertiajs/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import {
     SegmentedTabs,
     SegmentedTabsList,
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
-import { fetchOwnReceipts, type OwnState } from '@/features/edition/boxes/api';
 import { FriendForm } from '@/features/edition/boxes/friend-form';
 import {
     ClosedNotice,
@@ -19,17 +18,12 @@ import {
     Step,
 } from '@/features/edition/boxes/friend-page-sections';
 import { PickTab, type Tab } from '@/features/edition/boxes/friend-pick-lists';
-import {
-    readFirstName,
-    readSent,
-    writeFirstName,
-    type SentRecord,
-} from '@/features/edition/boxes/local';
+import { writeFirstName } from '@/features/edition/boxes/local';
 import { newCardDeck } from '@/features/edition/boxes/proposals';
 import { editionFromSnapshot } from '@/features/edition/boxes/snapshot';
 import type { FriendBox } from '@/features/edition/boxes/types';
+import { useOwnRecords } from '@/features/edition/boxes/use-own-records';
 import { useTranslation } from '@/hooks/use-translation';
-import { reportUnlessOffline } from '@/lib/bugsnag';
 import {
     BOARD_CENTER_KEY,
     GROUP_IDS,
@@ -83,38 +77,6 @@ const previewKeyOf = (edition: Edition, selected: string) => {
     const deck = newCardDeck(selected);
 
     return deck === null ? undefined : nextExtraCardKey(edition, deck);
-};
-
-const useOwnRecords = (token: string) => {
-    const [firstName, setFirstName] = useState('');
-    const [sent, setSent] = useState<SentRecord[]>([]);
-    const [states, setStates] = useState<Record<string, OwnState>>({});
-
-    // Read in an effect: the page is rendered on the server first, where there is no storage.
-    useEffect(() => {
-        if (token === '') {
-            return;
-        }
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- storage only exists in the browser, after hydration
-        setFirstName(readFirstName());
-        const records = readSent(token);
-        setSent(records);
-        if (records.length > 0) {
-            fetchOwnReceipts(
-                token,
-                records.map((record) => record.receipt),
-            )
-                .then(setStates)
-                .catch(reportUnlessOffline);
-        }
-    }, [token]);
-
-    const add = (record: SentRecord): void => {
-        setSent((list) => [record, ...list]);
-        setStates((map) => ({ ...map, [record.receipt]: 'waiting' }));
-    };
-
-    return { firstName, setFirstName, sent, states, add };
 };
 
 const firstOf = (tab: Tab): string =>

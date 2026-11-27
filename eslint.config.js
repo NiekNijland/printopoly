@@ -672,6 +672,15 @@ const handWrittenDebounceRule = {
     message:
         'Debounce with the one debounce hook, not by clearing and arming a timer yourself (docs/guards/frontend.md, One way per task).',
 };
+// ESLint skips what git ignores (dependencies, build output, the generated route helpers), so nothing in the repository is skipped.
+const gitIgnored = fs
+    .readFileSync(path.resolve(import.meta.dirname, '.gitignore'), 'utf8')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(
+        (line) => line !== '' && !line.startsWith('#') && !line.startsWith('!'),
+    )
+    .map((line) => (line.startsWith('/') ? line.slice(1) : `**/${line}`));
 // A backend enum is generated into types/generated.ts as a union of string literals; a union that lists its values again
 // drifts the day a case is added.
 const generatedTypes = fs.readFileSync(
@@ -815,7 +824,9 @@ const namesPlugin = {
 const finalFolder = (parts) => {
     const [top, second] = parts;
     if (parts.length === 1) {
-        return ['app.tsx', 'ssr.tsx', 'print.tsx'].includes(top);
+        return ['app', 'ssr', 'print'].some(
+            (entry) => top === `${entry}.tsx` || top === `${entry}.test.tsx`,
+        );
     }
     if (
         ['types', 'hooks', 'layouts', 'pages', 'features', 'testing'].includes(
@@ -1254,6 +1265,18 @@ export default [
             'navigation/no-location-write': 'error',
         },
     },
+    // The generated types are where the backend enums are written as unions: the one file that may list their values.
+    {
+        files: [`${SOURCE}/types/generated.ts`],
+        rules: {
+            'no-restricted-syntax': [
+                'error',
+                ...sourceSyntaxRules.filter(
+                    (rule) => !generatedUnionRules.includes(rule),
+                ),
+            ],
+        },
+    },
     {
         files: [NOT_TESTS],
         rules: {
@@ -1361,6 +1384,10 @@ export default [
         rules: {
             ...vitest.configs.recommended.rules,
             ...settledTestRules,
+            'vitest/expect-expect': [
+                'error',
+                { assertFunctionNames: ['expect', 'expectTypeOf'] },
+            ],
             'no-restricted-syntax': ['error', ...testSyntaxRules],
             'no-restricted-globals': [
                 'error',
@@ -1392,22 +1419,7 @@ export default [
         },
     },
     {
-        ignores: [
-            '.claude',
-            'vendor',
-            'node_modules',
-            'public',
-            'storage',
-            'bootstrap/ssr',
-            'coverage',
-            'docs',
-            'vite.config.ts',
-            'vitest.config.ts',
-            'resources/js/actions/**',
-            'resources/js/routes/**',
-            'resources/js/wayfinder/**',
-            'resources/js/types/generated.ts',
-        ],
+        ignores: [...gitIgnored, 'docs/design'],
     },
     prettier, // Turn off all rules that might conflict with Prettier
 ];
