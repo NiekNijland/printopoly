@@ -103,6 +103,33 @@ export const BoxLid = ({
     );
 };
 
+const lidMode = (photo: PhotoSource | undefined, logo: boolean): LidPhoto => {
+    return photo === undefined
+        ? 'none'
+        : logo
+          ? 'logo'
+          : isFullPhoto(photo)
+            ? 'full'
+            : 'framed';
+};
+
+type LidFaceProps = {
+    w: number;
+    h: number;
+    editionName: string;
+    subtitle?: string;
+    lines?: string;
+    photo?: PhotoSource;
+    titleOffset?: number;
+    titleBand?: boolean;
+    titleStyle?: TitleStyle;
+    bleed: number;
+    board?: BoardProps;
+    profile: BoardProfile;
+    logo: boolean;
+    boardPicture: boolean;
+};
+
 const LidFace = ({
     w,
     h,
@@ -118,34 +145,12 @@ const LidFace = ({
     profile,
     logo,
     boardPicture,
-}: {
-    w: number;
-    h: number;
-    editionName: string;
-    subtitle?: string;
-    lines?: string;
-    photo?: PhotoSource;
-    titleOffset?: number;
-    titleBand?: boolean;
-    titleStyle?: TitleStyle;
-    bleed: number;
-    board?: BoardProps;
-    profile: BoardProfile;
-    logo: boolean;
-    boardPicture: boolean;
-}) => {
+}: LidFaceProps) => {
     const { locale, style } = useRender();
     // The style of the lid (B271): its frame, background and decoration; the name plate keeps its title style.
     const look = partStyleOf(style, 'boxLid');
     const words = lidWords(h, subtitle, lines, locale);
-    const mode: LidPhoto =
-        photo === undefined
-            ? 'none'
-            : logo
-              ? 'logo'
-              : isFullPhoto(photo)
-                ? 'full'
-                : 'framed';
+    const mode = lidMode(photo, logo);
     const layout = lidLayout(
         { w, h },
         {
@@ -156,6 +161,7 @@ const LidFace = ({
         },
     );
     const onPhoto = mode === 'full' && !titleBand;
+    const shared = { w, h, bleed, look, photo };
     const text = (
         <LidTitleText
             editionName={editionName}
@@ -172,11 +178,7 @@ const LidFace = ({
     if (mode === 'full' && layout.block !== undefined) {
         return (
             <FullPhotoLid
-                w={w}
-                h={h}
-                bleed={bleed}
-                photo={photo}
-                look={look}
+                {...shared}
                 block={layout.block}
                 onPhoto={onPhoto}
                 text={text}
@@ -187,17 +189,13 @@ const LidFace = ({
     if (layout.picture !== undefined) {
         return (
             <PictureLid
-                w={w}
-                h={h}
-                bleed={bleed}
-                look={look}
+                {...shared}
                 picture={layout.picture}
                 layout={layout}
                 words={words}
                 editionName={editionName}
                 titleStyle={titleStyle}
                 mode={mode}
-                photo={photo}
                 board={board}
                 profile={profile}
                 boardPicture={boardPicture}
@@ -205,17 +203,7 @@ const LidFace = ({
         );
     }
 
-    return (
-        <PhotoLid
-            w={w}
-            h={h}
-            bleed={bleed}
-            look={look}
-            rect={layout.photo}
-            photo={photo}
-            text={text}
-        />
-    );
+    return <PhotoLid {...shared} rect={layout.photo} text={text} />;
 };
 
 const PhotoLid = ({

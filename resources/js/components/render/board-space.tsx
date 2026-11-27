@@ -1,4 +1,3 @@
-import { mix } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import {
     DEFAULT_BOARD_PROFILE,
@@ -6,15 +5,13 @@ import {
     type BoardProfile,
 } from '@/lib/render/print-board';
 import { partStyleOf } from '@/lib/render/style';
-import { THEMES, type Layout } from '@/lib/render/themes';
+import { THEMES, type Layout, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 import type { Space } from '@/types/game';
 
-import { boardLookOf, ruleColor, spacePaper } from './board-look';
-import { PlayfulTile } from './board-look-playful';
-import { VintageRules } from './board-look-vintage';
+import { boardLookOf, spacePaper } from './board-look';
 import { SpaceContent } from './board-space-content';
-import { PlayfulPhotoTile } from './board-space-tile';
+import { PlayfulPhotoTile, SpaceUnderlay } from './board-space-tile';
 import { isFullPhoto } from './photo-slot';
 import { Frame, Sheet, type ElementProps } from './sheet';
 import type { SpaceIconSource } from './space-icon';
@@ -52,6 +49,33 @@ export const spaceSize = (
         : { w: spaceWidth(profile), h: profile.corner };
 };
 
+const spaceLayout = (
+    space: Space,
+    photo: PhotoSource | undefined,
+): { layout: Layout; full: boolean } => {
+    const isCorner = space.type === 'corner';
+    const hasPhoto =
+        space.type === 'street' ||
+        space.type === 'station' ||
+        space.type === 'utility' ||
+        isCorner;
+
+    return {
+        // The layout follows the photo: with one the space shows it in a frame, without it is text only.
+        layout: hasPhoto && photo !== undefined ? 'framed' : 'text',
+        // "Full" is for streets, stations and utilities; a corner always keeps its framed photo (B124).
+        full: !isCorner && hasPhoto && isFullPhoto(photo),
+    };
+};
+
+const spaceBackground = (space: Space, theme: Theme): string => {
+    return space.type === 'chance' || space.type === 'chest'
+        ? theme.deck[space.type]
+        : space.type === 'corner'
+          ? theme.cornerBackground
+          : theme.boardBackground;
+};
+
 /** One space of the board, drawn upright. The board places and rotates it (see `Board`). */
 export const BoardSpace = ({
     space,
@@ -69,22 +93,8 @@ export const BoardSpace = ({
     const theme = THEMES[element.theme];
     const bleed = element.bleedMm ?? 0;
     const isCorner = space.type === 'corner';
-    const hasPhoto =
-        space.type === 'street' ||
-        space.type === 'station' ||
-        space.type === 'utility' ||
-        isCorner;
-    // The layout follows the photo: with one the space shows it in a frame, without it is text only.
-    const resolved: Layout =
-        hasPhoto && photo !== undefined ? 'framed' : 'text';
-    // "Full" is for streets, stations and utilities; a corner always keeps its framed photo (B124).
-    const full = !isCorner && hasPhoto && isFullPhoto(photo);
-    const background =
-        space.type === 'chance' || space.type === 'chest'
-            ? theme.deck[space.type]
-            : isCorner
-              ? theme.cornerBackground
-              : theme.boardBackground;
+    const { layout: resolved, full } = spaceLayout(space, photo);
+    const background = spaceBackground(space, theme);
     // The style of the board (B268): absent draws the theme exactly as before.
     const look = boardLookOf(theme, partStyleOf(element.style, 'board'));
     const paper = spacePaper(theme, look.style, background);
@@ -114,27 +124,15 @@ export const BoardSpace = ({
             // Speels lays a tile on the board colour; the board shows in the gap around it.
             background={playful ? theme.boardBackground : paper}
         >
-            {playful && (
-                <PlayfulTile
-                    w={w}
-                    h={h}
-                    fill={
-                        background === theme.boardBackground
-                            ? mix(theme.paper, background, 0.25)
-                            : background
-                    }
-                    ink={theme.ink}
-                    seed={space.position + 1}
-                />
-            )}
-            {look.style === 'vintage' && !full && (
-                <VintageRules
-                    w={w}
-                    h={h}
-                    color={ruleColor(theme)}
-                    ornaments={isCorner}
-                />
-            )}
+            <SpaceUnderlay
+                look={look.style}
+                w={w}
+                h={h}
+                background={background}
+                position={space.position}
+                corner={isCorner}
+                full={full}
+            />
             {playful && full ? (
                 // Speels keeps a photo over the whole space inside its tile, with the hand-drawn edge on top.
                 <PlayfulPhotoTile
