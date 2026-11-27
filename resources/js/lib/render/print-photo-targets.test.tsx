@@ -111,10 +111,10 @@ describe('photo targets', () => {
         const edition = withPhotos();
         const targets = photoTargets(edition);
         const full = allPartsOn(edition);
-        const printEdition = {
+        const printEdition: Parameters<typeof composePages>[2] = {
             ...edition,
             elements: edition.elements,
-        } as unknown as Parameters<typeof composePages>[2];
+        };
         let checked = 0;
 
         for (const set of PRINT_SETS) {
