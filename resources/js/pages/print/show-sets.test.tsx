@@ -283,11 +283,11 @@ describe('the sets of the print page', () => {
         await waitFor(() => {
             expect(share).toHaveBeenCalledTimes(1);
         });
-        const all = share.mock.calls[0]?.[0];
-        expect(all?.files?.map((file) => file.name)).toContain(
+        const shared = share.mock.calls[0]?.[0];
+        expect(shared?.files?.map((file) => file.name)).toContain(
             'zaterdagclub-uitnodiging.png',
         );
-        expect(all?.files?.map((file) => file.name)).toContain(
+        expect(shared?.files?.map((file) => file.name)).toContain(
             'invitation.pdf',
         );
     });
