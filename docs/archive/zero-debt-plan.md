@@ -357,3 +357,22 @@ command  dependencies-majors-behind                   0       0  ok (shrink-only
 66 rows: 66 at target or held, 0 open, 0 not measured, 0 skipped
 The test rows counted: 102 behavior classes, 17 support classes, 262 frontend logic files, 294 frontend components (--counted lists them; a folder missing from the expressions of the config block shows as too few)
 ```
+
+## After-zero backlog (two fresh final auditors, 2026-11-27)
+Soorten schuld die niet in de definitie van schoon staan, met telling. Elke soort gaat als vraag naar de eigenaar: opnemen in de definitie, of niet.
+
+Goedkoop en mechanisch (voorstel: opnemen):
+1. Verwijder de map-uitzondering van `mixed-outside-json-entry`: 43 `mixed`-parameters in 16 bestanden in `app/Modules/Editions/Support` en `app/Http/Requests`; uitzonderen per bestand, niet per map.
+2. Toegestane-plek-lijsten zonder rij: 43 `allowIn`-regels in `phpstan.neon`, 10 deuren in `eslint.config.js`.
+3. Analyserregels uitgezet: 3 (`phpstan.neon` 1, `phpstan-tests.neon` 2) die `analyser-ignore` niet ziet.
+4. `knip --production`: 100 exports die alleen tests gebruiken.
+5. Grenzen die niets vastzet: `MAX_FUNCTION_LINES = 80` in `eslint.config.js`, 4 PHP-testmethoden en 1 vitest-test boven 80 regels.
+6. Tijdwachten in frontendtests: 5 (`setTimeout` met echte tijd).
+7. Wachtrijtijden zonder test: `retry_after` 360 > Horizon-timeout 300 >= `#[Timeout(300)]`; geen test; de browser stuurt tot 5 tokens per lokale editie, de server weigert meer dan 50.
+8. `down()` van migraties zonder test: 5 van 6. Ongezaaide `Str::random` in tests: 22, waarvan 8 voor een unieke kolom.
+
+Ontwerp nodig (voorstel: apart besluit):
+9. Typeguards die minder controleren dan ze beloven: 68, waarvan 38 op `unknown` (bijv. `boxes/local.ts:88`, `bus.ts:25`).
+10. ESLint-eigen regels zonder falend voorbeeld: 8 regels, 17 selectors, 0 `RuleTester`-tests; `eslint.config.js` is 1425 regels.
+11. Dubbele logica: 42 groepen van 8+ regels (vooral `components/render`), de print-CSP op twee plekken, tokenlengte 40 op 5 plekken.
+12. Laden-alles en N+1: 6 collectiebrede `get()` in de opruimklassen, een N+1 in `EditionPrintReadinessService`; 26 `get()` zonder limiet. Tellen-dan-invoegen zonder lock: 3 plekken.
