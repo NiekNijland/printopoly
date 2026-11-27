@@ -2,22 +2,18 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { setup } from '@/features/edition/editor/testing/element-panel-setup';
+import { fakeIngest } from '@/testing/ingest';
 import { renderWithI18n } from '@/testing/render';
 
 import { ElementPanel } from '../element-panel';
 
-const ingest = vi.hoisted(() => vi.fn());
-vi.mock('@/features/edition/editor/ingest', () => ({ ingestPhoto: ingest }));
-
 describe('PlacedRows', () => {
-    beforeEach(() => ingest.mockReset());
-
     it('moves a photo of the list to another space, and trades places with a photo there (UX 4, ronde 4)', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('space.01');
         let n = 0;
 
-        ingest.mockImplementation(() =>
+        fakeIngest.ingestPhoto.mockImplementation(() =>
             Promise.resolve({
                 ok: true,
                 record: {
