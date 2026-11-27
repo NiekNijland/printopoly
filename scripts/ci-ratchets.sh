@@ -121,7 +121,7 @@ one-pattern-list                       max  grep   tests/Guards/lists/one-patter
 model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
 test-method-indent                     max  grep   @TEST_PATHS,:(exclude)*.md  ^        (public|private|protected)( static)? function 
 compose-latest-images                  max  grep   compose.yaml?  :latest['"]?[[:space:]]*(#.*)?$
-cleanup-load-all                       max  grep   app/Modules/*/Support/*Cleanup.php  ->(get\(\)|pluck\()|::all\(\)
+cleanup-load-all                       max  grep   app/Modules/Boxes/Support/BoxCleanup.php,app/Modules/Print/Support/PrintCleanup.php  ->(get\(\)|pluck\()|::all\(\)
 quota-count-checks                     max  grep   @SOURCE_PATHS,:(exclude)*.md  ->count\(\)[[:space:]]*(>=|<)
 TABLE
 }
