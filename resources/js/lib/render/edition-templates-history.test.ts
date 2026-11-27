@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { differsFromBaseline } from '@/lib/render/edition-baseline';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import { parseEdition } from '@/lib/render/edition-schema';
-import { HIDDEN_TEMPLATE_IDS } from '@/lib/render/edition-template-ids';
+import { TEMPLATE_IDS } from '@/lib/render/edition-template-ids';
 import { defined } from '@/testing/defined';
+import { HIDDEN_TEMPLATE_IDS } from '@/testing/templates';
 import type { Locale } from '@/types/game';
-import { TEMPLATE_IDS, templateEdition } from './edition-templates';
+import { templateEdition } from './edition-templates';
 
 const LOCALES: readonly Locale[] = ['nl', 'en'];
 

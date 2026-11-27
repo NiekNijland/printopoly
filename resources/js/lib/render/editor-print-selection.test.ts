@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { templateEdition, TEMPLATE_IDS } from '@/lib/render/edition-templates';
+import { TEMPLATE_IDS } from '@/lib/render/edition-template-ids';
+import { templateEdition } from '@/lib/render/edition-templates';
 import { DEFAULT_PARTS, type Edition } from '@/lib/render/edition-types';
 import { defined } from '@/testing/defined';
 import { makeEdition } from '@/testing/edition-test-utils';

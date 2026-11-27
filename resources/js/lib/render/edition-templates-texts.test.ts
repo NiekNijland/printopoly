@@ -3,13 +3,10 @@ import { differsFromBaseline } from '@/lib/render/edition-baseline';
 import { updateElement } from '@/lib/render/edition-changes';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import { parseEdition } from '@/lib/render/edition-schema';
+import { TEMPLATE_IDS } from '@/lib/render/edition-template-ids';
+import { withSpaceTokens } from '@/testing/templates';
 import type { Locale } from '@/types/game';
-import {
-    TEMPLATE_IDS,
-    spaceTokens,
-    template,
-    templateEdition,
-} from './edition-templates';
+import { template, templateEdition } from './edition-templates';
 
 const LOCALES: readonly Locale[] = ['nl', 'en'];
 
@@ -250,13 +247,13 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
                     const key = `card.${deck}.${String(index + 1).padStart(2, '0')}`;
                     const was = card.was?.[0];
                     if (was !== undefined) {
-                        old[key] = { ...old[key], text: spaceTokens(was) };
+                        old[key] = { ...old[key], text: withSpaceTokens(was) };
                     }
                 });
             });
             const rules = data.houseRulesWas?.[0];
             if (rules !== undefined) {
-                old.house_rules = { text: spaceTokens(rules.join('\n')) };
+                old.house_rules = { text: withSpaceTokens(rules.join('\n')) };
             }
             // An earlier space name too, such as "De proefproeverij" (R5-17).
             for (const [position, names] of Object.entries(
