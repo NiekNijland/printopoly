@@ -1,83 +1,4 @@
 {
-  "resources/js/components/render/board-look.tsx": {
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/components/render/board-space-styles.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 5
-    }
-  },
-  "resources/js/components/render/board-space.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 3
-    }
-  },
-  "resources/js/components/render/board.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/components/render/box-lid-look.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/components/render/box-lid.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/components/render/editor-element-preview.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/components/render/lucide-space-icons.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/components/render/print-alignment-art.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/components/render/print-item-art.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/components/render/rules-booklet.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 3
-    }
-  },
   "resources/js/features/print/calibration-art.tsx": {
     "max-lines-per-function": {
       "count": 1
@@ -139,14 +60,6 @@
   "resources/js/lib/render/print-home-stickers.ts": {
     "max-lines-per-function": {
       "count": 1
-    }
-  },
-  "resources/js/lib/render/rules-booklet.ts": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
     }
   },
   "resources/js/pages/boxes/show.tsx": {

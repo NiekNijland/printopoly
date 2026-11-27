@@ -3,7 +3,8 @@ import type { PawnStyle } from '@/lib/render/edition-part-styles';
 import type { PhotoSource } from '@/lib/render/photo';
 import { mm } from '@/lib/render/units';
 
-import { ruleColor, wobblyRect } from './board-look';
+import { ruleColor } from './board-look';
+import { wobblyRect } from './board-look-playful';
 import { NAME_BOX, PANEL_HEIGHT, PAWN_WIDTH, PORTRAIT } from './pawn-layout';
 import { PhotoSlot } from './photo-slot';
 import { Art, diamond, vintagePaper } from './piece-styles';

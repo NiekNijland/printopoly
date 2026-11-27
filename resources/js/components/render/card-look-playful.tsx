@@ -1,6 +1,6 @@
 import { ellipsePath } from '@/lib/render/banknote-guilloche';
 
-import { wobblyRect } from './board-look';
+import { wobblyRect } from './board-look-playful';
 import { Svg } from './card-look';
 import { Ornament, type OrnamentItem } from './card-look-ornament';
 

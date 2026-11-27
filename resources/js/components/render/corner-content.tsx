@@ -3,7 +3,8 @@ import type { PhotoSource } from '@/lib/render/photo';
 import type { Layout } from '@/lib/render/themes';
 import type { CornerSpace } from '@/types/game';
 
-import { Confetti, QuarterDisc, useBoardLook } from './board-look';
+import { QuarterDisc, useBoardLook } from './board-look';
+import { Confetti } from './board-look-playful';
 import { JailCorner } from './corner-jail';
 import { PictureCorner } from './corner-picture';
 import { StartCorner } from './corner-start';

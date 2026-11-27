@@ -3,7 +3,7 @@ import type { PhotoSource } from '@/lib/render/photo';
 import { PLAYFAIR } from '@/lib/render/themes';
 import type { DeckId } from '@/types/game';
 
-import { Cartouche } from './board-look';
+import { Cartouche } from './board-look-vintage';
 import { Svg } from './card-look';
 import {
     Flourish,

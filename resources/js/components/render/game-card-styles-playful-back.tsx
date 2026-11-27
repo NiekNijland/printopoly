@@ -2,7 +2,7 @@ import { mix } from '@/lib/render/color';
 import { SPARTAN } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
-import { Pill } from './board-look';
+import { Pill } from './board-look-playful';
 import { ConfettiField, ScallopBadge } from './card-look-playful';
 import { FitText } from './fit-text';
 import {

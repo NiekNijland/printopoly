@@ -2,7 +2,7 @@ import { mix, readableOn } from '@/lib/render/color';
 import type { DeedStyle } from '@/lib/render/edition-part-styles';
 import { PLAYFAIR } from '@/lib/render/themes';
 
-import { Hatch } from './board-look';
+import { Hatch } from './board-look-vintage';
 import { Svg, creamed, diamondPath, engraving } from './card-look';
 import { Awning, WobblyTile, scallopDepth } from './card-look-playful';
 import { FitText } from './fit-text';

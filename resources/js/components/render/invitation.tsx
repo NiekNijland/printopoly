@@ -12,7 +12,7 @@ import { Board, type BoardProps } from './board';
 import { FitText } from './fit-text';
 import { InkBar } from './ink-bar';
 import { PhotoSlot } from './photo-slot';
-import { brandColor } from './rules-booklet';
+import { brandColor } from './rules-booklet-parts';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
 export type InvitationProps = {

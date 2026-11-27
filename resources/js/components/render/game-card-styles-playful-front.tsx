@@ -4,7 +4,7 @@ import { SPARTAN } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 import type { DeckId } from '@/types/game';
 
-import { Pill } from './board-look';
+import { Pill } from './board-look-playful';
 import { ConfettiField, ScallopBadge, WobblyTile } from './card-look-playful';
 import { FitText } from './fit-text';
 import {

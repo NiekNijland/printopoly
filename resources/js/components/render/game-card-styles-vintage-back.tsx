@@ -2,7 +2,7 @@ import { mix } from '@/lib/render/color';
 import { PLAYFAIR } from '@/lib/render/themes';
 import type { DeckId } from '@/types/game';
 
-import { Cartouche } from './board-look';
+import { Cartouche } from './board-look-vintage';
 import { creamed, engraving } from './card-look';
 import {
     Flourish,
