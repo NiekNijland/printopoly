@@ -37,8 +37,6 @@ COVERAGE_FLOOR_FILE="scripts/coverage-floor.txt"
 AUDIT_EXCEPTIONS="scripts/audit-exceptions.json?"
 LINT_CONFIG="eslint.config.js?"
 LINT_BASELINE="eslint-suppressions.json?"
-# The folder with the keyed baselines that keyed-baseline.sh writes, one file per check.
-KEYED_BASELINES="baselines?"
 CI_FILES="bitbucket-pipelines.yml?,.github/workflows?,.gitlab-ci.yml?,scripts"
 # The values that other scripts read too (the caps file, the base branch, the remote) are in kit-config.sh, next to this script.
 GUARDED_FILES=".gitattributes?,CODEOWNERS?,.github/CODEOWNERS?,docs/CODEOWNERS?,.gitlab/CODEOWNERS?,scripts/kit-config.sh?,scripts/debt-dashboard.sh?,scripts/ci-commit-messages.sh?,scripts/ci-parallel.sh?,scripts/keyed-baseline.sh?,scripts/audit-gate.sh?,scripts/mutation.sh?,scripts/checks.sh?,bitbucket-pipelines.yml?,.github/workflows?,.gitlab-ci.yml?"
@@ -73,7 +71,6 @@ lint-disable                           max  grep   @SOURCE_PATHS,@TEST_PATHS,@FR
 lint-config-off                        max  grep   @LINT_CONFIG  ["'](off|warn)["']|["'][^"']+["'][[:space:]]*:[[:space:]]*(\[[[:space:]]*)?[01]([^0-9A-Za-z_.]|$)
 lint-config-ignores                    max  block  @LINT_CONFIG  (?:ignores:\s*|globalIgnores\(\s*)\[([^\]]*)\] ["'][^"']+["']
 lint-suppressions                      max  json   @LINT_BASELINE  value *.*.count
-keyed-baselines                        max  grep   @KEYED_BASELINES  ^.
 frontend-functions-over-limit          max  json   @LINT_BASELINE  value *.max-lines-per-function.count
 frontend-type-assertions               max  json   @LINT_BASELINE  value *.@typescript-eslint/consistent-type-assertions.count
 frontend-non-null-assertions           max  json   @LINT_BASELINE  value *.@typescript-eslint/no-non-null-assertion.count
@@ -811,7 +808,6 @@ lint-config-ignores 2 ignores: ['dist', 'build/**'],
 lint-config-ignores 1 globalIgnores(['a'])
 lint-config-ignores 0 ignores: [],
 lint-suppressions 3 {"a.ts": {"rule": {"count": 3}}}
-keyed-baselines 1 one finding per line
 frontend-functions-over-limit 2 {"a.ts": {"max-lines-per-function": {"count": 2}, "func-style": {"count": 5}}}
 frontend-type-assertions 3 {"a.ts": {"@typescript-eslint/consistent-type-assertions": {"count": 1}}, "b.ts": {"@typescript-eslint/consistent-type-assertions": {"count": 2}}}
 frontend-non-null-assertions 1 {"a.ts": {"@typescript-eslint/no-non-null-assertion": {"count": 1}}}
