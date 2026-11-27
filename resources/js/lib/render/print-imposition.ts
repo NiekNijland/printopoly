@@ -78,7 +78,7 @@ const capacity = (page: Size, slot: Size, margin: number, gap: number) => {
 };
 
 /** "Kans 1 t/m 4", or "Kans 7" for a single item. */
-export const sheetLabel = (
+const sheetLabel = (
     prefix: string | undefined,
     first: number,
     last: number,
@@ -236,7 +236,7 @@ export type DuplexCards = {
  * Where a box on the front of a portrait sheet lies on the back, after turning the sheet over its long edge:
  * mirrored left to right, at the same height.
  */
-export const mirrorX = <T extends Rect>(rect: T, pageWidth: number): T => {
+const mirrorX = <T extends Rect>(rect: T, pageWidth: number): T => {
     return { ...rect, x: pageWidth - rect.x - rect.w };
 };
 
