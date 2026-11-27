@@ -1,18 +1,18 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { Board, edgeSides } from '@/components/render/board';
+import { Board } from '@/components/render/board';
 import { RulesBookletPage } from '@/components/render/rules-booklet';
 import { TitleDeed } from '@/components/render/title-deed';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import { rulesContext } from '@/lib/render/rules-context';
 import { spaceAt } from '@/lib/render/standard-edition';
 import { makeEdition } from '@/testing/edition-test-utils';
+import { openSides } from '@/testing/render-dom';
 
 import {
     DEFAULT_BOARD_PROFILE,
     lidForBoard,
-    spaceRects,
 } from '../../lib/render/print-board';
 import {
     composePages,
@@ -70,23 +70,30 @@ describe('more sets on the print page (B250)', () => {
 
 describe('prepress (B253)', () => {
     it('leaves the line off the sides of a space that lie on the cut edge', () => {
-        const rects = spaceRects(DEFAULT_BOARD_PROFILE);
-        const start = rects[0];
-        const street = rects[1];
-        if (start === undefined || street === undefined) {
-            throw new Error('no spaces');
-        }
+        const sidesAt = (border: number, position: number) => {
+            const { container } = render(
+                <Board
+                    theme="classic"
+                    locale="nl"
+                    editionName="Westerveen"
+                    profile={{ ...DEFAULT_BOARD_PROFILE, border }}
+                />,
+            );
+            const space = container.querySelector<HTMLElement>(
+                `[data-position="${String(position)}"]`,
+            );
+            if (space === null) {
+                throw new Error('no spaces');
+            }
+
+            return openSides(space);
+        };
 
         // A street on the bottom row faces the centre: its upright bottom is the edge of the board.
-        expect(edgeSides(street, DEFAULT_BOARD_PROFILE)).toEqual(['bottom']);
-        expect(edgeSides(start, DEFAULT_BOARD_PROFILE)).toHaveLength(2);
+        expect(sidesAt(0, 1)).toEqual(['bottom']);
+        expect(sidesAt(0, 0)).toHaveLength(2);
         // With a white rim of 5 mm, no line is on the edge.
-        const rimmed = { ...DEFAULT_BOARD_PROFILE, border: 5 };
-        const inset = spaceRects(rimmed)[1];
-        if (inset === undefined) {
-            throw new Error('no spaces');
-        }
-        expect(edgeSides(inset, rimmed)).toEqual([]);
+        expect(sidesAt(5, 1)).toEqual([]);
     });
 
     it('draws no line on the outer edge of the board', () => {
