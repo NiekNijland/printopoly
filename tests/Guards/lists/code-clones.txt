@@ -16,7 +16,6 @@
 97e369048daa resources/js/components/render/game-card-styles-modern-back.tsx resources/js/components/render/game-card-styles-playful-back.tsx resources/js/components/render/game-card-styles-vintage-back.tsx
 a15df850648d resources/js/components/render/edition-title-plain.tsx resources/js/components/render/edition-title-script.tsx
 aad47607ab80 resources/js/lib/render/edition-card-text.ts resources/js/lib/render/edition-words.ts
-b29f14fcb95a app/Http/Requests/Print/StoreAnonymousPrintJobRequest.php app/Http/Requests/Print/StoreAnonymousPrintPhotosRequest.php
 baac6cff32e7 resources/js/components/render/game-card-back.tsx resources/js/components/render/house-rules.tsx
 bb9e05e0b00a resources/js/components/render/game-card-front.tsx resources/js/components/render/game-card-styles-modern-front.tsx resources/js/components/render/game-card-styles-vintage-front.tsx
 c0ec81c2b550 resources/js/components/render/banknote-plain.tsx resources/js/components/render/banknote-styles-modern.tsx

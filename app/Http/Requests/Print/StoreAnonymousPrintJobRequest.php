@@ -93,17 +93,6 @@ final class StoreAnonymousPrintJobRequest extends FormRequest
      */
     public function photos(): array
     {
-        $uploads = [];
-        $files = $this->file('photos', []);
-
-        foreach (is_array($files) ? $files : [] as $ref => $file) {
-            if (! $file->isValid() || preg_match('/^[A-Za-z0-9_-]{8,64}$/', (string) $ref) !== 1) {
-                throw ValidationException::withMessages(['photos' => __('photo.unreadable')]);
-            }
-
-            $uploads[(string) $ref] = $file;
-        }
-
-        return $uploads;
+        return StoreAnonymousPrintPhotosRequest::photosOf($this);
     }
 }
