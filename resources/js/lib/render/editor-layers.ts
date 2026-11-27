@@ -169,12 +169,9 @@ export const rotateLayer = (layer: FreeLayer, degrees: number): FreeLayer => {
     let next = Math.round(degrees) % 360;
     if (next > 180) next -= 360;
     if (next <= -180) next += 360;
+    const { rotation: _rotation, ...unturned } = layer;
 
-    return next === 0
-        ? (Object.fromEntries(
-              Object.entries(layer).filter(([key]) => key !== 'rotation'),
-          ) as FreeLayer)
-        : { ...layer, rotation: next };
+    return next === 0 ? unturned : { ...layer, rotation: next };
 };
 
 export const replaceLayer = (

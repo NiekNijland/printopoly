@@ -46,10 +46,14 @@ export const removeCardChanges = (
     edition: Edition,
     key: string,
 ): ElementChange[] => {
-    if (!isExtraCardKey(key) || edition.elements[key]?.added !== true) {
+    const deck = deckOfKey(key);
+    if (
+        deck === undefined ||
+        !isExtraCardKey(key) ||
+        edition.elements[key]?.added !== true
+    ) {
         return [];
     }
-    const deck = key.split('.')[1] as Deck;
     const keys = extraCardKeys(edition.elements, deck);
     const from = keys.indexOf(key);
     const changes: ElementChange[] = [];
@@ -97,7 +101,9 @@ export const deckCardKeys = (edition: Edition, deck: Deck): string[] => {
 export const deckOfKey = (key: string): Deck | undefined => {
     const match = /^card(?:_back)?\.(chance|chest)\b/.exec(key);
 
-    return match === null ? undefined : (match[1] as Deck);
+    const deck = match?.[1];
+
+    return deck === 'chance' || deck === 'chest' ? deck : undefined;
 };
 
 /** A card with no text of its own shows its standard text; an extra card without one is empty. */
