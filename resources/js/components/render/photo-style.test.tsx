@@ -212,9 +212,11 @@ describe('full photo on a title deed', () => {
             const table = container.querySelector<HTMLElement>(
                 '[data-slot="rent-table"]',
             );
-            const first = table?.firstElementChild as HTMLElement | null;
+            const first = table?.firstElementChild;
 
-            return parseFloat(first?.style.height ?? '0');
+            return parseFloat(
+                first instanceof HTMLElement ? first.style.height : '0',
+            );
         };
 
         // Before R5-05 the photo was 12.5 mm high and a row 4.14 mm.
