@@ -67,13 +67,13 @@ final class ControllerNameArchitectureTest extends TestCase
         self::assertSame([], $this->namesOf($files, self::VERBS)[0]);
     }
 
-        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-        {
+    public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+    {
         self::assertSame(['stale Download', 'stale Store', 'verb app/Http/Controllers/Editions/Edition/PublishController.php'], $this->namesOf(self::controllers(['Editions/Edition/ShowController', 'Editions/Edition/PublishController']), self::VERBS, '.checkout-')[0]);
     }
 
-        public function test_it_pins_the_verbs_of_the_guide_and_names_every_controller_after_one(): void
-        {
+    public function test_it_pins_the_verbs_of_the_guide_and_names_every_controller_after_one(): void
+    {
         $guard = new ControllerNameGuard(new PhpFileInspector(), $this->root(), self::FOLDER, self::GUIDE);
         $findings = $guard->findings();
 

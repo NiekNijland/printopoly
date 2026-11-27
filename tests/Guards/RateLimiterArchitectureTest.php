@@ -56,8 +56,8 @@ final class RateLimiterArchitectureTest extends TestCase
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource($source));
     }
 
-        public function test_it_reads_a_tree_under_a_dot_directory(): void
-        {
+    public function test_it_reads_a_tree_under_a_dot_directory(): void
+    {
         $root = SourceSandbox::create([
             'app/Providers/AppServiceProvider.php' => self::PROVIDER . "        RateLimiter::for('a', fn (\$r) => Limit::perMinute(1));\n    }\n}\n",
             'bootstrap/app.php' => "<?php\n",
@@ -74,8 +74,8 @@ final class RateLimiterArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Providers/AppServiceProvider.php:10: a limit with a number', $violations[0]);
     }
 
-        public function test_it_holds_the_real_tree_to_its_counted_list(): void
-        {
+    public function test_it_holds_the_real_tree_to_its_counted_list(): void
+    {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], $this->guard($root)->violations());

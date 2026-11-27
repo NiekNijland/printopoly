@@ -19,12 +19,12 @@ Product
 
 - Printopoly ziet er levendig uit, als een speltafel. Een pagina is nooit kaal, en een nieuwe functie krijgt een plek in het ontwerp in plaats van een losse knop. Review controleert dat, de guard niet (rubric item 16).
 - Controls komen uit shadcn/ui (`resources/js/components/ui`), in de huisstijl. Review controleert dat, de guard niet (rubric item 16).
-- De interface is tweetalig; elke tekst staat in `lang/nl.json` en `lang/en.json`. De guard `translations` faalt op een sleutel die in één taal ontbreekt.
+- De interface is tweetalig; elke tekst staat in `lang/nl.json` en `lang/en.json`. De guard `translations` faalt op een sleutel die in één taal ontbreekt. Elke validatieregel die de code gebruikt, heeft een Nederlandse tekst in `lang/nl/validation.php`.
 - Plannen en gidsen zijn Nederlands; code, regelnamen en technische namen Engels. Teksten voor gebruikers en in de docs gaan door de humanizer-skill.
 
 Werkwijze
 
-- Alles draait in Sail (`./vendor/bin/sail ...`). `bash scripts/checks.sh` draait wat de stap `checks` van CI draait; de README noemt de losse commando's.
+- Alles draait in Sail (`./vendor/bin/sail ...`). De lokale stack draait de versies van CI (guard `project-files`). `.env.example` noemt elke instelling die een eigen config leest. `bash scripts/checks.sh` draait wat de stap `checks` van CI draait; de README noemt de losse commando's.
 - Een commit begint met `NOTICKET <type>: onderwerp`, met het type uit `scripts/ci-commit-messages.sh`. Dat script faalt op een commit zonder ticket of type.
 - Geen commentaar in code, behalve wat een lezer later anders laat handelen. De ratchetrij `comments` in `scripts/ci-ratchets.sh` faalt op een nieuw commentaar zonder `[ratchet: comments] <reden>` in de commit.
 - `bash scripts/debt-dashboard.sh --offline` draait in CI en faalt zodra een teller boven zijn plafond in `scripts/debt-caps.json` komt.
@@ -50,6 +50,7 @@ Elke regel van de gidsen noemt zijn guard bij een naam van deze lijst. Elke guar
 | `layout` | `docs/guards/layout.md` | waar een klasse staat en hoe ze heet |
 | `method-size` | `docs/guards/method-size.md` | de lengte van een methode en een controller-actie |
 | `pure-layers` | `docs/guards/pure-layers.md` | welke lagen nooit een model of de database noemen |
+| `project-files` | `docs/guards/project-files.md` | de PHPUnit-configs en -runs, de lokale stack en `.env.example` |
 | `single-use-traits` | `docs/guards/single-use-traits.md` | dat een trait meerdere gebruikers heeft |
 | `test-classes` | `docs/guards/test-classes.md` | welke typen een testbestand declareert |
 | `test-declarations` | `docs/guards/test-declarations.md` | hoe een test in PHPUnit gedeclareerd wordt |

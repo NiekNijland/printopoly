@@ -1,11 +1,15 @@
 # Copy of vendor/laravel/sail/runtimes/8.5 plus poppler-utils (pdfinfo for the
 # print pipeline's PDF check, B12/B63). The production server role needs it too.
+# Every tool outside apt is pinned: Node is the version of .nvmrc, Chrome the version that CI installs
+# (chrome-headless-shell@ in .github/workflows/kit-checks.yml). LocalStackGuard compares them.
 FROM ubuntu:24.04
 
 LABEL maintainer="Taylor Otwell"
 
 ARG WWWGROUP
-ARG NODE_VERSION=24
+ARG NODE_VERSION=24.18.0
+ARG PLAYWRIGHT_VERSION=1.49.1
+ARG CHROME_VERSION=131.0.6778.33
 ARG MYSQL_CLIENT="mysql-client"
 ARG POSTGRES_VERSION=18
 ARG PHP_EXTENSIONS=""
@@ -59,15 +63,15 @@ RUN apt-get update && apt-get upgrade -y \
         php8.5-pcov \
         php8.5-imagick \
         php8.5-xdebug \
-    && curl -sLS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer \
-    && COMPOSER_HOME=/usr/local/share/composer composer global require cpx/cpx:^2.0 \
+    && curl -sLS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer --version=2.11.2 \
+    && COMPOSER_HOME=/usr/local/share/composer composer global require cpx/cpx:2.1.0 \
     && ln -s /usr/local/share/composer/vendor/bin/cpx /usr/local/bin/cpx \
-    && curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g npm pnpm bun corepack \
+    && curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION%%.*}.x | bash - \
+    && apt-get install -y nodejs=$NODE_VERSION-1nodesource1 \
+    && npm install -g pnpm@12.23.0 bun@1.4.5 corepack@0.36.0 \
     && corepack enable \
-    && corepack prepare yarn@stable --activate \
-    && npx -y playwright install-deps \
+    && corepack prepare yarn@4.18.1 --activate \
+    && npx -y playwright@$PLAYWRIGHT_VERSION install-deps \
     && curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | tee /etc/apt/keyrings/pgdg.gpg > /dev/null \
     && echo "deb [signed-by=/etc/apt/keyrings/pgdg.gpg] http://apt.postgresql.org/pub/repos/apt noble-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
     && apt-get update \
@@ -79,9 +83,10 @@ RUN apt-get update && apt-get upgrade -y \
 
 # Headless Chrome for the print pipeline (B52, B54), under the name of the production wrapper
 # (/usr/local/bin/chrome-headless-shell). The browser dependencies come from the playwright
-# install-deps step above.
-RUN PLAYWRIGHT_BROWSERS_PATH=/opt/playwright npx -y playwright@1.49.1 install --only-shell chromium \
+# install-deps step above. The build fails when this Playwright brings another Chrome than CHROME_VERSION.
+RUN PLAYWRIGHT_BROWSERS_PATH=/opt/playwright npx -y playwright@$PLAYWRIGHT_VERSION install --only-shell chromium \
     && ln -s "$(find /opt/playwright -name headless_shell -type f | head -n 1)" /usr/local/bin/chrome-headless-shell \
+    && /usr/local/bin/chrome-headless-shell --version | grep -F "$CHROME_VERSION" \
     && chmod -R a+rX /opt/playwright \
     && rm -rf /root/.npm /tmp/*
 

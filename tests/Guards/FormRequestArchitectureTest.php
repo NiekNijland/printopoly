@@ -37,16 +37,16 @@ final class FormRequestArchitectureTest extends TestCase
         self::assertStringContainsString($reason, $violations[0]);
     }
 
-        public function test_it_accepts_rules_as_arrays_an_authorize_that_reads_the_input_and_an_override(): void
-        {
+    public function test_it_accepts_rules_as_arrays_an_authorize_that_reads_the_input_and_an_override(): void
+    {
         $guard = new FormRequestGuard(new CallInspector(), dirname(__DIR__, 2), 'app/Http/Requests');
 
         self::assertSame([], $guard->inSource(self::HEAD . "    public function authorize(): bool { return \$this->input('a') !== null; }\n    public function rules(): array { return ['name' => ['required', 'string']]; }\n}\n"));
         self::assertSame([], $guard->inSource(self::HEAD . "    #[\\Override]\n    public function authorize(): bool { return true; }\n}\n"));
     }
 
-        public function test_it_reads_a_tree_under_a_dot_directory(): void
-        {
+    public function test_it_reads_a_tree_under_a_dot_directory(): void
+    {
         $root = SourceSandbox::create(['app/Http/Requests/StoreBoxRequest.php' => self::HEAD . "    public function authorize(): bool { return true; }\n}\n"], '.checkout-');
 
         try {
@@ -59,8 +59,8 @@ final class FormRequestArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Http/Requests/StoreBoxRequest.php:6: authorize()', $violations[0]);
     }
 
-        public function test_it_gives_every_form_request_of_the_real_tree_its_shape(): void
-        {
+    public function test_it_gives_every_form_request_of_the_real_tree_its_shape(): void
+    {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], is_dir($root . '/app/Http/Requests') ? new FormRequestGuard(new CallInspector(), $root, 'app/Http/Requests')->violations() : []);

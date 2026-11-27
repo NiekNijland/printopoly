@@ -13,6 +13,7 @@ use Tests\Support\Architecture\CiExamples;
 use Tests\Support\Architecture\ComposerScriptsGuard;
 use Tests\Support\Architecture\DependencyBotGuard;
 use Tests\Support\Architecture\GuardSuiteGuard;
+use Tests\Support\Architecture\PhpUnitRunGuard;
 use Tests\Support\SourceSandbox;
 
 /**
@@ -85,8 +86,8 @@ final class CiProjectFilesArchitectureTest extends TestCase
         yield 'a unit run without the coverage floor' => [CiExamples::change($composer, "\n            \"bash scripts/checks.sh --coverage coverage/clover.xml\",", ''), 'has no line `bash scripts/checks.sh --coverage <report>`'];
         yield 'a unit run that keeps an old strict-model record' => [CiExamples::change($composer, "\n            \"rm -f storage/logs/model-strictness-*.log\",", ''), 'does not start with `rm -f storage/logs/model-strictness-*.log`'];
         yield 'a unit run that empties the record after the run' => [CiExamples::change($composer, "\n            \"rm -f storage/logs/model-strictness-*.log\",\n            \"@php artisan config:clear --ansi\",", "\n            \"@php artisan config:clear --ansi\",\n            \"rm -f storage/logs/model-strictness-*.log\","), 'does not start with `rm -f storage/logs/model-strictness-*.log`'];
-        yield 'a unit run without the union check' => [CiExamples::change($composer, ",\n            \"@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite\"", ''), 'does not end with `@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness'];
-        yield 'a union check before the coverage floor' => [CiExamples::change($composer, "\"bash scripts/checks.sh --coverage coverage/clover.xml\",\n            \"@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite\"", "\"@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite\",\n            \"bash scripts/checks.sh --coverage coverage/clover.xml\""), 'does not end with `@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness'];
+        yield 'a unit run without the union check' => [CiExamples::change($composer, ",\n            \"@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite --fail-on-risky --fail-on-notice\"", ''), 'does not end with `@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness'];
+        yield 'a union check before the coverage floor' => [CiExamples::change($composer, "\"bash scripts/checks.sh --coverage coverage/clover.xml\",\n            \"@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite --fail-on-risky --fail-on-notice\"", "\"@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite --fail-on-risky --fail-on-notice\",\n            \"bash scripts/checks.sh --coverage coverage/clover.xml\""), 'does not end with `@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness'];
         yield 'a run that takes the union check along' => [CiExamples::change($composer, ' --exclude-testsuite ModelStrictness', ''), 'does not pass `--exclude-testsuite ModelStrictness`'];
         yield 'a run without a memory limit' => [CiExamples::change($composer, '@php -d memory_limit=2G -d pcov.enabled=1', '@php -d pcov.enabled=1'), 'sets no finite `-d memory_limit`'];
         yield 'a run with an unlimited memory limit' => [CiExamples::change($composer, '@php -d memory_limit=2G -d pcov.enabled=1', '@php -d memory_limit=-1 -d pcov.enabled=1'), 'sets no finite `-d memory_limit`'];
@@ -205,6 +206,62 @@ final class CiProjectFilesArchitectureTest extends TestCase
         }
     }
 
+    /**
+     * @return iterable<string, array{array<string, string>, array<string, list<string>>, string}>
+     */
+    public static function lenientPhpUnitRuns(): iterable
+    {
+        $configs = ['phpunit.xml' => self::file('phpunit.xml'), 'phpunit.smoke.xml' => self::file('phpunit.smoke.xml')];
+        $runs = self::phpUnitRuns();
+
+        yield 'a config that lets a risky test pass' => [[...$configs, 'phpunit.xml' => CiExamples::change($configs['phpunit.xml'], "         failOnRisky=\"true\"\n", '')], $runs, 'phpunit.xml does not set failOnRisky="true"'];
+        yield 'a config that switches the notice off' => [[...$configs, 'phpunit.smoke.xml' => CiExamples::change($configs['phpunit.smoke.xml'], 'failOnNotice="true"', 'failOnNotice="false"')], $runs, 'phpunit.smoke.xml does not set failOnNotice="true"'];
+        yield 'the switch outside the root element' => [[...$configs, 'phpunit.xml' => CiExamples::change(CiExamples::change($configs['phpunit.xml'], "         failOnRisky=\"true\"\n", ''), '<testsuites>', '<testsuites failOnRisky="true">')], $runs, 'phpunit.xml does not set failOnRisky="true"'];
+        yield 'a composer run without the risky option' => [$configs, ['composer.json' => ['@php vendor/bin/phpunit --testsuite Unit --fail-on-notice']], 'composer.json: the run `@php vendor/bin/phpunit --testsuite Unit --fail-on-notice` does not pass `--fail-on-risky`'];
+        yield 'a checks task without the notice option' => [$configs, ['scripts/checks.sh' => ['    "Guard tests::php vendor/bin/phpunit --testsuite Guards --fail-on-risky"']], 'does not pass `--fail-on-notice`'];
+        yield 'a workflow run without either option' => [$configs, ['.github/workflows/kit-checks.yml' => ['vendor/bin/phpunit -c phpunit.smoke.xml']], 'does not pass `--fail-on-risky`'];
+        yield 'a parallel run' => [$configs, ['composer.json' => ['vendor/bin/paratest --processes 4 --fail-on-risky']], 'does not pass `--fail-on-notice`'];
+        yield 'a run through artisan' => [$configs, ['scripts/checks.sh' => ['php artisan test --parallel --fail-on-notice']], 'does not pass `--fail-on-risky`'];
+        yield 'an option that is only the start of another' => [$configs, ['composer.json' => ['phpunit --fail-on-risky-tests --fail-on-notice']], 'does not pass `--fail-on-risky`'];
+    }
+
+    /**
+     * @param array<string, string> $configs
+     * @param array<string, list<string>> $runs
+     */
+    #[DataProvider('lenientPhpUnitRuns')]
+    public function test_it_detects_a_phpunit_config_or_run_that_lets_a_risky_test_or_a_notice_pass(array $configs, array $runs, string $reason): void
+    {
+        self::assertStringContainsString($reason, implode("\n", $this->phpUnitGuard(self::root())->inProject($configs, $runs)));
+    }
+
+    public function test_it_accepts_the_strict_runs_comments_and_a_package_name_in_a_tree_under_a_dot_directory(): void
+    {
+        $root = SourceSandbox::create([
+            'phpunit.xml' => self::file('phpunit.xml'),
+            'phpunit.smoke.xml' => self::file('phpunit.smoke.xml'),
+            'composer.json' => self::file('composer.json'),
+            'scripts/checks.sh' => self::file('scripts/checks.sh') . "# vendor/bin/phpunit runs in the task above\n",
+            '.github/workflows/kit-checks.yml' => self::file('.github/workflows/kit-checks.yml'),
+            '.github/workflows/tools.yml' => "on: push\njobs:\n  tools:\n    steps:\n      - run: composer require --dev phpunit/phpunit && cp phpunit.xml.dist phpunit.xml\n",
+        ], '.checkout-');
+
+        try {
+            self::assertSame([], $this->phpUnitGuard($root)->violations());
+
+            file_put_contents($root . '/.github/workflows/tools.yml', "on: push\njobs:\n  tools:\n    steps:\n      - run: vendor/bin/phpunit\n");
+            self::assertStringContainsString('.github/workflows/tools.yml: the run `vendor/bin/phpunit` does not pass `--fail-on-risky`', implode("\n", $this->phpUnitGuard($root)->violations()));
+            self::assertSame(['the file phpunit.dist.xml does not exist: the PHPUnit configs and runs are read from it'], new PhpUnitRunGuard($root, ['phpunit.dist.xml'], 'composer.json', 'scripts/checks.sh', '.github/workflows', [])->violations());
+        } finally {
+            SourceSandbox::remove($root);
+        }
+    }
+
+    public function test_it_keeps_every_phpunit_config_and_run_failing_on_a_risky_test_and_a_notice(): void
+    {
+        self::assertSame([], $this->phpUnitGuard(self::root())->violations());
+    }
+
     public function test_it_keeps_the_guard_suite_as_the_contract_says(): void
     {
         self::assertSame([], $this->suiteGuard(self::root())->violations());
@@ -235,6 +292,19 @@ final class CiProjectFilesArchitectureTest extends TestCase
         return new GuardSuiteGuard($root, $root . '/phpunit.xml', $root . '/scripts/checks.sh', 'tests', 'Guards', 'Tests\Support\Architecture');
     }
 
+    private function phpUnitGuard(string $root): PhpUnitRunGuard
+    {
+        return new PhpUnitRunGuard($root, ['phpunit.xml', 'phpunit.smoke.xml'], 'composer.json', 'scripts/checks.sh', '.github/workflows', ['--fail-on-risky' => 'failOnRisky', '--fail-on-notice' => 'failOnNotice']);
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    private static function phpUnitRuns(): array
+    {
+        return ['composer.json' => ['@php vendor/bin/phpunit --testsuite Unit --fail-on-risky --fail-on-notice'], 'scripts/checks.sh' => ['# vendor/bin/phpunit']];
+    }
+
     private function scriptsGuard(): ComposerScriptsGuard
     {
         return new ComposerScriptsGuard(
@@ -242,7 +312,7 @@ final class CiProjectFilesArchitectureTest extends TestCase
             self::root() . '/scripts/checks.sh',
             self::root() . '/.github/workflows',
             'rm -f storage/logs/model-strictness-*.log',
-            '@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite',
+            '@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite --fail-on-risky --fail-on-notice',
             'ModelStrictness',
         );
     }

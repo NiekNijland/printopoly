@@ -71,8 +71,8 @@ final class FlashMessageArchitectureTest extends TestCase
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource($source));
     }
 
-        public function test_it_reads_a_tree_under_a_dot_directory(): void
-        {
+    public function test_it_reads_a_tree_under_a_dot_directory(): void
+    {
         $root = SourceSandbox::create(['app/Http/Controllers/StoreController.php' => self::HEAD . "        Inertia::flash('done', true);\n    }\n}\n"], '.checkout-');
 
         try {

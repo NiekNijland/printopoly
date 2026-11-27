@@ -56,8 +56,8 @@ final class EventDispatchArchitectureTest extends TestCase
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource($source));
     }
 
-        public function test_it_reads_a_tree_under_a_dot_directory(): void
-        {
+    public function test_it_reads_a_tree_under_a_dot_directory(): void
+    {
         $root = SourceSandbox::create(['app/Actions/DeleteEdition.php' => self::HEAD . "        \$dispatcher->dispatch(new EditionDeleted('a', 'b'));\n    }\n}\n"], '.checkout-');
 
         try {
@@ -70,8 +70,8 @@ final class EventDispatchArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Actions/DeleteEdition.php:12: the dispatcher dispatches an event by hand', $violations[0]);
     }
 
-        public function test_it_finds_no_event_that_dispatches_itself_in_the_real_tree(): void
-        {
+    public function test_it_finds_no_event_that_dispatches_itself_in_the_real_tree(): void
+    {
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->violations());
     }
 

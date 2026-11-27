@@ -36,7 +36,7 @@ final class CiScriptsArchitectureTest extends TestCase
         yield 'an audit of a deploying branch that covers the development tools' => [CiExamples::change($checks, '--no-dev --format=json --no-interaction | bash scripts/audit-gate.sh && npm audit --omit=dev', '--format=json --no-interaction | bash scripts/audit-gate.sh && npm audit'), 'does not cover production dependencies only'];
         yield 'an audit of a pull request that skips the development tools' => [CiExamples::change($checks, 'npm audit --audit-level=info"' . "\n    )\nfi", 'npm audit --omit=dev --audit-level=info"' . "\n    )\nfi"), 'covers production dependencies only: the full audit runs there'];
         yield 'one audit for both runs' => [CiExamples::change($checks, 'if [ "$RUN" = "--main" ]; then', 'if [ "$RUN" = "--other" ]; then'), 'no separate "Audit" task'];
-        yield 'the guard tests left out' => [CiExamples::change($checks, '    "Guard tests::php -d memory_limit=-1 vendor/bin/phpunit --testsuite Guards --fail-on-empty-test-suite"' . "\n", ''), 'no task named "Guard tests"'];
+        yield 'the guard tests left out' => [CiExamples::change($checks, '    "Guard tests::php -d memory_limit=-1 vendor/bin/phpunit --testsuite Guards --fail-on-empty-test-suite --fail-on-risky --fail-on-notice"' . "\n", ''), 'no task named "Guard tests"'];
     }
 
     #[DataProvider('weakenedScripts')]

@@ -28,6 +28,7 @@ final class GuideRulesArchitectureTest extends TestCase
         'hermetic-base' => ['missing', 'bypasses-base'],
         'layout' => ['layout-place', 'layout-name', 'one-module-per-domain'],
         'method-size' => ['method-size', 'controller-action-size'],
+        'project-files' => ['phpunit-strict', 'local-stack', 'env-example'],
         'pure-layers' => ['pure-layers', 'data-factories'],
         'single-use-traits' => ['single-use-traits'],
         'test-classes' => ['extra-class', 'outside-support'],
@@ -38,7 +39,7 @@ final class GuideRulesArchitectureTest extends TestCase
         'test-reflection' => ['reflection'],
         'test-tiers' => ['boots'],
         'thin-controllers' => ['thin-controllers'],
-        'translations' => ['translation-languages', 'translation-defined', 'translation-unused'],
+        'translations' => ['translation-languages', 'translation-defined', 'translation-unused', 'translation-validation'],
     ];
 
     /**

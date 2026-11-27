@@ -38,13 +38,13 @@ final class ScheduledTaskArchitectureTest extends TestCase
         self::assertStringContainsString('a scheduled task without ->withoutOverlapping(<minutes>)', $violations[0]);
     }
 
-        public function test_it_accepts_a_task_with_its_lock_and_minutes(): void
-        {
+    public function test_it_accepts_a_task_with_its_lock_and_minutes(): void
+    {
         self::assertSame([], new ScheduledTaskGuard('/', [])->inSource(self::HEAD . "Schedule::command('a')->withoutOverlapping(30)->dailyAt('03:30');\n\$task = Schedule::command('b');\n\$task->withoutOverlapping(10);\n"));
     }
 
-        public function test_it_reads_a_tree_under_a_dot_directory_and_fails_when_it_reads_no_file(): void
-        {
+    public function test_it_reads_a_tree_under_a_dot_directory_and_fails_when_it_reads_no_file(): void
+    {
         $root = SourceSandbox::create(['routes/console.php' => self::HEAD . "Schedule::command('a')->daily();\n"], '.checkout-');
 
         try {
@@ -60,8 +60,8 @@ final class ScheduledTaskArchitectureTest extends TestCase
         new ScheduledTaskGuard($root, ['routes/console.php'])->violations();
     }
 
-        public function test_it_holds_the_real_tree_to_its_counted_list(): void
-        {
+    public function test_it_holds_the_real_tree_to_its_counted_list(): void
+    {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/scheduled-task-locks.txt')->differences(new ScheduledTaskGuard($root, ['routes/console.php', 'bootstrap/app.php'])->violations()));

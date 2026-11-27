@@ -67,21 +67,21 @@ final class PureLayerArchitectureTest extends TestCase
         self::assertSame([], $this->layersOf([$path => "<?php\nnamespace App\\Pure;\n" . $source . "\n"])[0]);
     }
 
-        public function test_it_fails_a_guide_that_lost_the_table_of_layers(): void
-        {
+    public function test_it_fails_a_guide_that_lost_the_table_of_layers(): void
+    {
         [$findings, $explained] = $this->layersOf(['app/Support/A.php' => "<?php\nfinal class A {}\n"], "# Guard: pure-layers\n");
 
         self::assertSame(['guide ' . self::GUIDE], $findings);
         self::assertStringContainsString('holds no table of pure layers', implode("\n", $explained));
     }
 
-        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-        {
+    public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+    {
         self::assertSame(['app/Support/Counter.php'], $this->layersOf(['app/Support/Counter.php' => "<?php\nfinal class Counter { public function a(\\App\\Models\\User \$user): void {} }\n"], prefix: '.checkout-')[0]);
     }
 
-        public function test_it_pins_the_layers_of_the_guide_and_keeps_them_pure(): void
-        {
+    public function test_it_pins_the_layers_of_the_guide_and_keeps_them_pure(): void
+    {
         $guard = new PureLayerGuard(new PhpFileInspector(), $this->root(), 'app', self::GUIDE, self::DATABASE);
 
         self::assertSame(['Contracts' => false, 'Enums' => false, 'Exceptions' => false, 'ValueObjects' => false, 'app/Support' => false, 'Data' => true], $guard->layers());

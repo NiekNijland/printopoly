@@ -77,13 +77,13 @@ final class ControllerAuthorizationArchitectureTest extends TestCase
         self::assertStringContainsString('an HTTP refusal outside the HTTP layer: throw a domain exception that extends the authorization exception', $violations[0]);
     }
 
-        public function test_it_accepts_a_domain_refusal_and_a_404_outside_the_http_layer(): void
-        {
+    public function test_it_accepts_a_domain_refusal_and_a_404_outside_the_http_layer(): void
+    {
         self::assertSame([], $this->refusalGuard(dirname(__DIR__, 2))->inSource("<?php\nnamespace App\\Actions;\nfinal class A { public function handle(): void { abort(404); throw new \\App\\Edition\\EditionLimitReached(); } }\n"));
     }
 
-        public function test_it_reads_a_tree_under_a_dot_directory(): void
-        {
+    public function test_it_reads_a_tree_under_a_dot_directory(): void
+    {
         $root = SourceSandbox::create([
             'app/Http/Controllers/ShowController.php' => self::HEAD . "        abort(403);\n    }\n}\n",
             'app/Http/Middleware/Refuse.php' => "<?php\nfinal class Refuse { public function handle(): void { abort(403); } }\n",
@@ -103,8 +103,8 @@ final class ControllerAuthorizationArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Actions/Refuse.php: line 2:', $outside[0]);
     }
 
-        public function test_it_holds_the_real_tree_to_its_counted_list_and_has_no_http_refusal_outside_the_http_layer(): void
-        {
+    public function test_it_holds_the_real_tree_to_its_counted_list_and_has_no_http_refusal_outside_the_http_layer(): void
+    {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], $this->guard($root)->violations());

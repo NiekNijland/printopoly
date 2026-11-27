@@ -56,8 +56,8 @@ final class RedirectArchitectureTest extends TestCase
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource($source));
     }
 
-        public function test_it_reads_a_tree_under_a_dot_directory(): void
-        {
+    public function test_it_reads_a_tree_under_a_dot_directory(): void
+    {
         $root = SourceSandbox::create([
             'app/Http/Controllers/StoreController.php' => self::HEAD . "        return redirect()->back();\n    }\n}\n",
             'routes/web.php' => "<?php\n",
@@ -73,8 +73,8 @@ final class RedirectArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Http/Controllers/StoreController.php: line 7:', $violations[0]);
     }
 
-        public function test_it_finds_no_redirect_through_redirect_in_the_real_tree(): void
-        {
+    public function test_it_finds_no_redirect_through_redirect_in_the_real_tree(): void
+    {
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->violations());
     }
 

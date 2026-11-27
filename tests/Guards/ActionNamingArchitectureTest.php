@@ -68,13 +68,13 @@ final class ActionNamingArchitectureTest extends TestCase
         self::assertSame([], $this->namesOf($files)[0]);
     }
 
-        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-        {
+    public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+    {
         self::assertSame(['suffix app/Actions/Account/DeleteAccountAction.php'], $this->namesOf(['app/Actions/Account/DeleteAccountAction.php' => self::action('DeleteAccountAction', 'public function handle(): void {}')], '.checkout-')[0]);
     }
 
-        public function test_it_keeps_every_action_named_and_shaped_or_on_the_counted_list(): void
-        {
+    public function test_it_keeps_every_action_named_and_shaped_or_on_the_counted_list(): void
+    {
         $guard = new ActionNamingGuard(new PhpFileInspector(), $this->root(), 'app', 'Actions');
 
         self::assertSame([], $guard->explain($guard->findings()));

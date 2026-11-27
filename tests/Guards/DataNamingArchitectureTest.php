@@ -61,13 +61,13 @@ final class DataNamingArchitectureTest extends TestCase
         self::assertSame([], $this->namesOf($files)[0]);
     }
 
-        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-        {
+    public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+    {
         self::assertSame(['app/Data/Seo.php'], $this->namesOf(['app/Data/Seo.php' => 'final class Seo {}'], '.checkout-')[0]);
     }
 
-        public function test_it_names_every_dto_of_app_data(): void
-        {
+    public function test_it_names_every_dto_of_app_data(): void
+    {
         self::assertSame([], new DataNamingGuard(new PhpFileInspector(), $this->root(), 'app', 'Data', Data::class)->findings());
     }
 

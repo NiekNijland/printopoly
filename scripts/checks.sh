@@ -246,7 +246,7 @@ TASKS=(
     "Lint::composer validate --strict --no-check-publish && composer lint:syntax && npm run lint && npm run knip"
     "Production dead code::npm run knip:production"
     "Generated files::cp resources/js/types/generated.ts \"${TMPDIR:-/tmp}/generated.before.ts\" && CACHE_STORE=array php artisan typescript:transform --quiet && cmp -s \"${TMPDIR:-/tmp}/generated.before.ts\" resources/js/types/generated.ts"
-    "Guard tests::php -d memory_limit=-1 vendor/bin/phpunit --testsuite Guards --fail-on-empty-test-suite"
+    "Guard tests::php -d memory_limit=-1 vendor/bin/phpunit --testsuite Guards --fail-on-empty-test-suite --fail-on-risky --fail-on-notice"
 )
 if [ "$RUN" = "--main" ]; then
     # A deploying branch audits production dependencies only: an advisory in a development tool with no fix must not stop a hotfix.

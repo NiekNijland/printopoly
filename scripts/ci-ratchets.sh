@@ -119,6 +119,8 @@ queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
 model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
+test-method-indent                     max  grep   @TEST_PATHS,:(exclude)*.md  ^        (public|private|protected)( static)? function 
+compose-latest-images                  max  grep   compose.yaml?  :latest['"]?[[:space:]]*(#.*)?$
 TABLE
 }
 
@@ -1136,6 +1138,20 @@ json-entry-mixed 2     $read = static fn (mixed $value): mixed => $value;
 json-entry-mixed 0     /** @param array<string, mixed> $data */
 json-entry-mixed 0     public function mixedUp(): mixedValue
 json-entry-mixed 0     $mixed = $value;
+test-method-indent 1         public function test_it_works(): void
+test-method-indent 1         private function guard(): Guard
+test-method-indent 1         protected static function rows(): iterable
+test-method-indent 1         public static function examples(): iterable
+test-method-indent 0     public function test_it_works(): void
+test-method-indent 0             public function handle(): void
+test-method-indent 0         public readonly function x(): void
+test-method-indent 0         $function = static fn (): int => 1;
+compose-latest-images 1         image: 'mongodb/mongodb-atlas-local:latest'
+compose-latest-images 1         image: redis:latest # the newest
+compose-latest-images 1         image: "redis:latest"
+compose-latest-images 0         image: 'mongo:8'
+compose-latest-images 0         image: 'example/latest-tools:1.2'
+compose-latest-images 0         # image: redis:latested
 CASES
 }
 

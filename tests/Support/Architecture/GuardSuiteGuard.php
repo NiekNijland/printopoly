@@ -72,7 +72,7 @@ final readonly class GuardSuiteGuard
         }
 
         if (preg_match('/^[^#\n]*--testsuite ' . preg_quote($this->suite, '/') . '\b/m', $checksText) !== 1) {
-            $violations[] = 'no line of the checks script runs `--testsuite ' . $this->suite . '`: the guard tests run in the checks step. Add the task "Guard tests::php -d memory_limit=-1 vendor/bin/phpunit --testsuite ' . $this->suite . ' --fail-on-empty-test-suite"';
+            $violations[] = 'no line of the checks script runs `--testsuite ' . $this->suite . '`: the guard tests run in the checks step. Add the task "Guard tests::php -d memory_limit=-1 vendor/bin/phpunit --testsuite ' . $this->suite . ' --fail-on-empty-test-suite --fail-on-risky --fail-on-notice"';
         }
 
         foreach ($testFiles as $path => $source) {

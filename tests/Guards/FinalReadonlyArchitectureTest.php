@@ -58,13 +58,13 @@ final class FinalReadonlyArchitectureTest extends TestCase
         self::assertSame([], $this->shapeOf(array_map(static fn (string $class): string => "<?php\nnamespace App;\n" . $class . "\n", $files))[0]);
     }
 
-        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-        {
+    public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+    {
         self::assertSame(['app/Modules/Editions/Actions/DeleteEdition.php'], $this->shapeOf(['app/Modules/Editions/Actions/DeleteEdition.php' => "<?php\nfinal class DeleteEdition {}\n"], '.checkout-')[0]);
     }
 
-        public function test_it_keeps_every_controller_and_action_final_readonly_or_on_the_counted_list(): void
-        {
+    public function test_it_keeps_every_controller_and_action_final_readonly_or_on_the_counted_list(): void
+    {
         $guard = new FinalReadonlyGuard(new PhpFileInspector(), $this->root(), 'app', self::FOLDERS);
 
         self::assertSame([], $guard->explain($guard->findings()));

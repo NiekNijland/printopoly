@@ -14,8 +14,8 @@ use Tests\Support\SourceSandbox;
  */
 final class CountedListTest extends TestCase
 {
-        public function test_it_fails_a_new_finding_a_stale_line_and_an_unsorted_list(): void
-        {
+    public function test_it_fails_a_new_finding_a_stale_line_and_an_unsorted_list(): void
+    {
         $root = SourceSandbox::create(['list.txt' => "b.php: two\na.php: one\n"]);
 
         try {
@@ -31,8 +31,8 @@ final class CountedListTest extends TestCase
         ], $differences);
     }
 
-        public function test_it_counts_a_finding_that_occurs_twice_as_two_lines_and_reads_a_missing_file_as_empty(): void
-        {
+    public function test_it_counts_a_finding_that_occurs_twice_as_two_lines_and_reads_a_missing_file_as_empty(): void
+    {
         $root = SourceSandbox::create(['list.txt' => "a.php: one\n"]);
 
         try {

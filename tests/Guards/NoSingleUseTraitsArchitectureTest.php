@@ -61,8 +61,8 @@ final class NoSingleUseTraitsArchitectureTest extends TestCase
         self::assertSame([], new SingleUseTraitGuard(new PhpFileInspector(), $this->root(), ['app'])->inSources($sources));
     }
 
-        public function test_it_counts_the_distinct_users_of_each_trait(): void
-        {
+    public function test_it_counts_the_distinct_users_of_each_trait(): void
+    {
         $sources = [
             "<?php\nnamespace App\\Support;\ntrait Shared {}\ntrait Lonely {}\ntrait Unused {}\n",
             "<?php\nnamespace App\\One;\nuse App\\Support\\Shared;\nuse App\\Support\\Lonely;\nfinal class A { use Shared; use Lonely; }\n",
@@ -72,8 +72,8 @@ final class NoSingleUseTraitsArchitectureTest extends TestCase
         self::assertSame(['App\\Support\\Lonely' => 1, 'App\\Support\\Shared' => 2, 'App\\Support\\Unused' => 0], new SingleUseTraitGuard(new PhpFileInspector(), $this->root(), ['app'])->traitUsers($sources));
     }
 
-        public function test_it_reads_every_folder_of_a_tree_under_a_dot_directory(): void
-        {
+    public function test_it_reads_every_folder_of_a_tree_under_a_dot_directory(): void
+    {
         $root = SourceSandbox::create([
             'app/Support/Lonely.php' => "<?php\nnamespace App\\Support;\ntrait Lonely {}\n",
             'tests/Feature/ATest.php' => "<?php\nnamespace Tests\\Feature;\nuse App\\Support\\Lonely;\nfinal class ATest { use Lonely; }\n",
@@ -89,8 +89,8 @@ final class NoSingleUseTraitsArchitectureTest extends TestCase
         self::assertStringStartsWith('App\\Support\\Lonely: a trait used by exactly one class', $violations[0]);
     }
 
-        public function test_it_lets_no_trait_of_app_or_tests_be_used_by_exactly_one_class(): void
-        {
+    public function test_it_lets_no_trait_of_app_or_tests_be_used_by_exactly_one_class(): void
+    {
         self::assertSame([], new SingleUseTraitGuard(new PhpFileInspector(), $this->root(), ['app', 'tests'])->violations());
     }
 
