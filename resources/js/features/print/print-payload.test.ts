@@ -1,3 +1,5 @@
+import serverPayloads from '@/testing/print-payloads.json';
+
 import { pagePayload } from './print-payload';
 
 const profile = {
@@ -89,6 +91,21 @@ describe('pagePayload', () => {
         );
         expect(
             reads({ ...share, photos: [{ id: 'p1', src: 'x', width: '4' }] }),
+        ).toBe(false);
+    });
+
+    it('reads every payload the server writes, an edition without theme or currency and an empty override included', () => {
+        for (const payload of Object.values(serverPayloads)) {
+            expect(pagePayload(payload)).toEqual({ ok: true, value: payload });
+        }
+    });
+
+    it('refuses a language, theme or currency that is no text', () => {
+        expect(reads({ ...print, edition: { ...edition, theme: 3 } })).toBe(
+            false,
+        );
+        expect(
+            reads({ ...print, edition: { ...edition, language: false } }),
         ).toBe(false);
     });
 });
