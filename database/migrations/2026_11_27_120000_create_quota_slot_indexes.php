@@ -10,9 +10,7 @@ use MongoDB\Laravel\Connection;
 use MongoDB\Laravel\Schema\Blueprint;
 
 /**
- * The limits on editions per account and on contributions and photos per box hold when two requests add at once:
- * every document takes a slot below the limit, unique within its account or box. Stored documents get their slots
- * here, the lowest free ones of their group.
+ * The slots of QuotaSlots: a unique index per group and slot field, and the lowest free slots for stored documents.
  */
 return new class() extends Migration
 {
