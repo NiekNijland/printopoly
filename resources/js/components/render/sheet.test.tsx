@@ -1,0 +1,223 @@
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+
+import { Abs, Frame, Sheet, useRender } from './sheet';
+
+const Probe = () => {
+    const { theme, locale, currency, money, words, style } = useRender();
+
+    return (
+        <p>
+            {[
+                theme.id,
+                locale,
+                currency,
+                money(1500),
+                words.currencySymbol ?? '-',
+                style?.groupColors?.brown ?? '-',
+            ].join('|')}
+        </p>
+    );
+};
+
+const sheet = (element: HTMLElement) =>
+    element.querySelector<HTMLElement>('[data-element]');
+
+describe('Sheet', () => {
+    it('is the trim size plus bleed, with the content on the trim box', () => {
+        const { container } = render(
+            <Sheet
+                element="card"
+                theme="riso"
+                locale="nl"
+                bleedMm={3}
+                widthMm={63}
+                heightMm={88}
+                background="#FFFFFF"
+                className="extra"
+            >
+                <span>inhoud</span>
+            </Sheet>,
+        );
+        const outer = sheet(container);
+        const trim = container.querySelector<HTMLElement>('[data-trim]');
+
+        expect(outer?.dataset.element).toBe('card');
+        expect(outer?.dataset.theme).toBe('riso');
+        expect(outer?.dataset.bleedMm).toBe('3');
+        expect(outer).toHaveClass('extra');
+        expect(outer?.style.width).toBe('69mm');
+        expect(outer?.style.height).toBe('94mm');
+        expect(outer?.style.borderRadius).toBe('0mm');
+        expect(trim?.style.left).toBe('3mm');
+        expect(trim?.style.width).toBe('63mm');
+        expect(screen.getByText('inhoud').parentElement).toBe(trim);
+    });
+
+    it('rounds the corners only without bleed', () => {
+        const { container } = render(
+            <Sheet
+                element="card"
+                theme="classic"
+                locale="nl"
+                widthMm={63}
+                heightMm={88}
+                background="#FFFFFF"
+                rounded
+            />,
+        );
+
+        expect(sheet(container)?.style.borderRadius).toBe('3mm');
+    });
+
+    it('draws an underlay below the content', () => {
+        const { container } = render(
+            <Sheet
+                element="lid"
+                theme="classic"
+                locale="nl"
+                widthMm={10}
+                heightMm={10}
+                background="#FFFFFF"
+                underlay={<span>onder</span>}
+            />,
+        );
+
+        expect(sheet(container)?.firstElementChild).toHaveTextContent('onder');
+    });
+
+    it('gives the renderers the default currency of the language', () => {
+        render(
+            <Sheet
+                element="x"
+                theme="strak"
+                locale="en"
+                widthMm={10}
+                heightMm={10}
+                background="#FFFFFF"
+            >
+                <Probe />
+            </Sheet>,
+        );
+
+        expect(screen.getByText('strak|en|gbp|£1,500|-|-')).toBeInTheDocument();
+    });
+
+    it('gives the renderers the currency, words and style of the edition', () => {
+        const { container } = render(
+            <Sheet
+                element="x"
+                theme="gala"
+                locale="nl"
+                currency="usd"
+                words={{ currencySymbol: 'K' }}
+                style={{ groupColors: { brown: '#111111' } }}
+                widthMm={10}
+                heightMm={10}
+                background="#FFFFFF"
+            >
+                <Probe />
+            </Sheet>,
+        );
+
+        expect(container.querySelector('p')?.textContent).toBe(
+            'gala|nl|usd|K\u00A01.500|K|#111111',
+        );
+    });
+
+    it('falls back to the classic theme in Dutch outside a sheet', () => {
+        const { container } = render(<Probe />);
+
+        expect(container.querySelector('p')?.textContent).toBe(
+            'classic|nl|eur|€\u00A01.500|-|-',
+        );
+    });
+});
+
+describe('Abs', () => {
+    it('places its children in mm with its own style and slot', () => {
+        const { container } = render(
+            <Abs x={1} y={2} w={3} h={4} slot="box" style={{ color: 'red' }}>
+                ja
+            </Abs>,
+        );
+        const element =
+            container.querySelector<HTMLElement>('[data-slot="box"]');
+
+        expect(element?.style.left).toBe('1mm');
+        expect(element?.style.height).toBe('4mm');
+        expect(element?.style.color).toBe('red');
+        expect(element).toHaveTextContent('ja');
+    });
+});
+
+describe('Frame', () => {
+    it('keeps the stroke inside the box', () => {
+        const { container } = render(
+            <Frame
+                x={0}
+                y={0}
+                w={20}
+                h={10}
+                color="#000000"
+                strokeMm={1}
+                radiusMm={2}
+            />,
+        );
+        const rect = container.querySelector('rect');
+
+        expect(container.querySelector('svg')?.getAttribute('viewBox')).toBe(
+            '0 0 20 10',
+        );
+        expect(rect?.getAttribute('x')).toBe('0.5');
+        expect(rect?.getAttribute('width')).toBe('19');
+        expect(rect?.getAttribute('height')).toBe('9');
+        expect(rect?.getAttribute('rx')).toBe('2');
+        expect(rect?.getAttribute('fill')).toBe('none');
+        expect(container.querySelector('[data-ornament]')).toBeNull();
+    });
+
+    it('adds the thin second line of an ornate frame in a theme with an ornament', () => {
+        const { container } = render(
+            <Sheet
+                element="x"
+                theme="gala"
+                locale="nl"
+                widthMm={20}
+                heightMm={10}
+                background="#FFFFFF"
+            >
+                <Frame
+                    x={0}
+                    y={0}
+                    w={20}
+                    h={10}
+                    color="#000000"
+                    strokeMm={1}
+                    ornate
+                />
+            </Sheet>,
+        );
+        const ornament = container.querySelector('[data-ornament]');
+
+        expect(ornament?.getAttribute('x')).toBe('2.2');
+        expect(ornament?.getAttribute('stroke')).toBe('#B8923F');
+        expect(ornament?.getAttribute('width')).toBe('15.6');
+    });
+
+    it('has no ornament in a theme without one', () => {
+        const { container } = render(
+            <Frame
+                x={0}
+                y={0}
+                w={20}
+                h={10}
+                color="#000000"
+                strokeMm={1}
+                ornate
+            />,
+        );
+
+        expect(container.querySelector('[data-ornament]')).toBeNull();
+    });
+});
