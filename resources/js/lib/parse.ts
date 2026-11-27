@@ -87,9 +87,7 @@ export const keyOf = <K extends string>(
     return (input) =>
         isKey(keys, input)
             ? ok(input)
-            : fail(
-                  `expected a key of ${Object.keys(keys).join(', ')}, got ${String(input)}`,
-              );
+            : fail(`expected a known key, got ${String(input)}`);
 };
 
 export const literal = <const V extends Literal>(value: V): Parser<V> =>

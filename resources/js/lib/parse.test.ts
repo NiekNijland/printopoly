@@ -74,7 +74,7 @@ describe('parse', () => {
         expect(sizes('large')).toEqual({ ok: true, value: 'large' });
         expect(sizes('toString')).toEqual({
             ok: false,
-            error: 'expected a key of small, large, got toString',
+            error: 'expected a known key, got toString',
         });
         expect(sizes(1).ok).toBe(false);
     });
