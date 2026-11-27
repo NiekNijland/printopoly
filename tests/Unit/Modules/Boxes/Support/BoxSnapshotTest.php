@@ -6,6 +6,7 @@ namespace Tests\Unit\Modules\Boxes\Support;
 
 use App\Modules\Boxes\Support\BoxSnapshot;
 use App\Modules\Boxes\Support\BoxTargets;
+use App\Modules\Editions\Support\EditionValidator;
 use App\Modules\Editions\Support\StandardEdition;
 use PHPUnit\Framework\TestCase;
 
@@ -90,6 +91,33 @@ final class BoxSnapshotTest extends TestCase
             'words.chest' => ['name' => 'Huwelijkskas'],
             'words.station' => ['name' => 'Bushalte', 'text' => 'Bushaltes'],
             'words.currency' => ['text' => 'Knikke'],
+        ], $clean['elements']);
+    }
+
+    public function test_a_currency_code_counts_only_as_a_whole_word(): void
+    {
+        self::assertNull($this->snapshot()->clean(['currency' => '1eur'])['currency']);
+        self::assertNull($this->snapshot()->clean(['currency' => 'eur1'])['currency']);
+    }
+
+    public function test_only_whole_word_keys_count_and_long_texts_are_cut_by_character(): void
+    {
+        $spaceLength = (new BoxTargets(StandardEdition::load()))->maxLength('space.01');
+
+        $clean = $this->snapshot()->clean(['elements' => [
+            0 => ['name' => 'Nul'],
+            'space.04' => 'geen object',
+            'xwords.house' => ['name' => 'Hutje'],
+            'words.housex' => ['name' => 'Hutje'],
+            'words.chance' => ['name' => 'Gok', 'text' => 'Gokken'],
+            'words.hotel' => ['name' => str_repeat('é', 60), 'text' => str_repeat('ü', 60)],
+            'space.01' => ['name' => str_repeat('ö', 120)],
+        ]]);
+
+        self::assertSame([
+            'words.chance' => ['name' => 'Gok'],
+            'words.hotel' => ['name' => str_repeat('é', EditionValidator::MAX_WORD_LENGTH), 'text' => str_repeat('ü', EditionValidator::MAX_WORD_LENGTH)],
+            'space.01' => ['name' => str_repeat('ö', $spaceLength)],
         ], $clean['elements']);
     }
 

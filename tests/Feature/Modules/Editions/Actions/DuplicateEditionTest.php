@@ -61,6 +61,20 @@ final class DuplicateEditionTest extends TestCase
         self::assertNull($named->money_amount);
     }
 
+    public function test_the_print_choice_travels_with_the_copy_and_an_empty_template_does_not(): void
+    {
+        Event::fake([EditionDuplicatedEvent::class]);
+        $user = User::factory()->create();
+        $source = Editions::store($user, 'zaterdagclub', ['printSelection' => ['set' => 'home', 'parts' => ['board', 'cards']]]);
+        $source->forceFill(['template' => '', 'money_amount' => ''])->save();
+
+        $copy = resolve(DuplicateEdition::class)->handle($user, $source);
+
+        self::assertSame(['set' => 'home', 'parts' => ['board', 'cards']], $copy->print_selection);
+        self::assertNull($copy->template);
+        self::assertNull($copy->money_amount);
+    }
+
     public function test_a_full_account_gets_no_copy_and_no_event(): void
     {
         Event::fake([EditionDuplicatedEvent::class]);

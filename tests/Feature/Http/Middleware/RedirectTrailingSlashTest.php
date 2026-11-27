@@ -25,6 +25,18 @@ final class RedirectTrailingSlashTest extends TestCase
         self::assertSame('http://printopoly.test/nl/vragen?ref=app', $withQuery->headers->get('Location'));
     }
 
+    public function test_an_app_in_a_subfolder_keeps_its_folder_in_the_redirect(): void
+    {
+        $request = Request::create('http://printopoly.test/spel/nl/vragen/', 'GET', server: [
+            'SCRIPT_FILENAME' => '/var/www/spel/index.php',
+            'SCRIPT_NAME' => '/spel/index.php',
+        ]);
+
+        $response = (new RedirectTrailingSlash())->handle($request, static fn (): Response => new Response('niet verder'));
+
+        self::assertSame('http://printopoly.test/spel/nl/vragen', $response->headers->get('Location'));
+    }
+
     public function test_the_root_and_a_path_without_a_slash_pass_through(): void
     {
         $this->get('/nl/vragen')->assertOk();

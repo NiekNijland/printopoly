@@ -67,6 +67,20 @@ final class ImpositionTest extends TestCase
         self::assertSame(0, Imposition::plan(63.0, 88.0, 3.0, 210.0, 297.0, 10.0, 0.0, 0)->sheets);
     }
 
+    public function test_the_bleed_goes_around_each_item_and_the_margin_on_both_sides_of_the_sheet(): void
+    {
+        $plan = Imposition::plan(50.0, 50.0, 5.0, 190.0, 250.0, 10.0, 0.0, 8, 'portrait');
+
+        self::assertSame(2, $plan->sheets);
+    }
+
+    public function test_a_margin_wider_than_the_sheet_leaves_no_room(): void
+    {
+        $this->expectException(PrintFailedException::class);
+
+        Imposition::plan(50.0, 50.0, 5.0, 190.0, 250.0, 200.0, 0.0, 1);
+    }
+
     public function test_an_item_larger_than_the_sheet_fails_the_plan(): void
     {
         $this->expectException(PrintFailedException::class);

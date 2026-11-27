@@ -16,6 +16,8 @@ final class AmountsTest extends TestCase
         self::assertSame(['min' => 48, 'max' => 72], Amounts::range(-60));
         self::assertSame(['min' => 2, 'max' => 2], Amounts::range(2));
         self::assertSame(['min' => 6, 'max' => 8], Amounts::range(7));
+        self::assertSame(['min' => 10, 'max' => 16], Amounts::range(13));
+        self::assertSame(['min' => 80, 'max' => 120], Amounts::range(100));
     }
 
     public function test_a_street_offers_price_rents_house_cost_and_mortgage(): void

@@ -26,6 +26,7 @@ final class ImportEditionsTest extends TestCase
             Editions::payload('bestaand', ['name' => 'Uit de browser']),
             ['id' => 'kapot', 'name' => ''],
             'geen editie',
+            ['name' => 'Zonder id'],
             Editions::payload('ook-nieuw'),
             Editions::payload('te-veel'),
         ]);
@@ -33,7 +34,7 @@ final class ImportEditionsTest extends TestCase
         self::assertSame(['nieuw', 'ook-nieuw'], $report['imported']);
         self::assertSame(['bestaand'], $report['conflicts']);
         self::assertSame(['te-veel'], $report['overLimit']);
-        self::assertSame(['kapot', '#3'], array_keys($report['invalid']));
+        self::assertSame(['kapot', '#3', '#4'], array_keys($report['invalid']));
         self::assertNotSame([], $report['invalid']['kapot']);
         self::assertSame('Op de server', Edition::query()->where('edition_id', 'bestaand')->firstOrFail()->name);
         self::assertSame(3, Edition::query()->where('user_id', $user->publicId())->count());
