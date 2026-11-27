@@ -6,22 +6,24 @@ namespace Tests\Support\Architecture;
 
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Events\Dispatcher;
-use Illuminate\Support\Facades\Event;
+use Illuminate\Foundation\Events\Dispatchable;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\ClassLike;
+use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\NodeFinder;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;
 
+/**
+ * An event goes out as `Event::dispatch(new XEvent(...))`: the refactoring tool rewrites `XEvent::dispatch()` into the
+ * helper `event()`, which the analyser forbids, so no event uses the trait `Dispatchable`, and no dispatcher the class
+ * receives (typed parameter or property, `app('events')`) dispatches by hand.
+ */
 final readonly class EventDispatchGuard
 {
-    private const array EVENT_FACADES = ['Event', Event::class];
-
     private const array DISPATCHERS = [DispatcherContract::class, Dispatcher::class];
 
     public function __construct(
@@ -48,54 +50,33 @@ final readonly class EventDispatchGuard
     }
 
     /**
-     * The facade, a dispatcher the class receives (a parameter or a property typed with the dispatcher contract) and the
-     * container string `app('events')`. The global helper `event()` is the analyser's rule (`phpstan.neon`, disallowed
-     * calls), in every form: this guard does not read it a second time.
-     *
      * @return list<string>
      */
     public function inSource(string $source): array
     {
         $statements = new NodeTraverser(new NameResolver())->traverse(new ParserFactory()->createForHostVersion()->parse($source) ?? []);
         $dispatchers = TypedReceivers::in($statements, self::DISPATCHERS, ['events']);
+        $finder = new NodeFinder();
         $violations = [];
 
-        foreach (new NodeFinder()->find($statements, static fn (Node $node): bool => $node instanceof StaticCall || $node instanceof MethodCall) as $call) {
-            $written = match (true) {
-                $call instanceof StaticCall => $this->facadeDispatch($call),
-                $call instanceof MethodCall => $this->dispatcherDispatch($call, $dispatchers),
-                default => null,
-            };
-
-            if ($written === null) {
-                continue;
+        foreach ($finder->findInstanceOf($statements, ClassLike::class) as $class) {
+            foreach ($finder->findInstanceOf($class->stmts, TraitUse::class) as $use) {
+                foreach ($use->traits as $trait) {
+                    if (ltrim($trait->toString(), '\\') === Dispatchable::class) {
+                        $name = $class->name?->toString() ?? 'class@anonymous';
+                        $violations[] = $use->getStartLine() . ': ' . $name . ' uses ' . Dispatchable::class . ': dispatch the event with Event::dispatch(new '
+                            . $name . '(...)) and drop the trait (the refactoring tool rewrites ' . $name . '::dispatch() into event(), which the analyser forbids)';
+                    }
+                }
             }
+        }
 
-            $event = ($call->getArgs()[0] ?? null)?->value;
-
-            if (! $event instanceof New_ || ! $event->class instanceof Name || ! str_starts_with(ltrim($event->class->toString(), '\\'), 'App\\')) {
-                continue;
+        foreach ($finder->find($statements, static fn (Node $node): bool => $node instanceof MethodCall) as $call) {
+            if ($call instanceof MethodCall && $call->name instanceof Identifier && $call->name->toLowerString() === 'dispatch' && $dispatchers->holds($call->var)) {
+                $violations[] = $call->getStartLine() . ': the dispatcher dispatches an event by hand: write Event::dispatch(...) with the same argument';
             }
-
-            $name = $event->class->getLast();
-            $violations[] = $call->getStartLine() . ': ' . $written . '(new ' . $name . '(...)) builds an event of the application to hand it to the dispatcher: write '
-                . $name . '::dispatch(...) with the same arguments (the event uses Illuminate\Foundation\Events\Dispatchable)';
         }
 
         return $violations;
-    }
-
-    private function facadeDispatch(StaticCall $call): ?string
-    {
-        $onFacade = $call->class instanceof Name && in_array(ltrim($call->class->toString(), '\\'), self::EVENT_FACADES, true);
-
-        return $onFacade && $call->name instanceof Identifier && $call->name->toLowerString() === 'dispatch' ? 'Event::dispatch' : null;
-    }
-
-    private function dispatcherDispatch(MethodCall $call, TypedReceivers $dispatchers): ?string
-    {
-        $dispatches = $call->name instanceof Identifier && $call->name->toLowerString() === 'dispatch';
-
-        return $dispatches && $dispatchers->holds($call->var) ? 'the dispatcher' : null;
     }
 }

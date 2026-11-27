@@ -6,7 +6,6 @@ namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\FinalReadonlyGuard;
 use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\SourceSandbox;
@@ -68,7 +67,7 @@ final class FinalReadonlyArchitectureTest extends TestCase
         {
         $guard = new FinalReadonlyGuard(new PhpFileInspector(), $this->root(), 'app', self::FOLDERS);
 
-        self::assertSame([], new CountedList($this->root(), 'lists/final-readonly.txt')->violations($guard->findings(), $guard->explain(...)));
+        self::assertSame([], $guard->explain($guard->findings()));
     }
 
     /**

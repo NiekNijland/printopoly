@@ -50,7 +50,7 @@ final readonly class PhotoCropper
     public function crop(Asset $asset, PhotoPlacement $placement): string
     {
         if ($placement->targetWidthMm === null || $placement->targetHeightMm === null) {
-            throw new PrintFailedException('The frame of photo ' . $placement->key . ' has no size: the renderer geometry is not connected yet.', reason: FailureReason::Photos);
+            throw new PrintFailedException('The frame of photo ' . $placement->key . ' has no size: the renderer geometry is not connected yet.', reason: FailureReason::PHOTOS);
         }
 
         $plan = PhotoCrop::compute(

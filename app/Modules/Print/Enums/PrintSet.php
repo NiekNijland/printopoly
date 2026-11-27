@@ -11,19 +11,19 @@ use App\Modules\Content\Enums\Locale;
  */
 enum PrintSet: string
 {
-    case Printer = 'printer';
-    case Home = 'home';
+    case PRINTER = 'printer';
+    case HOME = 'home';
 
     public function zipName(Locale $locale): string
     {
         return match ($locale) {
-            Locale::Dutch => match ($this) {
-                self::Printer => 'Drukkerij-set',
-                self::Home => 'Thuisprint-set',
+            Locale::DUTCH => match ($this) {
+                self::PRINTER => 'Drukkerij-set',
+                self::HOME => 'Thuisprint-set',
             },
-            Locale::English => match ($this) {
-                self::Printer => 'Print-shop-set',
-                self::Home => 'Home-print-set',
+            Locale::ENGLISH => match ($this) {
+                self::PRINTER => 'Print-shop-set',
+                self::HOME => 'Home-print-set',
             },
         };
     }

@@ -99,14 +99,14 @@ final class SeoHeadersTest extends TestCase
 
     public function test_the_structured_data_covers_organization_website_breadcrumb_and_faq(): void
     {
-        $faq = $this->graph(PublicPage::Faq, Locale::Dutch);
+        $faq = $this->graph(PublicPage::FAQ, Locale::DUTCH);
 
         self::assertSame(['Organization', 'WebSite', 'WebPage', 'BreadcrumbList', 'FAQPage'], array_column($faq, '@type'));
         self::assertNotEmpty($faq[4]['mainEntity'] ?? null);
 
-        self::assertContains('Article', array_column($this->graph(PublicPage::PrintGuide, Locale::English), '@type'));
+        self::assertContains('Article', array_column($this->graph(PublicPage::PRINT_GUIDE, Locale::ENGLISH), '@type'));
 
-        $home = array_column($this->graph(PublicPage::Home, Locale::Dutch), '@type');
+        $home = array_column($this->graph(PublicPage::HOME, Locale::DUTCH), '@type');
 
         self::assertContains('WebApplication', $home);
         self::assertContains('FAQPage', $home);

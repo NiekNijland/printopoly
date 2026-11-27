@@ -27,7 +27,7 @@ Route::middleware('throttle:pages')->group(static function (): void {
     // /en/print-guide (B66). PublicPage holds the slugs; the `page` default tells
     // the controller and the language switch which page this is.
     foreach (PublicPage::withSlug() as $page) {
-        $controller = $page === PublicPage::Contact ? Pages\Contact\ShowController::class : Pages\ContentPage\ShowController::class;
+        $controller = $page === PublicPage::CONTACT ? Pages\Contact\ShowController::class : Pages\ContentPage\ShowController::class;
 
         // Two routes with the same URI would replace each other, so a slug that
         // is the same in every language gets one route.
@@ -53,7 +53,7 @@ Route::middleware('throttle:pages')->group(static function (): void {
     Route::prefix('{locale}')
         ->whereIn('locale', Locale::values())
         ->group(function (): void {
-            Route::get('/', Pages\Home\ShowController::class)->defaults('page', PublicPage::Home->value)->name('home');
+            Route::get('/', Pages\Home\ShowController::class)->defaults('page', PublicPage::HOME->value)->name('home');
             // Editions live in the browser (B78), so these pages are client-only and
             // an edition id is just a string the page looks up in IndexedDB.
             Route::get('editions', Pages\Editions\ShowController::class)->name('editions.index');

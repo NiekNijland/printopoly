@@ -50,7 +50,7 @@ final readonly class BoxPhotos
             'print_path' => $folder . '/print.jpg',
             'width' => $processed->printWidth,
             'height' => $processed->printHeight,
-            'bytes' => strlen($processed->preview) + strlen($processed->printSource),
+            'bytes' => mb_strlen($processed->preview, encoding: '8bit') + mb_strlen($processed->printSource, encoding: '8bit'),
         ];
     }
 }

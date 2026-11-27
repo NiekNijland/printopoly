@@ -71,7 +71,7 @@ final readonly class PrintDownloadService
     {
         $current = $this->status->resolve($printJob);
 
-        throw_unless($set === PrintSet::Printer ? $current->printerZipReady : $current->homeZipReady, ConflictHttpException::class);
+        throw_unless($set === PrintSet::PRINTER ? $current->printerZipReady : $current->homeZipReady, ConflictHttpException::class);
 
         return $this->zips->build($printJob, $set, $names);
     }

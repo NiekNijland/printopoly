@@ -9,7 +9,6 @@ use App\Modules\Print\Data\PrintJobStatusData;
 use App\Modules\Print\Support\PrintChannel;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
-use Illuminate\Foundation\Events\Dispatchable;
 use Override;
 
 /**
@@ -19,8 +18,6 @@ use Override;
  */
 final readonly class PrintStatusUpdatedEvent implements ShouldBroadcastNow
 {
-    use Dispatchable;
-
     private Channel $channel;
 
     /** @var array<mixed> */

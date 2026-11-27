@@ -105,7 +105,7 @@ final class PhotoProcessorTest extends TestCase
         foreach ([
             'text' => 'just some text',
             'svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><script>alert(1)</script></svg>',
-            'gif' => base64_decode('R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==', true),
+            'gif' => pack('H*', '4749463839610100010000000021f904010a0001002c00000000010001000002024c01003b'),
             'php' => '<?php echo 1;',
         ] as $label => $contents) {
             try {

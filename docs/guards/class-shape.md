@@ -12,7 +12,7 @@ De vorm van een klasse volgt uit de map waarin ze staat. Vier guards lezen de ma
 | enum-folder | een map `Enums` bevat alleen enums | verplaats de klasse naar de map van haar soort |
 | data-name | een DTO heet `<X>Data`: een klasse in een map `Data`, en elke klasse die van `Spatie\LaravelData\Data` erft | hernoem de klasse |
 
-De klassen van vandaag die een regel breken, staan per guard in een lijst die alleen korter wordt: `lists/final-readonly.txt` (sleutel: pad), `lists/action-naming.txt` en `lists/enum-shape.txt` (sleutel: regel en pad). De ratchet-rijen `final-readonly-list`, `action-naming-list` en `enum-shape-list` tellen hun regels.
+Er is geen lijst met uitzonderingen: elke controller, action en enum voldoet aan deze regels.
 
 `final` voor elke concrete klasse is de regel `final_class` van de formatter, met de dashboard-rij `open-classes` als teller. `ClosedClassGuard` (`docs/guards/closed-classes.md`) controleert wat die regel niet ziet.
 
