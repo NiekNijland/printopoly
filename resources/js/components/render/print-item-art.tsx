@@ -833,6 +833,15 @@ const ItemBody = ({
     }
 };
 
+const loneItem = (elementKey: string, kind: PageItem['kind']): PageItem => ({
+    id: elementKey,
+    kind,
+    elementKey,
+    label: elementKey,
+    bleed: { x: 0, y: 0, w: 0, h: 0 },
+    trim: { x: 0, y: 0, w: 0, h: 0 },
+});
+
 /**
  * One element of the edition drawn on its own, with the bleed it has in this set. Only used to measure the
  * photo frames (lib/render/print-photo-targets.ts): it draws the same renderers with the same bleed as `ItemArt`.
@@ -845,14 +854,8 @@ export const ElementArt = ({
     elementKey: string;
 }): ReactNode => {
     const parsed = parseKey(elementKey);
-    const asItem = (kind: PageItem['kind']): PageItem => ({
-        id: elementKey,
-        kind,
-        elementKey,
-        label: elementKey,
-        bleed: { x: 0, y: 0, w: 0, h: 0 },
-        trim: { x: 0, y: 0, w: 0, h: 0 },
-    });
+    const asItem = (kind: PageItem['kind']): PageItem =>
+        loneItem(elementKey, kind);
 
     switch (parsed?.kind) {
         case 'space':
