@@ -139,7 +139,7 @@ const BlockList = ({
     );
 };
 
-export const Header = ({
+const Header = ({
     kicker,
     title,
     theme,
