@@ -11,7 +11,7 @@ use App\Modules\Boxes\Data\ShareImageRequestData;
 use App\Modules\Boxes\Jobs\RenderShareImageJob;
 use App\Modules\Boxes\Support\ShareImageRenderer;
 use App\Modules\Boxes\Support\ShareImages;
-use Illuminate\Support\Str;
+use App\Support\CapabilityToken;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -25,7 +25,7 @@ final readonly class StoreController
     public function __invoke(StoreShareImageRequest $request, ShareImageRenderer $renderer, ShareImages $images, FeatureCounter $counter): Response
     {
         $input = $renderer->clean($request->edition(), $request->photos());
-        $id = Str::random(40);
+        $id = CapabilityToken::make();
         $images->waiting($id, $input);
         dispatch(new RenderShareImageJob($id));
         // Anonymous: only that a share image was asked for today (B206).

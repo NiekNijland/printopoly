@@ -38,14 +38,7 @@ final class PrintHtmlBuilder
                 'title' => trim($edition->name) === '' ? 'Printopoly' : $edition->name,
                 'base' => $base,
                 'nonce' => $nonce,
-                'csp' => sprintf(
-                    "default-src 'none'; script-src %s 'nonce-%s'; style-src %s 'unsafe-inline'; img-src %s data:; font-src %s data:",
-                    $base,
-                    $nonce,
-                    $base,
-                    $base,
-                    $base,
-                ),
+                'csp' => self::contentSecurityPolicy($base, $nonce),
                 'width' => $this->mm($expected->widthMm),
                 'height' => $this->mm($expected->heightMm),
                 'payload' => [
@@ -59,6 +52,11 @@ final class PrintHtmlBuilder
         } finally {
             Vite::createAssetPathsUsing(null);
         }
+    }
+
+    public static function contentSecurityPolicy(string $base, string $nonce): string
+    {
+        return sprintf('default-src \'none\'; script-src %1$s \'nonce-%2$s\'; style-src %1$s \'unsafe-inline\'; img-src %1$s data:; font-src %1$s data:', $base, $nonce);
     }
 
     private function mm(float $value): string

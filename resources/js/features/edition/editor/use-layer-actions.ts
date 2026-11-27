@@ -8,7 +8,11 @@ import { useServices } from '@/features/edition/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import { BOARD_CENTER_KEY } from '@/lib/render/edition-keys';
 import { resolveEdition } from '@/lib/render/edition-resolve';
-import type { Edition, FreeLayer } from '@/lib/render/edition-types';
+import type {
+    Edition,
+    FreeLayer,
+    PhotoRecord,
+} from '@/lib/render/edition-types';
 import {
     newCenterLayerSpot,
     placeNewCenterLayer,
@@ -21,6 +25,7 @@ import {
 } from '@/lib/render/editor-layers';
 import type { PhotoCache } from '@/lib/render/editor-photo-cache';
 import { startingPlacement } from '@/lib/render/editor-placements';
+import type { Locale } from '@/types/game';
 
 type LayerActionsOptions = {
     session: EditionSession;
@@ -57,6 +62,42 @@ const placeNewLayer = (
           )
         : layer;
 
+export const usePhotoPick = (
+    editionId: string,
+    cache: PhotoCache,
+    locale: Locale,
+) => {
+    const t = useTranslation();
+    const { repository } = useServices();
+    const [problem, setProblem] = useState<string | null>(null);
+
+    const pick = async (
+        event: ChangeEvent<HTMLInputElement>,
+        onRecord: (record: PhotoRecord) => void,
+    ): Promise<void> => {
+        const file = event.target.files?.[0];
+        event.target.value = '';
+        if (file === undefined) {
+            return;
+        }
+        setProblem(null);
+        const result = await ingestPhoto(file, repository, editionId);
+        if (!result.ok) {
+            setProblem(
+                'storageFull' in result
+                    ? `${result.fileName} ${t('editor.photo_storage_full')}`
+                    : `${result.error.fileName} ${result.error.rest[locale]}`,
+            );
+
+            return;
+        }
+        cache.add(result.record);
+        onRecord(result.record);
+    };
+
+    return { problem, pick };
+};
+
 export const useLayerActions = ({
     session,
     edition,
@@ -68,8 +109,7 @@ export const useLayerActions = ({
 }: LayerActionsOptions) => {
     const t = useTranslation();
     const { locale } = usePage().props;
-    const { repository } = useServices();
-    const [problem, setProblem] = useState<string | null>(null);
+    const { problem, pick } = usePhotoPick(edition.id, cache, locale);
 
     const write = (next: FreeLayer[], group: string | null = null): void =>
         editElement(session, editKey, { layers: next }, group);
@@ -96,39 +136,21 @@ export const useLayerActions = ({
         onSelect(layer.id);
     };
 
-    const onFile = async (
-        event: ChangeEvent<HTMLInputElement>,
-    ): Promise<void> => {
-        const file = event.target.files?.[0];
-        event.target.value = '';
-        if (file === undefined) {
-            return;
-        }
-        setProblem(null);
-        const result = await ingestPhoto(file, repository, edition.id);
-        if (!result.ok) {
-            setProblem(
-                'storageFull' in result
-                    ? `${result.fileName} ${t('editor.photo_storage_full')}`
-                    : `${result.error.fileName} ${result.error.rest[locale]}`,
-            );
-
-            return;
-        }
-        cache.add(result.record);
-        const current = session.edition.elements[editKey]?.layers ?? [];
-        const layer = placed(
-            newPhotoLayer(
+    const onFile = (event: ChangeEvent<HTMLInputElement>): Promise<void> =>
+        pick(event, (record) => {
+            const current = session.edition.elements[editKey]?.layers ?? [];
+            const layer = placed(
+                newPhotoLayer(
+                    current,
+                    area,
+                    startingPlacement(record.id, record),
+                    spot,
+                ),
                 current,
-                area,
-                startingPlacement(result.record.id, result.record),
-                spot,
-            ),
-            current,
-        );
-        write([...current, layer]);
-        onSelect(layer.id);
-    };
+            );
+            write([...current, layer]);
+            onSelect(layer.id);
+        });
 
     const remove = (id: string): void => {
         write(layers.filter((item) => item.id !== id));

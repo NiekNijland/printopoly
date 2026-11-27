@@ -1,7 +1,6 @@
 import { mix, readableOn } from '@/lib/render/color';
 import type { BoardStyle } from '@/lib/render/edition-part-styles';
 import type { PhotoSource } from '@/lib/render/photo';
-import { mm } from '@/lib/render/units';
 import type { DeckId } from '@/types/game';
 
 import { RULE_INSET, TILE_GAP, ruleColor, useBoardLook } from './board-look';
@@ -9,7 +8,7 @@ import { Pill } from './board-look-playful';
 import { Cartouche } from './board-look-vintage';
 import { FitText } from './fit-text';
 import type { IconName } from './icons';
-import { Abs, Frame, useRender } from './sheet';
+import { Abs, Frame, useRender, BoxSvg } from './sheet';
 import { SpaceIconArt, type SpaceIconSource } from './space-icon';
 
 /**
@@ -303,20 +302,16 @@ const ModernDeck = ({
                 valign="top"
                 slot="name"
             />
-            <svg
-                style={{
-                    position: 'absolute',
-                    left: mm((w - disc) / 2),
-                    top: mm(discTop),
-                    width: mm(disc),
-                    height: mm(disc),
-                }}
+            <BoxSvg
+                x={(w - disc) / 2}
+                y={discTop}
+                w={disc}
+                h={disc}
                 viewBox="0 0 10 10"
-                aria-hidden="true"
                 data-slot="deck-disc"
             >
                 <circle cx={5} cy={5} r={5} fill={accent} />
-            </svg>
+            </BoxSvg>
             <SpaceIconArt
                 icon={icon}
                 fallback={fallback}

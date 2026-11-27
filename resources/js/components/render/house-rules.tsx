@@ -5,7 +5,7 @@ import { THEMES } from '@/lib/render/themes';
 import { FitText } from './fit-text';
 import { CARD_SIZE_MM } from './game-card';
 import { PhotoSlot } from './photo-slot';
-import { Frame, Sheet, useRender, type ElementProps } from './sheet';
+import { CardFrame, Sheet, useRender, type ElementProps } from './sheet';
 
 export type HouseRulesCardProps = {
     /** One rule per line. */
@@ -31,7 +31,7 @@ const RulesFace = ({
     editionName: string;
     photo?: PhotoSource;
 }) => {
-    const { theme, locale } = useRender();
+    const { locale } = useRender();
     const { width: w, height: h } = CARD_SIZE_MM;
     const hasPhoto = photo !== undefined;
     const bodyTop = hasPhoto ? 49 : 24;
@@ -41,16 +41,7 @@ const RulesFace = ({
 
     return (
         <>
-            <Frame
-                ornate
-                x={3}
-                y={3}
-                w={w - 6}
-                h={h - 6}
-                color={theme.ink}
-                strokeMm={theme.frameMm}
-                radiusMm={Math.max(0, theme.cardRadiusMm - 2)}
-            />
+            <CardFrame w={w} h={h} />
             <FitText
                 text={STRINGS[locale].houseRules}
                 x={6}

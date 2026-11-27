@@ -2,6 +2,7 @@ import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import {
+    TiltedPlate,
     scaleToFit,
     taglineOf,
     turnedAspect,
@@ -28,5 +29,35 @@ describe('what the title styles share', () => {
         expect(render(<ShownName upper={false} />).container.textContent).toBe(
             'ijsbaan',
         );
+    });
+});
+
+describe('TiltedPlate', () => {
+    it('places a title plate, turned about its centre', () => {
+        const { container } = render(
+            <TiltedPlate
+                layout={{
+                    plateX: 1,
+                    plateY: 2,
+                    plateW: 30,
+                    plateH: 10,
+                    tilt: -2,
+                }}
+                titleStyle="stamp"
+            >
+                <span data-slot="plate-inside" />
+            </TiltedPlate>,
+        );
+        const plate = container.querySelector<HTMLElement>(
+            '[data-slot="edition-plate"]',
+        );
+
+        expect(plate?.getAttribute('data-title-style')).toBe('stamp');
+        expect(plate?.style.transform).toBe('rotate(-2deg)');
+        expect(plate?.style.transformOrigin).toBe('center');
+        expect(plate?.style.width).toBe('30mm');
+        expect(
+            plate?.querySelector('[data-slot="plate-inside"]'),
+        ).not.toBeNull();
     });
 });

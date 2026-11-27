@@ -1,10 +1,31 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { FreeLayers, layerLook, type RenderLayer } from './free-layers';
+import {
+    FreeLayers,
+    layerBox,
+    layerLook,
+    type RenderLayer,
+} from './free-layers';
 
-const layerBox = (container: HTMLElement, id: string) =>
+const boxOf = (container: HTMLElement, id: string) =>
     container.querySelector<HTMLElement>(`[data-layer="${id}"]`);
+
+describe('layerBox', () => {
+    it('keeps the place and size of a layer, and its turn only when it has one', () => {
+        const layer = { id: 'l1', x: 1, y: 2, w: 3, h: 4, text: 'x' };
+
+        expect(layerBox(layer)).toEqual({ id: 'l1', x: 1, y: 2, w: 3, h: 4 });
+        expect(layerBox({ ...layer, rotation: 15 })).toEqual({
+            id: 'l1',
+            x: 1,
+            y: 2,
+            w: 3,
+            h: 4,
+            rotation: 15,
+        });
+    });
+});
 
 describe('layerLook', () => {
     it('keeps only what is set', () => {
@@ -56,12 +77,12 @@ describe('FreeLayers', () => {
     it('places each layer in mm and turns it around its middle', () => {
         const { container } = render(<FreeLayers layers={layers} />);
 
-        expect(layerBox(container, 'a')?.style.left).toBe('5mm');
-        expect(layerBox(container, 'a')?.style.top).toBe('6mm');
-        expect(layerBox(container, 'a')?.style.width).toBe('40mm');
-        expect(layerBox(container, 'a')?.style.transform).toBe('');
-        expect(layerBox(container, 'b')?.style.transform).toBe('rotate(15deg)');
-        expect(layerBox(container, 'c')?.style.transform).toBe('');
+        expect(boxOf(container, 'a')?.style.left).toBe('5mm');
+        expect(boxOf(container, 'a')?.style.top).toBe('6mm');
+        expect(boxOf(container, 'a')?.style.width).toBe('40mm');
+        expect(boxOf(container, 'a')?.style.transform).toBe('');
+        expect(boxOf(container, 'b')?.style.transform).toBe('rotate(15deg)');
+        expect(boxOf(container, 'c')?.style.transform).toBe('');
     });
 
     it('draws text layers as fitted text, centred in the heading font by default', () => {
@@ -90,8 +111,8 @@ describe('FreeLayers', () => {
         const { container } = render(<FreeLayers layers={layers} />);
 
         expect(
-            layerBox(container, 'c')?.querySelector('img')?.getAttribute('src'),
+            boxOf(container, 'c')?.querySelector('img')?.getAttribute('src'),
         ).toBe('layer.jpg');
-        expect(layerBox(container, 'd')?.childElementCount).toBe(0);
+        expect(boxOf(container, 'd')?.childElementCount).toBe(0);
     });
 });

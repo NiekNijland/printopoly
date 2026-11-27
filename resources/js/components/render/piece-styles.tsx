@@ -1,9 +1,6 @@
-import type { CSSProperties, ReactNode } from 'react';
-
 import { mix } from '@/lib/render/color';
 import type { BoxLidStyle, PawnStyle } from '@/lib/render/edition-part-styles';
 import { PLAYFAIR, SPARTAN, type Theme } from '@/lib/render/themes';
-import { mm } from '@/lib/render/units';
 
 import { CREAM } from './board-look';
 import { seeded } from './board-look-playful';
@@ -71,46 +68,6 @@ export const seedOf = (text: string): number => {
     }
 
     return hash % 997;
-};
-
-/** An SVG in mm at a place on its element, with its own viewBox in mm. */
-export const Art = ({
-    x,
-    y,
-    w,
-    h,
-    slot,
-    clip = false,
-    style,
-    children,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    slot?: string;
-    clip?: boolean;
-    style?: CSSProperties;
-    children: ReactNode;
-}) => {
-    return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: mm(x),
-                top: mm(y),
-                width: mm(w),
-                height: mm(h),
-                overflow: clip ? 'hidden' : 'visible',
-                ...style,
-            }}
-            viewBox={`0 0 ${String(w)} ${String(h)}`}
-            aria-hidden="true"
-            data-slot={slot}
-        >
-            {children}
-        </svg>
-    );
 };
 
 /** A small diamond, the ornament of Vintage. */

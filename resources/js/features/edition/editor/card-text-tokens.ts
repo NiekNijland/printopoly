@@ -4,11 +4,10 @@ import {
     cardTextContext,
     parseCardText,
     tokenValue,
-    wordOf,
     type CardTextToken,
-    type CardTextWord,
 } from '@/lib/render/edition-card-text';
 import type { ResolvedEdition } from '@/lib/render/edition-resolve';
+import { wordOf, type CardTextWord } from '@/lib/render/edition-words';
 
 type Translate = ReturnType<typeof useTranslation>;
 

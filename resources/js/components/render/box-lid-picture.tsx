@@ -7,7 +7,7 @@ import type { BoardProfile } from '@/lib/render/print-board';
 import { mm } from '@/lib/render/units';
 import type { Rect } from '@/types/print';
 
-import { Board, type BoardProps } from './board';
+import { ScaledBoard, type BoardProps } from './board';
 import { vintageLid } from './box-lid-colors';
 import { LidBackground, LidFrame, LidStrip } from './box-lid-look';
 import { OffsetBlock } from './box-lid-look-modern';
@@ -160,9 +160,8 @@ const TiltedBoard = ({
     board?: BoardProps;
     profile: BoardProfile;
 }) => {
-    const { theme, locale, currency, words, style } = useRender();
+    const { theme } = useRender();
     const boardProfile = board?.profile ?? profile;
-    const scale = picture.w / boardProfile.outer;
 
     return (
         <Abs
@@ -177,29 +176,12 @@ const TiltedBoard = ({
             }}
             slot="lid-board"
         >
-            <div
-                style={{
-                    position: 'absolute',
-                    left: 0,
-                    top: 0,
-                    width: mm(boardProfile.outer),
-                    height: mm(boardProfile.outer),
-                    transform: `scale(${String(scale)})`,
-                    transformOrigin: 'top left',
-                }}
-            >
-                <Board
-                    theme={theme.id}
-                    locale={locale}
-                    currency={currency}
-                    words={words}
-                    {...(style === undefined ? {} : { style })}
-                    editionName={editionName}
-                    {...board}
-                    profile={boardProfile}
-                    bleedMm={0}
-                />
-            </div>
+            <ScaledBoard
+                size={picture.w}
+                profile={boardProfile}
+                board={board}
+                editionName={editionName}
+            />
         </Abs>
     );
 };

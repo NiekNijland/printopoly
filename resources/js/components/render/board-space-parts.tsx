@@ -1,10 +1,11 @@
 import { readableOn } from '@/lib/render/color';
 import { standardEdition } from '@/lib/render/standard-edition';
 import type { Theme } from '@/lib/render/themes';
-import { mm } from '@/lib/render/units';
+import type { Space } from '@/types/game';
+import type { Rect } from '@/types/print';
 
 import { FitText } from './fit-text';
-import { Abs, useRender } from './sheet';
+import { Abs, useRender, BoxSvg } from './sheet';
 
 export const groupColor = (group: string, theme: Theme): string => {
     return (
@@ -20,7 +21,7 @@ export const groupColor = (group: string, theme: Theme): string => {
  * the town under the band looked loose). With a town a fine second line follows the ink line, like the double rules
  * on old play money; without one the pair read as a drawing error (Niek, 24 nov), so the ink line stands alone.
  */
-export const ColorBand = ({
+const ColorBand = ({
     bleed,
     w,
     bar,
@@ -125,6 +126,39 @@ export const PriceLine = ({
     );
 };
 
+export const StreetBand = ({
+    space,
+    bleed,
+    w,
+    bar,
+    town,
+}: {
+    space: Space;
+    bleed: number;
+    w: number;
+    bar: number;
+    town?: string | undefined;
+}) => {
+    const { theme, style } = useRender();
+
+    if (space.type !== 'street') {
+        return null;
+    }
+
+    return (
+        <ColorBand
+            bleed={bleed}
+            w={w}
+            bar={bar}
+            color={
+                style?.groupColors?.[space.group] ??
+                groupColor(space.group, theme)
+            }
+            town={town}
+        />
+    );
+};
+
 /** An oval with a fine second line inside, like the value oval of a banknote. */
 export const EngravedOval = ({
     x,
@@ -133,28 +167,9 @@ export const EngravedOval = ({
     h,
     color,
     fill,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    color: string;
-    fill: string;
-}) => {
+}: Rect & { color: string; fill: string }) => {
     return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: mm(x),
-                top: mm(y),
-                width: mm(w),
-                height: mm(h),
-                overflow: 'visible',
-            }}
-            viewBox={`0 0 ${String(w)} ${String(h)}`}
-            aria-hidden="true"
-            data-slot="oval"
-        >
+        <BoxSvg x={x} y={y} w={w} h={h} overflow="visible" data-slot="oval">
             <ellipse
                 cx={w / 2}
                 cy={h / 2}
@@ -173,6 +188,6 @@ export const EngravedOval = ({
                 stroke={color}
                 strokeWidth={0.15}
             />
-        </svg>
+        </BoxSvg>
     );
 };

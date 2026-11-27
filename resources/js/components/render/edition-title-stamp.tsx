@@ -1,13 +1,13 @@
-import { mm } from '@/lib/render/units';
 import { useFitTextWidth } from '@/lib/render/use-fit-text';
 
 import {
+    TiltedPlate,
     taglineOf,
     useShownName,
     type TitleProps,
 } from './edition-title-shared';
 import { FitText } from './fit-text';
-import { useRender } from './sheet';
+import { useRender, BoxSvg } from './sheet';
 
 /** How far the stamp leans, in degrees. */
 const STAMP_TILT = 3;
@@ -137,18 +137,7 @@ const StampFrame = ({
     const { plateW, plateH, outer, gap, rx, ruleY, tagY, star } = layout;
 
     return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                width: mm(plateW),
-                height: mm(plateH),
-                overflow: 'visible',
-            }}
-            viewBox={`0 0 ${plateW} ${plateH}`}
-            aria-hidden="true"
-        >
+        <BoxSvg w={plateW} h={plateH} overflow="visible">
             <rect
                 x={outer / 2}
                 y={outer / 2}
@@ -192,7 +181,7 @@ const StampFrame = ({
                     ))}
                 </>
             )}
-        </svg>
+        </BoxSvg>
     );
 };
 
@@ -206,23 +195,11 @@ export const StampTitle = (props: TitleProps) => {
     const layout = stampLayout(props, text);
     const { mark, font, name, tag, upperTag, tagSize, size, textW, tagW } =
         text;
-    const { padTop, plateW, plateH, plateX, plateY, tagY, tilt } = layout;
+    const { padTop, plateW, plateY, tagY, tilt } = layout;
 
     return (
         <>
-            <div
-                style={{
-                    position: 'absolute',
-                    left: mm(plateX),
-                    top: mm(plateY),
-                    width: mm(plateW),
-                    height: mm(plateH),
-                    transform: `rotate(${tilt}deg)`,
-                    transformOrigin: 'center',
-                }}
-                data-slot="edition-plate"
-                data-title-style="stamp"
-            >
+            <TiltedPlate layout={layout} titleStyle="stamp">
                 <StampFrame text={text} layout={layout} unit={unit} />
                 <FitText
                     text={name}
@@ -258,7 +235,7 @@ export const StampTitle = (props: TitleProps) => {
                         slot="edition-tagline"
                     />
                 )}
-            </div>
+            </TiltedPlate>
             {withPhoto && photoOnTitle(plateY - 2 * unit, tilt)}
         </>
     );

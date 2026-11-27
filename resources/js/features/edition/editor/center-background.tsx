@@ -1,11 +1,10 @@
-import { useRef, useState, type ChangeEvent, type RefObject } from 'react';
+import { useRef, type ChangeEvent, type RefObject } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { editElement } from '@/features/edition/editor/edit';
-import { ingestPhoto } from '@/features/edition/editor/ingest';
 import { RangeField } from '@/features/edition/editor/panel/panel-parts';
+import { usePhotoPick } from '@/features/edition/editor/use-layer-actions';
 import type { EditionSession } from '@/features/edition/session';
-import { useServices } from '@/features/edition/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import { CENTER_PHOTO_BLEED } from '@/lib/render/center-layout';
 import type { Edition, ElementOverride } from '@/lib/render/edition-types';
@@ -68,44 +67,26 @@ const useBackgroundUpload = ({
     CenterBackgroundProps,
     'session' | 'edition' | 'editKey' | 'cache' | 'locale'
 >) => {
-    const t = useTranslation();
-    const { repository } = useServices();
-    const [problem, setProblem] = useState<string | null>(null);
+    const { problem, pick } = usePhotoPick(edition.id, cache, locale);
     const centre = centerRect(edition.boardProfile);
 
-    const onFile = async (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        event.target.value = '';
-        if (file === undefined) {
-            return;
-        }
-        setProblem(null);
-        const result = await ingestPhoto(file, repository, edition.id);
-        if (!result.ok) {
-            setProblem(
-                'storageFull' in result
-                    ? `${result.fileName} ${t('editor.photo_storage_full')}`
-                    : `${result.error.fileName} ${result.error.rest[locale]}`,
-            );
-
-            return;
-        }
-        cache.add(result.record);
-        // One photo per centre (B187): a new photo over the whole centre takes the place of the one above the name.
-        editElement(session, editKey, {
-            background: startingPlacement(
-                result.record.id,
-                result.record,
-                placementTarget(
-                    { w: centre.w, h: centre.h },
-                    CENTER_PHOTO_BLEED,
+    const onFile = (event: ChangeEvent<HTMLInputElement>) =>
+        pick(event, (record) => {
+            // One photo per centre (B187): a new photo over the whole centre takes the place of the one above the name.
+            editElement(session, editKey, {
+                background: startingPlacement(
+                    record.id,
+                    record,
+                    placementTarget(
+                        { w: centre.w, h: centre.h },
+                        CENTER_PHOTO_BLEED,
+                    ),
+                    true,
                 ),
-                true,
-            ),
-            photo: undefined,
-            centerMode: undefined,
+                photo: undefined,
+                centerMode: undefined,
+            });
         });
-    };
 
     return { problem, onFile };
 };

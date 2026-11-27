@@ -1,7 +1,7 @@
 import { useId, type ReactNode } from 'react';
 
 import { PATTERN_TILE_MM, type PatternId } from '@/lib/render/patterns';
-import { mm } from '@/lib/render/units';
+import { BoxSvg } from './sheet';
 
 const T = PATTERN_TILE_MM;
 
@@ -127,18 +127,7 @@ export const PatternFill = ({
     const uid = `pt${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
 
     return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                width: mm(w),
-                height: mm(h),
-            }}
-            viewBox={`0 0 ${w} ${h}`}
-            aria-hidden="true"
-            data-pattern={id}
-        >
+        <BoxSvg w={w} h={h} data-pattern={id}>
             <defs>
                 <pattern
                     id={uid}
@@ -152,6 +141,6 @@ export const PatternFill = ({
                 </pattern>
             </defs>
             <rect width={w} height={h} fill={`url(#${uid})`} />
-        </svg>
+        </BoxSvg>
     );
 };

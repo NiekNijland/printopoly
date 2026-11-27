@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Board } from '@/components/render/board';
 import { boardPropsOf } from '@/components/render/board-props';
@@ -14,6 +14,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { BoardNavigator } from '@/features/edition/editor/board-navigator';
+import { useMeasuredWidth } from '@/features/edition/editor/use-stage-box';
 import { useKeyboardHints } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
 import { resolveEdition } from '@/lib/render/edition-resolve';
@@ -47,25 +48,8 @@ const PrintedBoard = ({
     edition: Edition;
     photos: PhotoInfos | undefined;
 }) => {
-    const box = useRef<HTMLDivElement>(null);
-    const [width, setWidth] = useState(0);
+    const [box, width] = useMeasuredWidth<HTMLDivElement>();
     const resolved = useMemo(() => resolveEdition(edition), [edition]);
-
-    useEffect(() => {
-        const node = box.current;
-        if (node === null) {
-            return;
-        }
-        const measure = (): void => setWidth(node.clientWidth);
-        measure();
-        if (typeof ResizeObserver === 'undefined') {
-            return;
-        }
-        const observer = new ResizeObserver(measure);
-        observer.observe(node);
-
-        return () => observer.disconnect();
-    }, []);
 
     return (
         <div

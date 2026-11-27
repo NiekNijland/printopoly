@@ -6,14 +6,13 @@ import {
 } from '@/lib/render/print-board';
 import { partStyleOf } from '@/lib/render/style';
 import { THEMES, type Layout, type Theme } from '@/lib/render/themes';
-import { mm } from '@/lib/render/units';
 import type { Space } from '@/types/game';
 
 import { boardLookOf, spacePaper } from './board-look';
 import { SpaceContent } from './board-space-content';
 import { PlayfulPhotoTile, SpaceUnderlay } from './board-space-tile';
 import { isFullPhoto } from './photo-slot';
-import { Frame, Sheet, type ElementProps } from './sheet';
+import { Frame, Sheet, type ElementProps, BoxSvg } from './sheet';
 import type { SpaceIconSource } from './space-icon';
 
 export type BoardSpaceProps = {
@@ -200,19 +199,7 @@ const SideLines = ({
     const order: readonly SpaceSide[] = ['top', 'right', 'bottom', 'left'];
 
     return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                width: mm(w),
-                height: mm(h),
-                overflow: 'visible',
-            }}
-            viewBox={`0 0 ${String(w)} ${String(h)}`}
-            aria-hidden="true"
-            data-frame=""
-        >
+        <BoxSvg w={w} h={h} overflow="visible" data-frame="">
             {order
                 .filter((side) => !open.includes(side))
                 .map((side) => {
@@ -230,6 +217,6 @@ const SideLines = ({
                         />
                     );
                 })}
-        </svg>
+        </BoxSvg>
     );
 };

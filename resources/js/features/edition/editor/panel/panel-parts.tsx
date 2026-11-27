@@ -264,6 +264,19 @@ const fullLabel = <T extends string>(
 ): string | undefined =>
     option.short === undefined ? undefined : option.label;
 
+export const chooseFrom =
+    <T extends string>(
+        options: readonly { id: T }[],
+        onChange: (next: T) => void,
+    ) =>
+    (next: string): void => {
+        // A click on the chosen segment would clear the group; a choice always has one.
+        const chosen = options.find((option) => option.id === next);
+        if (chosen !== undefined) {
+            onChange(chosen.id);
+        }
+    };
+
 /**
  * A row of choices, only those the element has (§3.4): "Geen / Foto", "Standaard / Icoon / Eigen / Foto". It is
  * shadcn's ToggleGroup as one segmented bar (B195, B196): the chosen segment has the red selection of the design
@@ -308,13 +321,7 @@ export const ChoiceRow = <T extends string>({
                 type="single"
                 variant="outline"
                 value={value}
-                onValueChange={(next) => {
-                    // A click on the chosen segment would clear the group; a choice row always has one.
-                    const chosen = options.find((option) => option.id === next);
-                    if (chosen !== undefined) {
-                        onChange(chosen.id);
-                    }
-                }}
+                onValueChange={chooseFrom(options, onChange)}
                 aria-label={label}
                 className={cn(
                     'flex w-full',

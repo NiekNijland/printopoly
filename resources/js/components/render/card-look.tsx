@@ -1,8 +1,5 @@
-import type { ReactNode } from 'react';
-
 import { mix } from '@/lib/render/color';
 import type { Theme } from '@/lib/render/themes';
-import { mm } from '@/lib/render/units';
 
 /**
  * Drawing pieces shared by the styles of the cards and the title deeds (B269): the same family as the board styles
@@ -22,43 +19,6 @@ export const creamed = (base: string, amount = 0.55): string => {
 /** The ink of the engraving: the accent of a deck or the frame of a deed, deepened with the ink of the theme. */
 export const engraving = (theme: Theme, accent: string): string => {
     return mix(accent, theme.ink, 0.45);
-};
-
-/** An SVG in mm over a box, drawn on top of what came before it. */
-export const Svg = ({
-    x,
-    y,
-    w,
-    h,
-    slot,
-    clip = false,
-    children,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    slot?: string;
-    clip?: boolean;
-    children: ReactNode;
-}) => {
-    return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: mm(x),
-                top: mm(y),
-                width: mm(w),
-                height: mm(h),
-                overflow: clip ? 'hidden' : 'visible',
-            }}
-            viewBox={`0 0 ${String(w)} ${String(h)}`}
-            aria-hidden="true"
-            data-slot={slot}
-        >
-            {children}
-        </svg>
-    );
 };
 
 /** A diamond with its centre at (cx, cy), `d` from the centre to each point. */

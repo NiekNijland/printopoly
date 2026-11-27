@@ -1,6 +1,10 @@
 import type { ReactNode } from 'react';
 
-import { layerLook, type RenderLayer } from '@/components/render/free-layers';
+import {
+    layerBox,
+    layerLook,
+    type RenderLayer,
+} from '@/components/render/free-layers';
 import { SetMark } from '@/components/render/set-mark';
 import { type SpaceIconSource } from '@/components/render/space-icon';
 import { parseKey } from '@/lib/render/edition-keys';
@@ -123,16 +127,7 @@ const layersOf = (
     layers: readonly FreeLayer[],
 ): RenderLayer[] => {
     return layers.map((layer): RenderLayer => {
-        const box = {
-            id: layer.id,
-            x: layer.x,
-            y: layer.y,
-            w: layer.w,
-            h: layer.h,
-            ...(layer.rotation === undefined
-                ? {}
-                : { rotation: layer.rotation }),
-        };
+        const box = layerBox(layer);
 
         if (layer.kind === 'text') {
             return {

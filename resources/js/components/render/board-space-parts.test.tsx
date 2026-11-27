@@ -1,12 +1,13 @@
 import { render } from '@testing-library/react';
 
+import { spaceAt } from '@/lib/render/standard-edition';
 import { THEMES } from '@/lib/render/themes';
 
 import {
-    ColorBand,
     EngravedOval,
     PriceLine,
     groupColor,
+    StreetBand,
 } from './board-space-parts';
 
 const slot = (container: HTMLElement, name: string) =>
@@ -20,16 +21,16 @@ describe('the pieces of a classic space', () => {
 
     it('draws the band with the town and a fine rule only when there is a town', () => {
         const withTown = render(
-            <ColorBand
+            <StreetBand
+                space={spaceAt(1)}
                 bleed={2}
                 w={30}
                 bar={10}
-                color="#aa0000"
                 town="Delft"
             />,
         ).container;
         const without = render(
-            <ColorBand bleed={2} w={30} bar={10} color="#aa0000" />,
+            <StreetBand space={spaceAt(1)} bleed={2} w={30} bar={10} />,
         ).container;
 
         expect(slot(withTown, 'town')?.textContent).toBe('Delft');
@@ -56,5 +57,21 @@ describe('the pieces of a classic space', () => {
         expect(
             slot(container, 'oval')?.querySelectorAll('ellipse'),
         ).toHaveLength(2);
+    });
+});
+
+describe('StreetBand', () => {
+    it('draws the colour band of a street in its group colour, and nothing for another space', () => {
+        const street = render(
+            <StreetBand space={spaceAt(1)} bleed={0} w={20} bar={6} />,
+        );
+        const station = render(
+            <StreetBand space={spaceAt(5)} bleed={0} w={20} bar={6} />,
+        );
+
+        expect(
+            street.container.querySelector('[data-slot="color-bar"]'),
+        ).not.toBeNull();
+        expect(station.container.innerHTML).toBe('');
     });
 });

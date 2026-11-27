@@ -7,7 +7,6 @@ import { PLAYFAIR, SPARTAN, THEMES } from '@/lib/render/themes';
 import {
     CREAM,
     QuarterDisc,
-    Svg,
     boardLookOf,
     ruleColor,
     spacePaper,
@@ -132,36 +131,6 @@ describe('ruleColor', () => {
         expect(ruleColor(riso)).toBe(mix(riso.accent, riso.ink, 0.25));
         expect(ruleColor(riso)).not.toBe(riso.accent);
         expect(ruleColor(riso)).not.toBe(riso.ink);
-    });
-});
-
-describe('Svg', () => {
-    it('places a hidden svg in mm with a matching view box and slot', () => {
-        const { container } = render(
-            <Svg x={1} y={2} w={30} h={40} slot="test-art">
-                <rect />
-            </Svg>,
-        );
-        const svg = container.querySelector('svg');
-
-        expect(svg?.getAttribute('viewBox')).toBe('0 0 30 40');
-        expect(svg?.getAttribute('data-slot')).toBe('test-art');
-        expect(svg?.getAttribute('aria-hidden')).toBe('true');
-        expect(svg?.style.left).toBe('1mm');
-        expect(svg?.style.top).toBe('2mm');
-        expect(svg?.style.width).toBe('30mm');
-        expect(svg?.style.overflow).toBe('visible');
-        expect(svg?.querySelector('rect')).not.toBeNull();
-    });
-
-    it('clips its drawing when asked', () => {
-        const { container } = render(
-            <Svg x={0} y={0} w={5} h={5} slot="clipped" clip>
-                <rect />
-            </Svg>,
-        );
-
-        expect(container.querySelector('svg')?.style.overflow).toBe('hidden');
     });
 });
 

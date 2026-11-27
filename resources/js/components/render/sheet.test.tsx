@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { Abs, Frame, Sheet, useRender } from './sheet';
+import { Abs, BoxSvg, CardFrame, Frame, Sheet, Svg, useRender } from './sheet';
 
 const Probe = () => {
     const { theme, locale, currency, money, words, style } = useRender();
@@ -219,5 +219,112 @@ describe('Frame', () => {
         );
 
         expect(container.querySelector('[data-ornament]')).toBeNull();
+    });
+});
+
+describe('Svg', () => {
+    it('places a hidden svg in mm with a matching view box and slot', () => {
+        const { container } = render(
+            <Svg x={1} y={2} w={30} h={40} slot="test-art">
+                <rect />
+            </Svg>,
+        );
+        const svg = container.querySelector('svg');
+
+        expect(svg?.getAttribute('viewBox')).toBe('0 0 30 40');
+        expect(svg?.getAttribute('data-slot')).toBe('test-art');
+        expect(svg?.getAttribute('aria-hidden')).toBe('true');
+        expect(svg?.style.left).toBe('1mm');
+        expect(svg?.style.top).toBe('2mm');
+        expect(svg?.style.width).toBe('30mm');
+        expect(svg?.style.overflow).toBe('visible');
+        expect(svg?.querySelector('rect')).not.toBeNull();
+    });
+
+    it('clips its drawing when asked and takes extra style last', () => {
+        const { container } = render(
+            <Svg x={0} y={0} w={5} h={5} clip style={{ opacity: 0.5 }}>
+                <rect />
+            </Svg>,
+        );
+        const svg = container.querySelector('svg');
+
+        expect(svg?.style.overflow).toBe('hidden');
+        expect(svg?.style.opacity).toBe('0.5');
+        expect(svg?.hasAttribute('data-slot')).toBe(false);
+    });
+});
+
+describe('BoxSvg', () => {
+    it('fills its box from the corner without a place, an overflow or a slot of its own', () => {
+        const { container } = render(
+            <BoxSvg w={10} h={5}>
+                <rect />
+            </BoxSvg>,
+        );
+        const svg = container.querySelector('svg');
+
+        expect(svg?.getAttribute('style')).toBe(
+            'position: absolute; left: 0px; top: 0px; width: 10mm; height: 5mm;',
+        );
+        expect(svg?.getAttribute('viewBox')).toBe('0 0 10 5');
+    });
+
+    it('takes its own view box and data attributes', () => {
+        const { container } = render(
+            <BoxSvg
+                x={1}
+                w={10}
+                h={10}
+                overflow="visible"
+                viewBox="0 0 2 2"
+                data-frame=""
+                data-slot="disc"
+            >
+                <rect />
+            </BoxSvg>,
+        );
+        const svg = container.querySelector('svg');
+
+        expect(svg?.style.left).toBe('1mm');
+        expect(svg?.style.top).toBe('0px');
+        expect(svg?.style.overflow).toBe('visible');
+        expect(svg?.getAttribute('viewBox')).toBe('0 0 2 2');
+        expect(svg?.getAttribute('data-frame')).toBe('');
+        expect(svg?.getAttribute('data-slot')).toBe('disc');
+    });
+});
+
+describe('Abs with data attributes', () => {
+    it('places its box in mm with extra style and data attributes after its slot', () => {
+        const { container } = render(
+            <Abs
+                x={1}
+                y={2}
+                w={30}
+                h={10}
+                style={{ transform: 'rotate(-2deg)' }}
+                slot="edition-plate"
+                data-title-style="stamp"
+            />,
+        );
+        const box = container.querySelector<HTMLElement>(
+            '[data-slot="edition-plate"]',
+        );
+
+        expect(box?.getAttribute('data-title-style')).toBe('stamp');
+        expect(box?.style.transform).toBe('rotate(-2deg)');
+        expect(box?.style.left).toBe('1mm');
+    });
+});
+
+describe('CardFrame', () => {
+    it('draws the ornate frame of a card 3 mm inside its edge', () => {
+        const { container } = render(<CardFrame w={60} h={90} />);
+        const svg = container.querySelector<SVGElement>('svg[data-frame]');
+
+        expect(svg?.style.left).toBe('3mm');
+        expect(svg?.style.width).toBe('54mm');
+        expect(svg?.style.height).toBe('84mm');
     });
 });

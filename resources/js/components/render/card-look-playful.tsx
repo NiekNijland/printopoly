@@ -1,8 +1,8 @@
 import { ellipsePath } from '@/lib/render/banknote-guilloche';
 
 import { wobblyRect } from './board-look-playful';
-import { Svg } from './card-look';
 import { Ornament, type OrnamentItem } from './card-look-ornament';
+import { Svg } from './sheet';
 
 /** A small seeded random, so confetti lands in the same place on screen and in every print. */
 const seededRandom = (seed: number): (() => number) => {

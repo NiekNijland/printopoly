@@ -1,0 +1,16 @@
+1869dbc8c866 resources/js/components/render/game-card-styles-modern-front.tsx resources/js/components/render/game-card-styles-playful-front.tsx resources/js/components/render/game-card-styles-vintage-front.tsx
+209d917cc9f9 resources/js/components/render/board-space-full.tsx resources/js/components/render/board-space-property.tsx
+30bdb734b38c resources/js/lib/render/rules-booklet-en.ts resources/js/lib/render/rules-booklet-nl.ts
+53b14a061ec1 resources/js/lib/render/rules-booklet-en.ts resources/js/lib/render/rules-booklet-facts.ts resources/js/lib/render/rules-booklet-nl.ts
+61085c17862b resources/js/components/render/title-deed-parts.tsx resources/js/components/render/title-deed-styles-header.tsx
+64e3fc8a53d0 resources/js/components/render/game-card-styles-playful-back.tsx resources/js/components/render/game-card-styles-vintage-back.tsx
+66fdf75c7581 resources/js/lib/render/rules-booklet-en.ts resources/js/lib/render/rules-booklet-nl.ts
+7f54fcc4096f resources/js/components/render/board-space-styles-modern.tsx resources/js/components/render/board-space-styles-playful.tsx resources/js/components/render/board-space-styles-vintage.tsx
+80d39d090764 resources/js/components/render/banknote-face-guilloche.tsx resources/js/components/render/banknote-styles-vintage-lines.tsx
+97e369048daa resources/js/components/render/game-card-styles-modern-back.tsx resources/js/components/render/game-card-styles-playful-back.tsx resources/js/components/render/game-card-styles-vintage-back.tsx
+a15df850648d resources/js/components/render/edition-title-plain.tsx resources/js/components/render/edition-title-script.tsx
+bb9e05e0b00a resources/js/components/render/game-card-front.tsx resources/js/components/render/game-card-styles-modern-front.tsx resources/js/components/render/game-card-styles-vintage-front.tsx
+c0ec81c2b550 resources/js/components/render/banknote-plain.tsx resources/js/components/render/banknote-styles-modern.tsx
+c8298263256a resources/js/components/render/game-card-styles-vintage-back.tsx resources/js/components/render/game-card-styles-vintage-front.tsx
+ceacb01e8501 resources/js/features/edition/editor/panel/amount-section.tsx resources/js/features/edition/editor/panel/text-section.tsx
+dbadfc0a9f91 resources/js/components/render/edition-title-plain.tsx resources/js/components/render/edition-title-script.tsx

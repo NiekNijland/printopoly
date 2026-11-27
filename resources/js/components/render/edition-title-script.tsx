@@ -8,7 +8,7 @@ import {
     type TitleProps,
 } from './edition-title-shared';
 import { FitText } from './fit-text';
-import { useRender } from './sheet';
+import { useRender, BoxSvg } from './sheet';
 
 /** A diamond of half-size `r` around (cx, cy), for the script rule. */
 const diamondPoints = (cx: number, cy: number, r: number): string => {
@@ -97,18 +97,7 @@ const ScriptRule = ({
     const { mark, inner, diamond, half, rowY } = layout;
 
     return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                width: mm(w),
-                height: mm(h),
-                overflow: 'visible',
-            }}
-            viewBox={`0 0 ${w} ${h}`}
-            aria-hidden="true"
-        >
+        <BoxSvg w={w} h={h} overflow="visible">
             {[-1, 1].map((side) => (
                 <g key={side}>
                     <line
@@ -130,7 +119,7 @@ const ScriptRule = ({
                     />
                 </g>
             ))}
-        </svg>
+        </BoxSvg>
     );
 };
 

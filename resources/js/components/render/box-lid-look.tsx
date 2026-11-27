@@ -12,8 +12,8 @@ import { useStreetColors, vintageLid } from './box-lid-colors';
 import { ModernBand, ModernCorners } from './box-lid-look-modern';
 import { PlayfulDoily, TapeCorners } from './box-lid-look-playful';
 import { VintageBorder } from './box-lid-look-vintage';
-import { Art, blockColor, diamond, vintagePaper } from './piece-styles';
-import { Abs, Frame, useRender } from './sheet';
+import { blockColor, diamond, vintagePaper } from './piece-styles';
+import { Abs, Frame, useRender, Svg } from './sheet';
 
 /**
  * The frame, background and decoration of the box lid in its style (B271), around the name plate, which keeps the
@@ -112,7 +112,7 @@ export const FullPhotoFrame = ({
     switch (look) {
         case 'vintage':
             return (
-                <Art x={0} y={0} w={w} h={h} slot="lid-border">
+                <Svg x={0} y={0} w={w} h={h} slot="lid-border">
                     {[
                         [5, 0.5],
                         [6.2, 0.18],
@@ -140,13 +140,13 @@ export const FullPhotoFrame = ({
                             fill={paper}
                         />
                     ))}
-                </Art>
+                </Svg>
             );
         case 'modern':
             return null;
         case 'playful':
             return (
-                <Art x={0} y={0} w={w} h={h} slot="lid-stitch">
+                <Svg x={0} y={0} w={w} h={h} slot="lid-stitch">
                     <rect
                         x={7}
                         y={7}
@@ -159,7 +159,7 @@ export const FullPhotoFrame = ({
                         strokeDasharray="3 2.2"
                         strokeLinecap="round"
                     />
-                </Art>
+                </Svg>
             );
         case undefined:
             return (
@@ -299,7 +299,7 @@ export const PhotoMat = ({
 
     if (look === 'vintage') {
         return (
-            <Art {...rect} slot="photo-edge">
+            <Svg {...rect} slot="photo-edge">
                 <rect
                     x={0.2}
                     y={0.2}
@@ -318,14 +318,14 @@ export const PhotoMat = ({
                     stroke={theme.paper}
                     strokeWidth={0.25}
                 />
-            </Art>
+            </Svg>
         );
     }
 
     if (look === 'playful') {
         return (
             <>
-                <Art {...rect} slot="photo-edge">
+                <Svg {...rect} slot="photo-edge">
                     <rect
                         x={0.25}
                         y={0.25}
@@ -336,7 +336,7 @@ export const PhotoMat = ({
                         stroke={theme.ink}
                         strokeWidth={0.5}
                     />
-                </Art>
+                </Svg>
                 <Abs {...rect}>
                     <TapeCorners w={rect.w} h={rect.h} />
                 </Abs>

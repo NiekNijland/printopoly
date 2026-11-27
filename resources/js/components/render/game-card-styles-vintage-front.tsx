@@ -4,7 +4,6 @@ import { PLAYFAIR } from '@/lib/render/themes';
 import type { DeckId } from '@/types/game';
 
 import { Cartouche } from './board-look-vintage';
-import { Svg } from './card-look';
 import {
     Flourish,
     borderItems,
@@ -22,7 +21,7 @@ import {
 } from './game-card-styles-shared';
 import { Icon } from './icons';
 import { PhotoSlot } from './photo-slot';
-import { Abs, useRender } from './sheet';
+import { Abs, useRender, Svg } from './sheet';
 
 const VintageFullPhoto = ({
     deck,

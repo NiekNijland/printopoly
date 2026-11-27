@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 import type { EditionTitleProps, NameFont, PlateLook } from './edition-title';
-import { useRender } from './sheet';
+import { Abs, useRender } from './sheet';
 
 export type TitleProps = EditionTitleProps & {
     withPhoto: boolean;
@@ -36,4 +36,37 @@ export const useShownName = (name: string, upper: boolean): string => {
 /** The tagline, or `null` when there is none. */
 export const taglineOf = (tagline: string | undefined): string | null => {
     return tagline === undefined || tagline.trim() === '' ? null : tagline;
+};
+
+export const TiltedPlate = ({
+    layout,
+    titleStyle,
+    children,
+}: {
+    layout: {
+        plateX: number;
+        plateY: number;
+        plateW: number;
+        plateH: number;
+        tilt: number;
+    };
+    titleStyle: string;
+    children: ReactNode;
+}) => {
+    return (
+        <Abs
+            x={layout.plateX}
+            y={layout.plateY}
+            w={layout.plateW}
+            h={layout.plateH}
+            style={{
+                transform: `rotate(${layout.tilt}deg)`,
+                transformOrigin: 'center',
+            }}
+            slot="edition-plate"
+            data-title-style={titleStyle}
+        >
+            {children}
+        </Abs>
+    );
 };

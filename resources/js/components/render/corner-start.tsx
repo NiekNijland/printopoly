@@ -1,12 +1,11 @@
 import { STRINGS } from '@/lib/render/strings';
-import { mm } from '@/lib/render/units';
 
 import { useBoardLook } from './board-look';
 import type { CornerContentProps } from './corner-content';
 import { DiagonalStack, edgeMargin, type Band } from './corner-diagonal';
 import { pictureBand } from './corner-picture';
 import { FitText } from './fit-text';
-import { useRender } from './sheet';
+import { useRender, BoxSvg } from './sheet';
 
 const nameBand = (
     c: number,
@@ -129,17 +128,12 @@ const StartArrow = ({
     ].join(' ');
 
     return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: mm(x),
-                top: mm(y),
-                width: mm(w),
-                height: mm(h),
-                overflow: 'visible',
-            }}
-            viewBox={`0 0 ${String(w)} ${String(h)}`}
-            aria-hidden="true"
+        <BoxSvg
+            x={x}
+            y={y}
+            w={w}
+            h={h}
+            overflow="visible"
             data-slot="start-arrow"
         >
             <path
@@ -149,6 +143,6 @@ const StartArrow = ({
                 strokeWidth={h * 0.06}
                 strokeLinejoin="round"
             />
-        </svg>
+        </BoxSvg>
     );
 };
