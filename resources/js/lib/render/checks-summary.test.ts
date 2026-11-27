@@ -1,47 +1,31 @@
 import { describe, expect, it } from 'vitest';
-import { checkEmptyCards, checkEmptyNames } from './checks';
-import { checkText } from './checks-element';
-import { issuesFor, listIssues, summarize } from './checks-summary';
+import { runChecks } from './checks';
+import { checkElement } from './checks-element';
+import { listIssues } from './checks-summary';
+import { DEFAULT_BOARD_PROFILE } from './print-board';
 
 const long = (key: string, field = 'text') =>
-    checkText(key, { field, fit: { fits: false, excessCharacters: 5 } });
-
-describe('summarize', () => {
-    it('says nothing found and what was checked, as in the design', () => {
-        const s = summarize([], 'nl');
-        expect(s.label).toBe(
-            'Controle: niets gevonden. Gecontroleerd: fotoscherpte, tekst en bordmaat.',
-        );
-        expect(s.count).toBe(0);
-        expect(summarize([], 'en').label).toBe(
-            'Check: nothing found. Checked: photo sharpness, text and board size.',
-        );
+    checkElement({
+        key,
+        texts: [{ field, fit: { fits: false, excessCharacters: 5 } }],
     });
 
-    it('shows the count like the editor header', () => {
-        const issues = [...long('a'), ...long('b')];
-        expect(summarize(issues, 'nl')).toMatchObject({
-            label: 'Controle: 2',
-            count: 2,
-            warnings: 2,
-            errors: 0,
-        });
-        expect(summarize(issues, 'en').label).toBe('Check: 2');
+const empty = (emptyNames: readonly string[], emptyCards: readonly string[]) =>
+    runChecks({
+        board: DEFAULT_BOARD_PROFILE,
+        parts: {
+            board: true,
+            titleDeeds: true,
+            cards: true,
+            money: false,
+            tokens: false,
+            boxLid: false,
+            houseRules: false,
+        },
+        elements: [],
+        emptyNames,
+        emptyCards,
     });
-});
-
-describe('issuesFor', () => {
-    it('selects the issues for an element, optionally one field', () => {
-        const issues = [
-            ...long('a', 'name'),
-            ...long('a', 'text'),
-            ...long('b'),
-        ];
-        expect(issuesFor(issues, 'a')).toHaveLength(2);
-        expect(issuesFor(issues, 'a', 'name')).toHaveLength(1);
-        expect(issuesFor(issues, 'c')).toEqual([]);
-    });
-});
 
 describe('listIssues (R5-13)', () => {
     const cards = Array.from(
@@ -53,8 +37,8 @@ describe('listIssues (R5-13)', () => {
     it('makes one row of many empty cards and one of many empty names, where the first stood', () => {
         const rows = listIssues([
             ...long('space.11'),
-            ...checkEmptyNames(names),
-            ...checkEmptyCards(cards),
+            ...empty(names, []),
+            ...empty([], cards),
             ...long('pawn.1'),
         ]);
 
@@ -71,7 +55,7 @@ describe('listIssues (R5-13)', () => {
     });
 
     it('keeps a few empty cards as their own rows', () => {
-        const rows = listIssues(checkEmptyCards(cards.slice(0, 2)));
+        const rows = listIssues(empty([], cards.slice(0, 2)));
 
         expect(rows).toHaveLength(2);
         expect(rows.every((row) => row.count === 1)).toBe(true);
