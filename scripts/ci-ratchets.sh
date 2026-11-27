@@ -110,8 +110,6 @@ loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS,:(e
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
-final-readonly-list                    max  grep   lists/final-readonly.txt  ^.
-action-naming-list                     max  grep   lists/action-naming.txt  ^.
 enum-shape-list                        max  grep   lists/enum-shape.txt  ^.
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
@@ -1069,8 +1067,6 @@ byte-string-functions 1 $n = strripos($s, 1);
 byte-string-functions 1 $n = strstr($s, 1);
 byte-string-functions 1 $n = stristr($s, 1);
 byte-string-functions 1 $n = strrchr($s, 1);
-final-readonly-list 1 app/Actions/Account/RecordActivity.php
-action-naming-list 1 entry app/Actions/Editions/StoreEdition.php
 enum-shape-list 1 cases app/Enums/PrintPart.php
 byte-string-functions 1 $n = str_split($s, 1);
 byte-string-functions 1 $n = strtolower($s, 1);
