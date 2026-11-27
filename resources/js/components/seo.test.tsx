@@ -82,11 +82,9 @@ describe('Seo', () => {
         )?.innerHTML;
 
         expect(json).not.toContain('</b>');
-        const parsed = JSON.parse(json ?? '{}') as {
-            '@graph': { name: string }[];
-        };
+        const parsed: unknown = JSON.parse(json ?? '{}');
 
-        expect(parsed['@graph'][0]?.name).toBe('a</b>');
+        expect(parsed).toHaveProperty(['@graph', 0, 'name'], 'a</b>');
     });
 
     it('does not repeat the site name in a title that has it', () => {

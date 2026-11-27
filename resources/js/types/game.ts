@@ -1,4 +1,6 @@
-export type Locale = 'nl' | 'en';
+import type { Locale as GeneratedLocale } from '@/types/generated';
+
+export type Locale = GeneratedLocale;
 
 export type Localized = Record<Locale, string>;
 

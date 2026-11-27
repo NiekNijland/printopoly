@@ -121,9 +121,16 @@ describe('Home', () => {
         renderWithI18n(<Home strings={strings} faq={faq} />);
 
         // Under md the section is a column: a flex basis there is a height, and 240 px left ~200 px of white.
-        const heading = screen.getByRole('link', { name: 'Alle vragen' })
-            .parentElement as HTMLElement;
-        const list = heading.nextElementSibling as HTMLElement;
+        const heading = screen.getByRole('link', {
+            name: 'Alle vragen',
+        }).parentElement;
+        const list = heading?.nextElementSibling;
+        if (
+            !(heading instanceof HTMLElement) ||
+            !(list instanceof HTMLElement)
+        ) {
+            throw new Error('The questions section lost its two columns');
+        }
         for (const column of [heading, list]) {
             const bases = [...column.classList].filter((name) =>
                 name.startsWith('flex-['),

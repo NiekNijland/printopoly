@@ -33,13 +33,17 @@ const ToggleGroup = ({
     ...props
 }: ComponentProps<typeof ToggleGroupPrimitive.Root> &
     VariantProps<typeof toggleVariants> & { spacing?: number }) => {
+    const style: CSSProperties & Record<`--${string}`, number> = {
+        '--gap': spacing,
+    };
+
     return (
         <ToggleGroupPrimitive.Root
             data-slot="toggle-group"
             data-variant={variant}
             data-size={size}
             data-spacing={spacing}
-            style={{ '--gap': spacing } as CSSProperties}
+            style={style}
             className={cn(
                 'group/toggle-group flex w-fit items-center gap-[--spacing(var(--gap))] rounded-control',
                 spacing === 0 &&
