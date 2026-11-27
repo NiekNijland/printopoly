@@ -2,7 +2,6 @@ import type { IconName } from '@/components/render/icons';
 import { array, is, keyOf, oneOf, union } from '@/lib/parse';
 import type { CornerKind, Locale, Space } from '@/types/game';
 
-
 import lucideCatalogue from './lucide-space-icons.json';
 
 /**
