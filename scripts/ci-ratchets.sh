@@ -36,6 +36,8 @@ AUDIT_MANIFEST="composer.json?"
 # The time-boxed audit exceptions that audit-gate.sh reads (one entry per line, at most 7 days each).
 AUDIT_EXCEPTIONS="scripts/audit-exceptions.json?"
 LINT_CONFIG="eslint.config.js?"
+# The backend coverage floor that checks.sh and the coverage-floor row read.
+COVERAGE_FLOOR_FILE="scripts/coverage-floor.txt"
 LINT_BASELINE="eslint-suppressions.json?"
 # The folder with the keyed baselines that keyed-baseline.sh writes, one file per check.
 KEYED_BASELINES="baselines?"
