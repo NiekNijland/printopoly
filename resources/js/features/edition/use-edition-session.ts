@@ -16,6 +16,7 @@ import {
 import { SaveStatusMachine } from '@/features/edition/save-status-machine';
 import type { EditionSession } from '@/features/edition/session';
 import type { EditionConflict } from '@/features/edition/session-conflict';
+import { reportError } from '@/lib/bugsnag';
 import { listenToWindow } from '@/lib/dom-events';
 import type { Edition } from '@/lib/render/edition-types';
 
@@ -133,8 +134,8 @@ export const useSaveStatus = (
 
         void getEnvironment()
             .then((info: EnvironmentInfo) => machine.setEnvironment(info))
-            .catch(() => undefined);
-        void requestPersistence(navigator.storage).catch(() => undefined);
+            .catch(reportError);
+        void requestPersistence(navigator.storage).catch(reportError);
 
         return () => {
             unbind();

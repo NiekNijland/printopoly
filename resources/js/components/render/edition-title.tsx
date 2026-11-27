@@ -221,7 +221,9 @@ export const titleFontOf = (
                 scale: 1.5,
                 upper: false,
             };
-        default:
+        case 'ribbon':
+        case 'plain':
+        case undefined:
             return {
                 family: theme.titleFont,
                 weight: theme.titleWeight,
@@ -284,7 +286,9 @@ export const EditionTitle = (props: EditionTitleProps) => {
             return <ScriptTitle {...props} withPhoto={withPhoto} />;
         case 'plain':
             return <PlainTitle {...props} withPhoto={withPhoto} />;
-        default:
+        case 'bar':
+        case 'ribbon':
+        case undefined:
             return <PlateTitle {...props} withPhoto={withPhoto} />;
     }
 };

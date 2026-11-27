@@ -17,6 +17,7 @@ import {
     type SyncQuestion,
 } from '@/features/edition/sync';
 import { readStored, writeStored } from '@/lib/browser-storage';
+import { reportUnlessOffline } from '@/lib/bugsnag';
 import type { Edition, EditionSummary } from '@/lib/render/edition-types';
 import { uploadAccountPhoto } from '@/lib/render/print-api';
 import type { AuthUserData } from '@/types/generated';
@@ -227,7 +228,7 @@ export const useAccountSync = (onChanged: () => void): AccountSync => {
         void store
             .listWithLimit()
             .then((remote) => setAccountIds(accountIdsOf(remote)))
-            .catch(() => undefined);
+            .catch(reportUnlessOffline);
     }, [store]);
 
     const decline = useCallback(() => {

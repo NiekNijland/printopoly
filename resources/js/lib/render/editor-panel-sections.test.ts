@@ -1,5 +1,6 @@
 import { setElement, updateElement } from '@/lib/render/edition-changes';
 import { templateEdition } from '@/lib/render/edition-templates';
+import { defined } from '@/testing/defined';
 import { sampleEdition } from '@/testing/editions';
 
 import {
@@ -155,7 +156,7 @@ describe('panelActions', () => {
     });
 
     it('offers "Kaarten leegmaken" on every card and the back of a deck while a card has text (B194)', () => {
-        const edition = templateEdition('club', 'nl')!;
+        const edition = defined(templateEdition('club', 'nl'));
 
         expect(panelActions('card.chest.05', edition)).toContain('clearDeck');
         expect(panelActions('card_back.chest', edition)).toContain('clearDeck');
@@ -191,7 +192,7 @@ describe('panelActions', () => {
     });
 
     it('measures a template edition against its template (B152)', () => {
-        const edition = templateEdition('village', 'nl')!;
+        const edition = defined(templateEdition('village', 'nl'));
         const renamed = updateElement(edition, 'space.01', {
             name: 'Molenweg',
         }).edition;

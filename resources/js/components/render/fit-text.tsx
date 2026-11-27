@@ -1,4 +1,4 @@
-import { useEffect, type CSSProperties } from 'react';
+import { useEffect, useEffectEvent, type CSSProperties } from 'react';
 
 import type { WrapMode } from '@/lib/render/fit-text';
 import type { FitTextResult } from '@/lib/render/fit-text';
@@ -117,10 +117,12 @@ export const FitText = ({
         letterSpacingEm,
     });
 
-    useEffect(() => {
+    // Only the outcome matters to the caller, not the identity of the result object.
+    const reportFit = useEffectEvent(() => {
         onFit?.(result);
-        // Only the outcome matters to the caller, not the identity of the result object.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    });
+    useEffect(() => {
+        reportFit();
     }, [result.fits, result.overflowChars, result.fontSizeMm]);
 
     const box: CSSProperties = {

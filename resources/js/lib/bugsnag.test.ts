@@ -1,4 +1,11 @@
-import { reportError, reportUnlessOffline, startBugsnag } from './bugsnag';
+import {
+    logWarning,
+    reportAndReturn,
+    reportError,
+    reportUnlessCancelled,
+    reportUnlessOffline,
+    startBugsnag,
+} from './bugsnag';
 
 const { notify, start } = vi.hoisted(() => {
     const notify = vi.fn<(error: Error) => void>();
@@ -51,6 +58,35 @@ describe('bugsnag', () => {
 
         reportUnlessOffline(new TypeError('Failed to fetch'));
         reportUnlessOffline(new Error('HTTP 500'));
+
+        expect(notify).toHaveBeenCalledOnce();
+    });
+
+    it('answers the fallback after reporting the failure', () => {
+        notify.mockClear();
+
+        expect(reportAndReturn(null)(new Error('HTTP 500'))).toBeNull();
+        expect(reportAndReturn([])(new TypeError('Failed to fetch'))).toEqual(
+            [],
+        );
+
+        expect(notify).toHaveBeenCalledOnce();
+    });
+
+    it('writes a warning to the console', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        logWarning('repaired');
+
+        expect(warn).toHaveBeenCalledWith('repaired');
+        warn.mockRestore();
+    });
+
+    it('reports a cancelled share only when it is not an AbortError', () => {
+        notify.mockClear();
+
+        reportUnlessCancelled(new DOMException('closed', 'AbortError'));
+        reportUnlessCancelled(new DOMException('denied', 'NotAllowedError'));
 
         expect(notify).toHaveBeenCalledOnce();
     });

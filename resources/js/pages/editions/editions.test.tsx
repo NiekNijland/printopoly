@@ -14,7 +14,6 @@ import EditionsIndex from './index';
 const input = {
     theme: 'classic' as const,
     language: 'nl' as const,
-    boardProfile: undefined as never,
 };
 
 const seed = async (names: string[]) => {

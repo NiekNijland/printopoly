@@ -1,3 +1,5 @@
+import { parseJson } from '@/lib/json';
+
 /**
  * Small fetch wrapper for the JSON API under the web session. It sends the
  * session cookie, asks for JSON (so the server answers 401 instead of a
@@ -78,13 +80,8 @@ const readBody = async (response: Response): Promise<unknown> => {
     if (text === '') {
         return undefined;
     }
-    try {
-        const parsed: unknown = JSON.parse(text);
 
-        return parsed;
-    } catch {
-        return undefined;
-    }
+    return parseJson(text);
 };
 
 /**
