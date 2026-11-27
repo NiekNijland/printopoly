@@ -61,7 +61,7 @@ export const VINTAGE = {
 const BEAD = { width: 0.45, dash: [0, 0.85] } as const;
 
 /** Whether a point lies well inside a filled shape of a Vintage note (the oval, the banner, a cartouche). */
-export const vintageCovers = (x: number, y: number): boolean => {
+const vintageCovers = (x: number, y: number): boolean => {
     const { oval, banner, corners } = VINTAGE;
     const inside = (r: Rect) =>
         x > r.x + 0.8 &&
@@ -79,7 +79,7 @@ export const vintageCovers = (x: number, y: number): boolean => {
 };
 
 /** The line work of a Vintage note, the same for every value: cached once per page. */
-export const vintageLines = () => {
+const vintageLines = () => {
     const { field, oval, medallions, band, corners } = VINTAGE;
     const bandRect = {
         x: band,
