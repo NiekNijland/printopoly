@@ -6,7 +6,7 @@ import {
     composePages,
     type PrintEdition,
 } from '../../lib/render/print-composition';
-import { BLEED, MARKS } from '../../lib/render/print-page-frame';
+import { BLEED } from '../../lib/render/print-page-frame';
 import { describeEstimate, partQuantity, setEstimate } from './estimate';
 import { pageLabel } from './labels';
 
@@ -85,7 +85,7 @@ describe('the whole board', () => {
         });
 
         expect(pages).toHaveLength(1);
-        expect(pages[0]?.size.w).toBe(500 + 2 * (BLEED + MARKS));
+        expect(pages[0]?.size.w).toBe(500 + 2 * (BLEED + 6));
         expect(pages[0]?.cropMarks.length).toBeGreaterThan(0);
         expect(
             partQuantity('board', 'printer', {

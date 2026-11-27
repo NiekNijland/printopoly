@@ -10,7 +10,7 @@ export const BLEED = 3;
  * Room outside the bleed of a print-shop page for the crop marks (B160). The marks run from the bleed edge to 1 mm
  * before the edge of the page; the server writes the TrimBox and BleedBox at the same distances.
  */
-export const MARKS = 6;
+const MARKS = 6;
 export const CARD: Size = { w: 63, h: 88 };
 /** One unfolded pawn (PAWN_SIZE_MM of components/render/pawn.tsx; print-document.test.tsx keeps them equal). */
 export const TOKEN_SIZE: Size = { w: 40, h: 55 };
