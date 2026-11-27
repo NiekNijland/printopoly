@@ -13,8 +13,7 @@ use App\Modules\Print\Events\PrintRunFailedEvent;
 use App\Modules\Print\Support\PrintProgress;
 
 /**
- * A print run whose worker died or timed out: the parts that still wait or run fail with a timeout, the parts that
- * are done stay, and the run is no longer active.
+ * The parts of a dead print run that still wait or run fail with a timeout; the done parts stay.
  */
 final readonly class MarkFailedPrintRun
 {

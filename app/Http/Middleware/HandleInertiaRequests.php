@@ -25,10 +25,7 @@ use Throwable;
 
 final class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The session key that asks the next page to clear the copy of the editions in this browser (a logout). The shared
-     * prop `clearLocalCopy` reads it once and removes it.
-     */
+    /** Set by a logout: the next page gets the shared prop `clearLocalCopy` once and wipes the editions in the browser. */
     public const string CLEAR_LOCAL_COPY = 'clear_local_copy';
 
     public function __construct(private readonly StructuredData $structuredData)
@@ -88,11 +85,8 @@ final class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * Our own page for 403, 404, 419, 500 and 503, with the right status (B66). The exception handler calls this for
-     * every rendered exception. The 404 of an unknown URL arrives through the fallback route in routes/web.php, so the
-     * language and the shared props are there. A 404 from a route binding (an expired print link) comes before this
-     * middleware ran, so the page would miss the shared props the header and footer read (bug 43 of test round 3):
-     * they are shared here.
+     * Our own page for 403, 404, 419, 500 and 503 (B66). A 404 from a route binding comes before this middleware ran,
+     * so the shared props of the header and footer are shared here (bug 43 of test round 3).
      */
     public function errorPage(Response $response, Throwable $exception, Request $request): Response
     {

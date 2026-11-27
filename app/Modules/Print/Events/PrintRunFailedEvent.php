@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Print\Events;
 
 /**
- * The worker of a print run died or timed out (GeneratePrintJob::failed). It is dispatched synchronously, so the
- * listener marks the parts that still wait or run as failed before the queue moves on: nothing stays "waiting".
+ * The worker of a print run died or timed out (GeneratePrintJob::failed); MarkFailedPrintRun handles it synchronously.
  */
 final readonly class PrintRunFailedEvent
 {

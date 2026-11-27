@@ -70,8 +70,5 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             static fn (Request $request): bool => $request->expectsJson(),
         );
-
-        // A page of our own for 403, 404, 419, 500 and 503 (B66): AppServiceProvider hands the handler
-        // HandleInertiaRequests::errorPage(), so the page has the shared props of every page.
     })
     ->create();

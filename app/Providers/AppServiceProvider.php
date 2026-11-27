@@ -76,9 +76,6 @@ final class AppServiceProvider extends ServiceProvider
         $this->configurePermissions();
     }
 
-    /**
-     * Our own page for 403, 404, 419, 500 and 503 (B66), built by HandleInertiaRequests with the shared props.
-     */
     private function configureErrorPages(): void
     {
         $this->callAfterResolving(ExceptionHandler::class, function (ExceptionHandler $handler): void {
