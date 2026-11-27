@@ -109,6 +109,7 @@ strict-types-missing                   max  without @SOURCE_PATHS,@TEST_PATHS  (
 loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS,:(exclude)tests/Guards,:(exclude)tests/Support/Architecture  (^|[^=!<>])(==|!=|<>)([^=]|$)
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
+mixed-outside-json-entry               max  grep   @SOURCE_PATHS,:(exclude)app/Support/JsonShape.php,:(exclude)app/Modules/Editions/Support,:(exclude)app/Http/Requests  (\(|,)[[:space:]]*mixed[[:space:]]+(&[[:space:]]*)?\$|\)[[:space:]]*:[[:space:]]*mixed([^A-Za-z0-9_]|$)|(readonly|public|private|protected|static)[[:space:]]+mixed[[:space:]]
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
 enum-shape-list                        max  grep   lists/enum-shape.txt  ^.
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
@@ -928,6 +929,23 @@ loose-comparisons 0 $f = fn () => 1;
 loose-comparisons@tests/Feature/WorkflowTest.php 1 if ($a == $b) {
 loose-comparisons@tests/Guards/WorkflowTest.php 0 yield ['if: github.event_name == x'];
 loose-comparisons@tests/Support/Architecture/WorkflowRules.php 0 $rule = "github.event_name != x";
+mixed-outside-json-entry 1     public function handle(mixed $value): void
+mixed-outside-json-entry 1     $f = static fn (int $a, mixed $b): bool => true;
+mixed-outside-json-entry 1     private function walk(mixed &$value): void
+mixed-outside-json-entry 1     public function value(): mixed
+mixed-outside-json-entry 1     private function value(): mixed {
+mixed-outside-json-entry 1         public readonly mixed $elements,
+mixed-outside-json-entry 1     public mixed $value;
+mixed-outside-json-entry 1     private mixed $value;
+mixed-outside-json-entry 1     protected mixed $value;
+mixed-outside-json-entry 1     public static mixed $value;
+mixed-outside-json-entry 0      * @param mixed $value
+mixed-outside-json-entry 0      * @return array<string, mixed>
+mixed-outside-json-entry 0     $mixed = $mixedValue;
+mixed-outside-json-entry@app/Support/JsonShape.php 0     public static function map(mixed $value, string $path): array
+mixed-outside-json-entry@app/Modules/Editions/Support/LayerParser.php 0     public function parse(mixed $value): ?array
+mixed-outside-json-entry@app/Http/Requests/Boxes/StoreBoxRequest.php 0     public function language(): mixed
+mixed-outside-json-entry@app/Modules/Print/Support/PhotoTargets.php 1     public static function clean(mixed $value): array
 mutable-dates 1 $d = new DateTime();
 mutable-dates 1 $d = new DateTime;
 mutable-dates 1 $d = new Carbon;
