@@ -62,6 +62,14 @@ final class PrintHtmlBuilderTest extends TestCase
         self::assertStringContainsString('@page { size: 69mm 94mm; margin: 0; }', $html);
     }
 
+    public function test_the_policy_allows_only_the_own_origin_and_the_one_script_nonce(): void
+    {
+        self::assertSame(
+            "default-src 'none'; script-src http://render.test 'nonce-abc'; style-src http://render.test 'unsafe-inline'; img-src http://render.test data:; font-src http://render.test data:",
+            PrintHtmlBuilder::contentSecurityPolicy('http://render.test', 'abc'),
+        );
+    }
+
     public function test_a_page_without_a_name_is_called_printopoly_and_an_english_edition_speaks_english(): void
     {
         $edition = resolve(PrintEditionReader::class)->fromArray([...PrintScenario::editionArray(name: '   '), 'language' => 'en']);
