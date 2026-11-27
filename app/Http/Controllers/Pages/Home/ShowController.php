@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Pages\Home;
 
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Content\Support\ContentLibrary;
+use Illuminate\Support\Facades\App;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,7 +17,7 @@ final readonly class ShowController
 {
     public function __invoke(ContentLibrary $content): Response
     {
-        $locale = Locale::from(app()->getLocale());
+        $locale = Locale::from(App::getLocale());
 
         return Inertia::render('home', [
             'strings' => $content->landing($locale),

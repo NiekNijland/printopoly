@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Config;
  * inactivity warning is always cleared: using the account restarts the
  * period.
  */
-final class RecordActivity
+final readonly class RecordActivity
 {
     public function handle(User $user, bool $force = false): void
     {

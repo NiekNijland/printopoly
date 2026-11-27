@@ -35,7 +35,7 @@ final readonly class PhotoParser
             $valid = false;
         }
 
-        if (! is_string($photoId) || $photoId === '' || strlen($photoId) > 128) {
+        if (! is_string($photoId) || $photoId === '' || mb_strlen($photoId, encoding: '8bit') > 128) {
             $errors[] = "{$at}: photoId must be a non-empty string";
             $valid = false;
         }

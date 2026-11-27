@@ -36,7 +36,7 @@ final class RoundSixPrintTest extends TestCase
 
     public function test_the_test_sheet_keeps_the_own_currency_and_the_two_spaces_it_draws(): void
     {
-        $elements = $this->edition()->onlyFor(PrintPart::Calibration)->elements;
+        $elements = $this->edition()->onlyFor(PrintPart::CALIBRATION)->elements;
 
         self::assertSame(['name' => 'Deutsche Mark', 'text' => 'DM'], $elements['words.currency']);
         self::assertSame(['amounts' => ['salary' => 240]], $elements['space.00']);
@@ -48,30 +48,30 @@ final class RoundSixPrintTest extends TestCase
 
     public function test_the_booklet_hears_that_the_money_is_not_in_the_set(): void
     {
-        $out = $this->edition()->forSet(PrintSet::Home, null, moneyLeftOut: true);
+        $out = $this->edition()->forSet(PrintSet::HOME, null, moneyLeftOut: true);
 
-        $booklet = $out->onlyFor(PrintPart::RulesBooklet)->toPrintPayload([]);
+        $booklet = $out->onlyFor(PrintPart::RULES_BOOKLET)->toPrintPayload([]);
         self::assertFalse(((array) $booklet['parts'])['money']);
 
         // The money in the set: the booklet counts it, as before.
-        $in = $this->edition()->forSet(PrintSet::Home, null)->onlyFor(PrintPart::RulesBooklet)->toPrintPayload([]);
+        $in = $this->edition()->forSet(PrintSet::HOME, null)->onlyFor(PrintPart::RULES_BOOKLET)->toPrintPayload([]);
         self::assertTrue(((array) $in['parts'])['money']);
 
         // Only the booklet changes: the board stays current when the money goes out of the set.
         self::assertSame(
-            PrintCacheKey::make(PrintPart::Board, PrintSet::Home, $this->edition()->forSet(PrintSet::Home, null)->onlyFor(PrintPart::Board), []),
-            PrintCacheKey::make(PrintPart::Board, PrintSet::Home, $out->onlyFor(PrintPart::Board), []),
+            PrintCacheKey::make(PrintPart::BOARD, PrintSet::HOME, $this->edition()->forSet(PrintSet::HOME, null)->onlyFor(PrintPart::BOARD), []),
+            PrintCacheKey::make(PrintPart::BOARD, PrintSet::HOME, $out->onlyFor(PrintPart::BOARD), []),
         );
         self::assertNotSame(
-            PrintCacheKey::make(PrintPart::RulesBooklet, PrintSet::Home, $this->edition()->forSet(PrintSet::Home, null)->onlyFor(PrintPart::RulesBooklet), []),
-            PrintCacheKey::make(PrintPart::RulesBooklet, PrintSet::Home, $out->onlyFor(PrintPart::RulesBooklet), []),
+            PrintCacheKey::make(PrintPart::RULES_BOOKLET, PrintSet::HOME, $this->edition()->forSet(PrintSet::HOME, null)->onlyFor(PrintPart::RULES_BOOKLET), []),
+            PrintCacheKey::make(PrintPart::RULES_BOOKLET, PrintSet::HOME, $out->onlyFor(PrintPart::RULES_BOOKLET), []),
         );
     }
 
     public function test_the_box_lid_comes_on_a4_at_home(): void
     {
         $lid = static fn (float $w, float $h): array => (static function (PrintEdition $edition): array {
-            $expected = PrintLayout::expect(PrintPart::BoxLid, PrintSet::Home, $edition);
+            $expected = PrintLayout::expect(PrintPart::BOX_LID, PrintSet::HOME, $edition);
 
             return [$expected->pages, $expected->widthMm, $expected->heightMm];
         })(resolve(PrintEditionReader::class)->fromArray(['elements' => [], 'boardProfile' => ['outer' => 500, 'corner' => 70, 'border' => 0, 'panels' => 4, 'boxLid' => ['w' => $w, 'h' => $h]]]));

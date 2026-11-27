@@ -10,6 +10,7 @@ use App\Modules\Editions\Events\EditionDuplicatedEvent;
 use App\Modules\Editions\Exceptions\EditionLimitReachedException;
 use App\Modules\Editions\Support\EditionValidator;
 use App\Modules\Editions\Support\PrintSelection;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 
 /**
@@ -51,7 +52,7 @@ final readonly class DuplicateEdition
             'updatedAt' => $now,
         ]);
 
-        event(new EditionDuplicatedEvent($user->publicId(), $source->edition_id, $copy->edition_id));
+        Event::dispatch(new EditionDuplicatedEvent($user->publicId(), $source->edition_id, $copy->edition_id));
 
         return $copy;
     }

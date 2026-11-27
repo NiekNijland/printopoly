@@ -10,6 +10,7 @@ use App\Models\PrintJob;
 use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use App\Modules\Photos\Support\PhotoStore;
 use App\Modules\Print\Data\StoredPhotosData;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -23,7 +24,7 @@ final readonly class StoreController
     public function __invoke(StoreAnonymousPrintPhotosRequest $request, PrintJob $printJob, PhotoStore $photos): Response
     {
         $stored = Asset::query()->where('print_job_id', $printJob->publicId())->count();
-        if ($stored + $request->photoCount() > config()->integer('printopoly.limits.anonymous_photos_per_job')) {
+        if ($stored + $request->photoCount() > Config::integer('printopoly.limits.anonymous_photos_per_job')) {
             throw ValidationException::withMessages(['photos' => __('print.photos_too_many')]);
         }
 

@@ -82,7 +82,7 @@ final readonly class PrintPartBuilder
 
         [$pages, $image] = $this->check($bytes, $expected, $part, $set);
 
-        $path = 'print/' . $job->publicId() . '/' . substr($cacheKey, 0, 12) . '-' . $set->value . '-' . $part->value . '.pdf';
+        $path = 'print/' . $job->publicId() . '/' . mb_substr($cacheKey, 0, 12) . '-' . $set->value . '-' . $part->value . '.pdf';
         Storage::disk($disk)->put($path, $bytes);
 
         $this->forgetOlder($job, $set, $part);
@@ -99,8 +99,8 @@ final readonly class PrintPartBuilder
             'cache_key' => $cacheKey,
             'disk' => $disk,
             'path' => $path,
-            'filename' => $part->fileName($job->locale === 'en' ? Locale::English : Locale::Dutch) . '-' . $set->value . '.pdf',
-            'bytes' => strlen($bytes),
+            'filename' => $part->fileName($job->locale === 'en' ? Locale::ENGLISH : Locale::DUTCH) . '-' . $set->value . '.pdf',
+            'bytes' => mb_strlen($bytes, encoding: '8bit'),
             'pages' => $pages,
             'expires_at' => $this->expiry($job),
         ]);
@@ -173,7 +173,7 @@ final readonly class PrintPartBuilder
 
             $pages = $this->inspector->assertMatches($temporary, $expected);
 
-            if ($part !== PrintPart::Invitation) {
+            if ($part !== PrintPart::INVITATION) {
                 return [$pages, null];
             }
 
@@ -200,8 +200,8 @@ final readonly class PrintPartBuilder
             $file->delete();
         }
 
-        $locale = $job->locale === 'en' ? Locale::English : Locale::Dutch;
-        $path = 'print/' . $job->publicId() . '/' . substr($cacheKey, 0, 12) . '-' . $set->value . '-' . $part->value . '.png';
+        $locale = $job->locale === 'en' ? Locale::ENGLISH : Locale::DUTCH;
+        $path = 'print/' . $job->publicId() . '/' . mb_substr($cacheKey, 0, 12) . '-' . $set->value . '-' . $part->value . '.png';
         Storage::disk($disk)->put($path, $png);
 
         new PrintFile([
@@ -213,7 +213,7 @@ final readonly class PrintPartBuilder
             'disk' => $disk,
             'path' => $path,
             'filename' => $part->fileName($locale) . '-' . PdfRasterizer::PNG_WIDTH . 'px.png',
-            'bytes' => strlen($png),
+            'bytes' => mb_strlen($png, encoding: '8bit'),
             'pages' => 1,
             'expires_at' => $this->expiry($job),
         ])->save();
@@ -266,7 +266,7 @@ final readonly class PrintPartBuilder
         }
 
         $disk = Config::string('printopoly.storage.disk');
-        $path = 'print/' . $job->publicId() . '/' . substr($cacheKey, 0, 12) . '-' . $set->value . '-' . $part->value . '.pdf';
+        $path = 'print/' . $job->publicId() . '/' . mb_substr($cacheKey, 0, 12) . '-' . $set->value . '-' . $part->value . '.pdf';
         Storage::disk($disk)->put($path, $bytes);
         $this->forgetOlder($job, $set, $part);
 
@@ -292,7 +292,7 @@ final readonly class PrintPartBuilder
             'disk' => $disk,
             'path' => $path,
             'filename' => $old->filename,
-            'bytes' => strlen($bytes),
+            'bytes' => mb_strlen($bytes, encoding: '8bit'),
             'pages' => $old->pages,
             'expires_at' => $this->expiry($job),
         ]);

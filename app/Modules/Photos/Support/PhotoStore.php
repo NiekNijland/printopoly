@@ -88,7 +88,7 @@ final readonly class PhotoStore
             'height' => $processed->printHeight,
             'original_width' => $processed->originalWidth,
             'original_height' => $processed->originalHeight,
-            'bytes' => strlen($processed->preview) + strlen($processed->printSource),
+            'bytes' => mb_strlen($processed->preview, encoding: '8bit') + mb_strlen($processed->printSource, encoding: '8bit'),
             'checksum' => hash('sha256', $processed->printSource),
             ...$owner,
         ]);

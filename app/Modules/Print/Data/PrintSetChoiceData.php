@@ -31,7 +31,7 @@ final class PrintSetChoiceData extends Data
         /** Null keeps the choice of the edition, or the default of the set. */
         public readonly ?MoneyAmount $moneyAmount,
         public readonly int $copies,
-        public readonly BoardForm $boardForm = BoardForm::Panels,
+        public readonly BoardForm $boardForm = BoardForm::PANELS,
         public readonly int $invitations = self::DEFAULT_INVITATIONS,
     ) {
     }

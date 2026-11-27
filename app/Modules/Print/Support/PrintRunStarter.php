@@ -51,10 +51,10 @@ final readonly class PrintRunStarter
             }
 
             // The test sheet is one file, made once, for the home printer.
-            $partSet = $part === PrintPart::Calibration ? PrintSet::Home : $set;
+            $partSet = $part === PrintPart::CALIBRATION ? PrintSet::HOME : $set;
             $targets[] = [$partSet->value, $part->value];
 
-            $this->progress->record($job, $partSet, $part, PartStatus::Waiting, after: $previous);
+            $this->progress->record($job, $partSet, $part, PartStatus::WAITING, after: $previous);
             $previous = $part;
         }
 
