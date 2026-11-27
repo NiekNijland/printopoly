@@ -55,7 +55,7 @@ De instructie voor het bord gaat stap voor stap: bord ontvetten, droog passen, p
 
 ### Stack
 
-De stack is die van motormonitor (B47): Laravel 13 op PHP 8.5 met Sail, MongoDB, Redis met Horizon, Inertia 3, React 19, TypeScript, Tailwind 4, shadcn/ui, Wayfinder, `spatie/laravel-data` met de TypeScript-transformer, `laravel-react-internationalization`, Socialite voor Google, Reverb, `intervention/image`, Bugsnag en Pulse. De tooling is ook gelijk: PHPStan level 8, Rector, Pint, PHPUnit met paratest, Vitest, ESLint, Prettier en dezelfde GitHub Actions.
+De stack is die van motormonitor (B47): Laravel 13 op PHP 8.5 met Sail, MongoDB, Redis met Horizon, Inertia 3, React 19, TypeScript, Tailwind 4, shadcn/ui, Wayfinder, `spatie/laravel-data` met de TypeScript-transformer, `laravel-react-internationalization`, Socialite voor Google, Reverb, `intervention/image`, Bugsnag en Pulse. De tooling is ook gelijk: PHPStan level 10, Rector, Pint, PHPUnit met paratest, Vitest, ESLint, Prettier en dezelfde GitHub Actions.
 
 Routes zijn `/{locale}/...` zoals in motormonitor. Alleen de openbare pagina's gebruiken SSR; de editor staat in `$withoutSsr` (B66). Uploads staan privé op R2.
 
@@ -109,7 +109,7 @@ Het design staat op een canvas: [Printopoly design](https://claude.ai/artifact/K
 
 ### Hosting
 
-Printopoly draait op de productieserver van motormonitor.nl, als vierde site in motormonitor-ansible (B50). De server levert een vastgepinde headless Chrome met de sandbox aan (B52). Tot Printopoly een eigen release-workflow heeft, bouwt `scripts/build-site-artifact.sh` het artifact, zoals bij vraagwagen (B51). De volgorde naar livegang staat in `docs/runbook-new-site.md` in die repo.
+Printopoly draait op de productieserver van motormonitor.nl, als vierde site in motormonitor-ansible (B50). De server levert een vastgepinde headless Chrome met de sandbox aan (B52). Tot Printopoly een eigen release-workflow heeft, bouwt het script `build-site-artifact.sh` het artifact, zoals bij vraagwagen (B51). De volgorde naar livegang staat in `runbook-new-site.md` in die repo.
 
 ### Testen
 

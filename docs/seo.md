@@ -6,14 +6,14 @@ Stand van 20 november 2026, na de livegang. Gemeten op printopoly.nl en motormon
 
 `curl https://printopoly.nl/nl` geeft `<div id="app"></div>` en `<title>Printopoly</title>`. Canonical, hreflang, OG-tags, beschrijving en alle paginatekst komen pas na JavaScript. Lighthouse haalt daardoor toch 100 voor SEO (die meet de DOM na JS), maar crawlers zonder JS, linkpreviews (WhatsApp, Slack, Facebook, LinkedIn) en AI-crawlers zien een lege pagina.
 
-Oorzaak: `release_profile.ssr: false` voor printopoly in motormonitor-ansible, omdat `scripts/build-site-artifact.sh` het SSR-contract niet levert.
+Oorzaak: `release_profile.ssr: false` voor printopoly in motormonitor-ansible, omdat het script `build-site-artifact.sh` het SSR-contract niet levert.
 
 ### Het SSR-contract van motormonitor-ansible
 
 De rol `application_deploy` eist bij `ssr: true`:
 
-1. `bootstrap/ssr/ssr.js` in het artifact (`tasks/prepare.yml`).
-2. `public/build/ssr-release.json` met `{"id": "<uuid v4>"}` (`tasks/prepare.yml`, `tasks/verify.yml`).
+1. De SSR-bundel `ssr.js` in de map bootstrap/ssr van het artifact (de taak `prepare.yml` van de rol).
+2. `public/build/ssr-release.json` met `{"id": "<uuid v4>"}` (de taken `prepare.yml` en `verify.yml`).
 3. `ssr_release_id` in `release-manifest.json`, gelijk aan dat id (`verify.yml` vergelijkt ze).
 4. Een supervisor-worker `php artisan inertia:start-ssr` in de inventory.
 
@@ -22,17 +22,17 @@ De rol `application_deploy` eist bij `ssr: true`:
 - `scripts/ssr-release.mjs` (Vite-plugin, zelfde als motormonitor): de clientbuild schrijft `public/build/ssr-release.json`, de SSR-build neemt dat id op in de bundel (`__SSR_RELEASE_ID__`) en `resources/js/ssr.tsx` geeft het mee als `release` in elk antwoord. Test: `resources/js/lib/ssr-release-build.test.ts`.
 - `App\Integrations\Ssr\ReleaseCheckedSsrGateway` (gebonden aan `Inertia\Ssr\Gateway`): gooit een antwoord van een oudere SSR-worker weg (tijdens een deploy), en rendert niet op de server zonder geldig `ssr-release.json`. De pagina valt dan terug op een client-root. Test: `tests/Feature/Integrations/Ssr/ReleaseCheckedSsrGatewayTest.php`.
 - SSR-poort 13716 (standaard in `ssr.tsx`, `config/inertia.php`, `.env.example`, `scripts/check-ssr-self-contained.mjs`). 13714 en 13715 zijn van MotorMonitor productie en acceptatie op dezelfde host. De poort staat in de bundel ingebakken (geen `.env` bij de build), dus de standaard moet al goed zijn, anders botst de worker met MotorMonitor.
-- Lokaal gecontroleerd: `npm run build:ssr` geeft `bootstrap/ssr/ssr.js` en `public/build/ssr-release.json`; met `inertia:start-ssr` bevat de HTML h1, title, canonical, hreflang, OG, robots en JSON-LD.
+- Lokaal gecontroleerd: `npm run build:ssr` geeft de SSR-bundel `ssr.js` en `public/build/ssr-release.json`; met `inertia:start-ssr` bevat de HTML h1, title, canonical, hreflang, OG, robots en JSON-LD.
 
 ### Nodig in motormonitor-ansible (niet gewijzigd, zie opdracht)
 
-1. `scripts/build-site-artifact.sh`, in het `docker run`-blok:
+1. Het script `build-site-artifact.sh`, in het `docker run`-blok:
    - `npm run build` vervangen door `npm run build:ssr` (printopoly heeft dat script: `vite build && vite build --ssr`).
    - Na de build: `find public/build bootstrap/ssr -name "*.map" -type f -delete`.
-   - De controle `for path in vendor/autoload.php public/build/manifest.json artisan` uitbreiden met `public/build/ssr-release.json bootstrap/ssr/ssr.js` (alleen als `bootstrap/ssr/ssr.js` bestaat, want vraagwagen heeft geen SSR; of een argument/omgevingsvariabele `WITH_SSR=1`).
+   - De controle `for path in vendor/autoload.php public/build/manifest.json artisan` uitbreiden met `public/build/ssr-release.json bootstrap/ssr/ssr.js` (alleen als de SSR-bundel bestaat, want vraagwagen heeft geen SSR; of een argument/omgevingsvariabele `WITH_SSR=1`).
    - In het manifest-script `"ssr_release_id" => json_decode(file_get_contents("public/build/ssr-release.json"), true)["id"]` toevoegen (zelfde conditie).
-   - Het tar-commando sluit `bootstrap/ssr` niet uit; dat blijft zo.
-2. `inventories/production/group_vars/motormonitor.yml`, site printopoly:
+   - Het tar-commando sluit de map bootstrap/ssr niet uit; dat blijft zo.
+2. Het bestand `motormonitor.yml` in de group_vars van de production-inventory, site printopoly:
    - `release_profile.ssr: false` weghalen (de standaard is `true`) en het commentaar erboven aanpassen.
    - Bij `workers` toevoegen, naast horizon en reverb:
      ```yaml

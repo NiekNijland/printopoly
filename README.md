@@ -92,4 +92,4 @@ Elke controle draait in Sail (`./vendor/bin/sail …`):
 
 De GitHub Action `.github/workflows/kit-checks.yml` draait die controles: `checks` (vier onderdelen), `backend-tests`, `frontend-tests`, `smoke` (de stack met productie-drivers, echte Chrome en de PDF-render) en elke nacht het dashboard, zondag ook de mutatietest.
 
-Het release-artifact bouwt `scripts/build-site-artifact.sh` in motormonitor-ansible (B51): `composer install --no-dev`, `npm ci` en `npm run build`, met `public/build/manifest.json` en de entry `resources/js/app.tsx`.
+Het release-artifact bouwt het script `build-site-artifact.sh` in motormonitor-ansible (B51): `composer install --no-dev`, `npm ci` en `npm run build`, met `public/build/manifest.json` en de entry `resources/js/app.tsx`.
