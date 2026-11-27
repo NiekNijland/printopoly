@@ -70,7 +70,7 @@ final class CodeOwnersArchitectureTest extends TestCase
 
         foreach (['scripts', '.github/workflows', 'tests/Support/Architecture', 'tests/Guards'] as $folder) {
             foreach (RecursiveFiles::in(self::root() . '/' . $folder) as $file) {
-                $paths[] = substr($file->getPathname(), strlen(self::root()) + 1);
+                $paths[] = mb_substr($file->getPathname(), mb_strlen(self::root()) + 1);
             }
         }
 

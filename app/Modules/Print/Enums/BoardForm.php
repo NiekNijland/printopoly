@@ -11,6 +11,6 @@ namespace App\Modules\Print\Enums;
  */
 enum BoardForm: string
 {
-    case Panels = 'panels';
-    case Whole = 'whole';
+    case PANELS = 'panels';
+    case WHOLE = 'whole';
 }

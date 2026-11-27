@@ -53,7 +53,7 @@ final class ChromeRenderWeightTest extends TestCase
         ]);
         $job->save();
 
-        $money = resolve(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Money);
+        $money = resolve(PrintPartBuilder::class)->build($job, PrintSet::PRINTER, PrintPart::MONEY);
 
         self::assertLessThan(6 * 1024 * 1024, $money->bytes);
         $images = Process::run(['pdfimages', '-list', ChromeRender::localPath($money)])->output();
@@ -80,7 +80,7 @@ final class ChromeRenderWeightTest extends TestCase
             ]);
             $job->save();
 
-            $money = resolve(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Money);
+            $money = resolve(PrintPartBuilder::class)->build($job, PrintSet::PRINTER, PrintPart::MONEY);
 
             self::assertLessThan(6 * 1024 * 1024, $money->bytes, $style);
             $images = Process::run(['pdfimages', '-list', ChromeRender::localPath($money)])->output();
@@ -100,7 +100,7 @@ final class ChromeRenderWeightTest extends TestCase
      */
     public function test_the_cards_stay_small_in_every_card_and_deed_style(): void
     {
-        foreach ([[PrintSet::Printer, 1, 120], [PrintSet::Home, 2, 30]] as [$set, $copies, $pages]) {
+        foreach ([[PrintSet::PRINTER, 1, 120], [PrintSet::HOME, 2, 30]] as [$set, $copies, $pages]) {
             $theme = $this->cardsFor([], $set, $copies)->bytes;
 
             foreach (['vintage', 'playful'] as $style) {
@@ -129,6 +129,6 @@ final class ChromeRenderWeightTest extends TestCase
         ]);
         $job->save();
 
-        return resolve(PrintPartBuilder::class)->build($job, $set, PrintPart::Cards);
+        return resolve(PrintPartBuilder::class)->build($job, $set, PrintPart::CARDS);
     }
 }

@@ -42,16 +42,16 @@ final class PdfBoxes
 
         $update = '';
         $offsets = [];
-        $base = strlen($pdf) + 1;
+        $base = mb_strlen($pdf, encoding: '8bit') + 1;
 
         foreach ($starts[1] as [$number, $position]) {
-            $end = strpos($pdf, 'endobj', $position);
+            $end = mb_strpos($pdf, 'endobj', $position, encoding: '8bit');
 
             if ($end === false) {
                 return $pdf;
             }
 
-            $object = substr($pdf, $position, $end - $position);
+            $object = mb_substr($pdf, $position, $end - $position, encoding: '8bit');
 
             if (str_contains($object, 'stream') || str_contains($object, '/TrimBox')) {
                 return $pdf;
@@ -68,18 +68,18 @@ final class PdfBoxes
                 self::inset($box, $trimInsetMm, $pageWidthMm, $pageHeightMm),
                 self::inset($box, $bleedInsetMm, $pageWidthMm, $pageHeightMm),
             );
-            $open = strpos($object, '<<');
+            $open = mb_strpos($object, '<<', encoding: '8bit');
 
             if ($open === false) {
                 return $pdf;
             }
 
-            $offsets[(int) $number] = $base + strlen($update);
-            $update .= substr($object, 0, $open + 2) . $boxes . substr($object, $open + 2) . "endobj\n";
+            $offsets[(int) $number] = $base + mb_strlen($update, encoding: '8bit');
+            $update .= mb_substr($object, 0, $open + 2, encoding: '8bit') . $boxes . mb_substr($object, $open + 2, encoding: '8bit') . "endobj\n";
         }
 
         ksort($offsets);
-        $xref = $base + strlen($update);
+        $xref = $base + mb_strlen($update, encoding: '8bit');
         $update .= "xref\n";
 
         foreach ($offsets as $number => $offset) {
@@ -108,7 +108,7 @@ final class PdfBoxes
         // Only a classic table can be continued this way.
         $start = (int) $last[2];
 
-        if (substr($pdf, $start, 4) !== 'xref') {
+        if (mb_substr($pdf, $start, 4, encoding: '8bit') !== 'xref') {
             return null;
         }
 

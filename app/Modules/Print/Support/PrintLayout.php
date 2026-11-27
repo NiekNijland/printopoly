@@ -69,22 +69,22 @@ final readonly class PrintLayout
         $profile = BoardProfile::of($edition);
 
         return match ($part) {
-            PrintPart::Board => match (true) {
-                $set === PrintSet::Home => new ExpectedPdf(HomeStickerPlan::sheets($profile['outer'], $profile['corner'], $profile['border']), self::A4_WIDTH, self::A4_HEIGHT),
-                $edition->boardForm === BoardForm::Whole => self::wholeBoard($profile, $bleed),
+            PrintPart::BOARD => match (true) {
+                $set === PrintSet::HOME => new ExpectedPdf(HomeStickerPlan::sheets($profile['outer'], $profile['corner'], $profile['border']), self::A4_WIDTH, self::A4_HEIGHT),
+                $edition->boardForm === BoardForm::WHOLE => self::wholeBoard($profile, $bleed),
                 default => self::boardPanels($profile, $bleed),
             },
-            PrintPart::Cards => self::cards($set, $edition->cardCount(), $bleed, $edition->sets),
-            PrintPart::Money => self::money($set, $edition->moneyAmountFor($set)->total(), $edition->sets),
-            PrintPart::Tokens => self::sheets(Imposition::plan(self::TOKEN_WIDTH, self::TOKEN_HEIGHT, 0, 210, 297, 8, 3, self::TOKENS)),
-            PrintPart::BoxLid => self::boxLid($set, $profile, $bleed),
-            PrintPart::RulesBooklet => $set === PrintSet::Printer
+            PrintPart::CARDS => self::cards($set, $edition->cardCount(), $bleed, $edition->sets),
+            PrintPart::MONEY => self::money($set, $edition->moneyAmountFor($set)->total(), $edition->sets),
+            PrintPart::TOKENS => self::sheets(Imposition::plan(self::TOKEN_WIDTH, self::TOKEN_HEIGHT, 0, 210, 297, 8, 3, self::TOKENS)),
+            PrintPart::BOX_LID => self::boxLid($set, $profile, $bleed),
+            PrintPart::RULES_BOOKLET => $set === PrintSet::PRINTER
                 ? new ExpectedPdf(self::BOOKLET_PAGES, self::BOOKLET_WIDTH + 2 * ($bleed + self::MARKS), self::BOOKLET_HEIGHT + 2 * ($bleed + self::MARKS))
                 : new ExpectedPdf(self::BOOKLET_PAGES / 2, self::A4_HEIGHT, self::A4_WIDTH),
-            PrintPart::Invitation => $set === PrintSet::Printer
+            PrintPart::INVITATION => $set === PrintSet::PRINTER
                 ? new ExpectedPdf(1, self::INVITATION_WIDTH + 2 * ($bleed + self::MARKS), self::INVITATION_HEIGHT + 2 * ($bleed + self::MARKS))
                 : new ExpectedPdf(1, self::A4_WIDTH, self::A4_HEIGHT),
-            PrintPart::Calibration => new ExpectedPdf(1, self::A4_WIDTH, self::A4_HEIGHT),
+            PrintPart::CALIBRATION => new ExpectedPdf(1, self::A4_WIDTH, self::A4_HEIGHT),
         };
     }
 
@@ -96,7 +96,7 @@ final readonly class PrintLayout
      */
     public static function invitationCard(PrintSet $set, float $bleed): array
     {
-        $offset = $set === PrintSet::Printer ? $bleed + self::MARKS : 0.0;
+        $offset = $set === PrintSet::PRINTER ? $bleed + self::MARKS : 0.0;
 
         return ['x' => $offset, 'y' => $offset, 'w' => self::INVITATION_WIDTH, 'h' => self::INVITATION_HEIGHT];
     }
@@ -135,7 +135,7 @@ final readonly class PrintLayout
     {
         throw_if($count === 0, PrintFailedException::class, 'The edition has no cards to print.');
 
-        if ($set === PrintSet::Printer) {
+        if ($set === PrintSet::PRINTER) {
             return new ExpectedPdf($count * 2 * $sets, self::CARD_WIDTH + 2 * ($bleed + self::MARKS), self::CARD_HEIGHT + 2 * ($bleed + self::MARKS));
         }
 
@@ -151,7 +151,7 @@ final readonly class PrintLayout
      */
     private static function money(PrintSet $set, int $notes, int $sets = 1): ExpectedPdf
     {
-        $printer = $set === PrintSet::Printer;
+        $printer = $set === PrintSet::PRINTER;
         $plan = Imposition::plan(
             self::NOTE_WIDTH,
             self::NOTE_HEIGHT,
@@ -174,7 +174,7 @@ final readonly class PrintLayout
         $width = $profile['boxLidWidth'];
         $height = $profile['boxLidHeight'];
 
-        if ($set === PrintSet::Printer) {
+        if ($set === PrintSet::PRINTER) {
             return new ExpectedPdf(1, $width + 2 * ($bleed + self::MARKS), $height + 2 * ($bleed + self::MARKS));
         }
 
@@ -222,8 +222,8 @@ final readonly class PrintLayout
      */
     public static function hasMarks(PrintPart $part, PrintSet $set): bool
     {
-        return $set === PrintSet::Printer
-            && in_array($part, [PrintPart::Board, PrintPart::Cards, PrintPart::BoxLid, PrintPart::RulesBooklet, PrintPart::Invitation], true);
+        return $set === PrintSet::PRINTER
+            && in_array($part, [PrintPart::BOARD, PrintPart::CARDS, PrintPart::BOX_LID, PrintPart::RULES_BOOKLET, PrintPart::INVITATION], true);
     }
 
     private static function sheets(Imposition $imposition): ExpectedPdf

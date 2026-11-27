@@ -31,7 +31,7 @@ final class BoxTest extends TestCase
 
         $stored = CollectionBox::query()->findOrFail($box['id']);
         self::assertNull($stored->user_id);
-        self::assertSame(40, strlen($stored->token));
+        self::assertSame(40, mb_strlen($stored->token));
         self::assertNotSame($box['ownerSecret'], $stored->owner_hash, 'only a hash of the owner secret is stored');
         self::assertSame(['theme' => 'classic', 'currency' => 'eur', 'parts' => ['cards' => true, 'pawns' => false], 'elements' => ['space.01' => ['name' => 'Molenweg'], 'card.chance.01' => ['text' => 'Ga naar start']]], $stored->snapshot, 'photos and other fields are dropped');
         self::assertTrue($stored->expires_at->isAfter(CarbonImmutable::now()->addDays(29)));
@@ -95,7 +95,7 @@ final class BoxTest extends TestCase
 
         $response = BoxScenario::contribute($this, $box['token'], ['photo' => BoxScenario::photo()]);
         $response->assertCreated();
-        self::assertSame(32, strlen(BoxScenario::text($response, 'receipt')));
+        self::assertSame(32, mb_strlen(BoxScenario::text($response, 'receipt')));
         Event::assertDispatched(BoxActivityEvent::class, static fn (BoxActivityEvent $event): bool => $event->pending === 1);
 
         $contribution = BoxContribution::query()->firstOrFail();

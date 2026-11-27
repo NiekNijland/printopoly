@@ -25,7 +25,7 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'google_id' => fake()->unique()->numerify('1##################'),
-            'locale' => Locale::Dutch->value,
+            'locale' => Locale::DUTCH->value,
             'remember_token' => Str::random(10),
         ];
     }

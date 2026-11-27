@@ -7,7 +7,6 @@ namespace App\Modules\Boxes\Events;
 use App\Models\CollectionBox;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
-use Illuminate\Foundation\Events\Dispatchable;
 use Override;
 
 /**
@@ -17,8 +16,6 @@ use Override;
  */
 final readonly class BoxActivityEvent implements ShouldBroadcastNow
 {
-    use Dispatchable;
-
     private string $channel;
 
     public function __construct(CollectionBox $box, public int $pending)

@@ -44,6 +44,6 @@ final readonly class StoreController
 
     private function hasDoneParts(PrintJob $printJob, PrintSet $set): bool
     {
-        return array_any(PrintPart::cases(), fn (PrintPart $part): bool => $printJob->recordedState($set, $part)['status'] === PartStatus::Done);
+        return array_any(PrintPart::cases(), fn (PrintPart $part): bool => $printJob->recordedState($set, $part)['status'] === PartStatus::DONE);
     }
 }

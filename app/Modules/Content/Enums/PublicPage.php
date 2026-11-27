@@ -13,12 +13,12 @@ use Illuminate\Support\Facades\Config;
  */
 enum PublicPage: string
 {
-    case Home = 'home';
-    case PrintGuide = 'print-guide';
-    case Faq = 'faq';
-    case Privacy = 'privacy';
-    case Terms = 'terms';
-    case Contact = 'contact';
+    case HOME = 'home';
+    case PRINT_GUIDE = 'print-guide';
+    case FAQ = 'faq';
+    case PRIVACY = 'privacy';
+    case TERMS = 'terms';
+    case CONTACT = 'contact';
 
     /**
      * Pages that get their own route; the home page is registered on its own.
@@ -29,7 +29,7 @@ enum PublicPage: string
     {
         return array_values(array_filter(
             self::cases(),
-            static fn (self $page): bool => $page !== self::Home,
+            static fn (self $page): bool => $page !== self::HOME,
         ));
     }
 
@@ -41,12 +41,12 @@ enum PublicPage: string
     public function slug(Locale $locale): string
     {
         return match ($this) {
-            self::Home => '',
-            self::PrintGuide => $locale === Locale::Dutch ? 'printgids' : 'print-guide',
-            self::Faq => $locale === Locale::Dutch ? 'vragen' : 'faq',
-            self::Privacy => 'privacy',
-            self::Terms => $locale === Locale::Dutch ? 'voorwaarden' : 'terms',
-            self::Contact => 'contact',
+            self::HOME => '',
+            self::PRINT_GUIDE => $locale === Locale::DUTCH ? 'printgids' : 'print-guide',
+            self::FAQ => $locale === Locale::DUTCH ? 'vragen' : 'faq',
+            self::PRIVACY => 'privacy',
+            self::TERMS => $locale === Locale::DUTCH ? 'voorwaarden' : 'terms',
+            self::CONTACT => 'contact',
         };
     }
 

@@ -1,23 +1,2 @@
-app/Http/Controllers/Account/Account/DeleteController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/Assets/Preview/ShowController.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
-app/Http/Controllers/Auth/GoogleCallback/HandleController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/Auth/GoogleCallback/HandleController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/Auth/Session/LogoutController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/Boxes/ShareImage/StoreController.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/Pages/Contact/ShowController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Pages/ContentPage/ShowController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/Pages/Home/ShowController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/Pages/Locale/RedirectController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/Print/AnonymousPrintPhotos/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Print/EditionPrintJob/StoreController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/Print/PrintPage/ShowController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Seo/SecurityTxt/ShowController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Seo/Sitemap/ShowController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Modules/Accounts/Actions/DeleteAccount.php: Calling event() is forbidden, dispatch an event of the application with XEvent::dispatch(...), and an event that is built earlier or comes from a vendor with Event::dispatch($event).
-app/Modules/Boxes/Jobs/RenderShareImageJob.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Modules/Editions/Actions/DeleteEdition.php: Calling event() is forbidden, dispatch an event of the application with XEvent::dispatch(...), and an event that is built earlier or comes from a vendor with Event::dispatch($event).
-app/Modules/Editions/Actions/DuplicateEdition.php: Calling event() is forbidden, dispatch an event of the application with XEvent::dispatch(...), and an event that is built earlier or comes from a vendor with Event::dispatch($event).
 app/Modules/Print/Jobs/GeneratePrintJob.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Modules/Print/Support/PrintProgress.php: Calling event() is forbidden, dispatch an event of the application with XEvent::dispatch(...), and an event that is built earlier or comes from a vendor with Event::dispatch($event).
 bootstrap/app.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-tests/Feature/Modules/Editions/EditionAssetTest.php: Calling event() is forbidden, dispatch an event of the application with XEvent::dispatch(...), and an event that is built earlier or comes from a vendor with Event::dispatch($event).

@@ -72,9 +72,9 @@ final class PrintChoicesTest extends TestCase
         $this->postJson($url, ['set' => 'printer', 'skipped' => ['box_lid', 'board']])->assertOk();
         $this->postJson($url, ['set' => 'printer', 'copies' => 2])->assertOk();
 
-        $choice = ($job->fresh() ?? $job)->choiceFor(PrintSet::Printer);
+        $choice = ($job->fresh() ?? $job)->choiceFor(PrintSet::PRINTER);
         // The board can never be skipped.
-        self::assertSame([PrintPart::BoxLid], $choice->skipped);
+        self::assertSame([PrintPart::BOX_LID], $choice->skipped);
         self::assertSame(2, $choice->copies);
 
         $this->postJson($url, ['set' => 'printer', 'copies' => 41])->assertUnprocessable();
@@ -87,16 +87,16 @@ final class PrintChoicesTest extends TestCase
         $job = PrintScenario::createAnonymousJob($this);
 
         PrintScenario::generate($this, $job, 'home', ['money', 'cards'])->assertOk();
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Home, PrintPart::Money));
+        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::HOME, PrintPart::MONEY));
 
         $this->postJson('/api/print/' . $job->token . '/choices', ['set' => 'home', 'moneyAmount' => 'full'])->assertOk();
 
-        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::Home, PrintPart::Money));
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Home, PrintPart::Cards));
+        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::HOME, PrintPart::MONEY));
+        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::HOME, PrintPart::CARDS));
 
         // Back to the amount it was made with: current again, nothing to make.
         $this->postJson('/api/print/' . $job->token . '/choices', ['set' => 'home', 'moneyAmount' => 'four'])->assertOk();
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Home, PrintPart::Money));
+        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::HOME, PrintPart::MONEY));
     }
 
     /**
@@ -110,9 +110,9 @@ final class PrintChoicesTest extends TestCase
 
         $this->postJson('/api/print/' . $job->token . '/choices', ['set' => 'home', 'copies' => 3])->assertOk();
 
-        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::Home, PrintPart::Cards));
-        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::Home, PrintPart::Money));
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Home, PrintPart::Board));
+        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::HOME, PrintPart::CARDS));
+        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::HOME, PrintPart::MONEY));
+        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::HOME, PrintPart::BOARD));
     }
 
     /**
@@ -128,18 +128,18 @@ final class PrintChoicesTest extends TestCase
 
         $this->postJson($url, ['set' => 'printer', 'invitations' => 80])->assertOk();
 
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Invitation));
+        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::INVITATION));
         $texts = array_slice(PrintScenario::renderer()->htmls, $before);
         self::assertTrue(array_any($texts, static fn (string $html): bool => str_contains($html, 'Aantal: 80 stuks')), 'the instruction counts 80 invitations');
 
         $this->postJson($url, ['set' => 'printer', 'boardForm' => 'whole'])->assertOk();
-        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Board));
+        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::BOARD));
 
-        $choice = ($job->fresh() ?? $job)->choiceFor(PrintSet::Printer);
-        self::assertSame(BoardForm::Whole, $choice->boardForm);
+        $choice = ($job->fresh() ?? $job)->choiceFor(PrintSet::PRINTER);
+        self::assertSame(BoardForm::WHOLE, $choice->boardForm);
         self::assertSame(80, $choice->invitations);
         // The home set keeps its own choices.
-        self::assertSame(BoardForm::Panels, ($job->fresh() ?? $job)->choiceFor(PrintSet::Home)->boardForm);
+        self::assertSame(BoardForm::PANELS, ($job->fresh() ?? $job)->choiceFor(PrintSet::HOME)->boardForm);
 
         $this->postJson($url, ['set' => 'printer', 'invitations' => 501])->assertUnprocessable();
         $this->postJson($url, ['set' => 'printer', 'boardForm' => 'round'])->assertUnprocessable();

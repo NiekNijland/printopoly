@@ -50,7 +50,7 @@ final readonly class PrintJobContext
         $edition = $edition->forSet(
             $set,
             $choice->moneyAmount,
-            moneyLeftOut: in_array(PrintPart::Money, $choice->skipped, true),
+            moneyLeftOut: in_array(PrintPart::MONEY, $choice->skipped, true),
             sets: $choice->copies,
             boardForm: $choice->boardForm,
             invitations: $choice->invitations,
@@ -74,7 +74,7 @@ final readonly class PrintJobContext
                 $edition = Edition::query()
                     ->where('user_id', $job->user_id)
                     ->where('edition_id', $job->edition_id)
-                    ->first() ?? throw new PrintFailedException('The edition of this print job no longer exists.', reason: FailureReason::Edition);
+                    ->first() ?? throw new PrintFailedException('The edition of this print job no longer exists.', reason: FailureReason::EDITION);
 
                 $data = $this->payload->from($edition);
 
@@ -85,7 +85,7 @@ final readonly class PrintJobContext
 
             return $this->reader->fromArray($data, $this->photoSizes($job, $data));
         } catch (InvalidArgumentException $invalidArgumentException) {
-            throw new PrintFailedException($invalidArgumentException->getMessage(), $invalidArgumentException->getCode(), previous: $invalidArgumentException, reason: FailureReason::Edition);
+            throw new PrintFailedException($invalidArgumentException->getMessage(), $invalidArgumentException->getCode(), previous: $invalidArgumentException, reason: FailureReason::EDITION);
         }
     }
 
@@ -114,7 +114,7 @@ final readonly class PrintJobContext
 
         $missing = array_diff($refs, array_keys($found));
         if ($missing !== []) {
-            throw new PrintFailedException('A photo in the edition is missing: ' . implode(', ', $missing), reason: FailureReason::Photos);
+            throw new PrintFailedException('A photo in the edition is missing: ' . implode(', ', $missing), reason: FailureReason::PHOTOS);
         }
 
         return $found;
