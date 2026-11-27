@@ -1,3 +1,4 @@
+import { finiteNumber, is, object, oneOf, text } from '@/lib/parse';
 import { isSpaceIconPreset } from '@/lib/render/space-icons';
 import {
     HEX_COLOR,
@@ -17,17 +18,12 @@ import {
 
 export type Obj = Record<string, unknown>;
 
-export const isObject = (value: unknown): value is Obj =>
-    typeof value === 'object' && value !== null && !Array.isArray(value);
-export const isFiniteNumber = (value: unknown): value is number =>
-    typeof value === 'number' && Number.isFinite(value);
-export const isString = (value: unknown, max: number): value is string =>
-    typeof value === 'string' && value.length <= max;
+export const isObject = (value: unknown) => is(object, value);
+export const isFiniteNumber = (value: unknown) => is(finiteNumber, value);
+export const isString = (value: unknown, max: number) => is(text(max), value);
 
-const isLayerFont = (value: unknown): value is LayerFont =>
-    LAYER_FONTS.some((font) => font === value);
-const isLayerAlign = (value: unknown): value is LayerAlign =>
-    LAYER_ALIGNS.some((align) => align === value);
+const layerFont = oneOf(LAYER_FONTS);
+const layerAlign = oneOf(LAYER_ALIGNS);
 
 export const parsePhoto = (
     value: unknown,
@@ -96,8 +92,8 @@ const parseTextStyle = (
     if (
         (color !== undefined &&
             (typeof color !== 'string' || !HEX_COLOR.test(color))) ||
-        (font !== undefined && !isLayerFont(font)) ||
-        (align !== undefined && !isLayerAlign(align))
+        (font !== undefined && !is(layerFont, font)) ||
+        (align !== undefined && !is(layerAlign, align))
     ) {
         return undefined;
     }
