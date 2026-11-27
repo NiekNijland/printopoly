@@ -1,77 +1,39 @@
 import { usePage } from '@inertiajs/react';
-import {
-    useEffect,
-    useId,
-    useRef,
-    useState,
-    useSyncExternalStore,
-    type ReactNode,
-} from 'react';
+import { useId, useRef, useState } from 'react';
 
-import { HandIcon, SwapIcon, WarningIcon } from '@/components/icons';
-import { Button } from '@/components/ui/button';
+import { WarningIcon } from '@/components/icons';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Field, FieldLabel } from '@/components/ui/field';
-import { CenterBackground } from '@/features/edition/editor/center-background';
 import { editElement } from '@/features/edition/editor/edit';
-import { PhotoSwapDialog } from '@/features/edition/editor/panel/panel-header';
+import { CenterImage } from '@/features/edition/editor/panel/center-image';
+import { DeedImage } from '@/features/edition/editor/panel/deed-image';
 import {
-    PhotoStyleChoice,
-    fullStyleKey,
-} from '@/features/edition/editor/photo-style-choice';
-import { shortcutKeys } from '@/features/edition/editor/shortcuts';
+    clearsSomething,
+    type ImageChoice,
+    type ImageParts,
+} from '@/features/edition/editor/panel/image-choice';
+import { PhotoTools } from '@/features/edition/editor/panel/photo-tools';
 import {
-    IconPresetPicker,
-    IconUpload,
-    iconChoiceOf,
-} from '@/features/edition/editor/space-icon-picker';
-import { PatternPicker } from '@/features/edition/editor/style-controls';
+    CardBackImage,
+    PlainImage,
+} from '@/features/edition/editor/panel/simple-image';
+import { SpaceImage } from '@/features/edition/editor/panel/space-image';
+import type { PhotoUpload } from '@/features/edition/editor/panel/use-photo-upload';
 import type { EditionSession } from '@/features/edition/session';
-import { useKeyboardHints } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
-import { CENTER_PHOTO_BLEED } from '@/lib/render/center-layout';
 import type { ElementKind } from '@/lib/render/edition-keys';
-import { parseKey, spaceKey } from '@/lib/render/edition-keys';
 import type { ResolvedEdition } from '@/lib/render/edition-resolve';
 import type { Edition, ElementOverride } from '@/lib/render/edition-types';
-import {
-    deedKeyForSpace,
-    elementLabel,
-    holdsPhoto,
-} from '@/lib/render/editor-catalogue';
+import { deedKeyForSpace } from '@/lib/render/editor-catalogue';
 import type { PhotoCache } from '@/lib/render/editor-photo-cache';
-import { canSwapPhoto } from '@/lib/render/editor-photo-swap';
-import {
-    lidLogoPlacement,
-    placementQuality,
-    type PlacementAction,
-    type PlacementContext,
+import type {
+    PlacementAction,
+    PlacementContext,
 } from '@/lib/render/editor-placements';
-import {
-    placementTarget,
-    resolutionLabel,
-} from '@/lib/render/photos-resolution';
-import {
-    MAX_ZOOM,
-    minZoom,
-    seamClearX,
-    startingPoint,
-} from '@/lib/render/photos-transform';
-import { defaultTransform } from '@/lib/render/photos-transform';
-import { centerRect } from '@/lib/render/print-board';
-import { THEMES } from '@/lib/render/themes';
 import type { Space } from '@/types/game';
-import type { Size } from '@/types/print';
-
-import { ChoiceRow, RangeField, type ChoiceOption } from './panel-parts';
-import type { PhotoUpload } from './use-photo-upload';
 
 export const PHOTO_ACCEPT =
     'image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif';
-
-/** What an element shows in its Afbeelding section (§3.4). */
-type ImageChoice =
-    'none' | 'photo' | 'standard' | 'preset' | 'upload' | 'pattern' | 'logo';
 
 type ImageSectionProps = {
     session: EditionSession;
@@ -96,40 +58,117 @@ const whereKey = (
     kind: ElementKind,
     space: Space | undefined,
 ): string | null => {
-    switch (kind) {
-        case 'pawn':
-            return 'editor.image_where_pawn';
-        case 'note':
-            return 'editor.image_where_note';
-        case 'space':
-            return space?.type === 'station' || space?.type === 'utility'
-                ? 'editor.image_where_deed'
-                : null;
-        default:
-            return null;
+    if (kind === 'pawn') {
+        return 'editor.image_where_pawn';
     }
+    if (kind === 'note') {
+        return 'editor.image_where_note';
+    }
+
+    return kind === 'space' &&
+        (space?.type === 'station' || space?.type === 'utility')
+        ? 'editor.image_where_deed'
+        : null;
 };
 
-/**
- * The Afbeelding section (§3.4, B141): one row with only the choices the element has, then the tools for that
- * choice. Photo tools (In kader / Hele vak, zoom, a quarter turn, black and white) come after a photo is chosen.
- */
-export const ImageSection = ({
+const DeedLine = ({
     session,
     edition,
-    resolved,
     editKey,
     kind,
-    iconSpace,
+    override,
+}: {
+    session: EditionSession;
+    edition: Edition;
+    editKey: string;
+    kind: ElementKind;
+    override: ElementOverride | undefined;
+}) => {
+    const t = useTranslation();
+    const deedId = useId();
+    // A street, station or utility: its photo is on the title deed too, unless switched off (B157).
+    const spacePosition =
+        kind === 'space' ? Number(editKey.split('.')[1]) : undefined;
+    const ownDeedKey =
+        spacePosition === undefined || !edition.parts.deeds
+            ? undefined
+            : deedKeyForSpace(spacePosition);
+
+    return ownDeedKey === undefined ? null : edition.elements[ownDeedKey]
+          ?.photo !== undefined ? (
+        <p className="m-0 text-sm text-ink-soft" data-field="deed-photo">
+            {t('editor.deed_photo_own')}
+        </p>
+    ) : (
+        <Field orientation="horizontal" className="min-h-11 gap-2">
+            <Checkbox
+                id={deedId}
+                checked={override?.deedPhoto !== false}
+                data-field="deed-photo"
+                onCheckedChange={(checked) =>
+                    editElement(session, editKey, {
+                        deedPhoto: checked === true ? undefined : false,
+                    })
+                }
+            />
+            <FieldLabel htmlFor={deedId} className="text-base font-normal">
+                {t('editor.deed_photo_also')}
+            </FieldLabel>
+        </Field>
+    );
+};
+
+const SectionPhotoTools = ({
+    session,
+    edition,
+    editKey,
+    kind,
+    override,
     photoStyle,
     context,
     onAct,
     cache,
     upload,
-    onAnnounce,
-}: ImageSectionProps) => {
-    const t = useTranslation();
-    const deedId = useId();
+    onChoose,
+    onSwapped,
+    chooseButton,
+}: Omit<ImageSectionProps, 'resolved' | 'iconSpace' | 'onAnnounce'> & {
+    override: ElementOverride | undefined;
+    onChoose: () => void;
+    onSwapped?: (text: string) => void;
+    chooseButton: boolean;
+}) => (
+    <PhotoTools
+        chooseButton={chooseButton}
+        session={session}
+        editKey={editKey}
+        override={override}
+        photoStyle={photoStyle}
+        extra={
+            <DeedLine
+                session={session}
+                edition={edition}
+                editKey={editKey}
+                kind={kind}
+                override={override}
+            />
+        }
+        context={context}
+        onAct={onAct}
+        cache={cache}
+        upload={upload}
+        onChoose={onChoose}
+        onSwapped={onSwapped}
+    />
+);
+
+/**
+ * The Afbeelding section (§3.4, B141): one row with only the choices the element has, then the tools for that
+ * choice. Photo tools (In kader / Hele vak, zoom, a quarter turn, black and white) come after a photo is chosen.
+ */
+export const ImageSection = (props: ImageSectionProps) => {
+    const { session, edition, resolved, editKey, kind, iconSpace } = props;
+    const { cache, upload } = props;
     const override: ElementOverride | undefined = edition.elements[editKey];
     const placement = override?.photo;
     const fileInput = useRef<HTMLInputElement>(null);
@@ -138,768 +177,66 @@ export const ImageSection = ({
         key: string;
         choice: ImageChoice;
     } | null>(null);
-    const waiting = pending?.key === editKey ? pending.choice : null;
-    const wait = (choice: ImageChoice): void =>
-        setPending(choice === 'photo' ? null : { key: editKey, choice });
+    const hold = (choice: ImageChoice | null): void =>
+        setPending(choice === null ? null : { key: editKey, choice });
     const openFiles = (): void => fileInput.current?.click();
-    // Without a photo the P shortcut and a photo warning land on the Foto choice, with one on "Andere foto".
-    const photoField: Partial<Record<ImageChoice, string>> =
-        placement === undefined ? { photo: 'photo' } : {};
-
-    const clear = (patch: Partial<ElementOverride>): void => {
-        const now = session.edition.elements[editKey];
-        const changed = (Object.keys(patch) as (keyof ElementOverride)[]).some(
-            (field) => now?.[field] !== undefined,
-        );
-        if (changed) {
-            editElement(session, editKey, patch);
-        }
-    };
-
-    // A street, station or utility: its photo is on the title deed too, unless switched off (B157).
-    const spacePosition =
-        kind === 'space' ? Number(editKey.split('.')[1]) : undefined;
-    const ownDeedKey =
-        spacePosition === undefined || !edition.parts.deeds
-            ? undefined
-            : deedKeyForSpace(spacePosition);
-    const deedLine =
-        ownDeedKey === undefined ? null : edition.elements[ownDeedKey]
-              ?.photo !== undefined ? (
-            <p className="m-0 text-sm text-ink-soft" data-field="deed-photo">
-                {t('editor.deed_photo_own')}
-            </p>
-        ) : (
-            <Field orientation="horizontal" className="min-h-11 gap-2">
-                <Checkbox
-                    id={deedId}
-                    checked={override?.deedPhoto !== false}
-                    data-field="deed-photo"
-                    onCheckedChange={(checked) =>
-                        editElement(session, editKey, {
-                            deedPhoto: checked === true ? undefined : false,
-                        })
-                    }
-                />
-                <FieldLabel htmlFor={deedId} className="text-base font-normal">
-                    {t('editor.deed_photo_also')}
-                </FieldLabel>
-            </Field>
-        );
-
     const photoTools = (chooseButton: boolean) => (
-        <PhotoTools
-            chooseButton={chooseButton}
-            session={session}
-            editKey={editKey}
+        <SectionPhotoTools
+            {...props}
             override={override}
-            photoStyle={photoStyle}
-            extra={deedLine}
-            context={context}
-            onAct={onAct}
-            cache={cache}
-            upload={upload}
             onChoose={openFiles}
-            onSwapped={onAnnounce}
+            onSwapped={props.onAnnounce}
+            chooseButton={chooseButton}
         />
     );
-    const photoPart = photoTools(false);
-    const fileField = (
-        <input
-            ref={fileInput}
-            type="file"
-            accept={PHOTO_ACCEPT}
-            multiple
-            hidden
-            data-testid="photo-input"
-            onChange={upload.choose}
-        />
-    );
-    const where = whereKey(kind, iconSpace);
-    const status = <UploadStatus upload={upload} />;
+    const parts: ImageParts = {
+        session,
+        edition,
+        editKey,
+        override,
+        cache,
+        waiting: pending?.key === editKey ? pending.choice : null,
+        wait: (choice) => hold(choice === 'photo' ? null : choice),
+        hold,
+        clear: (patch) => {
+            if (clearsSomething(session.edition.elements[editKey], patch)) {
+                editElement(session, editKey, patch);
+            }
+        },
+        openFiles,
+        // Without a photo the P shortcut and a photo warning land on the Foto choice, with one on "Andere foto".
+        photoField: placement === undefined ? { photo: 'photo' } : {},
+        fileField: (
+            <input
+                ref={fileInput}
+                type="file"
+                accept={PHOTO_ACCEPT}
+                multiple
+                hidden
+                data-testid="photo-input"
+                onChange={upload.choose}
+            />
+        ),
+        photoPart: photoTools(false),
+        choosePart: photoTools(true),
+        status: <UploadStatus upload={upload} />,
+        where: whereKey(kind, iconSpace),
+    };
 
     if (kind === 'boardCenter') {
-        return (
-            <CenterImage
-                session={session}
-                edition={edition}
-                resolved={resolved}
-                editKey={editKey}
-                override={override}
-                cache={cache}
-                photoPart={photoTools(true)}
-                fileField={fileField}
-                status={status}
-                openFiles={openFiles}
-            />
-        );
+        return <CenterImage {...parts} photoPart={parts.choosePart} />;
     }
-
     if (iconSpace !== undefined) {
-        const canPhoto = holdsPhoto(editKey);
-        // One Foto choice (Niek, 22 nov): a photo fills the space, or sits small and whole where the icon is. The
-        // small one is the image of your own that was a choice of its own before (B136).
-        const small = iconChoiceOf(override?.icon) === 'upload';
-        const current: ImageChoice =
-            placement !== undefined ||
-            small ||
-            waiting === 'photo' ||
-            waiting === 'upload'
-                ? 'photo'
-                : iconChoiceOf(override?.icon) === 'standard'
-                  ? (waiting ?? 'standard')
-                  : iconChoiceOf(override?.icon);
-        const size: 'fill' | 'small' =
-            placement !== undefined
-                ? 'fill'
-                : small || !canPhoto || waiting === 'upload'
-                  ? 'small'
-                  : 'fill';
-        const options: ChoiceOption<ImageChoice>[] = [
-            {
-                id: 'standard',
-                label: t('editor.image_icon_standard'),
-                short: t('editor.image_icon_standard_short'),
-            },
-            {
-                id: 'preset',
-                label: t('editor.image_icon_other'),
-                short: t('editor.image_icon_other_short'),
-            },
-            { id: 'photo', label: t('editor.image_photo') },
-        ];
-        /** The same photo, moved between the whole space and the spot of the icon. */
-        const resize = (next: 'fill' | 'small'): void => {
-            const icon = override?.icon;
-            if (next === 'small') {
-                setPending({ key: editKey, choice: 'upload' });
-                if (placement === undefined) {
-                    return;
-                }
-                const info = cache.getSnapshot().get(placement.photoId);
-                const base = defaultTransform();
-                editElement(session, editKey, {
-                    photo: undefined,
-                    icon: {
-                        aspect:
-                            info !== undefined &&
-                            info.width > 0 &&
-                            info.height > 0
-                                ? info.width / info.height
-                                : 1,
-                        photo: {
-                            ...placement,
-                            cx: base.x,
-                            cy: base.y,
-                            scale: base.scale,
-                        },
-                    },
-                });
-            } else {
-                setPending(null);
-                if (icon !== undefined && 'photo' in icon) {
-                    editElement(session, editKey, {
-                        icon: undefined,
-                        photo: icon.photo,
-                    });
-                } else {
-                    openFiles();
-                }
-            }
-        };
-
-        return (
-            <>
-                <ChoiceRow
-                    fields={photoField}
-                    label={t('editor.section_image')}
-                    options={options}
-                    value={current}
-                    onChange={(next) => {
-                        if (next === 'standard') {
-                            wait(next);
-                            clear({ icon: undefined, photo: undefined });
-                        } else if (next === 'photo') {
-                            if (canPhoto) {
-                                setPending({ key: editKey, choice: 'photo' });
-                                if (placement === undefined && !small) {
-                                    openFiles();
-                                }
-                            } else {
-                                setPending({ key: editKey, choice: 'upload' });
-                            }
-                        } else if (next === 'preset') {
-                            wait(next);
-                            clear({ photo: undefined });
-                        }
-                    }}
-                />
-                {canPhoto && fileField}
-                {current === 'photo' && canPhoto && (
-                    <ChoiceRow<'fill' | 'small'>
-                        name={t('editor.image_photo_size')}
-                        label={t('editor.image_photo_size')}
-                        options={[
-                            {
-                                id: 'fill',
-                                label: t('editor.image_photo_fill'),
-                            },
-                            {
-                                id: 'small',
-                                label: t('editor.image_photo_small'),
-                            },
-                        ]}
-                        value={size}
-                        onChange={resize}
-                    />
-                )}
-                {current === 'preset' && (
-                    <IconPresetPicker
-                        session={session}
-                        edition={edition}
-                        editKey={editKey}
-                        space={iconSpace}
-                    />
-                )}
-                {current === 'photo' && size === 'small' && (
-                    <IconUpload
-                        session={session}
-                        edition={edition}
-                        editKey={editKey}
-                        cache={cache}
-                    />
-                )}
-                {current === 'photo' &&
-                    size === 'fill' &&
-                    // Before the file is chosen (or after the picker was closed) the choose button stays at hand.
-                    (placement === undefined ? photoTools(true) : photoPart)}
-                {where !== null && current !== 'photo' && (
-                    <p className="m-0 text-xs text-ink-soft">{t(where)}</p>
-                )}
-                {status}
-            </>
-        );
+        return <SpaceImage {...parts} iconSpace={iconSpace} />;
     }
-
     if (kind === 'deed') {
-        return (
-            <DeedImage
-                session={session}
-                edition={edition}
-                resolved={resolved}
-                editKey={editKey}
-                onWait={wait}
-                openFiles={openFiles}
-                photoPart={photoPart}
-                fileField={fileField}
-                status={status}
-            />
-        );
+        return <DeedImage {...parts} resolved={resolved} onWait={parts.wait} />;
     }
-
     if (kind === 'cardBack') {
-        const deck = editKey.split('.')[1];
-        const patterns = deck === 'chance' || deck === 'chest';
-        const accent =
-            THEMES[edition.theme].deckAccent[
-                deck === 'chest' ? 'chest' : 'chance'
-            ];
-        const current: ImageChoice =
-            placement !== undefined
-                ? 'photo'
-                : override?.pattern !== undefined
-                  ? 'pattern'
-                  : (waiting ?? 'standard');
-        const options: ChoiceOption<ImageChoice>[] = [
-            { id: 'standard', label: t('editor.image_back_standard') },
-            ...(patterns
-                ? [{ id: 'pattern' as const, label: t('editor.image_pattern') }]
-                : []),
-            { id: 'photo', label: t('editor.image_photo') },
-        ];
-
-        return (
-            <>
-                <ChoiceRow
-                    fields={photoField}
-                    label={t('editor.section_image')}
-                    options={options}
-                    value={current}
-                    onChange={(next) => {
-                        wait(next);
-                        if (next === 'standard') {
-                            clear({ photo: undefined, pattern: undefined });
-                        } else if (next === 'pattern') {
-                            clear({ photo: undefined });
-                        } else if (placement === undefined) {
-                            clear({ pattern: undefined });
-                            openFiles();
-                        }
-                    }}
-                />
-                {fileField}
-                {current === 'pattern' && patterns && (
-                    <PatternPicker
-                        label={t('editor.style_back_pattern')}
-                        value={override?.pattern}
-                        withNone={false}
-                        color={accent}
-                        onChange={(pattern) =>
-                            editElement(session, editKey, {
-                                pattern,
-                                photo: undefined,
-                            })
-                        }
-                    />
-                )}
-                {current === 'photo' && photoPart}
-                {status}
-            </>
-        );
+        return <CardBackImage {...parts} />;
     }
 
-    // Everything else: no picture or a photo. The box lid shows the theme without one, and can show the logo of the
-    // board centre (B241, Lukas): the same file, whole and straight above the name.
-    const centerLogo =
-        kind === 'boxLid' && resolved.boardCenter.mode === 'logo'
-            ? resolved.boardCenter.photo
-            : undefined;
-    const lidLogo =
-        kind === 'boxLid' &&
-        placement !== undefined &&
-        placement.photoId === centerLogo?.photoId;
-    const current: ImageChoice = lidLogo
-        ? 'logo'
-        : placement !== undefined
-          ? 'photo'
-          : (waiting ?? 'none');
-    const options: ChoiceOption<ImageChoice>[] = [
-        {
-            id: 'none',
-            label:
-                kind === 'boxLid'
-                    ? t('editor.image_theme')
-                    : t('editor.image_none'),
-        },
-        ...(centerLogo !== undefined
-            ? [{ id: 'logo' as const, label: t('editor.image_lid_logo') }]
-            : []),
-        {
-            id: 'photo',
-            label:
-                kind === 'note'
-                    ? t('editor.image_photo_oval')
-                    : t('editor.image_photo'),
-        },
-    ];
-
-    return (
-        <>
-            <ChoiceRow
-                fields={photoField}
-                label={t('editor.section_image')}
-                options={options}
-                value={current}
-                onChange={(next) => {
-                    wait(next);
-                    if (next === 'none') {
-                        clear({ photo: undefined });
-                    } else if (next === 'logo') {
-                        if (centerLogo !== undefined && !lidLogo) {
-                            editElement(session, editKey, {
-                                photo: lidLogoPlacement(centerLogo),
-                                photoStyle: undefined,
-                            });
-                        }
-                    } else if (placement === undefined || lidLogo) {
-                        openFiles();
-                    }
-                }}
-            />
-            {fileField}
-            {current === 'logo' ? (
-                <p className="m-0 text-sm text-ink-soft" data-lid-logo>
-                    {t('editor.lid_logo_hint')}
-                </p>
-            ) : (
-                /* One place for both, so the tools stay mounted and the focus can move to Andere foto (bug 16). */
-                (current === 'photo' || current === 'none') && photoPart
-            )}
-            {where !== null && (
-                <p className="m-0 text-xs text-ink-soft">{t(where)}</p>
-            )}
-            {status}
-        </>
-    );
-};
-
-type PhotoToolsProps = {
-    session: EditionSession;
-    editKey: string;
-    override: ElementOverride | undefined;
-    photoStyle: boolean;
-    /** A line under the photo, such as "Ook op het eigendomsbewijs" on a street (B157). */
-    extra?: ReactNode;
-    context: PlacementContext | null;
-    onAct: (action: PlacementAction, announcement?: string) => void;
-    cache: PhotoCache;
-    upload: PhotoUpload;
-    onChoose: () => void;
-    /** After "Naar ander vak…", with the words for the status line (B238). */
-    onSwapped?: (text: string) => void;
-    /**
-     * A "Foto kiezen" button before there is a photo. Only the board centre needs it: its layout can wait for a
-     * photo. Everywhere else the choice Foto opens the files at once (vindbaarheid point 2).
-     */
-    chooseButton?: boolean;
-};
-
-/** Before a photo only Plakken (and "Foto kiezen" in the centre); after it the photo with "Andere foto" and its tools. */
-const PhotoTools = ({
-    session,
-    editKey,
-    override,
-    photoStyle,
-    extra,
-    context,
-    onAct,
-    cache,
-    upload,
-    onChoose,
-    onSwapped,
-    chooseButton = false,
-}: PhotoToolsProps) => {
-    const t = useTranslation();
-    const grayscaleId = useId();
-    const { locale } = usePage().props;
-    const hints = useKeyboardHints();
-    const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
-    const [swapping, setSwapping] = useState(false);
-    const placement = override?.photo;
-    const zoomPercent = Math.round((placement?.scale ?? 1) * 100);
-    // After the first photo "Foto kiezen" makes way for "Andere foto"; the focus goes with it instead of
-    // falling to `body`, where single letters are shortcuts (bug 16, ronde 3).
-    const box = useRef<HTMLDivElement>(null);
-    const photoId = placement?.photoId;
-    const hadPhoto = useRef(photoId !== undefined);
-    useEffect(() => {
-        if (photoId === undefined) {
-            hadPhoto.current = false;
-
-            return;
-        }
-        const active = document.activeElement;
-        if (
-            !hadPhoto.current &&
-            (active === null || active === document.body || !active.isConnected)
-        ) {
-            box.current
-                ?.querySelector<HTMLElement>('[data-field="photo"]')
-                ?.focus({ preventScroll: true });
-        }
-        hadPhoto.current = true;
-    }, [photoId]);
-    const fit = placement?.fit === true;
-    const minPercent = Math.round(minZoom({ fit }) * 100);
-    const quality =
-        placement !== undefined && context !== null
-            ? placementQuality(placement, context)
-            : null;
-    const paste = upload.canPasteButton && (
-        <Button variant="secondary" onClick={() => void upload.paste()}>
-            {t('editor.photo_paste')}
-        </Button>
-    );
-
-    if (placement === undefined) {
-        return (
-            <div ref={box} className="flex flex-col gap-2">
-                {(chooseButton || paste !== false) && (
-                    <div className="flex flex-wrap gap-2">
-                        {chooseButton && (
-                            <Button
-                                data-field="photo"
-                                variant="secondary"
-                                onClick={onChoose}
-                            >
-                                {t('editor.photo_choose')}
-                            </Button>
-                        )}
-                        {paste}
-                    </div>
-                )}
-                {hints && (
-                    <p className="m-0 text-xs text-ink-soft">
-                        {t('editor.photo_hint_keys', {
-                            keys: shortcutKeys('paste'),
-                        })}
-                    </p>
-                )}
-            </div>
-        );
-    }
-
-    const thumb = photos.get(placement.photoId)?.url;
-
-    return (
-        <div ref={box} className="flex flex-col gap-4">
-            <div className="rounded-control border-2 border-ink bg-paper">
-                <div className="flex flex-wrap items-center gap-3 p-3">
-                    <span
-                        aria-hidden="true"
-                        className="size-14 shrink-0 overflow-hidden rounded-control border border-line-strong bg-table"
-                    >
-                        {thumb !== undefined && (
-                            <img
-                                src={thumb}
-                                alt=""
-                                className="size-full object-cover"
-                                style={{
-                                    filter: placement.grayscale
-                                        ? 'grayscale(1)'
-                                        : undefined,
-                                }}
-                            />
-                        )}
-                    </span>
-                    <div className="flex min-w-0 flex-1 flex-wrap gap-2">
-                        <Button
-                            data-field="photo"
-                            variant="secondary"
-                            className="px-4 min-[400px]:px-4"
-                            onClick={onChoose}
-                        >
-                            {t('editor.photo_replace')}
-                        </Button>
-                        {paste}
-                    </div>
-                </div>
-                {/* The photo to another space, or two photos trading places (B238): a quiet line under the photo. */}
-                {canSwapPhoto(session.edition, editKey) && (
-                    <div className="border-t border-dashed border-line-strong px-3">
-                        <Button
-                            variant="link"
-                            data-photo-swap
-                            className="min-h-11 gap-2 text-base no-underline hover:underline"
-                            onClick={() => setSwapping(true)}
-                        >
-                            <SwapIcon size={18} />
-                            {t('editor.photo_swap_short')}
-                        </Button>
-                    </div>
-                )}
-            </div>
-            {canSwapPhoto(session.edition, editKey) && (
-                <PhotoSwapDialog
-                    open={swapping}
-                    onOpenChange={setSwapping}
-                    session={session}
-                    edition={session.edition}
-                    editKey={editKey}
-                    title={elementLabel(editKey, session.edition, locale)}
-                    photos={photos}
-                    onDone={(text) => {
-                        setSwapping(false);
-                        onSwapped?.(text);
-                    }}
-                />
-            )}
-
-            {extra}
-
-            {photoStyle && (
-                <PhotoStyleChoice
-                    kind={parseKey(editKey)?.kind}
-                    value={override?.photoStyle ?? 'framed'}
-                    onChange={(style) =>
-                        editElement(session, editKey, {
-                            photoStyle: style === 'full' ? 'full' : undefined,
-                        })
-                    }
-                />
-            )}
-
-            {/* Vullend / Passend (B168), also for a logo or photo in the board centre; the photo over the whole
-                centre has its own tools. */}
-            <ChoiceRow<'fill' | 'fit'>
-                name={t('editor.photo_fit')}
-                label={t('editor.photo_fit')}
-                fields={{ fill: 'photo-fit' }}
-                options={[
-                    { id: 'fill', label: t('editor.photo_fit_fill') },
-                    { id: 'fit', label: t('editor.photo_fit_fit') },
-                ]}
-                value={fit ? 'fit' : 'fill'}
-                onChange={(next) =>
-                    onAct(
-                        { type: 'fit', on: next === 'fit' },
-                        next === 'fit'
-                            ? t('editor.photo_fit_announce_fit')
-                            : t('editor.photo_fit_announce_fill'),
-                    )
-                }
-            />
-
-            <div className="flex items-end gap-2">
-                <Button
-                    variant="icon"
-                    aria-label={t('editor.zoom_out')}
-                    disabled={context === null}
-                    onClick={() =>
-                        onAct(
-                            { type: 'zoom-by', delta: -0.1 },
-                            t('editor.zoom_announce', {
-                                percent: Math.max(minPercent, zoomPercent - 10),
-                            }),
-                        )
-                    }
-                >
-                    −
-                </Button>
-                <RangeField
-                    className="flex-1"
-                    label={t('editor.zoom')}
-                    shown={
-                        <span className="font-mono font-normal">
-                            {zoomPercent}%
-                        </span>
-                    }
-                    min={minPercent}
-                    max={MAX_ZOOM * 100}
-                    value={zoomPercent}
-                    valueText={`${String(zoomPercent)}%`}
-                    disabled={context === null}
-                    onChange={(next) =>
-                        onAct({ type: 'zoom-to', scale: next / 100 })
-                    }
-                />
-                <Button
-                    variant="icon"
-                    aria-label={t('editor.zoom_in')}
-                    disabled={context === null}
-                    onClick={() =>
-                        onAct(
-                            { type: 'zoom-by', delta: 0.1 },
-                            t('editor.zoom_announce', {
-                                percent: Math.min(
-                                    MAX_ZOOM * 100,
-                                    zoomPercent + 10,
-                                ),
-                            }),
-                        )
-                    }
-                >
-                    +
-                </Button>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                <Button
-                    variant="secondary"
-                    disabled={context === null}
-                    onClick={() => onAct({ type: 'rotate', turns: 1 })}
-                >
-                    <span aria-hidden="true">⟳</span>
-                    {t('editor.photo_rotate')}
-                </Button>
-                <Field
-                    orientation="horizontal"
-                    data-disabled={context === null}
-                    className="min-h-11 w-auto gap-2"
-                >
-                    <Checkbox
-                        id={grayscaleId}
-                        checked={placement.grayscale}
-                        disabled={context === null}
-                        onCheckedChange={(checked) =>
-                            onAct({ type: 'grayscale', on: checked === true })
-                        }
-                    />
-                    <FieldLabel
-                        htmlFor={grayscaleId}
-                        className="text-base font-normal"
-                    >
-                        {t('editor.grayscale')}
-                    </FieldLabel>
-                </Field>
-            </div>
-
-            {quality !== null && (
-                <p
-                    className="m-0 text-sm text-ink-soft"
-                    data-testid="photo-resolution"
-                >
-                    {resolutionLabel(quality, locale)}
-                </p>
-            )}
-            {/* How large the photo is on paper (UX 4, ronde 4), with its ppi there (B251): both from the target it
-                prints on, so Hele vak gives the size of the whole space. */}
-            {photoStyle && quality !== null && context !== null && (
-                <p
-                    className="m-0 text-sm text-ink-soft"
-                    data-testid="photo-paper-size"
-                >
-                    {paperSize(
-                        t,
-                        editKey,
-                        override?.photoStyle === 'full',
-                        context.frame,
-                        quality.dpi,
-                    )}
-                </p>
-            )}
-            <p className="m-0 flex items-center gap-2 text-sm text-ink-soft">
-                <HandIcon size={18} className="shrink-0 text-ink" />
-                {t(
-                    hints
-                        ? 'editor.photo_hint_move'
-                        : 'editor.photo_hint_touch',
-                )}
-            </p>
-        </div>
-    );
-};
-
-/** Kinds with a photo size line, and the thing the photo is printed on: "Op het deksel", not "Op het bord" (R5-08). */
-const PRINTED_ON: Partial<Record<ElementKind, string>> = {
-    space: 'editor.photo_on_space',
-    deed: 'editor.photo_on_deed',
-    card: 'editor.photo_on_card',
-    note: 'editor.photo_on_note',
-    pawn: 'editor.photo_on_pawn',
-    boxLid: 'editor.photo_on_boxLid',
-};
-
-/** Above this many mm a face fills the photo anyway, so the line gives only the size. */
-const CLOSE_UP_MM = 60;
-
-/** How large the photo is on paper and on what (UX 4 of ronde 4, R5-08). */
-const paperSize = (
-    t: (key: string, replacements?: Record<string, string | number>) => string,
-    editKey: string,
-    full: boolean,
-    frame: { w: number; h: number },
-    dpi: number,
-): string => {
-    const kind = parseKey(editKey)?.kind;
-    const on = kind === undefined ? undefined : PRINTED_ON[kind];
-    const where = t(on ?? 'editor.photo_on_space');
-    const size = {
-        where,
-        w: Math.round(frame.w),
-        h: Math.round(frame.h),
-        ppi: Math.round(dpi),
-        full: t(fullStyleKey(kind)),
-    };
-
-    if (Math.min(frame.w, frame.h) >= CLOSE_UP_MM) {
-        return t('editor.photo_paper_size_large', size);
-    }
-
-    return t(
-        full ? 'editor.photo_paper_size' : 'editor.photo_paper_size_framed',
-        size,
-    );
+    return <PlainImage {...parts} kind={kind} resolved={resolved} />;
 };
 
 /** Uploads in progress, upload errors, and the message after several photos. */
@@ -949,350 +286,6 @@ export const UploadStatus = ({ upload }: { upload: PhotoUpload }) => {
                     {upload.placed.text}
                 </p>
             )}
-        </>
-    );
-};
-
-type DeedChoice = 'none' | 'space' | 'photo';
-
-/**
- * The Afbeelding section of a title deed (B157): no photo, the photo of its space (the standard when the space has
- * one), or a photo of its own. Moving the inherited photo in the preview makes it the deed's own crop.
- */
-const DeedImage = ({
-    session,
-    edition,
-    resolved,
-    editKey,
-    onWait,
-    openFiles,
-    photoPart,
-    fileField,
-    status,
-}: {
-    session: EditionSession;
-    edition: Edition;
-    resolved: ResolvedEdition;
-    editKey: string;
-    onWait: (choice: ImageChoice) => void;
-    openFiles: () => void;
-    photoPart: ReactNode;
-    fileField: ReactNode;
-    status: ReactNode;
-}) => {
-    const t = useTranslation();
-    const deed = resolved.deeds?.find((candidate) => candidate.key === editKey);
-    const ownSpaceKey =
-        deed === undefined ? undefined : spaceKey(deed.space.position);
-    const spaceOverride =
-        ownSpaceKey === undefined ? undefined : edition.elements[ownSpaceKey];
-    const own = edition.elements[editKey]?.photo !== undefined;
-    const current: DeedChoice = own
-        ? 'photo'
-        : deed?.photoFrom === 'space'
-          ? 'space'
-          : 'none';
-    const group = `deed-photo:${editKey}`;
-    const options: ChoiceOption<DeedChoice>[] = [
-        { id: 'none', label: t('editor.image_none') },
-        ...(spaceOverride?.photo === undefined
-            ? []
-            : [{ id: 'space' as const, label: t('editor.deed_photo_space') }]),
-        { id: 'photo', label: t('editor.deed_photo_other') },
-    ];
-
-    const choose = (next: DeedChoice): void => {
-        onWait(next === 'photo' ? 'photo' : 'none');
-        if (next === 'photo') {
-            if (!own) openFiles();
-
-            return;
-        }
-        if (own) {
-            editElement(session, editKey, { photo: undefined }, group);
-        }
-        if (ownSpaceKey !== undefined && spaceOverride?.photo !== undefined) {
-            editElement(
-                session,
-                ownSpaceKey,
-                { deedPhoto: next === 'none' ? false : undefined },
-                group,
-            );
-        }
-    };
-
-    return (
-        <>
-            <ChoiceRow<DeedChoice>
-                fields={own ? {} : { photo: 'photo' }}
-                label={t('editor.section_image')}
-                options={options}
-                value={current}
-                onChange={choose}
-            />
-            {fileField}
-            {current === 'space' && (
-                <p className="m-0 text-sm text-ink-soft">
-                    {t('editor.deed_photo_space_hint')}
-                </p>
-            )}
-            {current === 'photo' && photoPart}
-            {status}
-        </>
-    );
-};
-
-type CenterImageProps = {
-    session: EditionSession;
-    edition: Edition;
-    resolved: ResolvedEdition;
-    editKey: string;
-    override: ElementOverride | undefined;
-    cache: PhotoCache;
-    photoPart: ReactNode;
-    fileField: ReactNode;
-    status: ReactNode;
-    openFiles: () => void;
-};
-
-/** The four layouts of the board centre (B187): one photo, which every layout with a photo takes along. */
-type CenterLayoutChoice = 'name' | 'photo' | 'full' | 'logo';
-
-const CENTER_LAYOUTS: readonly CenterLayoutChoice[] = [
-    'name',
-    'photo',
-    'full',
-    'logo',
-];
-
-/** The layout a centre shows now. A photo over the whole centre is "full", whatever the mode says. */
-export const centerLayoutOf = (
-    override: ElementOverride | undefined,
-): CenterLayoutChoice => {
-    if (override?.centerMode === 'logo') {
-        return 'logo';
-    }
-    if (override?.background !== undefined) {
-        return 'full';
-    }
-
-    return override?.centerMode === 'photo' ? 'photo' : 'name';
-};
-
-/**
- * The fields that switch the centre to another layout, keeping its one photo (B187, Sophie in ronde 4). The photo
- * moves between "above the name" (`photo`) and "over the whole centre" (`background`); with only the name it waits
- * in `photo`, so the next layout with a photo shows it again. `null` when the layout needs a photo first.
- */
-const switchCenterLayout = (
-    override: ElementOverride | undefined,
-    next: CenterLayoutChoice,
-    aspectOf: (photoId: string) => number | undefined,
-    /** The centre with the bleed of its photo, in mm: where a photo over the whole centre starts (R5-03). */
-    centre?: Size,
-): Partial<ElementOverride> | null => {
-    const current = override?.background ?? override?.photo;
-    const withAspect = (photoId: string) => {
-        const aspect = aspectOf(photoId);
-
-        return aspect === undefined ? {} : { photoAspect: aspect };
-    };
-
-    if (next === 'name') {
-        return {
-            centerMode: undefined,
-            background: undefined,
-            ...(current === undefined ? {} : { photo: current }),
-        };
-    }
-    if (current === undefined) {
-        return null;
-    }
-    if (next === 'full') {
-        const { fit: _fit, ...rest } = current;
-        // The crop of the small square means nothing over the whole centre: the photo starts there as a new one
-        // does, with the faces a third from the top and clear of the fold (R5-03).
-        const aspect = aspectOf(current.photoId);
-        const start =
-            aspect === undefined
-                ? undefined
-                : startingPoint({ w: aspect, h: 1 }, centre);
-        // Across, the middle of the photo keeps off the vertical fold where the photo is wide enough (B261).
-        const across =
-            aspect === undefined || centre === undefined
-                ? undefined
-                : seamClearX({ w: aspect, h: 1 }, centre);
-
-        return {
-            centerMode: undefined,
-            photo: undefined,
-            background:
-                start === undefined || override?.background !== undefined
-                    ? rest
-                    : {
-                          ...rest,
-                          cx: across ?? start.x,
-                          cy: start.y,
-                          scale: 1,
-                      },
-        };
-    }
-
-    return {
-        centerMode: next,
-        background: undefined,
-        // A logo fits whole by default (Passend, B168, B180); a photo keeps how it was placed.
-        photo: next === 'logo' ? { ...current, fit: true } : current,
-        ...withAspect(current.photoId),
-    };
-};
-
-/**
- * The board centre (B125, B187): one choice of layout (name, name with a photo, a photo over the whole centre, or a
- * logo) and one photo. Switching the layout takes the photo along, so it never has to be chosen twice.
- */
-const CenterImage = ({
-    session,
-    edition,
-    editKey,
-    override,
-    cache,
-    photoPart,
-    fileField,
-    status,
-    openFiles,
-}: CenterImageProps) => {
-    const t = useTranslation();
-    const frameId = useId();
-    const { locale } = usePage().props;
-    const [waiting, setWaiting] = useState<CenterLayoutChoice | null>(null);
-    const backgroundInput = useRef<HTMLInputElement>(null);
-    const stored = centerLayoutOf(override);
-    // A layout that waits for its photo shows as chosen until the file comes, or the layout changes.
-    const layout =
-        waiting !== null && stored === 'name' && override?.photo === undefined
-            ? waiting
-            : stored;
-    // An edition from before B187 can have both photos; the one this layout does not show can go.
-    const second =
-        override?.background !== undefined &&
-        override.photo !== undefined &&
-        override.centerMode !== undefined;
-
-    const choose = (next: CenterLayoutChoice): void => {
-        setWaiting(next);
-        const centre = centerRect(edition.boardProfile);
-        const patch = switchCenterLayout(
-            override,
-            next,
-            (photoId) => {
-                const info = cache.getSnapshot().get(photoId);
-
-                return info === undefined || info.height <= 0
-                    ? undefined
-                    : info.width / info.height;
-            },
-            placementTarget(centre, CENTER_PHOTO_BLEED),
-        );
-        if (patch !== null) {
-            editElement(session, editKey, patch);
-
-            return;
-        }
-        // No photo yet: straight to the files, like "Foto" on a space (UX 1, B179).
-        if (next === 'full') {
-            backgroundInput.current?.click();
-        } else {
-            editElement(session, editKey, { centerMode: next });
-            openFiles();
-        }
-    };
-
-    return (
-        <>
-            <ChoiceRow<CenterLayoutChoice>
-                name={t('editor.center_mode')}
-                label={t('editor.center_mode')}
-                fields={override?.photo === undefined ? { photo: 'photo' } : {}}
-                options={CENTER_LAYOUTS.map((mode) => ({
-                    id: mode,
-                    label: t(`editor.center_mode_${mode}`),
-                }))}
-                value={layout}
-                onChange={choose}
-            />
-            {fileField}
-            {(layout === 'photo' || layout === 'logo') && (
-                <>
-                    <p className="m-0 text-xs text-ink-soft">
-                        {t(`editor.center_hint_${layout}`)}
-                    </p>
-                    {photoPart}
-                    {layout === 'photo' && (
-                        <Field
-                            orientation="horizontal"
-                            className="min-h-11 gap-2"
-                        >
-                            <Checkbox
-                                id={frameId}
-                                checked={override?.photoFrame !== false}
-                                data-field="photo-frame"
-                                onCheckedChange={(checked) =>
-                                    editElement(session, editKey, {
-                                        photoFrame:
-                                            checked === true
-                                                ? undefined
-                                                : false,
-                                    })
-                                }
-                            />
-                            <FieldLabel
-                                htmlFor={frameId}
-                                className="text-base font-normal"
-                            >
-                                {t('editor.photo_frame')}
-                            </FieldLabel>
-                        </Field>
-                    )}
-                </>
-            )}
-            {/* Mounted for every layout, so choosing "Foto over het hele midden" opens its files at once. */}
-            <CenterBackground
-                session={session}
-                edition={edition}
-                editKey={editKey}
-                override={override}
-                cache={cache}
-                locale={locale}
-                inputRef={backgroundInput}
-                fieldOnly={layout !== 'full'}
-            />
-            {second && (
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-control border-2 border-dashed border-line-strong px-3 py-2 text-sm">
-                    <span className="min-w-0 flex-1">
-                        {t('editor.center_second_photo')}
-                    </span>
-                    <button
-                        type="button"
-                        className="min-h-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
-                        onClick={() =>
-                            editElement(
-                                session,
-                                editKey,
-                                layout === 'full'
-                                    ? {
-                                          photo: undefined,
-                                          centerMode: undefined,
-                                      }
-                                    : { background: undefined },
-                            )
-                        }
-                    >
-                        {t('editor.center_second_remove')}
-                    </button>
-                </div>
-            )}
-            {status}
         </>
     );
 };

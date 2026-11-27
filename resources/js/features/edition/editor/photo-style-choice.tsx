@@ -26,6 +26,81 @@ export const fullStyleKey = (kind: string | undefined): string => {
     );
 };
 
+const FramedArt = () => (
+    <>
+        <rect
+            x="4"
+            y="4"
+            width="22"
+            height="5"
+            fill="currentColor"
+            opacity="0.25"
+        />
+        <rect
+            x="4"
+            y="12"
+            width="22"
+            height="16"
+            fill="currentColor"
+            opacity="0.55"
+        />
+        <rect
+            x="4"
+            y="31"
+            width="22"
+            height="2"
+            fill="currentColor"
+            opacity="0.25"
+        />
+        <rect
+            x="8"
+            y="35"
+            width="14"
+            height="1.6"
+            fill="currentColor"
+            opacity="0.25"
+        />
+    </>
+);
+
+const FullArt = () => (
+    <>
+        <rect
+            x="0.75"
+            y="9"
+            width="28.5"
+            height="30.25"
+            fill="currentColor"
+            opacity="0.55"
+        />
+        <rect
+            x="0.75"
+            y="9"
+            width="28.5"
+            height="8"
+            fill="var(--color-card)"
+            opacity="0.9"
+        />
+        <rect
+            x="6"
+            y="11.5"
+            width="18"
+            height="3"
+            fill="currentColor"
+            opacity="0.5"
+        />
+        <rect
+            x="0.75"
+            y="29"
+            width="28.5"
+            height="10.25"
+            fill="currentColor"
+            opacity="0.35"
+        />
+        <rect x="9" y="33.5" width="12" height="2" fill="var(--color-card)" />
+    </>
+);
+
 /** Small drawing of the two options: a photo in a frame, or a photo over the whole space with a name band. */
 const Miniature = ({ style }: { style: PhotoStyle }) => {
     return (
@@ -45,84 +120,7 @@ const Miniature = ({ style }: { style: PhotoStyle }) => {
                 stroke="currentColor"
                 strokeWidth="1.5"
             />
-            {style === 'framed' ? (
-                <>
-                    <rect
-                        x="4"
-                        y="4"
-                        width="22"
-                        height="5"
-                        fill="currentColor"
-                        opacity="0.25"
-                    />
-                    <rect
-                        x="4"
-                        y="12"
-                        width="22"
-                        height="16"
-                        fill="currentColor"
-                        opacity="0.55"
-                    />
-                    <rect
-                        x="4"
-                        y="31"
-                        width="22"
-                        height="2"
-                        fill="currentColor"
-                        opacity="0.25"
-                    />
-                    <rect
-                        x="8"
-                        y="35"
-                        width="14"
-                        height="1.6"
-                        fill="currentColor"
-                        opacity="0.25"
-                    />
-                </>
-            ) : (
-                <>
-                    <rect
-                        x="0.75"
-                        y="9"
-                        width="28.5"
-                        height="30.25"
-                        fill="currentColor"
-                        opacity="0.55"
-                    />
-                    <rect
-                        x="0.75"
-                        y="9"
-                        width="28.5"
-                        height="8"
-                        fill="var(--color-card)"
-                        opacity="0.9"
-                    />
-                    <rect
-                        x="6"
-                        y="11.5"
-                        width="18"
-                        height="3"
-                        fill="currentColor"
-                        opacity="0.5"
-                    />
-                    <rect
-                        x="0.75"
-                        y="29"
-                        width="28.5"
-                        height="10.25"
-                        fill="currentColor"
-                        opacity="0.35"
-                    />
-                    <rect
-                        x="9"
-                        y="33.5"
-                        width="12"
-                        height="2"
-                        fill="var(--color-card)"
-                    />
-                </>
-            )}
+            {style === 'framed' ? <FramedArt /> : <FullArt />}
         </svg>
     );
 };
@@ -151,8 +149,9 @@ export const PhotoStyleChoice = ({
             variant="outline"
             value={value}
             onValueChange={(next) => {
-                if (next !== '') {
-                    onChange(next as PhotoStyle);
+                const chosen = options.find((option) => option.id === next);
+                if (chosen !== undefined) {
+                    onChange(chosen.id);
                 }
             }}
             aria-label={t('editor.photo_style')}

@@ -50,6 +50,51 @@ type ColorFieldProps = {
     leading?: readonly Swatch[];
 };
 
+const Swatches = ({
+    swatches,
+    value,
+    onChoose,
+}: {
+    swatches: readonly Swatch[];
+    value: string;
+    onChoose: (hex: string) => void;
+}) => {
+    const t = useTranslation();
+    const { locale } = usePage().props;
+
+    return (
+        <div
+            className="grid grid-cols-6 gap-2"
+            role="group"
+            aria-label={t('editor.style_palette')}
+        >
+            {swatches
+                .filter(
+                    (swatch, index, all) =>
+                        all.findIndex((other) => other.hex === swatch.hex) ===
+                        index,
+                )
+                .map((swatch) => (
+                    <button
+                        key={swatch.hex}
+                        type="button"
+                        aria-label={swatch.name[locale]}
+                        aria-pressed={value.toUpperCase() === swatch.hex}
+                        title={swatch.name[locale]}
+                        onClick={() => onChoose(swatch.hex)}
+                        className={cn(
+                            'aspect-square min-h-9 w-full cursor-pointer rounded-control border-2 p-0',
+                            value.toUpperCase() === swatch.hex
+                                ? 'border-ink shadow-[inset_0_0_0_2px_var(--color-card)] outline-3 outline-offset-1 outline-ink'
+                                : 'border-line-strong',
+                        )}
+                        style={{ background: swatch.hex }}
+                    />
+                ))}
+        </div>
+    );
+};
+
 /**
  * Picks a colour: the palette of the theme, or any colour as hex or with the system picker. A
  * colour that print ink cannot reproduce is toned down at once, and the field says so (B75). The label
@@ -67,7 +112,6 @@ export const ColorField = ({
     leading = [],
 }: ColorFieldProps) => {
     const t = useTranslation();
-    const { locale } = usePage().props;
     const [draft, setDraft] = useState<string | null>(null);
     const [softened, setSoftened] = useState(false);
 
@@ -95,36 +139,11 @@ export const ColorField = ({
                     }
                 />
             )}
-            <div
-                className="grid grid-cols-6 gap-2"
-                role="group"
-                aria-label={t('editor.style_palette')}
-            >
-                {[...leading, ...PALETTES[edition.theme]]
-                    .filter(
-                        (swatch, index, all) =>
-                            all.findIndex(
-                                (other) => other.hex === swatch.hex,
-                            ) === index,
-                    )
-                    .map((swatch) => (
-                        <button
-                            key={swatch.hex}
-                            type="button"
-                            aria-label={swatch.name[locale]}
-                            aria-pressed={value.toUpperCase() === swatch.hex}
-                            title={swatch.name[locale]}
-                            onClick={() => choose(swatch.hex)}
-                            className={cn(
-                                'aspect-square min-h-9 w-full cursor-pointer rounded-control border-2 p-0',
-                                value.toUpperCase() === swatch.hex
-                                    ? 'border-ink shadow-[inset_0_0_0_2px_var(--color-card)] outline-3 outline-offset-1 outline-ink'
-                                    : 'border-line-strong',
-                            )}
-                            style={{ background: swatch.hex }}
-                        />
-                    ))}
-            </div>
+            <Swatches
+                swatches={[...leading, ...PALETTES[edition.theme]]}
+                value={value}
+                onChoose={choose}
+            />
             <div className="flex items-center gap-2">
                 <input
                     type="color"

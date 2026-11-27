@@ -1296,160 +1296,19 @@
       "count": 2
     }
   },
-  "resources/js/features/edition/editor/element-panel.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 4
-    },
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 2
-    },
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/element-panel.tsx": {
-    "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 2
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    }
-  },
   "resources/js/features/edition/editor/element-stage.tsx": {
     "no-restricted-properties": {
       "count": 8
     }
   },
-  "resources/js/features/edition/editor/panel/amount-section.tsx": {
-    "max-lines-per-function": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/editor/panel/image-section.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 3
-    }
-  },
-  "resources/js/features/edition/editor/panel/panel-header.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/editor/panel/panel-parts.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/panel/placed-list.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/panel/placed-list.tsx": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/panel/proposal-group.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/panel/style-section.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 3
-    }
-  },
-  "resources/js/features/edition/editor/panel/text-section.tsx": {
-    "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/panel/title-style-field.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/editor/panel/use-photo-upload.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 3
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
     "no-restricted-properties": {
       "count": 2
-    }
-  },
-  "resources/js/features/edition/editor/part-style-field.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/photo-style-choice.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/shortcuts.ts": {
     "no-restricted-properties": {
       "count": 2
-    }
-  },
-  "resources/js/features/edition/editor/style-controls.tsx": {
-    "max-lines-per-function": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/together-section.tsx": {

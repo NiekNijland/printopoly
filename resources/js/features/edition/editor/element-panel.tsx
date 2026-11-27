@@ -1,56 +1,46 @@
 import { usePage } from '@inertiajs/react';
 import { useState, useSyncExternalStore } from 'react';
 
-import { editElement } from '@/features/edition/editor/edit';
 import type { EditionSession } from '@/features/edition/session';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/render/checks-types';
 import { cornerOf } from '@/lib/render/corners';
-import { baselineField } from '@/lib/render/edition-baseline';
-import { amountIntoText } from '@/lib/render/edition-card-text';
 import { groupColorName } from '@/lib/render/edition-group-names';
 import {
     ALLOWED_FIELDS,
     PAWN_COUNT,
-    groupKey,
     parseKey,
-    spaceKey,
+    type ElementKind,
 } from '@/lib/render/edition-keys';
 import {
     resolvedCardOf,
+    type ResolvedCard,
     type ResolvedEdition,
 } from '@/lib/render/edition-resolve';
 import type { Edition } from '@/lib/render/edition-types';
 import { elementLabel, holdsPhoto } from '@/lib/render/editor-catalogue';
-import {
-    faceOffFold,
-    layerOffFold,
-    replaceLayer,
-    type LayerArea,
-} from '@/lib/render/editor-layers';
+import type { LayerArea } from '@/lib/render/editor-layers';
 import {
     panelSections,
     spaceOfKey,
     type PanelSection as SectionId,
 } from '@/lib/render/editor-panel-sections';
-import type { PhotoCache } from '@/lib/render/editor-photo-cache';
+import type { PhotoCache, PhotoInfos } from '@/lib/render/editor-photo-cache';
 import type {
     PlacementAction,
     PlacementContext,
 } from '@/lib/render/editor-placements';
 import { cn } from '@/lib/utils';
-import type { Locale } from '@/types/game';
+import type { Locale, Space } from '@/types/game';
 
-import { changedAmounts } from './amount-fields';
-import { AmountSection } from './panel/amount-section';
+import { elementIssues, friendsFor } from './panel/element-issues';
 import { FriendsSection, type FriendsProps } from './panel/friends-section';
-import { ImageSection, centerLayoutOf } from './panel/image-section';
+import { IssueFix } from './panel/issue-fix';
 import { PanelHeader } from './panel/panel-header';
-import { FieldIssues, PanelSection } from './panel/panel-parts';
-import { PlacedList } from './panel/placed-list';
-import { StyleSection } from './panel/style-section';
-import { TextSection } from './panel/text-section';
-import { usePhotoUpload } from './panel/use-photo-upload';
+import { FieldIssues, PanelSection } from './panel/panel-section';
+import { SectionBody } from './panel/section-body';
+import { sectionSummary } from './panel/section-summary';
+import { usePhotoUpload, type PhotoUpload } from './panel/use-photo-upload';
 
 export type ElementPanelProps = {
     session: EditionSession;
@@ -127,18 +117,15 @@ export const kindLine = (
     const space = spaceOfKey(key);
 
     if (kind === 'space' && space !== undefined) {
-        switch (space.type) {
-            case 'street': {
-                return t('editor.kind_street', {
-                    group: groupColorName(edition, space.group, locale).name,
-                });
-            }
-            case 'chance':
-            case 'chest':
-                return t('editor.kind_space');
-            default:
-                return t(`editor.kind_${space.type}`);
+        if (space.type === 'street') {
+            return t('editor.kind_street', {
+                group: groupColorName(edition, space.group, locale).name,
+            });
         }
+
+        return space.type === 'chance' || space.type === 'chest'
+            ? t('editor.kind_space')
+            : t(`editor.kind_${space.type}`);
     }
     if (kind === 'card') {
         return resolvedCardOf(resolved, key)?.extra === true
@@ -171,389 +158,43 @@ export const kindLine = (
     return t(`editor.kind_${kind ?? 'space'}`);
 };
 
-/** Controle messages about amounts stay at their field; the rest go on top of the panel (B94, §3.3). */
-const AMOUNT_FIELD = /^amounts?\b/;
+const canHoldPhoto = (editKey: string, resolved: ResolvedEdition): boolean => {
+    const kind = parseKey(editKey)?.kind;
+
+    return kind === 'boardCenter'
+        ? resolved.boardCenter.mode !== 'name'
+        : holdsPhoto(editKey) &&
+              kind !== undefined &&
+              ALLOWED_FIELDS[kind].includes('photo');
+};
 
 /**
  * The field panel (B93, B141): a head with the ⋯ menu, the Controle messages of the element, then the fixed
  * sections Tekst, Afbeelding, Bedragen, Stijl and, when a friend sent something, Van vrienden. A section is only
  * there when the type has it (`lib/render/editor-panel-sections.ts`).
  */
-export const ElementPanel = ({
-    session,
-    edition,
-    resolved,
-    editKey,
-    title,
-    context,
-    onAct,
-    cache,
-    issues,
-    siblings,
-    area,
-    selectedLayer = null,
-    onSelectLayer,
-    onRemoved,
-    onOpenWords,
-    friends,
-    status: shared,
-}: ElementPanelProps) => {
+export const ElementPanel = (props: ElementPanelProps) => {
+    const { session, edition, resolved, editKey, title, cache } = props;
+    const { status: shared } = props;
     const t = useTranslation();
     const { locale: interfaceLocale } = usePage().props;
     const ownStatus = useElementStatus(editKey);
     const status = shared ?? ownStatus;
-    const removed = (): void => {
-        status.carry();
-        onRemoved?.();
-    };
     const kind = parseKey(editKey)?.kind;
-    const sections = panelSections(editKey);
     const space = spaceOfKey(editKey);
-    const iconSpace =
-        kind === 'space' && space !== undefined && space.type !== 'street'
-            ? space
-            : undefined;
     const card =
         kind === 'card' ? resolvedCardOf(resolved, editKey) : undefined;
-    const override = edition.elements[editKey];
-    const allowed = kind === undefined ? [] : ALLOWED_FIELDS[kind];
-    const canHold =
-        kind === 'boardCenter'
-            ? resolved.boardCenter.mode !== 'name'
-            : holdsPhoto(editKey) && allowed.includes('photo');
     const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
     const upload = usePhotoUpload({
         session,
         edition,
         editKey,
         cache,
-        siblings,
-        canHold,
+        siblings: props.siblings,
+        canHold: canHoldPhoto(editKey, resolved),
         labelOf: (key) => elementLabel(key, edition, interfaceLocale),
     });
-    const corner =
-        kind === 'space' && space !== undefined
-            ? cornerOf(space.position)
-            : undefined;
-    const photoStyle =
-        override?.photo !== undefined &&
-        allowed.includes('photoStyle') &&
-        corner === undefined;
-
-    // Issues of a deed also count for its space, and the other way around, like on the board.
-    // A message about a group, such as the pawns without a photo, shows on each of them (R5-09).
-    const about = (issue: CheckIssue) =>
-        issue.elementKey === editKey ||
-        (issue.alsoKeys?.includes(editKey) ?? false);
-    const own = issues.filter(
-        (issue) =>
-            about(issue) ||
-            (space !== undefined &&
-                issue.elementKey === spaceKey(space.position) &&
-                AMOUNT_FIELD.test(issue.field)),
-    );
-    const top = own.filter(
-        (issue) => about(issue) && !AMOUNT_FIELD.test(issue.field),
-    );
-
-    const targets = new Set([editKey]);
-    if (space !== undefined) {
-        targets.add(spaceKey(space.position));
-        if (space.type === 'street') {
-            targets.add(groupKey(space.group));
-        }
-    }
-    const incoming =
-        friends?.contributions.filter(
-            (item) => targets.has(item.elementKey) && item.open.length > 0,
-        ) ?? [];
-    // The line after a decision stays with this element, also when nothing is left to decide (bug 30).
-    const here = (element: string): boolean =>
-        element === editKey || targets.has(element);
-    const decided =
-        friends !== undefined &&
-        [friends.decision.note, friends.decision.problem].some(
-            (line) => line !== null && here(line.element),
-        );
-
-    const summary = (id: SectionId): string | undefined => {
-        switch (id) {
-            case 'image':
-                // The centre says its layout (B187): its photo can wait in the background of a name-only layout.
-                if (kind === 'boardCenter') {
-                    return t(`editor.center_mode_${centerLayoutOf(override)}`);
-                }
-
-                return override?.photo !== undefined
-                    ? override.photoStyle === 'full'
-                        ? t('editor.summary_photo_full')
-                        : t('editor.summary_photo')
-                    : override?.icon !== undefined
-                      ? t('editor.summary_icon')
-                      : t('editor.summary_no_photo');
-            case 'amounts': {
-                const count =
-                    space !== undefined
-                        ? changedAmounts(edition, space)
-                        : // A card counts as changed only when its amount differs from the template's (R6 Aisha).
-                          override?.amount !==
-                            baselineField(edition, editKey, 'amount')
-                          ? 1
-                          : 0;
-
-                return count > 0
-                    ? t('editor.summary_changed', { count })
-                    : undefined;
-            }
-            default:
-                return undefined;
-        }
-    };
-
-    const body = (id: SectionId) => {
-        switch (id) {
-            case 'text':
-                return (
-                    <TextSection
-                        session={session}
-                        edition={edition}
-                        resolved={resolved}
-                        editKey={editKey}
-                        kind={kind ?? 'space'}
-                        space={space}
-                        card={card}
-                        issues={own}
-                        onOpenWords={onOpenWords}
-                    />
-                );
-            case 'image':
-                return (
-                    <>
-                        <ImageSection
-                            session={session}
-                            edition={edition}
-                            resolved={resolved}
-                            editKey={editKey}
-                            kind={kind ?? 'space'}
-                            iconSpace={iconSpace}
-                            photoStyle={photoStyle}
-                            context={context}
-                            onAct={onAct}
-                            cache={cache}
-                            upload={upload}
-                            onAnnounce={status.announce}
-                        />
-                        {/* After several photos at once: which went where, right under the photo field (UX 4). */}
-                        {upload.placed?.kind === 'batch' && (
-                            <PlacedList
-                                placed={upload.placed}
-                                photos={photos}
-                                onUndo={upload.undoPlaced}
-                                onClose={upload.dismissPlaced}
-                                onMove={upload.movePlaced}
-                                onPlaceMissed={(index, key) =>
-                                    void upload.placeMissed(index, key)
-                                }
-                            />
-                        )}
-                    </>
-                );
-            case 'amounts':
-                return (
-                    <AmountSection
-                        session={session}
-                        edition={edition}
-                        resolved={resolved}
-                        editKey={editKey}
-                        kind={kind ?? 'space'}
-                        space={space}
-                        card={card}
-                        issues={own}
-                    />
-                );
-            case 'style':
-                return (
-                    <StyleSection
-                        session={session}
-                        edition={edition}
-                        resolved={resolved}
-                        editKey={editKey}
-                        kind={kind ?? 'space'}
-                        space={space}
-                        cache={cache}
-                        area={area}
-                        selectedLayer={selectedLayer}
-                        onSelectLayer={onSelectLayer ?? (() => undefined)}
-                    />
-                );
-        }
-    };
-
-    // "Bedrag aanpassen" (bug 8): the card text names another amount than the line under it, and that amount
-    // is allowed, so one tap makes them agree.
-    const fixAction = (issue: CheckIssue) => {
-        // "Verschuiven" (B183, B187): the name, photo or logo goes to a free square, a layer off the fold.
-        if (issue.code === 'center.on-fold') {
-            return (
-                <button
-                    type="button"
-                    onClick={() => {
-                        const layerId = issue.field.startsWith('layer.')
-                            ? issue.field.slice('layer.'.length)
-                            : null;
-                        const layers =
-                            session.edition.elements[editKey]?.layers ?? [];
-                        const layer = layers.find(
-                            (candidate) => candidate.id === layerId,
-                        );
-                        const background =
-                            session.edition.elements[editKey]?.background;
-                        const size =
-                            background === undefined
-                                ? undefined
-                                : photos.get(background.photoId);
-                        if (layer !== undefined) {
-                            editElement(session, editKey, {
-                                layers: replaceLayer(
-                                    layers,
-                                    layerOffFold(layer, edition.boardProfile),
-                                ),
-                            });
-                        } else if (issue.field === 'background') {
-                            // The middle of a photo over the whole centre on a fold (B261): zoom in and slide it.
-                            if (
-                                background !== undefined &&
-                                size !== undefined
-                            ) {
-                                editElement(session, editKey, {
-                                    background: faceOffFold(
-                                        edition.boardProfile,
-                                        background,
-                                        { w: size.width, h: size.height },
-                                    ),
-                                });
-                            }
-                        } else {
-                            editElement(session, editKey, {
-                                centerPlace: undefined,
-                                titleOffset: undefined,
-                            });
-                        }
-                        status.announce(t('editor.fold_fixed'));
-                    }}
-                    className="min-h-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
-                >
-                    {t('editor.fold_fix')}
-                </button>
-            );
-        }
-        if (card === undefined) {
-            return null;
-        }
-        const text = session.edition.elements[editKey]?.text;
-        // "De tekst noemt 50, en dat staat al onderaan": the amount goes into the text once (R5-11).
-        if (issue.code === 'text.amount-twice') {
-            const amount = card.amount;
-            const once =
-                text === undefined || amount === undefined
-                    ? null
-                    : amountIntoText(text, amount);
-            if (once === null) {
-                return null;
-            }
-
-            return (
-                <FixButton
-                    label={t('editor.amount_once')}
-                    onClick={() => {
-                        editElement(session, editKey, { text: once });
-                        status.announce(t('editor.amount_once_done'));
-                    }}
-                />
-            );
-        }
-        // "De tekst zegt betalen, maar onderaan staat Ontvang": one tap turns the card (R5-11).
-        const says = issue.data?.says;
-        if (issue.code === 'text.amount-direction' && says !== undefined) {
-            const amount = card.amount;
-            if (amount === undefined || amount === 0) {
-                return null;
-            }
-            const turned = (says === 'pay' ? -1 : 1) * Math.abs(amount);
-
-            return (
-                <FixButton
-                    label={t(
-                        says === 'pay'
-                            ? 'editor.amount_turn_pay'
-                            : 'editor.amount_turn_receive',
-                    )}
-                    onClick={() => {
-                        editElement(session, editKey, {
-                            amount:
-                                turned === card.standardAmount &&
-                                baselineField(edition, editKey, 'amount') ===
-                                    undefined
-                                    ? undefined
-                                    : turned,
-                        });
-                        status.announce(
-                            t(
-                                says === 'pay'
-                                    ? 'editor.amount_turned_pay'
-                                    : 'editor.amount_turned_receive',
-                            ),
-                        );
-                    }}
-                />
-            );
-        }
-        const mentioned = issue.data?.mentioned;
-        if (
-            issue.code !== 'text.amount-differs' ||
-            issue.data?.allowed !== true ||
-            mentioned === undefined
-        ) {
-            return null;
-        }
-        const standard = card.extra ? undefined : card.standardAmount;
-        const baseline = baselineField(edition, editKey, 'amount');
-        // The amount becomes the mentioned one and the number in the text becomes `{amount}`, so the card names it
-        // once and the fix does not raise "the amount is already at the bottom" (Sem, R5-11).
-        const into =
-            text === undefined ? null : amountIntoText(text, mentioned);
-
-        return (
-            <FixButton
-                label={t('editor.amount_fix')}
-                onClick={() => {
-                    editElement(session, editKey, {
-                        // The standard amount is stored as no amount, unless the template set its own.
-                        amount:
-                            mentioned === standard && baseline === undefined
-                                ? undefined
-                                : mentioned,
-                        ...(into === null ? {} : { text: into }),
-                    });
-                    status.announce(
-                        t(
-                            into === null
-                                ? 'editor.amount_fixed'
-                                : 'editor.amount_fixed_in_text',
-                            { amount: Math.abs(mentioned) },
-                        ),
-                    );
-                }}
-            />
-        );
-    };
-
-    const titles: Record<SectionId, string> = {
-        text: t('editor.section_text'),
-        image: t('editor.section_image'),
-        amounts: t('editor.section_amounts'),
-        style: t('editor.section_style'),
-    };
+    const { own, top } = elementIssues(props.issues, editKey, space);
 
     return (
         <aside
@@ -579,52 +220,34 @@ export const ElementPanel = ({
                         t,
                         interfaceLocale,
                     )}
-                    onRemoved={removed}
+                    onRemoved={() => {
+                        status.carry();
+                        props.onRemoved?.();
+                    }}
                     onAnnounce={status.announce}
                     photos={photos}
                 />
             </div>
 
-            {top.length > 0 && (
-                <div className="flex flex-col gap-2">
-                    <FieldIssues issues={top} action={fixAction} />
-                </div>
-            )}
+            <PanelIssues
+                {...props}
+                top={top}
+                card={card}
+                photos={photos}
+                announce={status.announce}
+            />
 
             {/* The key starts every element with fresh sections: on a phone the first one is open. */}
-            <div key={editKey} className="flex flex-col gap-4 md:gap-5">
-                {sections.map((id, index) => (
-                    <PanelSection
-                        key={id}
-                        id={id}
-                        title={titles[id]}
-                        summary={summary(id)}
-                        defaultOpen={index === 0}
-                    >
-                        {body(id)}
-                    </PanelSection>
-                ))}
-                {friends !== undefined && (incoming.length > 0 || decided) && (
-                    <PanelSection
-                        id="friends"
-                        title={t('editor.section_friends')}
-                        badge={
-                            incoming.length > 0 ? (
-                                <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-press px-1.5 font-sans text-xs font-semibold text-white">
-                                    {incoming.length}
-                                </span>
-                            ) : undefined
-                        }
-                        defaultOpen
-                    >
-                        <FriendsSection
-                            {...friends}
-                            contributions={incoming}
-                            here={here}
-                        />
-                    </PanelSection>
-                )}
-            </div>
+            <PanelSections
+                key={editKey}
+                {...props}
+                kind={kind}
+                space={space}
+                card={card}
+                own={own}
+                upload={upload}
+                announce={status.announce}
+            />
 
             <p role="status" className="m-0 min-h-5 text-sm">
                 {status.text}
@@ -633,21 +256,132 @@ export const ElementPanel = ({
     );
 };
 
-/** The link-style button under a warning that fixes it in one tap. */
-const FixButton = ({
-    label,
-    onClick,
-}: {
-    label: string;
-    onClick: () => void;
-}) => {
+const PanelIssues = ({
+    top,
+    session,
+    edition,
+    editKey,
+    card,
+    photos,
+    announce,
+}: ElementPanelProps & {
+    top: CheckIssue[];
+    card: ResolvedCard | undefined;
+    photos: PhotoInfos;
+    announce: (text: string) => void;
+}) =>
+    top.length === 0 ? null : (
+        <div className="flex flex-col gap-2">
+            <FieldIssues
+                issues={top}
+                action={(issue) => (
+                    <IssueFix
+                        issue={issue}
+                        session={session}
+                        edition={edition}
+                        editKey={editKey}
+                        card={card}
+                        photos={photos}
+                        announce={announce}
+                    />
+                )}
+            />
+        </div>
+    );
+
+type PanelSectionsProps = ElementPanelProps & {
+    kind: ElementKind | undefined;
+    space: Space | undefined;
+    card: ResolvedCard | undefined;
+    own: CheckIssue[];
+    upload: PhotoUpload;
+    announce: (text: string) => void;
+};
+
+const PanelSections = (props: PanelSectionsProps) => {
+    const { edition, editKey, kind, space, friends } = props;
+    const t = useTranslation();
+    const allowed = kind === undefined ? [] : ALLOWED_FIELDS[kind];
+    const titles: Record<SectionId, string> = {
+        text: t('editor.section_text'),
+        image: t('editor.section_image'),
+        amounts: t('editor.section_amounts'),
+        style: t('editor.section_style'),
+    };
+
     return (
-        <button
-            type="button"
-            onClick={onClick}
-            className="min-h-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
+        <div className="flex flex-col gap-4 md:gap-5">
+            {panelSections(editKey).map((id, index) => (
+                <PanelSection
+                    key={id}
+                    id={id}
+                    title={titles[id]}
+                    summary={sectionSummary(
+                        id,
+                        { edition, editKey, kind, space },
+                        t,
+                    )}
+                    defaultOpen={index === 0}
+                >
+                    <SectionBody
+                        {...props}
+                        id={id}
+                        kind={kind}
+                        space={space}
+                        iconSpace={
+                            kind === 'space' && space?.type !== 'street'
+                                ? space
+                                : undefined
+                        }
+                        card={props.card}
+                        own={props.own}
+                        photoStyle={
+                            edition.elements[editKey]?.photo !== undefined &&
+                            allowed.includes('photoStyle') &&
+                            (kind !== 'space' ||
+                                space === undefined ||
+                                cornerOf(space.position) === undefined)
+                        }
+                        upload={props.upload}
+                        announce={props.announce}
+                        selectedLayer={props.selectedLayer ?? null}
+                    />
+                </PanelSection>
+            ))}
+            <FriendsPart friends={friends} editKey={editKey} space={space} />
+        </div>
+    );
+};
+
+const FriendsPart = ({
+    friends,
+    editKey,
+    space,
+}: {
+    friends: FriendsProps | undefined;
+    editKey: string;
+    space: Space | undefined;
+}) => {
+    const t = useTranslation();
+    const { incoming, here, decided } = friendsFor(friends, editKey, space);
+    if (friends === undefined || (incoming.length === 0 && !decided)) {
+        return null;
+    }
+
+    return (
+        <PanelSection
+            id="friends"
+            title={t('editor.section_friends')}
+            badge={
+                incoming.length > 0 ? (
+                    <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-press px-1.5 font-sans text-xs font-semibold text-white">
+                        {incoming.length}
+                    </span>
+                ) : undefined
+            }
+            defaultOpen
         >
-            {label}
-        </button>
+            <FriendsSection {...friends} contributions={incoming} here={here} />
+        </PanelSection>
     );
 };

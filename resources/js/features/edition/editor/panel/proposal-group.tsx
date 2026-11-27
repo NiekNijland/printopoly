@@ -73,6 +73,92 @@ const Thumb = ({
     );
 };
 
+const OptionActions = ({
+    group,
+    contribution,
+    context,
+    looking,
+    onLook,
+}: {
+    group: PartGroup;
+    contribution: BoxContributionData;
+    context: ProposalContext;
+    looking: boolean;
+    onLook: () => void;
+}) => {
+    const t = useTranslation();
+    const { decision, busy } = context;
+    const parts: ContributionPart[] = [group.part];
+    const working = decision.working === `${contribution.id}:${group.part}`;
+    const disabled = decision.working !== null || busy;
+
+    return (
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <Button
+                variant="secondary"
+                disabled={disabled}
+                onClick={() =>
+                    void decision.decide(contribution, 'accept', parts)
+                }
+            >
+                {working ? t('collect.working') : t('collect.accept')}
+            </Button>
+            <button
+                type="button"
+                disabled={disabled}
+                onClick={() =>
+                    void decision.decide(contribution, 'reject', parts)
+                }
+                className="min-h-11 cursor-pointer border-0 bg-transparent px-2 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
+            >
+                {t('collect.pass')}
+            </button>
+            {group.part !== 'amount' && (
+                <button
+                    type="button"
+                    aria-pressed={looking}
+                    onClick={onLook}
+                    className="min-h-11 cursor-pointer border-0 bg-transparent px-2 text-sm text-ink-soft underline underline-offset-4"
+                >
+                    {looking ? t('collect.preview_hide') : t('collect.preview')}
+                </button>
+            )}
+        </div>
+    );
+};
+
+const OptionPreview = ({
+    group,
+    contribution,
+    context,
+    photo,
+}: {
+    group: PartGroup;
+    contribution: BoxContributionData;
+    context: ProposalContext;
+    photo: string | null;
+}) => {
+    const { edition, photos } = context;
+
+    return (
+        <div className="flex justify-center rounded-control bg-table p-2">
+            <ContributionPreview
+                edition={edition}
+                contribution={{
+                    ...contribution,
+                    elementKey: group.elementKey,
+                    amount: null,
+                    value: group.part === 'photo' ? null : contribution.value,
+                }}
+                photoUrl={group.part === 'photo' ? photo : null}
+                photos={photos}
+                maxWidth={220}
+                maxHeight={200}
+            />
+        </div>
+    );
+};
+
 /** One proposal for one field: what it says, who sent it, Toepassen and Niet gebruiken. */
 const Option = ({
     group,
@@ -86,7 +172,7 @@ const Option = ({
     competing: boolean;
 }) => {
     const t = useTranslation();
-    const { decision, edition, secret, busy, photos } = context;
+    const { edition, secret } = context;
     const [looking, setLooking] = useState(false);
     const photo = useContributionPhoto(
         group.part === 'photo'
@@ -94,9 +180,6 @@ const Option = ({
             : { ...contribution, photoUrl: null },
         secret,
     );
-    const parts: ContributionPart[] = [group.part];
-    const working = decision.working === `${contribution.id}:${group.part}`;
-    const disabled = decision.working !== null || busy;
 
     return (
         <li
@@ -134,58 +217,20 @@ const Option = ({
                 </p>
             </div>
             {looking && group.part !== 'amount' && (
-                <div className="flex justify-center rounded-control bg-table p-2">
-                    <ContributionPreview
-                        edition={edition}
-                        contribution={{
-                            ...contribution,
-                            elementKey: group.elementKey,
-                            amount: null,
-                            value:
-                                group.part === 'photo'
-                                    ? null
-                                    : contribution.value,
-                        }}
-                        photoUrl={group.part === 'photo' ? photo : null}
-                        photos={photos}
-                        maxWidth={220}
-                        maxHeight={200}
-                    />
-                </div>
+                <OptionPreview
+                    group={group}
+                    contribution={contribution}
+                    context={context}
+                    photo={photo}
+                />
             )}
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <Button
-                    variant="secondary"
-                    disabled={disabled}
-                    onClick={() =>
-                        void decision.decide(contribution, 'accept', parts)
-                    }
-                >
-                    {working ? t('collect.working') : t('collect.accept')}
-                </Button>
-                <button
-                    type="button"
-                    disabled={disabled}
-                    onClick={() =>
-                        void decision.decide(contribution, 'reject', parts)
-                    }
-                    className="min-h-11 cursor-pointer border-0 bg-transparent px-2 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
-                >
-                    {t('collect.pass')}
-                </button>
-                {group.part !== 'amount' && (
-                    <button
-                        type="button"
-                        aria-pressed={looking}
-                        onClick={() => setLooking((now) => !now)}
-                        className="min-h-11 cursor-pointer border-0 bg-transparent px-2 text-sm text-ink-soft underline underline-offset-4"
-                    >
-                        {looking
-                            ? t('collect.preview_hide')
-                            : t('collect.preview')}
-                    </button>
-                )}
-            </div>
+            <OptionActions
+                group={group}
+                contribution={contribution}
+                context={context}
+                looking={looking}
+                onLook={() => setLooking((now) => !now)}
+            />
         </li>
     );
 };
