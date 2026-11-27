@@ -5,12 +5,12 @@ import { BoardSpace } from '@/components/render/board-space';
 import type { EditionTitle } from '@/components/render/edition-title';
 import {
     clampTransform,
-    coversTarget,
     setFit,
     startingPoint,
 } from '@/lib/render/photos-transform';
 import { spaceAt } from '@/lib/render/standard-edition';
 import { defined } from '@/testing/defined';
+import { coversTarget } from '@/testing/photo-transform';
 import { photoLayout } from './photo';
 
 const base = { theme: 'classic', locale: 'nl' } as const;

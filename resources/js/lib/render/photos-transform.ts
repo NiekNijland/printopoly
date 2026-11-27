@@ -1,5 +1,5 @@
 import type { PhotoTransform, Rotation } from '../../types/photos';
-import type { Rect, Size } from '../../types/print';
+import type { Size } from '../../types/print';
 
 /** Zoom range of the editor: 100 to 300%; a photo that fits instead of fills may go down to 50% (B168). */
 export const MIN_ZOOM = 1;
@@ -11,7 +11,7 @@ export const minZoom = (t: Pick<PhotoTransform, 'fit'>): number => {
     return t.fit === true ? MIN_FIT_ZOOM : MIN_ZOOM;
 };
 /** One arrow key press moves the photo this far (B73, B98). */
-export const NUDGE_MM = 0.5;
+const NUDGE_MM = 0.5;
 
 const EPS = 1e-9;
 
@@ -29,7 +29,7 @@ export const orientedSize = (source: Size, rotation: Rotation): Size => {
 };
 
 /** mm per source pixel at which the photo exactly covers the target (zoom 100%). */
-export const coverMmPerPx = (
+const coverMmPerPx = (
     source: Size,
     rotation: Rotation,
     target: Size,
@@ -39,7 +39,7 @@ export const coverMmPerPx = (
 };
 
 /** mm per source pixel at which the whole photo fits inside the target (letterboxed). */
-export const containMmPerPx = (
+const containMmPerPx = (
     source: Size,
     rotation: Rotation,
     target: Size,
@@ -66,36 +66,6 @@ export const mmPerPx = (
     target: Size,
 ): number => {
     return baseMmPerPx(source, t, target) * t.scale;
-};
-
-/** The part of the rotated photo that shows in the target, in rotated source pixels. */
-export const visibleRegion = (
-    source: Size,
-    t: PhotoTransform,
-    target: Size,
-): Rect => {
-    const o = orientedSize(source, t.rotation);
-    const k = mmPerPx(source, t, target);
-    const w = target.w / k;
-    const h = target.h / k;
-    return { x: t.x * o.w - w / 2, y: t.y * o.h - h / 2, w, h };
-};
-
-/** True when the photo reaches every edge of the target. */
-export const coversTarget = (
-    source: Size,
-    t: PhotoTransform,
-    target: Size,
-): boolean => {
-    const o = orientedSize(source, t.rotation);
-    const r = visibleRegion(source, t, target);
-    const tol = 1e-6 * Math.max(o.w, o.h);
-    return (
-        r.x >= -tol &&
-        r.y >= -tol &&
-        r.x + r.w <= o.w + tol &&
-        r.y + r.h <= o.h + tol
-    );
 };
 
 const clampAxis = (center: number, half: number): number => {

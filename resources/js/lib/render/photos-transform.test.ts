@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { coverTransform } from '@/testing/photo-transform';
+import {
+    coverTransform,
+    coversTarget,
+    visibleRegion,
+} from '@/testing/photo-transform';
 import {
     MAX_ZOOM,
     MIN_ZOOM,
-    NUDGE_MM,
     clampTransform,
-    containMmPerPx,
-    coverMmPerPx,
-    coversTarget,
     defaultTransform,
     mmPerPx,
     nudge,
@@ -15,7 +15,6 @@ import {
     panBy,
     rotateQuarter,
     setZoom,
-    visibleRegion,
     zoomBy,
 } from './photos-transform';
 
@@ -24,21 +23,20 @@ const target = { w: 60, h: 40 };
 
 describe('cover and contain', () => {
     it('cover fills the target, contain fits inside it', () => {
-        expect(coverMmPerPx(source, 0, target)).toBe(
+        expect(mmPerPx(source, defaultTransform(), target)).toBe(
             Math.max(60 / 4000, 40 / 3000),
         );
-        expect(containMmPerPx(source, 0, target)).toBe(
-            Math.min(60 / 4000, 40 / 3000),
-        );
+        expect(
+            mmPerPx(source, { ...defaultTransform(), fit: true }, target),
+        ).toBe(Math.min(60 / 4000, 40 / 3000));
     });
 
     it('swaps width and height for quarter turns', () => {
         expect(orientedSize(source, 90)).toEqual({ w: 3000, h: 4000 });
         expect(orientedSize(source, 180)).toEqual(source);
-        expect(coverMmPerPx(source, 90, target)).toBeCloseTo(
-            Math.max(60 / 3000, 40 / 4000),
-            12,
-        );
+        expect(
+            mmPerPx(source, { ...defaultTransform(), rotation: 90 }, target),
+        ).toBeCloseTo(Math.max(60 / 3000, 40 / 4000), 12);
     });
 });
 
@@ -129,9 +127,9 @@ describe('nudge', () => {
         const k = mmPerPx(source, t0, target);
         const right = nudge(source, t0, target, 'right');
         // The picture moves right, so the visible window moves left by 0.5 mm worth of pixels.
-        expect((t0.x - right.x) * 4000 * k).toBeCloseTo(NUDGE_MM, 9);
+        expect((t0.x - right.x) * 4000 * k).toBeCloseTo(0.5, 9);
         const down = nudge(source, t0, target, 'down');
-        expect((t0.y - down.y) * 3000 * k).toBeCloseTo(NUDGE_MM, 9);
+        expect((t0.y - down.y) * 3000 * k).toBeCloseTo(0.5, 9);
         const left = nudge(source, t0, target, 'left');
         expect(left.x).toBeGreaterThan(t0.x);
         const up = nudge(source, t0, target, 'up');
