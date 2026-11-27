@@ -13,9 +13,8 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Removes what has outlived its 7 days (B62, B80): print jobs without an
- * account together with their photos and PDFs, and the PDFs of jobs with an
- * account (those jobs stay, and the next download makes the PDF again).
+ * Removes what has outlived its 7 days (B62, B80): print jobs without an account together with their photos and PDFs,
+ * and the PDFs of jobs with an account (those jobs stay, and the next download makes the PDF again).
  */
 final class PrintCleanup
 {
