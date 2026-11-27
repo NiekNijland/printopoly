@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parsePrintSelection } from '@/lib/render/edition-schema';
+import { parseEdition } from '@/lib/render/edition-schema';
 import { DEFAULT_PARTS, type PrintSelection } from '@/lib/render/edition-types';
 import { sampleEdition } from '@/lib/render/sample-edition';
 
@@ -120,6 +120,15 @@ describe('print selection (B198, B199)', () => {
     });
 
     it('reads a stored choice leniently: unknown parts and shapes are dropped', () => {
+        const parsePrintSelection = (printSelection: unknown) => {
+            const parsed = parseEdition({
+                ...sampleEdition('nl'),
+                printSelection,
+            });
+
+            return parsed.ok ? parsed.value.printSelection : null;
+        };
+
         expect(
             parsePrintSelection({
                 set: 'home',
