@@ -121,6 +121,7 @@ one-pattern-list                       max  grep   tests/Guards/lists/one-patter
 model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
 test-method-indent                     max  grep   @TEST_PATHS,:(exclude)*.md  ^        (public|private|protected)( static)? function 
 compose-latest-images                  max  grep   compose.yaml?  :latest['"]?[[:space:]]*(#.*)?$
+code-clones                            max  grep   tests/Guards/lists/code-clones.txt?  ^.
 TABLE
 }
 
@@ -1152,6 +1153,9 @@ compose-latest-images 1         image: "redis:latest"
 compose-latest-images 0         image: 'mongo:8'
 compose-latest-images 0         image: 'example/latest-tools:1.2'
 compose-latest-images 0         # image: redis:latested
+code-clones 1 3b8db80c4568 resources/js/components/render/a.tsx resources/js/components/render/b.tsx
+code-clones 2 0e6ac49a739a app/A.php app/B.php~NL~1f2ecd5cf56b resources/js/a.ts resources/js/b.ts resources/js/c.ts
+code-clones 0 ~NL~
 CASES
 }
 
