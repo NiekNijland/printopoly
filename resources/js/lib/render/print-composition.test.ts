@@ -3,7 +3,6 @@ import { defined } from '@/testing/defined';
 import { DEFAULT_BOARD_PROFILE } from './print-board';
 import {
     alignmentTargets,
-    cardKeys,
     composePages,
     type PrintEdition,
 } from './print-composition';
@@ -11,6 +10,12 @@ import { BLEED, MARKS } from './print-page-frame';
 
 /** Only the overrides are stored (B59), so an edition without elements still has 60 cards. */
 const edition: PrintEdition = { elements: {} };
+
+const cardKeys = (printed: PrintEdition): (string | null)[] =>
+    composePages('cards', 'printer', printed)
+        .flatMap((page) => page.items)
+        .filter((item) => item.side === 'front')
+        .map((item) => item.elementKey);
 
 /**
  * The page plan the PHP check (App\Print\PrintLayout) expects. The same table sits in
