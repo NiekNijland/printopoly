@@ -8,13 +8,18 @@ use App\Models\Edition;
 use App\Models\User;
 use App\Providers\AppServiceProvider;
 use Carbon\CarbonImmutable;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\LazyLoadingViolationException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\ParallelTesting;
+use Illuminate\Support\Facades\RateLimiter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Concerns\RefreshesMongoDatabase;
+use Tests\Support\OwnedEdition;
 use Tests\TestCase;
 
 final class AppServiceProviderTest extends TestCase
@@ -67,7 +72,7 @@ final class AppServiceProviderTest extends TestCase
         $owner = User::factory()->create();
         Edition::factory()->count(2)->create(['user_id' => $owner->getKey()]);
 
-        $loaded = $this->editionWithOwner()->newQuery()->get()->firstOrFail()->getRelationValue('owner');
+        $loaded = OwnedEdition::query()->get()->firstOrFail()->getRelationValue('owner');
 
         self::assertInstanceOf(User::class, $loaded);
         self::assertTrue($owner->is($loaded));
@@ -79,7 +84,7 @@ final class AppServiceProviderTest extends TestCase
         Exceptions::fake([LazyLoadingViolationException::class]);
         $this->bootInProduction();
         Edition::factory()->count(2)->create();
-        $edition = $this->editionWithOwner()->newQuery()->get()->firstOrFail();
+        $edition = OwnedEdition::query()->get()->firstOrFail();
         $edition->wasRecentlyCreated = true;
 
         self::assertNull($edition->getRelationValue('owner'));
@@ -99,18 +104,41 @@ final class AppServiceProviderTest extends TestCase
         Exceptions::assertReported(static fn (MassAssignmentException $exception): bool => str_contains($exception->getMessage(), 'not_a_field'));
     }
 
-    private function editionWithOwner(): Edition
+    /**
+     * @param list<string> $keys the config keys of the limits, in the order the limiter returns them
+     */
+    #[DataProvider('limiters')]
+    public function test_a_limiter_takes_its_numbers_from_config(string $name, array $keys): void
     {
-        return new class() extends Edition
-        {
-            /**
-             * @return BelongsTo<User, $this>
-             */
-            public function owner(): BelongsTo
-            {
-                return $this->belongsTo(User::class, 'user_id');
-            }
-        };
+        config(array_combine(array_map(static fn (string $key): string => 'printopoly.rate_limits.' . $key, $keys), range(101, 100 + count($keys))));
+        $limiter = RateLimiter::limiter($name);
+        self::assertNotNull($limiter);
+
+        $limits = Arr::wrap($limiter(Request::create('/api/box/' . str_repeat('a', 40) . '/contributions', 'POST')));
+
+        self::assertSame(range(101, 100 + count($keys)), array_map(static fn (mixed $limit): int => $limit instanceof Limit ? $limit->maxAttempts : 0, $limits));
+    }
+
+    /**
+     * @return iterable<string, array{string, list<string>}>
+     */
+    public static function limiters(): iterable
+    {
+        foreach (['pages', 'print-files', 'print-render', 'print-ready', 'print-photos', 'print-generate', 'print-choices', 'editions', 'editions-create', 'edition-assets', 'sign-in', 'sign-out', 'box-create', 'box-mine', 'box-mine-photo', 'box-owner', 'feature-count', 'share-image', 'share-image-poll'] as $name) {
+            yield $name => [$name, [str_replace('-', '_', $name) . '_per_minute']];
+        }
+
+        yield 'account-delete' => ['account-delete', ['account_delete_per_hour']];
+        yield 'box-contribute' => ['box-contribute', ['box_contribute_per_minute', 'box_contribute_per_hour', 'box_contribute_per_link_per_hour']];
+        yield 'print-upload' => ['print-upload', ['print_upload_per_minute', 'print_upload_per_hour']];
+    }
+
+    public function test_a_route_answers_429_past_its_limit(): void
+    {
+        config(['printopoly.rate_limits.pages_per_minute' => 1]);
+
+        $this->get('/sitemap.xml')->assertOk();
+        $this->get('/sitemap.xml')->assertTooManyRequests();
     }
 
     private function bootInProduction(): void

@@ -72,7 +72,7 @@ use Override;
     'replaced_tokens',
 ])]
 #[Table(name: 'collection_boxes')]
-class CollectionBox extends Model
+final class CollectionBox extends Model
 {
     /** @use HasFactory<CollectionBoxFactory> */
     use HasFactory;

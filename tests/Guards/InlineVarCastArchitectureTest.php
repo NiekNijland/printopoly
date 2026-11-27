@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\InlineVarCastGuard;
-use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
 
 final class InlineVarCastArchitectureTest extends TestCase
@@ -52,11 +51,11 @@ final class InlineVarCastArchitectureTest extends TestCase
         self::assertStringStartsWith('app/A.php:3: an inline @var', $violations[0]);
     }
 
-        public function test_it_holds_the_real_tree_to_its_counted_list(): void
+        public function test_it_holds_the_real_tree_to_the_rule(): void
         {
         $root = dirname(__DIR__, 2);
 
-        self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/inline-var-casts.txt')->differences($this->guard($root)->violations()));
+        self::assertSame([], $this->guard($root)->violations());
     }
 
     private function guard(string $root): InlineVarCastGuard

@@ -9,6 +9,7 @@ use App\Modules\Photos\ValueObjects\PhotoCrop;
 use App\Modules\Photos\ValueObjects\PhotoPlacement;
 use App\Modules\Print\Enums\FailureReason;
 use App\Modules\Print\Exceptions\PrintFailedException;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Imagick\Driver;
 use Intervention\Image\Encoders\JpegEncoder;
@@ -62,7 +63,7 @@ final readonly class PhotoCropper
             grayscale: $placement->grayscale,
             targetWidthMm: $placement->targetWidthMm,
             targetHeightMm: $placement->targetHeightMm,
-            maxDpi: config()->integer('printopoly.photos.max_dpi'),
+            maxDpi: Config::integer('printopoly.photos.max_dpi'),
             fit: $placement->fit,
         );
 

@@ -1,9 +1,31 @@
+export type AccountBoxData = {
+    readonly box: OwnerBoxData | null;
+};
+export type AccountDeletedData = {
+    readonly deleted: boolean;
+    readonly redirect: string;
+};
 export type AuthUserData = {
     readonly id: string;
     readonly name: string;
     readonly email: string;
 };
 export type BoardForm = 'panels' | 'whole';
+export type BoxCapability = 'box-link' | 'box-owner' | 'share-image';
+export type BoxContributionData = {
+    readonly id: string;
+    readonly elementKey: string;
+    readonly firstName: string;
+    readonly field: string;
+    readonly value: string | null;
+    readonly amount: number | null;
+    readonly open: string[];
+    readonly hasPhoto: boolean;
+    readonly width: number | null;
+    readonly height: number | null;
+    readonly photoUrl: string | null;
+    readonly createdAt: number | null;
+};
 export type ChannelData = {
     readonly name: string;
     readonly private: boolean;
@@ -26,6 +48,10 @@ export type ContentSectionData = {
     readonly title: string;
     readonly html: string;
     readonly blocks: ContentBlockData[];
+};
+export type ContributionReceiptData = {
+    readonly id: string;
+    readonly receipt: string;
 };
 export type CursorPaginatedDataCollection<TKey, TValue> = CursorPaginator<
     TKey,
@@ -51,12 +77,64 @@ export type CursorPaginatorInterface<TKey, TValue> = CursorPaginator<
     TKey,
     TValue
 >;
+export type EditionConflictData = {
+    readonly code: string;
+    readonly message: string;
+    readonly current: EditionData;
+};
+export type EditionData = {
+    readonly schemaVersion: number;
+    readonly id: string;
+    readonly name: string;
+    readonly language: string;
+    readonly currency: string;
+    readonly theme: string;
+    readonly boardProfile: Record<string, unknown>;
+    readonly parts: Record<string, boolean>;
+    readonly elements: Record<string, Record<string, unknown>>;
+    readonly revision: number;
+    readonly createdAt: number;
+    readonly updatedAt: number;
+    readonly template?: string;
+    readonly moneyAmount?: string;
+    readonly printSelection: Record<string, unknown>;
+};
+export type EditionImportData = {
+    readonly imported: string[];
+    readonly conflicts: string[];
+    readonly overLimit: string[];
+    readonly invalid: Record<string, string[]>;
+};
+export type EditionLimitData = {
+    readonly code: string;
+    readonly message: string;
+    readonly limit: number;
+};
+export type EditionListData = {
+    readonly editions: EditionSummaryData[];
+    readonly limit: number;
+};
+export type EditionPhotoData = {
+    readonly id: string;
+    readonly ref: string;
+    readonly width: number;
+    readonly height: number;
+    readonly previewUrl: string;
+};
 export type EditionPrintReadyData = {
     readonly editionId: string;
     readonly printerReadyUntil: number | null;
     readonly printerOutdated: boolean;
     readonly homeReadyUntil: number | null;
     readonly homeOutdated: boolean;
+};
+export type EditionPrintReadyListData = {
+    readonly editions: EditionPrintReadyData[];
+};
+export type EditionRevisionData = {
+    readonly revision: number;
+    readonly updatedAt: number;
+    readonly name?: string;
 };
 export type EditionSummaryData = {
     readonly id: string;
@@ -130,12 +208,33 @@ export type LengthAwarePaginatorInterface<TKey, TValue> = LengthAwarePaginator<
 >;
 export type Locale = 'nl' | 'en';
 export type MoneyAmount = 'four' | 'eight' | 'full';
+export type OwnContributionsData = {
+    readonly contributions: Record<
+        string,
+        'waiting' | 'applied' | 'passed' | 'handled'
+    >;
+};
+export type OwnerBoxData = {
+    readonly id: string;
+    readonly editionId: string;
+    readonly url: string;
+    readonly status: 'open' | 'closed';
+    readonly expiresAt: number;
+    readonly accepted: number;
+    readonly rejected: number;
+    readonly cardsHidden: boolean;
+    readonly channel: string;
+    readonly contributions: BoxContributionData[];
+    readonly ownerSecret?: string;
+};
 export type PaginatedDataCollection<TKey, TValue> = LengthAwarePaginator<
     TKey,
     TValue
 >;
 export type PartStatus =
     'idle' | 'waiting' | 'running' | 'done' | 'failed' | 'outdated';
+export type Permission =
+    'keep-editions' | 'manage-account' | 'sign-in-with-google';
 export type PrintChoicesData = {
     readonly printer: PrintSetChoiceData;
     readonly home: PrintSetChoiceData;
@@ -150,12 +249,20 @@ export type PrintJobData = {
     readonly retentionDays: number;
     readonly choices: PrintChoicesData;
 };
+export type PrintJobLinkData = {
+    readonly token: string;
+    readonly url: string;
+    readonly statusUrl: string;
+};
 export type PrintJobReadyData = {
     readonly token: string;
     readonly printerReadyUntil: number | null;
     readonly printerOutdated: boolean;
     readonly homeReadyUntil: number | null;
     readonly homeOutdated: boolean;
+};
+export type PrintJobReadyListData = {
+    readonly jobs: PrintJobReadyData[];
 };
 export type PrintJobStatusData = {
     readonly busy: boolean;
@@ -197,6 +304,7 @@ export type PrintSetChoiceData = {
 };
 export type PublicPage =
     'home' | 'print-guide' | 'faq' | 'privacy' | 'terms' | 'contact';
+export type Queue = 'default' | 'pdf';
 export type SeoData = {
     readonly canonical: string;
     readonly alternates: Record<string, string>;
@@ -206,4 +314,19 @@ export type SeoData = {
     readonly ogImageWidth: number;
     readonly ogImageHeight: number;
     readonly jsonLd: Record<string, unknown>;
+};
+export type ShareImageRequestData = {
+    readonly id: string;
+    readonly status: string;
+};
+export type ShareImageStatusData = {
+    readonly status: string;
+    readonly message?: string;
+};
+export type SignedOutData = {
+    readonly clearLocalCopy: boolean;
+    readonly redirect: string;
+};
+export type StoredPhotosData = {
+    readonly stored: number;
 };

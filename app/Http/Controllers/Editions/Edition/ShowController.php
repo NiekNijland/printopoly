@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Editions\Edition;
 
-use App\Http\Controllers\Controller;
 use App\Models\Edition;
 use App\Modules\Editions\Support\EditionPayload;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-final class ShowController extends Controller
+final readonly class ShowController
 {
-    public function __invoke(Edition $edition): JsonResponse
+    public function __invoke(Request $request, Edition $edition, EditionPayload $payload): Response
     {
-        Gate::authorize('view', $edition);
-
-        return response()->json(['edition' => EditionPayload::from($edition)]);
+        return $payload->data($edition)->wrap('edition')->toResponse($request);
     }
 }

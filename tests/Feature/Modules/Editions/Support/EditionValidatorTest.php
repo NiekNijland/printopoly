@@ -20,7 +20,7 @@ final class EditionValidatorTest extends TestCase
 {
     public function test_it_accepts_a_valid_edition_and_drops_unknown_fields(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         $edition = $validator->edition(Editions::payload('e1', [
             'surprise' => 'dropped',
@@ -48,7 +48,7 @@ final class EditionValidatorTest extends TestCase
 
     public function test_it_opens_an_old_edition_with_dice_and_houses_and_hotels_and_drops_them(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         // B200: the parts and their elements are gone; an edition that still has them is read, not rejected.
         $edition = $validator->edition(Editions::payload('e1', [
@@ -68,7 +68,7 @@ final class EditionValidatorTest extends TestCase
 
     public function test_it_keeps_the_amount_of_play_money_and_patches_it_back_to_the_default(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         // B156: how much money to print is a setting of the edition; null in a patch goes back to the default.
         $edition = $validator->edition(Editions::payload('e1', ['moneyAmount' => 'eight']));
@@ -83,7 +83,7 @@ final class EditionValidatorTest extends TestCase
 
     public function test_it_accepts_the_money_pawn_and_layer_fields_of_the_editor(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         $edition = $validator->edition(Editions::payload('e1', [
             'elements' => [
@@ -108,7 +108,7 @@ final class EditionValidatorTest extends TestCase
 
     public function test_it_accepts_a_town_per_colour_group(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         $edition = $validator->edition(Editions::payload('e1', [
             'elements' => [
@@ -123,7 +123,7 @@ final class EditionValidatorTest extends TestCase
 
     public function test_it_accepts_the_style_of_an_edition(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         $edition = $validator->edition(Editions::payload('e1', [
             'elements' => [
@@ -140,7 +140,7 @@ final class EditionValidatorTest extends TestCase
 
     public function test_it_stores_card_text_variables_as_typed(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         // The variables are resolved where the edition is drawn, in the editor and on the print page (B131).
         $text = 'Ga naar {space:24} en pak {currency}{amount}. Onbekend: {foo} {space:99}.';
@@ -153,7 +153,7 @@ final class EditionValidatorTest extends TestCase
 
     public function test_it_accepts_amounts_within_twenty_percent_and_a_purpose(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         // B132: every amount moves at most 20% from the standard amount, rounded to a whole amount.
         $edition = $validator->edition(Editions::payload('e1', [
@@ -178,7 +178,7 @@ final class EditionValidatorTest extends TestCase
 
     public function test_it_accepts_custom_amounts_and_an_icon_on_the_same_space(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         $edition = $validator->edition(Editions::payload('e1', [
             'elements' => [
@@ -193,7 +193,7 @@ final class EditionValidatorTest extends TestCase
 
     public function test_it_accepts_an_icon_from_the_lucide_set_and_keeps_the_own_icons_working(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         $edition = $validator->edition(Editions::payload('e1', [
             'elements' => [
@@ -210,230 +210,9 @@ final class EditionValidatorTest extends TestCase
         self::assertGreaterThan(200, count(ElementKind::lucideSpaceIcons()));
     }
 
-    /**
-     * @return iterable<string, array{string, mixed}>
-     */
-    public static function invalidElements(): iterable
-    {
-        yield 'unknown key' => ['space.40', ['name' => 'x']];
-        yield 'space with one digit' => ['space.1', ['name' => 'x']];
-        yield 'deed zero' => ['deed.00', ['name' => 'x']];
-        yield 'deed too high' => ['deed.29', ['name' => 'x']];
-        yield 'card deck unknown' => ['card.luck.01', ['text' => 'x']];
-        yield 'card too high' => ['card.chance.17', ['text' => 'x']];
-        yield 'note not in the game' => ['note.3', ['photo' => ['photoId' => 'p', 'cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
-        yield 'pawn too high' => ['pawn.09', ['name' => 'x']];
-        yield 'amount on a space' => ['space.01', ['amount' => 5]];
-        yield 'icon on a street' => ['space.01', ['icon' => ['preset' => 'train']]];
-        yield 'icon that is not in the set' => ['space.05', ['icon' => ['preset' => 'top-hat']]];
-        yield 'lucide icon outside the curated set' => ['space.05', ['icon' => ['preset' => 'lucide:skull-and-bones']]];
-        yield 'icon preset with extra fields' => ['space.05', ['icon' => ['preset' => 'train', 'color' => '#000000']]];
-        yield 'uploaded icon without a shape' => ['space.12', ['icon' => ['photo' => ['photoId' => 'p', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]]];
-        yield 'icon on a deed' => ['deed.03', ['icon' => ['preset' => 'train']]];
-        yield 'text on a space' => ['space.01', ['text' => 'x']];
-        yield 'name on a card' => ['card.chance.01', ['name' => 'x']];
-        yield 'layers on a space' => ['space.01', ['layers' => []]];
-        yield 'name too long' => ['space.01', ['name' => 'x...']];
-        yield 'amount as text' => ['card.chance.07', ['amount' => '50']];
-        yield 'amount on a card without money' => ['card.chance.01', ['amount' => 50]];
-        yield 'card amount above 20%' => ['card.chance.07', ['amount' => 61]];
-        yield 'card amount below 20%' => ['card.chest.03', ['amount' => -39]];
-        yield 'card amount not whole' => ['card.chest.16', ['amount' => 100.5]];
-        yield 'purpose too long' => ['card.chest.03', ['purpose' => 'x...']];
-        yield 'price above 20%' => ['space.01', ['amounts' => ['price' => 73]]];
-        yield 'rent below 20%' => ['space.39', ['amounts' => ['rent.0' => 39]]];
-        yield 'salary on a street' => ['space.01', ['amounts' => ['salary' => 200]]];
-        yield 'amounts on a card space' => ['space.02', ['amounts' => ['price' => 1]]];
-        yield 'amount not whole' => ['space.01', ['amounts' => ['price' => 60.5]]];
-        yield 'amounts as list' => ['space.01', ['amounts' => [60]]];
-        yield 'override as list' => ['space.01', ['a', 'b']];
-        yield 'override as string' => ['space.01', 'name'];
-        yield 'photo cx out of range' => ['space.01', ['photo' => ['photoId' => 'p', 'cx' => 1.1, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
-        yield 'photo scale zero' => ['space.01', ['photo' => ['photoId' => 'p', 'cx' => 0, 'cy' => 0, 'scale' => 0, 'rotation' => 0, 'grayscale' => false]]];
-        yield 'photo grayscale as number' => ['space.01', ['photo' => ['photoId' => 'p', 'cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => 1]]];
-        yield 'photo without id' => ['space.01', ['photo' => ['cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
-        yield 'layer of unknown kind' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'video', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1]]]];
-        yield 'note colour without hash' => ['note.100', ['color' => 'A1B2C3']];
-        yield 'note colour with three digits' => ['note.100', ['color' => '#abc']];
-        yield 'colour on a card' => ['card.chance.01', ['color' => '#A1B2C3']];
-        yield 'hidden as text' => ['pawn.01', ['hidden' => 'yes']];
-        yield 'hidden on a space' => ['space.01', ['hidden' => true]];
-        yield 'photo on the bank' => ['words.bank', ['photo' => ['photoId' => 'p', 'cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
-        yield 'bank name too long' => ['words.bank', ['name' => 'x...']];
-        yield 'layer rotation as text' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'rotation' => 'left']]]];
-        yield 'unknown colour group' => ['group.purple', ['town' => 'Zwolle']];
-        yield 'group without a name' => ['group', ['town' => 'Zwolle']];
-        yield 'name on a group' => ['group.brown', ['name' => 'Zwolle']];
-        yield 'photo on a group' => ['group.brown', ['photo' => ['photoId' => 'p', 'cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
-        yield 'town on a space' => ['space.01', ['town' => 'Zwolle']];
-        yield 'town as number' => ['group.brown', ['town' => 5]];
-        yield 'centre mode unknown' => ['board_center', ['centerMode' => 'sticker']];
-        yield 'centre mode on the lid' => ['box_lid', ['centerMode' => 'logo']];
-        yield 'centre aspect zero' => ['board_center', ['photoAspect' => 0]];
-        yield 'centre aspect huge' => ['board_center', ['photoAspect' => 50]];
-        yield 'centre frame as text' => ['board_center', ['photoFrame' => 'no']];
-        yield 'subtitle on a space' => ['space.01', ['subtitle' => 'x']];
-        yield 'colour on a space' => ['space.01', ['color' => '#955436']];
-        yield 'group colour not hex' => ['group.brown', ['color' => 'brown']];
-        yield 'accent with a name' => ['theme_accent', ['name' => 'x']];
-        yield 'unknown accent key' => ['theme_accent.x', ['color' => '#955436']];
-        yield 'unknown pattern' => ['card_back.chance', ['pattern' => 'swirl']];
-        yield 'pattern on a card' => ['card.chance.01', ['pattern' => 'dots']];
-        yield 'layer without box' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x']]]];
-        yield 'photo fit as text' => ['space.01', ['photo' => ['photoId' => 'p', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false, 'fit' => 'yes']]];
-        yield 'deed photo on a tax space' => ['space.04', ['deedPhoto' => false]];
-        yield 'deed photo as text' => ['space.01', ['deedPhoto' => 'off']];
-        yield 'deed story too long' => ['deed.01', ['text' => str_repeat('x', 161)]];
-        yield 'title offset past the edge' => ['board_center', ['titleOffset' => 1.5]];
-        yield 'title too small' => ['board_center', ['titleScale' => 0.2]];
-        yield 'title band on the centre' => ['board_center', ['titleBand' => false]];
-        yield 'centre place unknown' => ['board_center', ['centerPlace' => 'topLeft']];
-        yield 'centre place on the lid' => ['box_lid', ['centerPlace' => 'middle']];
-        yield 'logo tilt as text' => ['board_center', ['logoTilt' => 'yes']];
-        yield 'title hidden on the lid' => ['box_lid', ['titleHidden' => true]];
-        yield 'title style unknown' => ['board_center', ['titleStyle' => 'neon']];
-        yield 'title style as a number' => ['box_lid', ['titleStyle' => 1]];
-        yield 'title style on a card back' => ['card_back.chance', ['titleStyle' => 'stamp']];
-        yield 'board style unknown' => ['style.board', ['style' => 'neon']];
-        yield 'board style as a number' => ['style.board', ['style' => 1]];
-        yield 'card style unknown' => ['style.cards', ['style' => 'neon']];
-        yield 'deed style unknown' => ['style.deeds', ['style' => 'neon']];
-        yield 'style of an unknown part' => ['style.dice', ['style' => 'vintage']];
-        yield 'style on a space' => ['space.01', ['style' => 'vintage']];
-        yield 'colour on a style key' => ['style.board', ['color' => '#FFFFFF']];
-        yield 'layer colour not hex' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'color' => 'red']]]];
-        yield 'layer font unknown' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'font' => 'comic']]]];
-    }
-
-    public function test_it_accepts_a_background_photo_on_the_board_centre_only(): void
-    {
-        $validator = new EditionValidator(StandardEdition::load());
-
-        $photo = ['photoId' => 'p', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
-        $edition = $validator->edition(Editions::payload('e1', ['elements' => ['board_center' => ['background' => $photo]]]));
-
-        self::assertSame($photo, $edition['elements']['board_center']['background']);
-
-        $this->expectException(ValidationException::class);
-
-        $validator->edition(Editions::payload('e1', ['elements' => ['box_lid' => ['background' => $photo]]]));
-    }
-
-    public function test_it_accepts_the_title_options_of_the_board_centre(): void
-    {
-        $validator = new EditionValidator(StandardEdition::load());
-
-        $options = ['centerMode' => 'logo', 'subtitle' => '', 'photoAspect' => 2.5, 'photoFrame' => false];
-        $edition = $validator->edition(Editions::payload('e1', ['elements' => ['board_center' => $options]]));
-
-        self::assertSame($options, $edition['elements']['board_center']);
-    }
-
-    public function test_it_accepts_the_photo_title_and_text_options_of_ronde_3(): void
-    {
-        $validator = new EditionValidator(StandardEdition::load());
-
-        $photo = ['photoId' => 'p1', 'cx' => 0.5, 'cy' => 0.3, 'scale' => 0.6, 'rotation' => 0, 'grayscale' => false, 'fit' => true];
-        $layer = ['id' => 'l', 'x' => 1, 'y' => 2, 'w' => 30, 'h' => 8, 'kind' => 'text', 'text' => 'Kerst', 'color' => '#FFFFFF', 'font' => 'mono', 'align' => 'left'];
-        $elements = [
-            'space.01' => ['photo' => $photo, 'deedPhoto' => false],
-            'deed.01' => ['text' => 'Hier stond de bakkerij van opa.'],
-            'board_center' => ['titleOffset' => -0.5, 'titleScale' => 0.7, 'titleHidden' => true],
-            'box_lid' => ['subtitle' => '', 'text' => 'Kerst 2026', 'titleOffset' => 1, 'titleBand' => false, 'layers' => [$layer]],
-            'invitation' => ['name' => 'Kom spelen', 'subtitle' => 'Zaterdag'],
-        ];
-        $edition = $validator->edition(Editions::payload('e1', ['elements' => $elements]));
-
-        self::assertSame($elements, $edition['elements']);
-    }
-
-    public function test_it_accepts_a_title_style_on_the_board_centre_and_the_box_lid(): void
-    {
-        $validator = new EditionValidator(StandardEdition::load());
-
-        foreach (['ribbon', 'stamp', 'bar', 'script', 'plain'] as $style) {
-            $elements = ['board_center' => ['titleStyle' => $style], 'box_lid' => ['titleStyle' => $style]];
-            $edition = $validator->edition(Editions::payload('e1', ['elements' => $elements]));
-
-            self::assertSame($elements, $edition['elements']);
-        }
-    }
-
-    public function test_it_accepts_the_style_of_the_board_b268(): void
-    {
-        $validator = new EditionValidator(StandardEdition::load());
-
-        foreach (['vintage', 'modern', 'playful'] as $style) {
-            $elements = ['style.board' => ['style' => $style]];
-            $edition = $validator->edition(Editions::payload('e1', ['elements' => $elements]));
-
-            self::assertSame($elements, $edition['elements']);
-        }
-    }
-
-    public function test_it_accepts_the_style_of_the_cards_and_the_deeds_b269(): void
-    {
-        $validator = new EditionValidator(StandardEdition::load());
-
-        foreach (['vintage', 'modern', 'playful'] as $style) {
-            $elements = ['style.cards' => ['style' => $style], 'style.deeds' => ['style' => $style]];
-            $edition = $validator->edition(Editions::payload('e1', ['elements' => $elements]));
-
-            self::assertSame($elements, $edition['elements']);
-        }
-    }
-
-    public function test_it_accepts_the_place_of_the_centre_and_a_tilted_logo_of_ronde_4(): void
-    {
-        $validator = new EditionValidator(StandardEdition::load());
-
-        foreach (['bottomLeft', 'middle'] as $place) {
-            $elements = ['board_center' => ['centerMode' => 'logo', 'centerPlace' => $place, 'logoTilt' => true]];
-            $edition = $validator->edition(Editions::payload('e1', ['elements' => $elements]));
-
-            self::assertSame($elements, $edition['elements']);
-        }
-    }
-
-    public function test_it_accepts_an_icon_or_an_uploaded_image_on_a_special_space(): void
-    {
-        $validator = new EditionValidator(StandardEdition::load());
-
-        $photo = ['photoId' => 'p1', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
-        $edition = $validator->edition(Editions::payload('e1', ['elements' => [
-            'space.30' => ['icon' => ['preset' => 'handcuffs']],
-            'space.05' => ['icon' => ['preset' => 'ferry'], 'name' => 'Veer'],
-            'space.04' => ['icon' => ['preset' => 'piggy-bank']],
-            'space.12' => ['icon' => ['photo' => $photo, 'aspect' => 1.5]],
-        ]]));
-
-        self::assertSame(['preset' => 'handcuffs'], $edition['elements']['space.30']['icon']);
-        self::assertSame(['icon' => ['preset' => 'ferry'], 'name' => 'Veer'], $edition['elements']['space.05']);
-        self::assertSame(['preset' => 'piggy-bank'], $edition['elements']['space.04']['icon']);
-        self::assertSame(['photo' => $photo, 'aspect' => 1.5], $edition['elements']['space.12']['icon']);
-    }
-
-    #[DataProvider('invalidElements')]
-    public function test_it_rejects_an_invalid_element(string $key, mixed $override): void
-    {
-        $validator = new EditionValidator(StandardEdition::load());
-
-        if ($override === ['name' => 'x...']) {
-            $override = ['name' => str_repeat('x', EditionValidator::MAX_NAME_LENGTH + 1)];
-        }
-
-        if ($override === ['purpose' => 'x...']) {
-            $override = ['purpose' => str_repeat('x', EditionValidator::MAX_PURPOSE_LENGTH + 1)];
-        }
-
-        $this->expectException(ValidationException::class);
-
-        $validator->edition(Editions::payload('e1', ['elements' => [$key => $override]]));
-    }
-
     public function test_it_rejects_too_many_layers_and_too_long_texts(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         $layer = ['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1];
 
@@ -477,7 +256,7 @@ final class EditionValidatorTest extends TestCase
     #[DataProvider('invalidEditions')]
     public function test_it_rejects_an_invalid_edition(array $overrides): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         if (($overrides['name'] ?? null) === 'Nine hundred') {
             $overrides['name'] = str_repeat('x', 121);
@@ -490,7 +269,7 @@ final class EditionValidatorTest extends TestCase
 
     public function test_it_rejects_a_missing_field_and_a_non_object(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         $payload = Editions::payload();
         unset($payload['theme']);
@@ -506,7 +285,7 @@ final class EditionValidatorTest extends TestCase
 
     public function test_a_patch_keeps_null_to_remove_an_element(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         $patch = $validator->patch(['baseRevision' => 3, 'elements' => ['space.01' => null, 'space.02' => ['name' => 'A']]]);
 
@@ -519,7 +298,7 @@ final class EditionValidatorTest extends TestCase
 
     public function test_a_patch_needs_something_to_change(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         $this->expectException(ValidationException::class);
 
@@ -528,7 +307,7 @@ final class EditionValidatorTest extends TestCase
 
     public function test_it_accepts_extra_cards_up_to_thirty_two_per_deck(): void
     {
-        $validator = new EditionValidator(StandardEdition::load());
+        $validator = resolve(EditionValidator::class);
 
         // B135: card.chance.17 to card.chance.32 are extra cards with added: true and a free amount up to 500.
         $edition = $validator->edition(Editions::payload('e1', [
@@ -543,67 +322,5 @@ final class EditionValidatorTest extends TestCase
 
         $patch = $validator->patch(['baseRevision' => 1, 'elements' => ['card.chance.18' => null]]);
         self::assertArrayHasKey('card.chance.18', $patch['elements'] ?? []);
-    }
-
-    /**
-     * @return iterable<string, array{string, array<string, mixed>, string}>
-     */
-    public static function wrongExtraCards(): iterable
-    {
-        yield 'past 32' => ['card.chance.33', ['added' => true], 'elements.card.chance.33: unknown element key'];
-        yield 'without added' => ['card.chance.17', ['text' => 'Hoi'], 'elements.card.chance.17: an extra card needs "added": true'];
-        yield 'added false' => ['card.chance.17', ['added' => false], 'elements.card.chance.17.added: must be true'];
-        yield 'added on a standard card' => ['card.chance.03', ['added' => true], 'elements.card.chance.03.added: only an extra card is added'];
-        yield 'amount above 500' => ['card.chest.17', ['added' => true, 'amount' => 501], 'elements.card.chest.17.amount: must be a whole amount from -500 to 500, not 0'];
-        yield 'amount zero' => ['card.chest.17', ['added' => true, 'amount' => 0], 'elements.card.chest.17.amount: must be a whole amount from -500 to 500, not 0'];
-        yield 'amount not whole' => ['card.chest.17', ['added' => true, 'amount' => 12.5], 'elements.card.chest.17.amount: must be a whole amount from -500 to 500, not 0'];
-    }
-
-    /**
-     * @param array<string, mixed> $override
-     */
-    #[DataProvider('wrongExtraCards')]
-    public function test_it_rejects_a_wrong_extra_card(string $key, array $override, string $message): void
-    {
-        $validator = new EditionValidator(StandardEdition::load());
-
-        $errors = [];
-
-        self::assertNull($validator->tryEdition(Editions::payload('e1', ['elements' => [$key => $override]]), $errors));
-        self::assertContains($message, $errors);
-    }
-
-    public function test_it_accepts_a_photo_style_where_a_photo_can_be_full(): void
-    {
-        $validator = new EditionValidator(StandardEdition::load());
-
-        $edition = $validator->edition(Editions::payload('e1', [
-            'elements' => [
-                'space.01' => ['photoStyle' => 'full', 'layout' => 'text'],
-                'deed.01' => ['photoStyle' => 'framed'],
-                'card.chance.01' => ['photoStyle' => 'full'],
-                'note.5' => ['photoStyle' => 'full'],
-                'pawn.01' => ['photoStyle' => 'full'],
-                'box_lid' => ['photoStyle' => 'full'],
-            ],
-        ]));
-
-        self::assertSame(['photoStyle' => 'full'], $edition['elements']['space.01']);
-        self::assertSame(['photoStyle' => 'framed'], $edition['elements']['deed.01']);
-        self::assertSame(['photoStyle' => 'full'], $edition['elements']['box_lid']);
-    }
-
-    public function test_it_rejects_an_unknown_photo_style_and_one_on_an_element_without_the_choice(): void
-    {
-        $validator = new EditionValidator(StandardEdition::load());
-
-        foreach ([['space.01', 'wide'], ['space.01', true], ['card_back.chance', 'full'], ['board_center', 'full']] as [$key, $style]) {
-            $errors = [];
-
-            self::assertNull($validator->tryEdition(Editions::payload('e1', [
-                'elements' => [$key => ['photoStyle' => $style]],
-            ]), $errors), $key);
-            self::assertNotSame([], $errors);
-        }
     }
 }

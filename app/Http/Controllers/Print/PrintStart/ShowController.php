@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print\PrintStart;
 
-use App\Http\Controllers\Controller;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,7 +12,7 @@ use Inertia\Response;
  * browser. The page uploads it when the user clicks "Drukkerij-set maken"
  * (B80) and then continues on the page of the new job.
  */
-final class ShowController extends Controller
+final readonly class ShowController
 {
     public function __invoke(): Response
     {

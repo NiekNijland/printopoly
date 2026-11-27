@@ -9,6 +9,7 @@ use App\Modules\Content\Data\ContentPageData;
 use App\Modules\Content\Data\ContentSectionData;
 use App\Modules\Content\Data\FaqItemData;
 use App\Modules\Content\Enums\Locale;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use JsonException;
 use RuntimeException;
@@ -184,11 +185,11 @@ final class ContentLibrary
 
     public function read(string $relativePath): string
     {
-        $contents = @file_get_contents(resource_path('content/' . $relativePath));
+        $path = resource_path('content/' . $relativePath);
 
-        throw_if($contents === false, RuntimeException::class, 'Content file not found: ' . $relativePath);
+        throw_unless(is_file($path), RuntimeException::class, 'Content file not found: ' . $relativePath);
 
-        return $contents;
+        return File::get($path);
     }
 
     /**

@@ -4,32 +4,20 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Editions\Edition;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\Editions\DuplicateEditionRequest;
 use App\Models\Edition;
 use App\Models\User;
 use App\Modules\Editions\Actions\DuplicateEdition;
 use App\Modules\Editions\Support\EditionPayload;
-use App\Modules\Editions\Support\EditionValidator;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Container\Attributes\CurrentUser;
+use Symfony\Component\HttpFoundation\Response;
 
-final class DuplicateController extends Controller
+final readonly class DuplicateController
 {
-    public function __invoke(Request $request, Edition $edition, DuplicateEdition $duplicate): JsonResponse
+    public function __invoke(#[CurrentUser] User $user, DuplicateEditionRequest $request, Edition $edition, DuplicateEdition $duplicate, EditionPayload $payload): Response
     {
-        Gate::authorize('view', $edition);
+        $copy = $duplicate->handle($user, $edition, $request->name());
 
-        $user = $request->user();
-        abort_unless($user instanceof User, 401);
-
-        $request->validate([
-            'name' => ['nullable', 'string', 'min:1', 'max:' . EditionValidator::MAX_NAME_LENGTH],
-        ]);
-
-        $name = $request->filled('name') ? $request->string('name')->toString() : null;
-        $copy = $duplicate->handle($user, $edition, $name);
-
-        return response()->json(['edition' => EditionPayload::from($copy)], 201);
+        return $payload->data($copy)->wrap('edition')->toResponse($request);
     }
 }

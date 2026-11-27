@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Modules\Editions\Support;
 
 use App\Models\Edition;
+use App\Modules\Editions\Data\EditionData;
 use Illuminate\Support\Facades\Log;
+use Spatie\LaravelData\Optional;
 use stdClass;
 
 /**
@@ -13,46 +15,43 @@ use stdClass;
  * resources/js/lib/render/edition-types.ts. `elements` always leaves as an object,
  * also when it is empty (`{}`, never `[]`).
  */
-final class EditionPayload
+final readonly class EditionPayload
 {
-    /**
-     * @return array<string, mixed>
-     */
-    public static function from(Edition $edition): array
+    public function __construct(private ElementRepairer $repairer)
     {
-        $payload = [
-            'schemaVersion' => $edition->schema_version,
-            'id' => $edition->edition_id,
-            'name' => $edition->name,
-            'language' => $edition->language,
-            'currency' => $edition->currency,
-            'theme' => $edition->theme,
-            'boardProfile' => $edition->board_profile,
-            'parts' => $edition->parts,
-            'elements' => self::asObject(self::repaired($edition)),
-            'revision' => $edition->revision,
-            'createdAt' => $edition->created_at_ms,
-            'updatedAt' => $edition->updated_at_ms,
-        ];
+    }
 
-        // The template the edition started from (B152), only when there is one.
-        if (is_string($edition->template) && $edition->template !== '') {
-            $payload['template'] = $edition->template;
-        }
+    /**
+     * @return array<mixed>
+     */
+    public function from(Edition $edition): array
+    {
+        return $this->data($edition)->toArray();
+    }
 
-        // How much play money to print (B156), only when the edition chose.
-        if (is_string($edition->money_amount) && $edition->money_amount !== '') {
-            $payload['moneyAmount'] = $edition->money_amount;
-        }
-
-        // What goes in the print set (B198), only when the print page chose.
-        $selection = PrintSelection::parse($edition->print_selection);
-
-        if ($selection !== null) {
-            $payload['printSelection'] = $selection;
-        }
-
-        return $payload;
+    /**
+     * The same edition as a Data object, for a JSON answer (B81).
+     */
+    public function data(Edition $edition): EditionData
+    {
+        return new EditionData(
+            schemaVersion: $edition->schema_version,
+            id: $edition->edition_id,
+            name: $edition->name,
+            language: $edition->language,
+            currency: $edition->currency,
+            theme: $edition->theme,
+            boardProfile: $edition->board_profile,
+            parts: $edition->parts,
+            elements: self::asObject($this->repaired($edition)),
+            revision: $edition->revision,
+            createdAt: $edition->created_at_ms,
+            updatedAt: $edition->updated_at_ms,
+            // The template (B152), the play money (B156) and the print set (B198) leave only when the edition chose one.
+            template: is_string($edition->template) && $edition->template !== '' ? $edition->template : new Optional(),
+            moneyAmount: is_string($edition->money_amount) && $edition->money_amount !== '' ? $edition->money_amount : new Optional(),
+            printSelection: PrintSelection::parse($edition->print_selection) ?? new Optional(),
+        );
     }
 
     /**
@@ -61,10 +60,10 @@ final class EditionPayload
      *
      * @return array<string, mixed>
      */
-    private static function repaired(Edition $edition): array
+    private function repaired(Edition $edition): array
     {
         $repaired = [];
-        $elements = resolve(EditionValidator::class)->repairElements(self::migrated($edition->elements), $repaired);
+        $elements = $this->repairer->repair(self::migrated($edition->elements), $repaired);
 
         if ($repaired !== []) {
             Log::warning('Edition repaired on read', ['edition' => $edition->edition_id, 'repaired' => $repaired]);
@@ -81,8 +80,11 @@ final class EditionPayload
      */
     public static function migrated(array $elements): array
     {
-        /** @var array<string, array<string, mixed>> $moved */
-        $moved = EditionValidator::migrateElements($elements);
+        $moved = [];
+
+        foreach (ElementMigration::keys($elements) as $key => $override) {
+            $moved[(string) $key] = $override;
+        }
 
         return $moved;
     }

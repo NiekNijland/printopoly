@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\ControllerAuthorizationGuard;
 use Tests\Support\Architecture\HttpRefusalGuard;
-use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
 
 final class ControllerAuthorizationArchitectureTest extends TestCase
@@ -108,7 +107,7 @@ final class ControllerAuthorizationArchitectureTest extends TestCase
         {
         $root = dirname(__DIR__, 2);
 
-        self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/controller-authorization.txt')->differences($this->guard($root)->violations()));
+        self::assertSame([], $this->guard($root)->violations());
         self::assertSame([], $this->refusalGuard($root)->violations());
     }
 

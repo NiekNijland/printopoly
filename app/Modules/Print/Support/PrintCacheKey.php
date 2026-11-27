@@ -6,6 +6,8 @@ namespace App\Modules\Print\Support;
 
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
+use App\Modules\Print\ValueObjects\PrintEdition;
+use Illuminate\Support\Facades\Config;
 
 /**
  * A generated PDF belongs to a hash of the edition data, the assets, the
@@ -17,7 +19,7 @@ final class PrintCacheKey
     /**
      * @param array<string, string> $assetChecksums Photo ref to the checksum of its print source.
      */
-    public static function make(PrintPart $part, PrintSet $set, PrintEditionData $edition, array $assetChecksums): string
+    public static function make(PrintPart $part, PrintSet $set, PrintEdition $edition, array $assetChecksums): string
     {
         ksort($assetChecksums);
 
@@ -26,7 +28,7 @@ final class PrintCacheKey
             'set' => $set->value,
             'edition' => $edition->toCacheArray(),
             'assets' => $assetChecksums,
-            'profile' => config('printopoly.print.profile'),
+            'profile' => Config::array('printopoly.print.profile'),
             'release' => PrintRelease::current(),
         ]);
 

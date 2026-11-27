@@ -8,25 +8,15 @@ use App\Models\Asset;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Models\User;
-use App\Modules\Content\Enums\Locale;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
-use App\Modules\Print\Jobs\RefreshPrintTextsJob;
-use App\Modules\Print\Support\InstructionPdfBuilder;
-use App\Modules\Print\Support\OrderSheetText;
-use App\Modules\Print\Support\PrintProgress;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Testing\TestResponse;
 use Inertia\Testing\AssertableInertia;
-use Symfony\Component\HttpFoundation\Response;
 use Tests\Concerns\CreatesPrintFixtures;
 use Tests\Concerns\RefreshesMongoDatabase;
 use Tests\Support\PrintScenario;
 use Tests\TestCase;
-use ZipArchive;
 
 final class PrintPipelineTest extends TestCase
 {
@@ -57,80 +47,6 @@ final class PrintPipelineTest extends TestCase
         $this->get('/api/print/' . $job->token . '/files/printer/cards')
             ->assertOk()
             ->assertHeader('Content-Type', 'application/pdf');
-    }
-
-    public function test_the_zip_holds_the_pdfs_and_the_instructions_and_never_the_test_sheet(): void
-    {
-        $job = PrintScenario::createAnonymousJob($this);
-        PrintScenario::generate($this, $job, 'printer', ['board', 'cards'])->assertOk();
-        PrintScenario::generate($this, $job, 'home', ['calibration'])->assertOk();
-
-        $response = $this->get('/api/print/' . $job->token . '/zip/printer')->assertOk();
-
-        $path = (string) tempnam(sys_get_temp_dir(), 'zip-test-');
-        file_put_contents($path, $response->streamedContent());
-
-        $zip = new ZipArchive();
-        self::assertTrue($zip->open($path));
-        $names = [];
-        for ($i = 0; $i < $zip->numFiles; $i++) {
-            $names[] = (string) $zip->getNameIndex($i);
-        }
-
-        $zip->close();
-        File::delete($path);
-
-        // The names carry the edition (B184), the order sheet comes first (B185).
-        self::assertSame([
-            'zaterdagclub-00-bestelblad.pdf',
-            'zaterdagclub-01-bord.pdf',
-            'zaterdagclub-02-kaarten-en-eigendomsbewijzen.pdf',
-            'instructies/01-bord.pdf',
-            'instructies/02-kaarten-en-eigendomsbewijzen.pdf',
-        ], $names, 'no test sheet and no home PDFs in the print shop ZIP');
-        $response->assertDownload('zaterdagclub-drukkerij-set.zip');
-    }
-
-    public function test_a_part_taken_out_of_the_set_after_it_was_made_leaves_the_zip_and_the_order_sheet(): void
-    {
-        // B210: the print page chooses what goes in the set, also after the PDFs are made.
-        $job = PrintScenario::createAnonymousJob($this);
-        PrintScenario::generate($this, $job, 'printer', ['board', 'cards'])->assertOk();
-
-        $this->postJson('/api/print/' . $job->token . '/choices', ['set' => 'printer', 'skipped' => ['cards']])->assertOk();
-
-        self::assertSame([
-            'zaterdagclub-00-bestelblad.pdf',
-            'zaterdagclub-01-bord.pdf',
-            'instructies/01-bord.pdf',
-        ], $this->zipNames($this->get('/api/print/' . $job->token . '/zip/printer')->assertOk()));
-        $sheet = resolve(OrderSheetText::class)->text($job->refresh(), PrintSet::Printer, Locale::Dutch);
-        self::assertStringContainsString('zaterdagclub-01-bord.pdf', $sheet);
-        self::assertStringNotContainsString('kaarten-en-eigendomsbewijzen.pdf', $sheet);
-    }
-
-    public function test_the_instructions_and_file_names_follow_the_site_not_the_edition(): void
-    {
-        // A Dutch edition, printed from the English site (B184, bug 10 of test round 4).
-        $response = $this->post('/api/print-jobs', [
-            'edition' => json_encode(PrintScenario::editionArray('Familie De Vries'), JSON_THROW_ON_ERROR),
-            'photos' => [PrintScenario::PHOTO_REF => PrintScenario::photoUpload()],
-            'locale' => 'en',
-        ], ['Accept' => 'application/json'])->assertCreated();
-        self::assertStringContainsString('/en/print/', PrintScenario::jsonString($response, 'url'));
-        $job = PrintJob::query()->where('token', $response->json('token'))->firstOrFail();
-
-        PrintScenario::generate($this, $job, 'printer', ['board'])->assertOk();
-
-        $this->get('/api/print/' . $job->token . '/files/printer/board')->assertDownload('familie-de-vries-board-print-shop.pdf');
-        $this->get('/api/print/' . $job->token . '/instructions/board?set=printer')->assertDownload('familie-de-vries-instructions-board.pdf');
-        self::assertStringContainsString('<title>Board</title>', implode('', PrintScenario::renderer()->htmls));
-
-        // Printing again from the Dutch site makes the instructions Dutch, also of what was made before.
-        $this->postJson('/api/print/' . $job->token . '/generate', ['set' => 'printer', 'parts' => ['cards'], 'locale' => 'nl'])->assertOk();
-        $names = $this->zipNames($this->get('/api/print/' . $job->token . '/zip/printer')->assertOk()->assertDownload('familie-de-vries-drukkerij-set.zip'));
-        self::assertContains('instructies/01-bord.pdf', $names);
-        self::assertContains('familie-de-vries-00-bestelblad.pdf', $names);
     }
 
     /**
@@ -169,128 +85,6 @@ final class PrintPipelineTest extends TestCase
             'previous' => 'no-such-token',
         ], ['Accept' => 'application/json'])->assertCreated();
         self::assertNull(PrintJob::query()->where('token', '!=', $first->token)->where('token', '!=', $second->token)->firstOrFail()->previous_job_id);
-    }
-
-    public function test_the_order_sheet_lists_what_the_set_holds_with_the_exact_specs(): void
-    {
-        $job = PrintScenario::createAnonymousJob($this);
-        $this->postJson('/api/print/' . $job->token . '/choices', ['set' => 'printer', 'copies' => 3])->assertOk();
-        PrintScenario::generate($this, $job, 'printer', ['board', 'cards', 'money'])->assertOk();
-
-        PrintFile::query()->where('kind', PrintFile::KIND_ORDER_SHEET)->where('set', 'printer')->firstOrFail();
-        $sheets = array_values(array_filter(PrintScenario::renderer()->htmls, static fn (string $html): bool => str_contains($html, '<title>Bestelblad</title>')));
-        $html = (string) end($sheets);
-
-        self::assertStringContainsString('Bestelblad: Zaterdagclub', $html);
-        self::assertStringContainsString('Aantal sets: 3', $html);
-        self::assertStringContainsString('zaterdagclub-02-kaarten-en-eigendomsbewijzen.pdf', $html);
-        self::assertStringContainsString('RGB (sRGB)', $html);
-        self::assertStringContainsString('Afgerond, straal 3 mm', $html);
-        self::assertStringContainsString('omslaan over de lange kant', $html);
-        // No bleed on the money: the sheet says why there is no TrimBox (bug 41).
-        self::assertStringContainsString('geen TrimBox', $html);
-        // Parts that are not made are not on it.
-        self::assertStringNotContainsString('Pionnen', $html);
-        // Every line says what one set takes and what that is in all (B250, Ingrid): 4 panels per set, 12 in all.
-        self::assertStringContainsString('4 stuks per set, 12 in totaal', $html);
-        self::assertStringContainsString('3 sets achter elkaar in deze PDF', $html);
-        // A condition in a table row is never printed, and the board table keeps two columns.
-        self::assertStringNotContainsString('{if:', $html);
-        self::assertStringNotContainsString('board_panels', $html);
-    }
-
-    public function test_the_zip_waits_until_everything_requested_is_done(): void
-    {
-        $job = PrintScenario::createAnonymousJob($this);
-
-        $this->get('/api/print/' . $job->token . '/zip/printer')->assertConflict();
-
-        PrintScenario::renderer()->mode = 'wrong_size';
-        PrintScenario::generate($this, $job, 'printer', ['board'])->assertOk();
-
-        $this->get('/api/print/' . $job->token . '/zip/printer')->assertConflict();
-    }
-
-    public function test_the_zip_is_not_offered_while_the_run_still_makes_the_order_sheet(): void
-    {
-        // R5-25 (Emma): the last part was done, the order sheet not yet, and the ZIP went without it.
-        $job = PrintScenario::createAnonymousJob($this);
-        PrintScenario::generate($this, $job, 'printer', ['board'])->assertOk();
-        $sheet = PrintFile::query()->where('kind', PrintFile::KIND_ORDER_SHEET)->where('set', 'printer')->firstOrFail();
-        Storage::disk($sheet->disk)->delete($sheet->path);
-        $sheet->delete();
-
-        Queue::fake([RefreshPrintTextsJob::class]);
-        resolve(PrintProgress::class)->setActive($job, true);
-        $status = $this->getJson('/api/print/' . $job->token . '/status');
-        self::assertFalse($status->json('printerZipReady'));
-        self::assertFalse($status->json('zipPreparing'), 'the run makes the sheet itself');
-        Queue::assertNothingPushed();
-    }
-
-    public function test_a_missing_order_sheet_is_made_by_the_queue_and_never_in_the_request(): void
-    {
-        // Right after the choices changed the queue has not made the new sheet yet. PHP-FPM cannot start Chrome in
-        // production, so the ZIP waits for the queue instead of rendering the sheet itself (R5-25, B235).
-        $job = PrintScenario::createAnonymousJob($this);
-        PrintScenario::generate($this, $job, 'printer', ['board', 'cards'])->assertOk();
-        PrintFile::query()->where('kind', PrintFile::KIND_ORDER_SHEET)->delete();
-        $calls = PrintScenario::renderer()->calls;
-
-        Queue::fake([RefreshPrintTextsJob::class]);
-        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
-        self::assertFalse($status->json('printerZipReady'));
-        self::assertTrue($status->json('zipPreparing'));
-        $this->get('/api/print/' . $job->token . '/zip/printer')->assertConflict();
-        self::assertSame($calls, PrintScenario::renderer()->calls, 'no PDF rendered in a web request');
-        Queue::assertPushed(RefreshPrintTextsJob::class, static fn (RefreshPrintTextsJob $queued): bool => $queued->set === 'printer' && $queued->queue === 'pdf');
-
-        // The worker makes the sheet; then the ZIP is there, with the sheet first.
-        new RefreshPrintTextsJob($job->publicId(), 'printer')->handle(resolve(InstructionPdfBuilder::class), resolve(PrintProgress::class));
-        $status = $this->getJson('/api/print/' . $job->token . '/status');
-        self::assertTrue($status->json('printerZipReady'));
-        self::assertFalse($status->json('zipPreparing'));
-        self::assertSame([
-            'zaterdagclub-00-bestelblad.pdf',
-            'zaterdagclub-01-bord.pdf',
-            'zaterdagclub-02-kaarten-en-eigendomsbewijzen.pdf',
-            'instructies/01-bord.pdf',
-            'instructies/02-kaarten-en-eigendomsbewijzen.pdf',
-        ], $this->zipNames($this->get('/api/print/' . $job->token . '/zip/printer')->assertOk()));
-    }
-
-    public function test_the_zip_goes_without_an_order_sheet_the_queue_could_not_make(): void
-    {
-        // B230: a failing sheet is in the log, and the ZIP does not wait for ever.
-        $job = PrintScenario::createAnonymousJob($this);
-        PrintScenario::generate($this, $job, 'printer', ['board'])->assertOk();
-        PrintFile::query()->where('kind', PrintFile::KIND_ORDER_SHEET)->delete();
-
-        Queue::fake([RefreshPrintTextsJob::class]);
-        PrintScenario::renderer()->mode = 'crash';
-        new RefreshPrintTextsJob($job->publicId(), 'printer')->handle(resolve(InstructionPdfBuilder::class), resolve(PrintProgress::class));
-
-        $status = $this->getJson('/api/print/' . $job->token . '/status');
-        self::assertTrue($status->json('printerZipReady'));
-        self::assertFalse($status->json('zipPreparing'));
-        Queue::assertNothingPushed();
-        self::assertSame([
-            'zaterdagclub-01-bord.pdf',
-            'instructies/01-bord.pdf',
-        ], $this->zipNames($this->get('/api/print/' . $job->token . '/zip/printer')->assertOk()));
-    }
-
-    public function test_nothing_is_made_before_the_user_asks(): void
-    {
-        $job = PrintScenario::createAnonymousJob($this);
-
-        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
-
-        self::assertSame(0, PrintScenario::renderer()->calls);
-        self::assertSame(0, PrintFile::query()->count());
-        foreach (PrintScenario::jsonRows($status, 'parts') as $part) {
-            self::assertSame('idle', $part['status']);
-        }
     }
 
     public function test_only_the_chosen_parts_are_made(): void
@@ -383,27 +177,6 @@ final class PrintPipelineTest extends TestCase
         $this->get($url)->assertOk();
     }
 
-    public function test_a_failed_part_says_why(): void
-    {
-        $job = PrintScenario::createAnonymousJob($this);
-
-        PrintScenario::renderer()->mode = 'timeout';
-        PrintScenario::generate($this, $job, 'printer', ['board'])->assertOk();
-        self::assertSame('timeout', PrintScenario::partRow($this, $job, PrintSet::Printer, PrintPart::Board)['reason']);
-
-        PrintScenario::renderer()->mode = 'wrong_count';
-        PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
-        self::assertSame('layout', PrintScenario::partRow($this, $job, PrintSet::Printer, PrintPart::Cards)['reason']);
-
-        PrintScenario::renderer()->mode = 'crash';
-        PrintScenario::generate($this, $job, 'printer', ['board'])->assertOk();
-        self::assertSame('other', PrintScenario::partRow($this, $job, PrintSet::Printer, PrintPart::Board)['reason']);
-
-        PrintScenario::renderer()->mode = 'ok';
-        PrintScenario::generate($this, $job, 'printer', ['board'])->assertOk();
-        self::assertNull(PrintScenario::partRow($this, $job, PrintSet::Printer, PrintPart::Board)['reason'], 'a part that is done has no reason');
-    }
-
     public function test_chrome_gets_two_minutes_to_print_a_sheet_even_when_the_env_still_says_five_seconds(): void
     {
         // 210 notes with photos took longer than the 5 s of the package default on the server (Lettele, ronde 2).
@@ -426,55 +199,6 @@ final class PrintPipelineTest extends TestCase
         self::assertSame(1, PrintFile::query()->where('part', 'cards')->where('kind', 'part')->count());
     }
 
-    public function test_the_status_follows_the_cache_key_when_the_edition_of_an_account_changes(): void
-    {
-        $user = User::factory()->create();
-        $edition = PrintScenario::createEditionFor($this, $user);
-
-        $job = PrintScenario::printJobFor($this, $user, $edition);
-
-        PrintScenario::generate($this, $job, 'printer', ['cards', 'money'])->assertOk();
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
-
-        // Another part changes: cards stay current, money goes stale.
-        $edition->forceFill(['elements' => [...$edition->elements, 'note.5' => ['color' => '#AA3322']]])->save();
-
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
-        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Money));
-
-        $this->get('/api/print/' . $job->token . '/zip/printer')->assertConflict();
-
-        // A new release makes everything outdated (B62).
-        config(['printopoly.print.release' => 'v2']);
-        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
-
-        PrintScenario::generate($this, $job, 'printer', ['cards', 'money'])->assertOk();
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Money));
-    }
-
-    public function test_a_pdf_past_its_seven_days_reads_as_outdated(): void
-    {
-        $job = PrintScenario::createAnonymousJob($this);
-        PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
-
-        $file = PrintFile::query()->where('part', 'cards')->where('kind', 'part')->firstOrFail();
-        $file->forceFill(['expires_at' => CarbonImmutable::now()->subMinute()])->save();
-
-        self::assertSame('outdated', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
-    }
-
-    public function test_the_waiting_parts_say_what_they_wait_for(): void
-    {
-        $job = PrintScenario::createAnonymousJob($this);
-        $job->forceFill(['states' => ['printer_board' => ['status' => 'running', 'cache_key' => null, 'error' => null, 'after' => null], 'printer_cards' => ['status' => 'waiting', 'cache_key' => null, 'error' => null, 'after' => 'board']], 'active_at' => CarbonImmutable::now()])->save();
-
-        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
-
-        self::assertTrue($status->json('busy'));
-        $cards = PrintScenario::partRow($this, $job, PrintSet::Printer, PrintPart::Cards);
-        self::assertSame(['waiting', 'board'], [$cards['status'], $cards['waitingFor']]);
-    }
-
     public function test_a_busy_job_refuses_a_second_run(): void
     {
         $job = PrintScenario::createAnonymousJob($this);
@@ -486,27 +210,6 @@ final class PrintPipelineTest extends TestCase
         // A run whose worker died stops blocking after a while.
         $job->forceFill(['active_at' => CarbonImmutable::now()->subMinutes(20)])->save();
         PrintScenario::generate($this, $job)->assertOk();
-    }
-
-    public function test_a_run_whose_worker_died_reads_as_failed_after_the_timeout_and_retry_restarts_it(): void
-    {
-        $job = PrintScenario::createAnonymousJob($this);
-        $states = ['printer_cards' => ['status' => 'running', 'cache_key' => null, 'error' => null, 'after' => null]];
-
-        // Fresh: still busy, nothing to retry yet.
-        $job->forceFill(['states' => $states, 'active_at' => CarbonImmutable::now()->subMinutes(2)])->save();
-        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
-        self::assertTrue($status->json('busy'));
-        self::assertSame('running', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
-
-        // Past the timeout: failed, the page offers "Opnieuw proberen", and that starts a new run.
-        $job->forceFill(['active_at' => CarbonImmutable::now()->subMinutes(PrintProgress::STALE_AFTER_MINUTES + 1)])->save();
-        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
-        self::assertFalse($status->json('busy'));
-        self::assertSame('failed', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
-
-        PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
     }
 
     public function test_a_user_has_one_run_at_a_time_over_all_their_jobs(): void
@@ -564,27 +267,5 @@ final class PrintPipelineTest extends TestCase
         // The crop folder is cleaned up after the render.
         self::assertSame([], Storage::disk('local')->allFiles('print-work'));
         self::assertSame(1, Asset::query()->where('print_job_id', $job->publicId())->count());
-    }
-
-    /**
-     * @param TestResponse<Response> $response
-     * @return list<string>
-     */
-    private function zipNames(TestResponse $response): array
-    {
-        $path = (string) tempnam(sys_get_temp_dir(), 'zip-test-');
-        file_put_contents($path, $response->streamedContent());
-        $zip = new ZipArchive();
-        self::assertTrue($zip->open($path));
-        $names = [];
-
-        for ($i = 0; $i < $zip->numFiles; $i++) {
-            $names[] = (string) $zip->getNameIndex($i);
-        }
-
-        $zip->close();
-        File::delete($path);
-
-        return $names;
     }
 }

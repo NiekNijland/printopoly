@@ -13,12 +13,18 @@ use App\Modules\Content\Enums\PublicPage;
 use App\Modules\Content\Support\LocalizedUrls;
 use App\Modules\Content\Support\StructuredData;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 use Inertia\Middleware;
 use Override;
 
-class HandleInertiaRequests extends Middleware
+final class HandleInertiaRequests extends Middleware
 {
+    public function __construct(private readonly StructuredData $structuredData)
+    {
+    }
+
     /**
      * Only public pages are server-rendered. The editor and the editions
      * measure the DOM and are private, so SSR adds nothing there (B66).
@@ -53,8 +59,8 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
-            'locale' => app()->getLocale(),
+            'name' => Config::string('app.name'),
+            'locale' => App::getLocale(),
             'locales' => Locale::values(),
             'localizedUrls' => fn (): array => LocalizedUrls::forRequest($request),
             'pageUrls' => $this->pageUrls(...),
@@ -78,7 +84,7 @@ class HandleInertiaRequests extends Middleware
      */
     private function pageUrls(): array
     {
-        $locale = Locale::from(app()->getLocale());
+        $locale = Locale::from(App::getLocale());
         $urls = [];
 
         foreach (PublicPage::withSlug() as $page) {
@@ -106,8 +112,8 @@ class HandleInertiaRequests extends Middleware
             return null;
         }
 
-        $locale = Locale::from(app()->getLocale());
+        $locale = Locale::from(App::getLocale());
 
-        return SeoData::forPage($publicPage, $locale, resolve(StructuredData::class)->forPage($publicPage, $locale));
+        return SeoData::forPage($publicPage, $locale, $this->structuredData->forPage($publicPage, $locale));
     }
 }

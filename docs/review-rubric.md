@@ -59,7 +59,7 @@ Elke rij van de tabel One pattern in `AGENTS.md`, in dezelfde volgorde. De kolom
 | Verboden aanroep | PHPStan met `phpstan.neon` en `phpstan-banned-calls.neon`; de keyed baseline `tests/Support/Architecture/lists/phpstan-banned-calls.txt` | item 1: een nieuwe toegestane plek |
 | Validatie | `RequestValidationArchitectureTest`, `ValidatedInputArchitectureTest`, `FormRequestArchitectureTest` | item 9: of een `authorize()` met `#[Override]` echt een controle van de ouder uitzet |
 | Autorisatie | `ControllerAuthorizationArchitectureTest`, `RoutePermissionCoverageTest`, `ObjectLevelAccessCoverageTest` | item 3: de regel in de policy |
-| Token-capability | | item 3: een token geeft alleen toegang tot zijn eigen box of printjob |
+| Token-capability | `TokenCapabilityTest`, `ObjectLevelAccessCoverageTest` | item 3: een token geeft alleen toegang tot zijn eigen box of printjob |
 | JSON-antwoord | `JsonEndpointArchitectureTest` | item 9: de status van een schrijvende route |
 | Inertia-pagina | `InertiaPageArchitectureTest` | item 9: of de props van de controller bij de pagina passen |
 | Redirect en flash | `RedirectArchitectureTest`, `FlashMessageArchitectureTest`; ESLint `toasts/no-success-toast` | item 16: de tekst van de melding |

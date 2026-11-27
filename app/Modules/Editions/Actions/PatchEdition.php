@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Editions\Actions;
 
 use App\Models\Edition;
-use App\Modules\Editions\Support\EditionConflict;
+use App\Modules\Editions\Exceptions\EditionConflictException;
 use App\Modules\Editions\Support\EditionPayload;
 use App\Modules\Editions\Support\EditionValidator;
 
@@ -18,19 +18,21 @@ use App\Modules\Editions\Support\EditionValidator;
  */
 final readonly class PatchEdition
 {
-    public function __construct(private SaveEditionChanges $save)
+    public function __construct(private SaveEditionChanges $save, private EditionPayload $payload)
     {
     }
 
     /**
      * @param PatchInput $patch
      *
-     * @throws EditionConflict
+     * @throws EditionConflictException
      */
     public function handle(Edition $edition, array $patch): Edition
     {
         // Check first, so a stale patch is turned away before any merging.
-        throw_if($edition->revision !== $patch['baseRevision'], EditionConflict::class, $edition);
+        if ($edition->revision !== $patch['baseRevision']) {
+            throw new EditionConflictException($this->payload->data($edition));
+        }
 
         $attributes = [];
 

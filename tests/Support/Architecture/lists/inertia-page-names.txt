@@ -1,1 +1,0 @@
-app/Http/Controllers/Pages/ContentPage/ShowController.php: an Inertia page that is not named by a string: write the page as text, as in Inertia::render('Order/Show', ...), so the file in resources/js/pages can be found

@@ -6,7 +6,6 @@ namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\MethodSizeGuard;
 use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\SourceSandbox;
@@ -131,12 +130,12 @@ final class MethodSizeArchitectureTest extends TestCase
         self::assertSame(['app/Print/Runner.php::Runner::run::81'], $this->sizesOf(['app/Print/Runner.php' => self::php('final class Runner', self::method('public function run(): void', 81))], prefix: '.checkout-')[0]);
     }
 
-        public function test_it_keeps_every_method_of_app_inside_the_limits_of_the_guide_or_on_the_counted_list(): void
+        public function test_it_keeps_every_method_of_app_inside_the_limits_of_the_guide(): void
         {
         $guard = new MethodSizeGuard(new PhpFileInspector(), $this->root(), 'app', self::GUIDE, 'Controllers');
 
         self::assertSame([80, 40], $guard->limits());
-        self::assertSame([], new CountedList($this->root(), 'lists/method-size.txt')->violations($guard->findings(), $guard->explain(...)));
+        self::assertSame([], $guard->explain($guard->findings()));
     }
 
     /**

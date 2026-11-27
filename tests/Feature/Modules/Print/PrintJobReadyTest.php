@@ -7,6 +7,7 @@ namespace Tests\Feature\Modules\Print;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Factory;
 use Illuminate\Support\Str;
 use Tests\Concerns\CreatesPrintFixtures;
 use Tests\Concerns\RefreshesMongoDatabase;
@@ -79,7 +80,7 @@ final class PrintJobReadyTest extends TestCase
             ->assertOk()
             ->assertExactJson(['jobs' => []]);
 
-        $this->app?->make('auth')->guard()->logout();
+        $this->app->make(Factory::class)->guard()->logout();
         $this->postJson('/api/print-jobs/ready', ['tokens' => [$job->token]])
             ->assertOk()
             ->assertExactJson(['jobs' => []]);

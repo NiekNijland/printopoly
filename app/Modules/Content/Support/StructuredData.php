@@ -7,6 +7,7 @@ namespace App\Modules\Content\Support;
 use App\Modules\Content\Data\FaqItemData;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Content\Enums\PublicPage;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The JSON-LD of a public page, as one @graph (B66): the site's Organization
@@ -65,8 +66,8 @@ final readonly class StructuredData
      */
     private function organization(string $origin): array
     {
-        $email = config('printopoly.contact_email');
-        $logo = config('seo.logo');
+        $email = Config::string('printopoly.contact_email');
+        $logo = Config::string('seo.logo', '/icon-512.png');
 
         return [
             '@type' => 'Organization',
@@ -75,7 +76,7 @@ final readonly class StructuredData
             'url' => $origin,
             'logo' => [
                 '@type' => 'ImageObject',
-                'url' => $origin . (is_string($logo) ? $logo : '/icon-512.png'),
+                'url' => $origin . $logo,
                 'width' => 512,
                 'height' => 512,
             ],
@@ -83,7 +84,7 @@ final readonly class StructuredData
             'contactPoint' => [
                 '@type' => 'ContactPoint',
                 'contactType' => 'customer support',
-                'email' => is_string($email) ? $email : '',
+                'email' => $email,
                 'availableLanguage' => ['Dutch', 'English'],
             ],
         ];
@@ -223,14 +224,14 @@ final readonly class StructuredData
         }
 
         return [
-            trans('contact.title', [], $locale->value),
-            trans('contact.description', [], $locale->value),
+            __('contact.title', [], $locale->value),
+            __('contact.description', [], $locale->value),
         ];
     }
 
     private function modified(PublicPage $page): string
     {
-        $date = config('seo.lastmod.' . $page->value);
+        $date = Config::array('seo.lastmod')[$page->value] ?? null;
 
         return is_string($date) ? $date : now()->toDateString();
     }

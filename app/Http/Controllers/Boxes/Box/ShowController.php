@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Boxes\Box;
 
-use App\Http\Controllers\Controller;
 use App\Models\CollectionBox;
+use App\Modules\Boxes\Support\BoxAccess;
 use App\Modules\Boxes\Support\BoxPresenter;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,25 +15,18 @@ use Inertia\Response;
  * and all it lets them do is add. A link that "Nieuwe link" replaced shows a page that says so, with the name of the
  * edition and nothing else (B175). An unknown or expired link is a 404, like any page that is not there.
  */
-final class ShowController extends Controller
+final readonly class ShowController
 {
-    public function __invoke(string $locale, string $token, BoxPresenter $presenter): Response
+    public function __invoke(string $locale, string $token, BoxAccess $access, BoxPresenter $presenter): Response
     {
         // The {locale} segment is positional; SetLocale has already applied it.
         unset($locale);
+        $box = $access->byLink($token);
 
-        $box = CollectionBox::query()->where('token', $token)->first();
-
-        if (! $box instanceof CollectionBox) {
-            $replaced = CollectionBox::query()->where('replaced_tokens', CollectionBox::tokenHash($token))->first();
-
-            abort_unless($replaced instanceof CollectionBox && $replaced->expires_at->isFuture(), 404);
-
-            return Inertia::render('boxes/show', ['box' => $presenter->replaced($replaced)]);
+        if ($box instanceof CollectionBox) {
+            return Inertia::render('boxes/show', ['box' => $presenter->friend($box)]);
         }
 
-        abort_unless($box->expires_at->isFuture(), 404);
-
-        return Inertia::render('boxes/show', ['box' => $presenter->friend($box)]);
+        return Inertia::render('boxes/show', ['box' => $presenter->replaced($access->replacedLinkOrFail($token))]);
     }
 }

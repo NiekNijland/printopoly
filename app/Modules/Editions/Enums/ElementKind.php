@@ -71,10 +71,7 @@ enum ElementKind: string
      */
     public static function lucideSpaceIcons(): array
     {
-        /** @var list<string>|null $ids */
-        static $ids = null;
-
-        if ($ids === null) {
+        return once(static function (): array {
             $entries = json_decode((string) file_get_contents(resource_path(self::LUCIDE_SPACE_ICONS_FILE)), true, 8, JSON_THROW_ON_ERROR);
             $ids = [];
 
@@ -83,9 +80,9 @@ enum ElementKind: string
                     $ids[] = $entry['id'];
                 }
             }
-        }
 
-        return $ids;
+            return $ids;
+        });
     }
 
     /**

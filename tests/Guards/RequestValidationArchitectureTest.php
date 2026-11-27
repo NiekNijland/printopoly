@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\RequestValidationGuard;
-use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
 
 final class RequestValidationArchitectureTest extends TestCase
@@ -80,7 +79,7 @@ final class A { public function b(): void { \App' . '\Edition\EditionValidator::
         {
         $root = dirname(__DIR__, 2);
 
-        self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/inline-validation.txt')->differences($this->guard($root)->violations()));
+        self::assertSame([], $this->guard($root)->violations());
     }
 
     private function guard(string $root): RequestValidationGuard

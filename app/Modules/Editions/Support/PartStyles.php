@@ -59,18 +59,15 @@ final class PartStyles
      */
     public static function all(): array
     {
-        /** @var array<string, list<string>>|null $styles */
-        static $styles = null;
-
-        if ($styles === null) {
+        return once(static function (): array {
             $decoded = json_decode((string) file_get_contents(resource_path(self::FILE)), true, 8, JSON_THROW_ON_ERROR);
             $styles = [];
 
             foreach (is_array($decoded) ? $decoded : [] as $part => $ids) {
                 $styles[(string) $part] = array_values(array_filter(is_array($ids) ? $ids : [], is_string(...)));
             }
-        }
 
-        return $styles;
+            return $styles;
+        });
     }
 }

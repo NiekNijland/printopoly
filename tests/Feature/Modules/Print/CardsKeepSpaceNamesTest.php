@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Print;
 
 use App\Modules\Print\Enums\PrintPart;
-use App\Modules\Print\Support\PrintEditionData;
+use App\Modules\Print\Support\PrintEditionReader;
+use App\Modules\Print\ValueObjects\PrintEdition;
 use Tests\TestCase;
 
 final class CardsKeepSpaceNamesTest extends TestCase
 {
-    private function edition(): PrintEditionData
+    private function edition(): PrintEdition
     {
-        return PrintEditionData::fromArray(['elements' => [
+        return resolve(PrintEditionReader::class)->fromArray(['elements' => [
             'space.01' => ['name' => 'Raalterwetering', 'photo' => ['id' => 'x']],
             'space.03' => ['layout' => 'text'],
             'deed.02' => ['name' => 'Eigen akte'],

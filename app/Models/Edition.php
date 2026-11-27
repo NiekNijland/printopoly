@@ -67,7 +67,7 @@ use Override;
 #[RouteKey('edition_id')]
 #[Table(name: 'editions')]
 #[WithoutTimestamps]
-class Edition extends Model
+final class Edition extends Model
 {
     /** @use HasFactory<EditionFactory> */
     use HasFactory;

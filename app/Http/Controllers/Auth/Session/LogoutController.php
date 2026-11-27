@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth\Session;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
+use App\Modules\Accounts\Data\SignedOutData;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Logging out also clears the copy of the editions in this browser: the menu
@@ -18,9 +18,9 @@ use Inertia\Inertia;
  * callers get `clearLocalCopy: true`, Inertia and normal requests get the
  * flash prop `clearLocalCopy` on the page they land on.
  */
-final class LogoutController extends Controller
+final readonly class LogoutController
 {
-    public function __invoke(Request $request): JsonResponse|RedirectResponse
+    public function __invoke(Request $request): Response|RedirectResponse
     {
         Auth::guard('web')->logout();
 
@@ -30,7 +30,7 @@ final class LogoutController extends Controller
         $home = route('home', ['locale' => app()->getLocale()]);
 
         if ($request->expectsJson() && ! $request->headers->has('X-Inertia')) {
-            return response()->json(['clearLocalCopy' => true, 'redirect' => $home]);
+            return new SignedOutData(clearLocalCopy: true, redirect: $home)->toResponse($request)->setStatusCode(Response::HTTP_OK);
         }
 
         Inertia::flash('clearLocalCopy', true);

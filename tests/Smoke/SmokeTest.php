@@ -29,8 +29,8 @@ final class SmokeTest extends TestCase
     #[Override]
     public function createApplication(): Application
     {
-        /** @var Application $app */
         $app = require __DIR__ . '/../../bootstrap/app.php';
+        self::assertInstanceOf(Application::class, $app);
         $app->make(Kernel::class)->bootstrap();
 
         return $app;

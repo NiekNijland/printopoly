@@ -4,34 +4,24 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Editions\Edition;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\Editions\ImportEditionsRequest;
 use App\Models\User;
 use App\Modules\Editions\Actions\ImportEditions;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use App\Modules\Editions\Data\EditionImportData;
+use Illuminate\Container\Attributes\CurrentUser;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * The one question after login (B81): "Je hebt 2 edities op dit apparaat. Wil
  * je ze in je account bewaren?" On yes the browser sends the editions it
  * keeps. The answer lists what happened per edition id.
  */
-final class ImportController extends Controller
+final readonly class ImportController
 {
-    /** More than an account can hold, so a full browser still fits in one request. */
-    private const int MAX_PER_REQUEST = 50;
-
-    public function __invoke(Request $request, ImportEditions $import): JsonResponse
+    public function __invoke(#[CurrentUser] User $user, ImportEditionsRequest $request, ImportEditions $import): Response
     {
-        $user = $request->user();
-        abort_unless($user instanceof User, 401);
+        $report = $import->handle($user, $request->editions());
 
-        $request->validate([
-            'editions' => ['required', 'array', 'list', 'min:1', 'max:' . self::MAX_PER_REQUEST],
-        ]);
-
-        /** @var list<mixed> $editions */
-        $editions = $request->json()->all('editions');
-
-        return response()->json($import->handle($user, $editions));
+        return new EditionImportData(imported: $report['imported'], conflicts: $report['conflicts'], overLimit: $report['overLimit'], invalid: $report['invalid'])->toResponse($request)->setStatusCode(Response::HTTP_OK);
     }
 }

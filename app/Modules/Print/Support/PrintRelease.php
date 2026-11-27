@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Print\Support;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The release part of the PDF cache key (B62). It is `PRINTOPOLY_RELEASE` when that is set. When it is
@@ -16,7 +17,7 @@ final class PrintRelease
 {
     public static function current(): string
     {
-        $configured = config('printopoly.print.release');
+        $configured = Config::array('printopoly.print')['release'] ?? null;
 
         if (is_string($configured) && $configured !== '') {
             return $configured;

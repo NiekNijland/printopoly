@@ -13,8 +13,9 @@ use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Support\InstructionText;
 use App\Modules\Print\Support\PartText;
 use App\Modules\Print\Support\PrintCacheKey;
-use App\Modules\Print\Support\PrintEditionData;
+use App\Modules\Print\Support\PrintEditionReader;
 use App\Modules\Print\Support\PrintLayout;
+use App\Modules\Print\ValueObjects\PrintEdition;
 use App\Modules\Print\ValueObjects\PrintQuantity;
 use Tests\TestCase;
 
@@ -24,9 +25,9 @@ use Tests\TestCase;
  */
 final class RoundSevenPrintTest extends TestCase
 {
-    private function edition(): PrintEditionData
+    private function edition(): PrintEdition
     {
-        return PrintEditionData::fromArray(['name' => 'Oak Class', 'parts' => ['money' => true], 'elements' => []]);
+        return resolve(PrintEditionReader::class)->fromArray(['name' => 'Oak Class', 'parts' => ['money' => true], 'elements' => []]);
     }
 
     public function test_the_cards_and_the_money_hold_every_set_and_the_rest_stays_one_set(): void

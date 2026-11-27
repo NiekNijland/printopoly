@@ -10,13 +10,15 @@ use App\Models\PrintJob;
 use App\Models\User;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
-use App\Modules\Print\Support\PrintEditionData;
+use App\Modules\Print\Support\PrintEditionReader;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
+use ZipArchive;
 
 /**
  * The print pipeline scenario: an edition with every part and one photo, a fake Chrome on a fake disk, its requests.
@@ -31,7 +33,7 @@ final class PrintScenario
         config(['printopoly.storage.disk' => 'local']);
         RealBinary::allow('pdfinfo', 'pdftoppm');
 
-        $renderer = new FakePdfRenderer(PrintEditionData::fromArray(self::editionArray()));
+        $renderer = new FakePdfRenderer(resolve(PrintEditionReader::class)->fromArray(self::editionArray()));
         app()->instance(PdfRenderer::class, $renderer);
 
         return $renderer;
@@ -222,5 +224,27 @@ final class PrintScenario
         $status = self::partRow($test, $job, $set, $part)['status'];
 
         return is_string($status) ? $status : '';
+    }
+
+    /**
+     * @param TestResponse<Response> $response
+     * @return list<string>
+     */
+    public static function zipNames(TestResponse $response): array
+    {
+        $path = (string) tempnam(sys_get_temp_dir(), 'zip-test-');
+        file_put_contents($path, $response->streamedContent());
+        $zip = new ZipArchive();
+        Assert::assertTrue($zip->open($path));
+        $names = [];
+
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $names[] = (string) $zip->getNameIndex($i);
+        }
+
+        $zip->close();
+        File::delete($path);
+
+        return $names;
     }
 }

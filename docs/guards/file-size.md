@@ -8,6 +8,6 @@ Een PHP-bestand telt hoogstens 400 regels, tests meegeteld.
 | --- | --- | --- |
 | file-size | een PHP-bestand telt hoogstens 400 regels, tests meegeteld | splits naar gedrag: een test in `<Class><Topic>Test.php`, een klasse in de klassen die ze al bevat |
 
-De bestanden van vandaag die te lang zijn, staan in `lists/file-size.txt` (sleutel: pad). Die lijst heeft geen eigen ratchet-rij: het dashboard telt dezelfde bestanden in `source-files-over-limit` en `test-files-over-limit`, en de rijen `cap-source-files-over-limit` en `cap-test-files-over-limit` houden die aantallen vast.
+Elk PHP-bestand blijft onder de grens; de guard heeft geen getelde lijst. Het dashboard telt de te lange bestanden in `source-files-over-limit` en `test-files-over-limit`, en de rijen `cap-source-files-over-limit` en `cap-test-files-over-limit` houden die aantallen vast.
 
 Review controleert, de guard niet: of een splitsing naar gedrag gaat en niet naar regelaantal (rubric item 9).

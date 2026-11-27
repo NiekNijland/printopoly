@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\Analytics\Support;
 
 use App\Modules\Analytics\Enums\FeatureEvent;
-use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use MongoDB\Laravel\Connection;
 use Throwable;
@@ -33,7 +32,7 @@ final class FeatureCounter
             }
 
             $connection->getCollection(self::COLLECTION)->updateOne(
-                ['event' => $event->value, 'day' => CarbonImmutable::now('UTC')->toDateString()],
+                ['event' => $event->value, 'day' => now('UTC')->toDateString()],
                 ['$inc' => ['count' => $by]],
                 ['upsert' => true],
             );

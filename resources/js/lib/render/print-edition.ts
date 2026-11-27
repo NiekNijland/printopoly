@@ -19,7 +19,7 @@ import { isMoneyAmount } from './print-money';
 /**
  * The edition the print server sends is the stored one with `src` and `target` added to photos. This turns
  * it into the `Edition` the renderers and `resolveEdition` read. Parts that are not mentioned count as on,
- * the way the server counts them (`PrintEditionData::enabledParts`); the board is always on.
+ * the way the server counts them (`PrintEdition::enabledParts`); the board is always on.
  */
 export const toEdition = (print: PrintEdition): Edition => {
     const language: Locale = print.language === 'en' ? 'en' : 'nl';
@@ -65,7 +65,7 @@ export const allPartsOn = (edition: Edition): Edition => {
     return { ...edition, parts };
 };
 
-/** The number of cards the "cards" part prints (`PrintEditionData::cardCount`). */
+/** The number of cards the "cards" part prints (`PrintEdition::cardCount`). */
 export const cardCountOf = (edition: Edition): number => {
     // The cards part always holds the deeds and both decks; whether it is in the set is chosen on the print page (B198).
     const deeds = deedsFor().length;

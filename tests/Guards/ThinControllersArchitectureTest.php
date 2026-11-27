@@ -7,7 +7,6 @@ namespace Tests\Guards;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\Architecture\ThinControllerGuard;
 use Tests\Support\SourceSandbox;
@@ -103,7 +102,7 @@ final class ThinControllersArchitectureTest extends TestCase
         {
         $guard = $this->guard($this->root());
 
-        self::assertSame([], new CountedList($this->root(), 'lists/thin-controllers.txt')->violations($guard->findings(), $guard->explain(...)));
+        self::assertSame([], $guard->explain($guard->findings()));
     }
 
     private function guard(string $root): ThinControllerGuard
