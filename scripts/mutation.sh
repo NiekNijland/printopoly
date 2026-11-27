@@ -12,6 +12,10 @@ MUTATION_SOURCE_FOLDERS="app"
 # of a test file is no score of the code), so the defaults keep source files of PHP and TypeScript/JavaScript and drop test files.
 MUTATION_FILE_PATTERN='\.(php|ts|tsx|js|jsx|mjs|cjs|mts|cts)$'
 MUTATION_EXCLUDE_PATTERN='(\.(test|spec)\.[a-z]+$|/__tests__/|Test\.php$)'
+# The worker count of Pest (--processes) and Infection (--threads): a whole number from 1. Pest's own default is one worker per
+# core, and on a machine with many cores the workers starve each other: the same code scored 75% (29 untested, 10 timeouts) with the
+# default and 94.59% with 4. The default is 4; raise it on a runner with the cores to spare, and keep the score at the floor.
+MUTATION_PROCESSES="4"
 # <<< config
 
 SHARED_CONFIG="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/kit-config.sh"
@@ -32,6 +36,10 @@ case "$MUTATION_TOOL$MUTATION_SOURCE_FOLDERS" in
     *"<"*">"*) fail "the config block of this script still holds a placeholder" ;;
 esac
 
+case "$MUTATION_PROCESSES" in
+    "" | *[!0-9]* | 0*) fail "MUTATION_PROCESSES is \"$MUTATION_PROCESSES\": a whole number from 1" ;;
+esac
+
 MODE="${1:-}"
 case "$MODE" in
     "" | --changed) ;;
@@ -42,6 +50,13 @@ case "$MODE" in
         exit 64
         ;;
 esac
+
+# Infection is installed with a Composer plugin (infection/extension-installer). Composer 2.2 and later runs a plugin only when the
+# manifest allows it, and without the line the install either blocks on a prompt or leaves the tool half set up, which reads like
+# a broken Infection. Only a manifest that is there is read (a project that keeps it elsewhere has no composer.json here).
+if [ "$MUTATION_TOOL" = "infection" ] && [ -r composer.json ] && ! grep -q -E '"infection/extension-installer"[[:space:]]*:[[:space:]]*true' composer.json; then
+    fail "composer.json does not allow the plugin infection/extension-installer: run composer config allow-plugins.infection/extension-installer true before composer require --dev infection/infection, and never pipe composer's output into head (the closed pipe aborts the install)"
+fi
 
 [ -r "$MUTATION_FLOOR_FILE" ] || fail "cannot read $MUTATION_FLOOR_FILE"
 FLOOR=$(sed -n -E 's/^threshold: ([0-9]+)$/\1/p' "$MUTATION_FLOOR_FILE" | awk 'NR == 1')
@@ -55,6 +70,8 @@ if [ "$MODE" = "--changed" ]; then
         [ -n "$BASE" ] || BASE=$(eval "printf '%s' \"\${$variable:-}\"")
     done
     BASE="${BASE:-$DEFAULT_BASE_BRANCH}"
+    BASE="${BASE#"$REMOTE"/}"
+    kit_local_base "$BASE" || fail "$KIT_BRANCH_ERROR"
     # shellcheck disable=SC2086
     CHANGED_FILES=$(git -c core.quotePath=false diff --no-renames --name-only --diff-filter=AM "$REMOTE/$BASE"...HEAD -- $MUTATION_SOURCE_FOLDERS)
     # An explicit loop, not a grep whose failure is forced to success: such a tail reads as a skipped step to the ci-skipped-steps ratchet.
@@ -90,10 +107,10 @@ run_stryker() {
     exit "$status"
 }
 case "$MUTATION_TOOL:$MODE" in
-    pest:) vendor/bin/pest --mutate --everything --parallel --min="$FLOOR" ;;
-    pest:--changed) vendor/bin/pest --mutate --parallel --path="$CHANGED" --min="$FLOOR" ;;
-    infection:) vendor/bin/infection --threads=max --min-msi="$FLOOR" ;;
-    infection:--changed) vendor/bin/infection --threads=max --min-msi="$FLOOR" --git-diff-filter=AMR --git-diff-base="$REMOTE/$BASE" ;;
+    pest:) vendor/bin/pest --mutate --everything --parallel --processes="$MUTATION_PROCESSES" --min="$FLOOR" ;;
+    pest:--changed) vendor/bin/pest --mutate --parallel --processes="$MUTATION_PROCESSES" --path="$CHANGED" --min="$FLOOR" ;;
+    infection:) vendor/bin/infection --threads="$MUTATION_PROCESSES" --min-msi="$FLOOR" ;;
+    infection:--changed) vendor/bin/infection --threads="$MUTATION_PROCESSES" --min-msi="$FLOOR" --git-diff-filter=AMR --git-diff-base="$REMOTE/$BASE" ;;
     stryker:) run_stryker ;;
     stryker:--changed) run_stryker --mutate "$(printf '%s' "$CHANGED" | sed 's/[][(){}*!]/?/g')" ;;
     *) fail "MUTATION_TOOL is \"$MUTATION_TOOL\": it is one of pest, infection, stryker" ;;

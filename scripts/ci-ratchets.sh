@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
 # >>> config: the project sets every value in this block; the example values are a PHP backend with a TypeScript frontend
-# Comma lists of tracked folders or files. A trailing ? means "may be missing". Empty means "none".
-SOURCE_PATHS="app,bootstrap,config,database,routes,resources/views?"
+# Comma lists of tracked folders or files. A trailing ? means "may be missing". Empty means "none". Every row reads tracked files only
+# (git grep, git ls-files), so the generated, untracked files of a framework (bootstrap/cache, storage) are never counted: a folder
+# that also holds generated files stays one entry. debt-dashboard.sh has the same folders in SOURCE_FILES.
+SOURCE_PATHS="app,bootstrap,config,database,routes,lang?,resources/views?"
 TEST_PATHS="tests"
 # The test folders whose tests are written in the backend's test framework: the row test-skip counts there.
-# Empty in a project whose only language is TypeScript: frontend-test-skip counts its skips.
 TEST_SKIP_PATHS="tests"
 FRONTEND_PATHS="resources/js,vite.config.ts?,vitest.setup.ts?"
 # Codemods live in tools/codemods and project scripts written in a source language (scripts/<name>.mjs) are named here: no row counts them.
@@ -20,11 +21,11 @@ TYPE_CHECKER_CONFIGS="tsconfig.json?"
 # or after a brace or comma, so a switch that is commented out (# or //) is not counted.
 ANALYSER_SWITCHES="(^|[{,])[[:space:]]*[^A-Za-z[:space:]#/]?(checkTooWideReturnTypesInProtectedAndPublicMethods|checkMissingOverrideMethodAttribute|reportAnyTypeWideningInVarTag|checkOctaneCompatibility|noEnvCallsOutsideOfConfig|strict|noUncheckedIndexedAccess|noImplicitOverride|noImplicitReturns|noFallthroughCasesInSwitch|noUnusedLocals|noUnusedParameters|noUncheckedSideEffectImports)[^A-Za-z:[:space:]]?[[:space:]]*:[[:space:]]*true|(^|[{,])[[:space:]]*[^A-Za-z[:space:]#/]?(allowJs|allowUnreachableCode|allowUnusedLabels)[^A-Za-z:[:space:]]?[[:space:]]*:[[:space:]]*false|^[[:space:]]*-[[:space:]]+[^#[:space:]]*/conf/bleedingEdge[.]neon|^[[:space:]]*-[[:space:]]+[^#[:space:]]*/carbon/extension[.]neon"
 REFACTOR_CONFIG="rector.php?"
-# One extended regular expression that matches a set or switch of the refactoring tool that is on, in REFACTOR_CONFIG: the six
+# One extended regular expression that matches a set or switch of the refactoring tool that is on, in REFACTOR_CONFIG: the five
 # prepared sets, the ten framework sets, the language sets, the framework version read from the manifest, and unused imports
 # removed (templates/tool-configs.md). The row refactor-sets counts the matches and only goes up. No double quote, backslash
 # or dollar sign in the value: the merge base is read as text. A set after // or # at the line start is not counted.
-REFACTOR_SETS="(^[[:space:]]*|,[[:space:]]*|(^[[:space:]]*|[]A-Za-z0-9_)])->withPreparedSets[(][[:space:]]*)(deadCode|codeQuality|codingStyle|typeDeclarations|privatization|earlyReturn):[[:space:]]*true|(^[[:space:]]*|[,([][[:space:]]*)LaravelSetList::LARAVEL_(ARRAYACCESS_TO_METHOD_CALL|ARRAY_STR_FUNCTION_TO_STATIC_CALL|CODE_QUALITY|COLLECTION|CONTAINER_STRING_TO_FULLY_QUALIFIED_NAME|ELOQUENT_MAGIC_METHOD_TO_QUERY_BUILDER|FACADE_ALIASES_TO_FULL_NAMES|FACTORIES|IF_HELPERS|LEGACY_FACTORIES_TO_CLASSES)|(^[[:space:]]*|[]A-Za-z0-9_)])->withPhpSets[(][)]|(^[[:space:]]*|[]A-Za-z0-9_)])->withComposerBased[(]laravel:[[:space:]]*true[)]|(^[[:space:]]*|,[[:space:]]*|(^[[:space:]]*|[]A-Za-z0-9_)])->withImportNames[(][[:space:]]*)removeUnusedImports:[[:space:]]*true"
+REFACTOR_SETS="(^[[:space:]]*|,[[:space:]]*|(^[[:space:]]*|[]A-Za-z0-9_)])->withPreparedSets[(][[:space:]]*)(deadCode|codeQuality|codingStyle|typeDeclarations|privatization):[[:space:]]*true|(^[[:space:]]*|[,([][[:space:]]*)LaravelSetList::LARAVEL_(ARRAYACCESS_TO_METHOD_CALL|ARRAY_STR_FUNCTION_TO_STATIC_CALL|CODE_QUALITY|COLLECTION|CONTAINER_STRING_TO_FULLY_QUALIFIED_NAME|ELOQUENT_MAGIC_METHOD_TO_QUERY_BUILDER|FACADE_ALIASES_TO_FULL_NAMES|FACTORIES|IF_HELPERS|LEGACY_FACTORIES_TO_CLASSES)|(^[[:space:]]*|[]A-Za-z0-9_)])->withPhpSets[(][)]|(^[[:space:]]*|[]A-Za-z0-9_)])->withComposerBased[(]laravel:[[:space:]]*true[)]|(^[[:space:]]*|,[[:space:]]*|(^[[:space:]]*|[]A-Za-z0-9_)])->withImportNames[(][[:space:]]*)removeUnusedImports:[[:space:]]*true"
 # The formatter's config, and one extended regular expression that matches a rule of the kit's strictness list that is on in it
 # (true, or an object of options). The row formatter-rules counts the matches and only goes up: a rule that is switched off
 # for its own pull request (templates/tool-configs.md, "Rules that can change behavior") is not counted until it is on.
@@ -32,16 +33,20 @@ REFACTOR_SETS="(^[[:space:]]*|,[[:space:]]*|(^[[:space:]]*|[]A-Za-z0-9_)])->with
 FORMATTER_CONFIG="pint.json?"
 FORMATTER_RULES="[^a-z_](strict_comparison|final_class|final_internal_class|final_public_method_for_abstract_class|protected_to_private|date_time_immutable|declare_strict_types|mb_str_functions|ordered_class_elements|ordered_interfaces|ordered_traits|self_accessor|self_static_accessor|modernize_types_casting|no_superfluous_elseif|no_multiple_statements_per_line|array_push|backtick_to_shell_exec|lowercase_keywords|lowercase_static_reference|visibility_required)[^a-z_:[:space:]]?[[:space:]]*:[[:space:]]*(true|[{])"
 AUDIT_MANIFEST="composer.json?"
-COVERAGE_FLOOR_FILE="scripts/coverage-floor.txt"
 # The time-boxed audit exceptions that audit-gate.sh reads (one entry per line, at most 7 days each).
 AUDIT_EXCEPTIONS="scripts/audit-exceptions.json?"
 LINT_CONFIG="eslint.config.js?"
 LINT_BASELINE="eslint-suppressions.json?"
+# The folder with the keyed baselines that keyed-baseline.sh writes, one file per check.
+KEYED_BASELINES="baselines?"
 CI_FILES="bitbucket-pipelines.yml?,.github/workflows?,.gitlab-ci.yml?,scripts"
 # The values that other scripts read too (the caps file, the base branch, the remote) are in kit-config.sh, next to this script.
 GUARDED_FILES=".gitattributes?,CODEOWNERS?,.github/CODEOWNERS?,docs/CODEOWNERS?,.gitlab/CODEOWNERS?,scripts/kit-config.sh?,scripts/debt-dashboard.sh?,scripts/ci-commit-messages.sh?,scripts/ci-parallel.sh?,scripts/keyed-baseline.sh?,scripts/audit-gate.sh?,scripts/mutation.sh?,scripts/checks.sh?,bitbucket-pipelines.yml?,.github/workflows?,.gitlab-ci.yml?"
 # The rows that never go below 0 but still take an override at 0 (a reason that is itself a decision: a justified comment, a pinned
-# major, a dated advisory exception whose commit names the advisory). A comma list of row names; every other max row at 0 takes none.
+# major, an abandoned package with no replacement, a dated advisory exception whose commit names the advisory, and the first measurement
+# of a cap that a host measures, such as cap-ci-duration-minutes, which the project adds here with that row: the commit that raises
+# the cap from 0 to the measured value carries [ratchet: cap-<key>] first measurement <n>). A comma list of row names; every other
+# max row at 0 takes none.
 OVERRIDE_AT_ZERO="comments,cap-dependencies-majors-behind,cap-dependencies-abandoned,audit-exceptions"
 # <<< config
 
@@ -68,14 +73,14 @@ test-skip                              max  grep   @TEST_SKIP_PATHS,:(exclude)*.
 test-doubles                           max  grep   @TEST_PATHS,:(exclude)*.md  (^|[^A-Za-z0-9_])(Mockery|m)::(mock|spy|namedMock|instanceMock)[[:space:]]*\(|[A-Za-z]::(shouldReceive|shouldHaveReceived|partialMock|spy)\(|(^|[^\\])\$this->(mock|spy|partialMock)\(|test\(\)->(mock|spy|partialMock)\(|(^|[^A-Za-z0-9_>:$\\])\\?(mock|spy)[[:space:]]*\(|(create(Configured|Partial)?(Mock|Stub)[A-Za-z]*|createTestProxy|getMock[A-Za-z]*|prophesize)\(
 event-fake-all                         max  grep   @TEST_PATHS,:(exclude)*.md  Event::fake(For)?\([[:space:]]*(\[[[:space:]]*\])?[[:space:]]*(\)|$)
 lint-disable                           max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  eslint-disable|oxlint-disable|biome-ignore|deno-lint-ignore|istanbul ignore|v8 ignore|c8 ignore|/\*[[:space:]]*eslint[[:space:]]
-lint-config-off                        max  grep   @LINT_CONFIG  ["'](off|warn)["']|["'][^"']+["'][[:space:]]*:[[:space:]]*(\[[[:space:]]*)?[01]([^0-9A-Za-z_.]|$)
+lint-config-off                        max  grep   @LINT_CONFIG  :[[:space:]]*["'](off|warn)["']|["'][^"']+["'][[:space:]]*:[[:space:]]*\[[[:space:]]*["'](off|warn)["']|["'][^"']+["'][[:space:]]*:[[:space:]]*(\[[[:space:]]*)?[01]([^0-9A-Za-z_.]|$)
 lint-config-ignores                    max  block  @LINT_CONFIG  (?:ignores:\s*|globalIgnores\(\s*)\[([^\]]*)\] ["'][^"']+["']
 lint-suppressions                      max  json   @LINT_BASELINE  value *.*.count
 frontend-functions-over-limit          max  json   @LINT_BASELINE  value *.max-lines-per-function.count
 frontend-inertia-mocks                 max  grep   @FRONTEND_PATHS,:(exclude)*.md,:(exclude)resources/js/testing/setup.ts  vi\.(mock|doMock)\([[:space:]]*["'`]@inertiajs/
 unused-ignore                          max  json   knip.json  count? ignoreDependencies
 ts-suppressions                        max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  @ts-(expect-error|ignore|nocheck)
-frontend-test-skip                     max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  (^|[^A-Za-z0-9_$.])(((it|test|describe)(\.(concurrent|sequential|describe|parallel|serial))*\.(skip|todo|only|skipIf|runIf|fails|fixme)[(.])|((x|f)(it|test|describe)[(]))
+frontend-test-skip                     max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  (^|[^A-Za-z0-9_$.:>]|[^:]:|[^-]>)(((it|test|describe)(\.(concurrent|sequential|describe|parallel|serial))*\.(skip|todo|only|skipIf|runIf|fails|fixme)[(.])|((x|f)(it|test|describe)[(]))
 comments                               max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  (^|[][[:space:];{}(),])//|(^[[:space:]]*|[;{}(),][[:space:]]+)#([[:space:]]|$)|(^|[][[:space:];{}(),])/\*([^*]|\*[[:space:]]+[^@[:space:]*/])|(^|[][[:space:];{}(),])/\*[[:space:]]*$|^[[:space:]]*\*[[:space:]]+[^@[:space:]*]|<!--|\{\{--
 todo                                   max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  (^|[^A-Za-z0-9_])(TODO|FIXME|HACK|XXX)([^A-Za-z0-9_]|$)|@todo
 ci-skipped-steps                       max  grep   @CI_FILES  \|\|[[:space:]]*(true|:|exit[[:space:]]+0|command[[:space:]]+true|/(usr/)?bin/true|[({][[:space:]]*(true|:|exit[[:space:]]+0))([^A-Za-z0-9_]|$)|;[[:space:]]*(exit[[:space:]]+0|true)([^A-Za-z0-9_]|$)|set[[:space:]]+\+e([^A-Za-z0-9_]|$)|continue-on-erro[r]:[[:space:]]*[^f"'[:space:]]|allow_failur[e]:[[:space:]]*([^f[:space:]]|$)
@@ -101,7 +106,7 @@ loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS,:(e
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
 mixed-outside-json-entry               max  grep   @SOURCE_PATHS,:(exclude)app/Support/JsonShape.php,:(exclude)app/Modules/Editions/Support,:(exclude)app/Http/Requests  (\(|,)[[:space:]]*mixed[[:space:]]+(&[[:space:]]*)?\$|\)[[:space:]]*:[[:space:]]*mixed([^A-Za-z0-9_]|$)|(readonly|public|private|protected|static)[[:space:]]+mixed[[:space:]]
-queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
+queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(For)?\([[:space:]]*(\[[[:space:]]*\])?[[:space:]]*(\)|$)
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
 model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
@@ -653,20 +658,19 @@ uncovered() {
 extra_rows() {
     cat <<'EXTRA'
 strict-types-missing                   max  without  @SOURCE_PATHS,@TEST_PATHS  (^|/)[^/.]+\.php$ ^declare\(strict_types=1\);
-loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS,:(exclude)tests/Guards,:(exclude)tests/Support/Architecture  (^|[^=!<>])(==|!=|<>)([^=]|$)
+loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^=!<>])(==|!=|<>)([^=]|$)
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
-queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
-one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
-model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
+queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(For)?\([[:space:]]*(\[[[:space:]]*\])?[[:space:]]*(\)|$)
+unused-ignore                          max  grep   composer-unused.php?  (NamedFilter|PatternFilter)::fromString
 EXTRA
 }
 
 # The fixture of --self-test: one line per case, "<row>[@<file name>] <expected count> <text>". The text is one line of the file
 # (~NL~ is a line break); the count is what the row must report for that file: 0 for a spelling it must not count. A file name
-# may hold octal escapes (\303\234 is a letter outside ASCII). A file name with a folder is written at that path and counted with
-# the exclude pathspecs of its row. The cases are the spellings of a PHP backend with a TypeScript
+# may hold octal escapes (\303\234 is a letter outside ASCII); a name that starts with / is a path from the root of the scratch
+# repository, counted with the row's own :(exclude) pathspecs, so a case in an excluded folder must count 0. The cases are the spellings of a PHP backend with a TypeScript
 # frontend: a project that changes an expression changes its cases here, or passes its own file as the second argument.
 selftest_cases() {
     cat <<'CASES'
@@ -708,7 +712,7 @@ refactor-skip 1 ->withSkipPath(__DIR__ . '/x')
 refactor-skip 0 ->withSkip([])
 refactor-sets 2     ->withPreparedSets(deadCode: true, codeQuality: true)
 refactor-sets 1     deadCode: true,
-refactor-sets 1 $config->withPreparedSets(earlyReturn: true)
+refactor-sets 0 $config->withPreparedSets(earlyReturn: true)
 refactor-sets 1     ->withPhpSets()
 refactor-sets 1     ->withComposerBased(laravel: true)
 refactor-sets 1     ->withImportNames(removeUnusedImports: true)
@@ -767,11 +771,6 @@ test-doubles 0 $x = mocker(1);
 event-fake-all 1 Event::fake();
 event-fake-all 1 Event::fake( );
 event-fake-all 1 Event::fake([]);
-queue-bus-fake-all 1 Queue::fake();
-queue-bus-fake-all 1 Bus::fake( );
-queue-bus-fake-all 1 Queue::fake
-queue-bus-fake-all 0 Queue::fake([SendMail::class]);
-queue-bus-fake-all 0 Bus::assertDispatched(SendMail::class);
 event-fake-all 1 Event::fake(
 event-fake-all 0 Event::fake([Foo::class]);
 event-fake-all 0 Event::fake(Foo::class);
@@ -786,25 +785,16 @@ lint-disable 1 /* eslint no-console: off */
 lint-disable 0 const eslintConfig = 1;
 lint-config-off 1     "no-console": "off",
 lint-config-off 1     rules: { x: 'warn' },
+lint-config-off 1     'no-console': ['warn', { allow: ['error'] }],
+lint-config-off 1     "no-console": ["off"],
+lint-config-off 0     'no-console': ['error', { allow: ['warn', 'error'] }],
+lint-config-off 0     'no-console': ['error', { allow: ['error', 'warn'] }],
 lint-config-off 0     "no-console": "error",
 lint-config-ignores 2 ignores: ['dist', 'build/**'],
 lint-config-ignores 1 globalIgnores(['a'])
 lint-config-ignores 0 ignores: [],
-lint-suppressions 3 {"a.ts": {"rule": {"count": 3}}}
-frontend-functions-over-limit 2 {"a.ts": {"max-lines-per-function": {"count": 2}, "func-style": {"count": 5}}}
-frontend-inertia-mocks 1 vi.mock('@inertiajs/react', () => ({}));
-frontend-inertia-mocks 1 vi.mock("@inertiajs/core");
-frontend-inertia-mocks 1 vi.mock(`@inertiajs/react`);
-frontend-inertia-mocks 1 vi.doMock('@inertiajs/react');
-frontend-inertia-mocks 1 vi.mock( '@inertiajs/react');
-frontend-inertia-mocks 0 vi.mock('@/lib/inertia');
-frontend-inertia-mocks 0 vi.mocked(router);
-frontend-inertia-mocks 0 vi.mock('@inertiajs');
-frontend-inertia-mocks@resources/js/testing/setup.ts 0 vi.mock('@inertiajs/react', async (importOriginal) => {
-frontend-inertia-mocks@resources/js/testing/inertia.tsx 1 vi.mock('@inertiajs/react');
-frontend-inertia-mocks@resources/js/pages/home.test.tsx 1 vi.mock('@inertiajs/react');
-unused-ignore 2 {"ignoreDependencies": ["a", "b"]}
-unused-ignore 0 {"entry": ["a"]}
+lint-baseline 3 {"a.ts": {"rule": {"count": 3}}}
+type-baseline 1 one finding per line
 ts-suppressions 1 // @ts-expect-error
 ts-suppressions 1 // @ts-ignore
 ts-suppressions 1 /* @ts-nocheck */
@@ -827,6 +817,12 @@ frontend-test-skip 0 vi.skip();
 frontend-test-skip 0 this.skip();
 frontend-test-skip 0 it('x', () => {
 frontend-test-skip 0 const gain = benefit(1);
+frontend-test-skip 0 self::fit($panel);
+frontend-test-skip 0 Fit::fit(1);
+frontend-test-skip 0 $this->fit(1);
+frontend-test-skip 1 const f = () =>fit('x', () => {
+frontend-test-skip 1 const c = a ? b : fit('x', () => {
+frontend-test-skip 1 export const t = {fit:fit('x', () => {
 comments 1 // note
 comments 1 $a = 1; // note
 comments 1 # note
@@ -894,26 +890,6 @@ loose-comparisons 0 $x = $a !== $b;
 loose-comparisons 0 $x = $a <= $b;
 loose-comparisons 0 $x = $a <=> $b;
 loose-comparisons 0 $f = fn () => 1;
-loose-comparisons@tests/Feature/WorkflowTest.php 1 if ($a == $b) {
-loose-comparisons@tests/Guards/WorkflowTest.php 0 yield ['if: github.event_name == x'];
-loose-comparisons@tests/Support/Architecture/WorkflowRules.php 0 $rule = "github.event_name != x";
-mixed-outside-json-entry 1     public function handle(mixed $value): void
-mixed-outside-json-entry 1     $f = static fn (int $a, mixed $b): bool => true;
-mixed-outside-json-entry 1     private function walk(mixed &$value): void
-mixed-outside-json-entry 1     public function value(): mixed
-mixed-outside-json-entry 1     private function value(): mixed {
-mixed-outside-json-entry 1         public readonly mixed $elements,
-mixed-outside-json-entry 1     public mixed $value;
-mixed-outside-json-entry 1     private mixed $value;
-mixed-outside-json-entry 1     protected mixed $value;
-mixed-outside-json-entry 1     public static mixed $value;
-mixed-outside-json-entry 0      * @param mixed $value
-mixed-outside-json-entry 0      * @return array<string, mixed>
-mixed-outside-json-entry 0     $mixed = $mixedValue;
-mixed-outside-json-entry@app/Support/JsonShape.php 0     public static function map(mixed $value, string $path): array
-mixed-outside-json-entry@app/Modules/Editions/Support/LayerParser.php 0     public function parse(mixed $value): ?array
-mixed-outside-json-entry@app/Http/Requests/Boxes/StoreBoxRequest.php 0     public function language(): mixed
-mixed-outside-json-entry@app/Modules/Print/Support/PhotoTargets.php 1     public static function clean(mixed $value): array
 mutable-dates 1 $d = new DateTime();
 mutable-dates 1 $d = new DateTime;
 mutable-dates 1 $d = new Carbon;
@@ -929,22 +905,10 @@ byte-string-functions 0 $n = $x->strlen(1);
 byte-string-functions 0 $n = Foo::strlen(1);
 byte-string-functions 0 $n = Foo\strlen(1);
 byte-string-functions 0 $n = mb_strlen($s);
+byte-string-functions 0 $n = mb_strlen($s, '8bit');
 guide-future-tense 1 This will change.
 guide-future-tense 1 Until then.
 guide-future-tense 0 A willing reader.
-guide-future-tense 1 Dit is voorlopig zo.
-guide-future-tense 1 De guard zal falen.
-guide-future-tense 1 De lijsten zullen krimpen.
-guide-future-tense 1 Dat komt straks.
-guide-future-tense 1 Wacht totdat het klaar is.
-guide-future-tense 1 Dat kan nog niet.
-guide-future-tense 1 Dit geldt tot stap 5.
-guide-future-tense 0 Een zalm en een totaal.
-guide-future-tense 0 Toegang tot de box, nog een regel.
-one-pattern-list 1 example-on-list Action app/Actions/X.php lists/layout.txt
-one-pattern-list 2 one finding~NL~another finding
-model-strictness-violations 1 App\Models\Edition lazy-loading user
-model-strictness-violations 2 App\Models\Edition lazy-loading user~NL~App\Models\User discarded-attribute colour
 analyser-switches 1     checkTooWideReturnTypesInProtectedAndPublicMethods: true
 analyser-switches 1     checkMissingOverrideMethodAttribute: true
 analyser-switches 1     reportAnyTypeWideningInVarTag: true
@@ -1043,6 +1007,26 @@ loose-comparisons 1     && $a ==
 mutable-dates 1 DateTime::createFromFormat('Y', $y);
 guide-future-tense 1 For now this holds.
 guide-future-tense 1 We wait until
+guide-future-tense 1 Dat is voorlopig zo.
+guide-future-tense 1 Dat zal veranderen.
+guide-future-tense 1 Ze zullen komen.
+guide-future-tense 1 Straks klaar.
+guide-future-tense 1 Wacht totdat het klaar is.
+guide-future-tense 1 Dat is nog niet af.
+guide-future-tense 1 Tot stap 5 blijft dit.
+queue-bus-fake-all 1 Queue::fake();
+queue-bus-fake-all 1 Bus::fake( );
+queue-bus-fake-all 0 Queue::fake([SendMail::class]);
+queue-bus-fake-all 1 Bus::fake([]);
+queue-bus-fake-all 1 Queue::fakeFor(
+queue-bus-fake-all 1 Queue::fake(
+queue-bus-fake-all 1 Bus::fake( );
+queue-bus-fake-all 0 Queue::fake([Foo::class]);
+queue-bus-fake-all 0 Bus::fake([Foo::class]);
+queue-bus-fake-all 0 Event::fake();
+unused-ignore@composer-unused.php 1 ->addNamedFilter(NamedFilter::fromString('foo/bar'))
+unused-ignore@composer-unused.php 1 ->addPatternFilter(PatternFilter::fromString('/^foo\//'))
+unused-ignore@composer-unused.php 0 ->setAdditionalFilesFor('foo/bar', [])
 byte-string-functions 1 $n = substr($s, 1);
 byte-string-functions 1 $n = strpos($s, 1);
 byte-string-functions 1 $n = strrpos($s, 1);
@@ -1130,8 +1114,8 @@ alt_mutants() {
 selftest() {
     local extra="${1:-}" NL cases line row rest want text file n=0 skipped=0 index=0 ran=0
     local name method spec got status dir path covered="" witness member mutated base alt_missing=0 alt_total=0 done_rows=""
-    local -a rows=() wants=() paths=() texts=() methods=() specs=() states=() extras=() filters=() row_items=()
-    local row_paths item
+    local -a rows=() wants=() paths=() texts=() methods=() specs=() states=() extras=() placed=() case_filters=() case_items=()
+    local placed_flag case_paths case_item
     local from_extra=0 tool_skipped=0
     NL=$'\n'
     SELFTEST_FAILED=0
@@ -1172,17 +1156,31 @@ selftest() {
         text="${text//~E~/e}"
         text="${text//~PL~/+}"
         index=$((index + 1))
-        dir="cases/$row/$index"
-        # A file name with a folder is written at that path from the root, so the exclude pathspecs of the row apply to it.
-        case "$file" in */*) dir="$(dirname "$file")" file="$(basename "$file")" ;; esac
-        mkdir -p "$dir"
-        [ ! -e "$dir/$file" ] || selftest_fail "two cases write $dir/$file: give each case with a folder its own file name"
-        printf '%s\n' "$text" > "$dir/$file"
+        placed_flag=0
+        if [ "${file#/}" != "$file" ]; then
+            # A file name with a leading / is a path from the root of the scratch repository: the case is written there (in a folder
+            # a row's :(exclude) pathspec names) and counted with the row's own pathspecs.
+            file="${file#/}"
+            dir="$(dirname "$file")"
+            placed_flag=1
+            if [ -e "$file" ]; then
+                selftest_fail "two cases write /$file: use another name"
+            fi
+            mkdir -p "$dir"
+            printf '%s\n' "$text" > "$file"
+            dir="$file"
+            file=""
+        else
+            dir="cases/$row/$index"
+            mkdir -p "$dir"
+            printf '%s\n' "$text" > "$dir/$file"
+        fi
         printf '%s\n' "$text" >> "$witness/$row.txt"
         rows+=("$row")
         extras+=("$from_extra")
         wants+=("$want")
-        paths+=("$dir/$file")
+        placed+=("$placed_flag")
+        if [ "$placed_flag" -eq 1 ]; then paths+=("$dir"); else paths+=("$dir/$file"); fi
         texts+=("$text")
     done <<< "$cases"
     git add -A
@@ -1204,12 +1202,7 @@ selftest() {
             index=$((index + 1))
             continue
         fi
-        read -r name _ method row_paths spec <<< "$line"
-        filters=()
-        IFS=, read -ra row_items <<< "$(expand "$row_paths" -)"
-        for item in ${row_items[@]+"${row_items[@]}"}; do
-            [ "${item#:}" = "$item" ] || filters+=("$item")
-        done
+        read -r name _ method case_paths spec <<< "$line"
         spec=$(resolve_spec "$spec" -) || {
             selftest_fail "$row: its expression cannot be resolved"
             index=$((index + 1))
@@ -1223,10 +1216,26 @@ selftest() {
             index=$((index + 1))
             continue
         fi
+        # The unused-ignore cases are written for a PHP config counted with a grep row; a project whose tool has a JSON config counts
+        # the key of its list with a json row (tools/README.md, "Adding a row", point 8): the cases do not describe it.
+        if [ "$row" = "unused-ignore" ] && [ "$method" != "grep" ]; then
+            skipped=$((skipped + 1))
+            covered="$covered $row "
+            index=$((index + 1))
+            continue
+        fi
         path="${paths[$index]}"
         [ "$method" != "without" ] || path="$(dirname "$path")"
+        case_filters=()
+        if [ "${placed[$index]}" = "1" ]; then
+            case_paths=$(expand "$case_paths" -) || case_paths=""
+            IFS=, read -ra case_items <<< "$case_paths"
+            for case_item in ${case_items[@]+"${case_items[@]}"}; do
+                [ "${case_item#:}" = "$case_item" ] || case_filters+=("$case_item")
+            done
+        fi
         status=0
-        got=$(count HEAD "$method" "$spec" "$path" ${filters[@]+"${filters[@]}"} 2> /dev/null) || status=$?
+        got=$(count HEAD "$method" "$spec" "$path" ${case_filters[@]+"${case_filters[@]}"} 2> /dev/null) || status=$?
         case "$covered" in *" $row "*) ;; *) covered="$covered $row " ;; esac
         if [ "$status" -eq 4 ]; then
             skipped=$((skipped + 1))
@@ -1239,6 +1248,71 @@ selftest() {
         fi
         index=$((index + 1))
     done
+
+    # The exclude pathspecs of a row are part of what it counts: a spelling in an excluded place must not be counted, and the same
+    # spelling in a counted place must. For every grep row with a ":(exclude)<glob>" in its paths, the first spelling the row counts
+    # is written into a file that the glob names (a * in the glob becomes the row's name; a name without a dot is a folder),
+    # committed, and counted twice: with the row's own pathspec it must be 0, without it 1 or more.
+    local excl_paths excl_item excl_glob excl_target excl_text excl_i excl_last excl_got excl_ctl
+    local -a excl_list=() excl_rows=() excl_places=() excl_specs=() excl_texts=()
+    done_rows=""
+    index=0
+    while [ "$index" -lt "${#rows[@]}" ]; do
+        row="${rows[$index]}"
+        index=$((index + 1))
+        case "$done_rows" in *" $row "*) continue ;; esac
+        done_rows="$done_rows $row "
+        line=$(awk -v row="$row" '$1 == row { print; exit }' <<< "$definitions")
+        [ -n "$line" ] || continue
+        read -r name _ method excl_paths spec <<< "$line"
+        [ "$method" = "grep" ] || continue
+        spec=$(resolve_spec "$spec" -) || continue
+        excl_paths=$(expand "$excl_paths" -) || continue
+        excl_text=""
+        for excl_i in "${!rows[@]}"; do
+            [ "${rows[$excl_i]}" = "$row" ] && [ "${wants[$excl_i]}" != "0" ] || continue
+            excl_text="${texts[$excl_i]}"
+            break
+        done
+        [ -n "$excl_text" ] || continue
+        IFS=, read -ra excl_list <<< "$excl_paths"
+        for excl_item in ${excl_list[@]+"${excl_list[@]}"}; do
+            case "$excl_item" in ':(exclude)'?*) ;; *) continue ;; esac
+            excl_glob="${excl_item#:(exclude)}"
+            case "$excl_glob" in
+                *'*'*) excl_target="${excl_glob//\*/$row}" ;;
+                *)
+                    excl_last="${excl_glob##*/}"
+                    case "$excl_last" in *.*) excl_target="$excl_glob" ;; *) excl_target="${excl_glob%/}/$row.txt" ;; esac
+                    ;;
+            esac
+            mkdir -p "$(dirname "$excl_target")"
+            printf '%s\n' "$excl_text" > "$excl_target"
+            excl_rows+=("$row")
+            excl_places+=("$excl_target|$excl_item")
+            excl_specs+=("$spec")
+            excl_texts+=("$excl_text")
+        done
+    done
+    if [ "${#excl_rows[@]}" -gt 0 ]; then
+        git add -A
+        git -c user.name=selftest -c user.email=selftest@example.test -c commit.gpgsign=false commit -q -m excluded
+        index=0
+        while [ "$index" -lt "${#excl_rows[@]}" ]; do
+            excl_target="${excl_places[$index]%%|*}"
+            excl_item="${excl_places[$index]#*|}"
+            excl_got=$(count HEAD grep "${excl_specs[$index]}" "$excl_target" "$excl_item" 2> /dev/null) || excl_got="error"
+            excl_ctl=$(count HEAD grep "${excl_specs[$index]}" "$excl_target" 2> /dev/null) || excl_ctl="error"
+            ran=$((ran + 1))
+            if [ "$excl_ctl" = "0" ] || [ "$excl_ctl" = "error" ]; then
+                selftest_fail "${excl_rows[$index]}: its spelling is not counted in $excl_target, so $excl_item cannot be tested there: ${excl_texts[$index]}"
+            elif [ "$excl_got" != "0" ]; then
+                selftest_fail "${excl_rows[$index]} counts a spelling in $excl_target, which its pathspec $excl_item should exclude: ${excl_texts[$index]}"
+            fi
+            index=$((index + 1))
+        done
+    fi
+    done_rows=""
 
     # Every alternative of a regex row is exercised: removing it from the expression must change what the row counts on the cases
     # of that row. A misspelt name or a dropped alternative would otherwise leave the row under-counting with a green self-test.
@@ -1271,6 +1345,13 @@ selftest() {
         case "$name" in cap-*) continue ;; esac
         case "$covered" in *" $name "*) ;; *) uncovered="$uncovered $name" ;; esac
     done <<< "$RATCHETS"
+
+    # A row that tools/README.md names (extra_rows) has cases in this file: one that has none fails, in the table or not.
+    local named
+    while read -r named _; do
+        [ -n "$named" ] || continue
+        case "$covered" in *" $named "*) ;; *) selftest_fail "$named is a row the kit names and has no fixture: add its cases to selftest_cases" ;; esac
+    done <<< "$(extra_rows)"
 
     # In CI a case that needs php or node and was skipped for want of it is a check that did not run.
     if [ "$tool_skipped" -gt 0 ] && [ -n "${CI:-}" ]; then
@@ -1325,6 +1406,12 @@ if [ "$MODE" = "--head" ]; then
         rm -f "$REASON"
         printf '%s %s %s\n' "$name" "$direction" "$value"
     done <<< "$RATCHETS"
+    # --head counts the commit HEAD, as the pipeline does, not the working tree: a file that is new or edited and not committed is
+    # invisible to every row (git grep reads the revision). Say so, so that a counter that looks 0 is not read as clean.
+    if [ -z "${CHECK_HEAD:-}" ]; then
+        PENDING=$(git status --porcelain 2> /dev/null | wc -l | tr -d ' ')
+        [ "$PENDING" -eq 0 ] || echo "Ratchets: --head counts the commit HEAD, not the working tree: $PENDING path(s) with uncommitted or untracked changes are not counted (commit them, or the rows look lower than they are)." >&2
+    fi
     exit "$STATUS"
 fi
 
@@ -1336,7 +1423,7 @@ if [ "$MODE" = "--uncovered" ]; then
 fi
 
 if [ -n "$MODE" ] && { [ "$MODE" != "--guard" ] || [ -z "${2:-}" ]; }; then
-    echo "Usage: bash $SCRIPT_NAME [--head | --uncovered | --self-test [<extra cases file>] | --json '<operation> <path>' | --guard <path of the ratchet script in the repository>]" >&2
+    echo "Usage: bash $SCRIPT_NAME [--head (counts the commit HEAD, not uncommitted files) |--uncovered | --self-test [<extra cases file>] | --json '<operation> <path>' | --guard <path of the ratchet script in the repository>]" >&2
     exit 64
 fi
 
@@ -1360,9 +1447,12 @@ done
 
 # A branch name that starts with a dash would be read as an option: kit-config.sh holds the shared check.
 kit_check_branches || fail "$KIT_BRANCH_ERROR"
+kit_local_base "$BASE_BRANCH" || fail "$KIT_BRANCH_ERROR"
 
 BASE_REF="refs/remotes/$REMOTE/$BASE_BRANCH"
-if ! git fetch -q -- "$REMOTE" "+refs/heads/$BASE_BRANCH:$BASE_REF" 2> /dev/null; then
+if [ "$KIT_LOCAL_BASE" -eq 1 ]; then
+    echo "Ratchets: no remote $REMOTE: the local branch $BASE_BRANCH stands in for $REMOTE/$BASE_BRANCH (a developer's machine only)" >&2
+elif ! git fetch -q -- "$REMOTE" "+refs/heads/$BASE_BRANCH:$BASE_REF" 2> /dev/null; then
     git rev-parse -q --verify "$BASE_REF" > /dev/null || fail "cannot fetch $REMOTE/$BASE_BRANCH"
     [ -z "${CI:-}" ] || fail "cannot fetch $REMOTE/$BASE_BRANCH in a CI run, so the copy already here may be stale. FAILS: nothing was compared"
     echo "Ratchets: cannot fetch $REMOTE/$BASE_BRANCH; comparing against the copy already here (a developer's machine only: fix the fetch command first, see the profile)" >&2
@@ -1437,6 +1527,7 @@ guarded() {
         printf 'Script: %s, allowed\n%s\n' "$label" "$allowed"
     else
         printf 'Script: %s. FAILS without [ratchet: script] <reason> in a commit that touches %s\n' "$label" "$path"
+        printf '        (the first configuration of scripts that an earlier commit on the base copied needs the tag too: [ratchet: script] configure the installed scripts. Copy and configuration in one pull request need none.)\n'
         CHECKS_FAILED=1
     fi
 }
