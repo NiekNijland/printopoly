@@ -5,7 +5,7 @@ import type { Edition } from '@/lib/render/edition-types';
 import { makeEdition } from '@/testing/edition-test-utils';
 
 import { BOOKLET_TITLE_BOX, NOTE_NAME_BOX, fitsNameBox } from './name-boxes';
-import { bookletPages, type PriceListPage } from './rules-booklet';
+import { bookletPages } from './rules-booklet';
 import { rulesContext } from './rules-context';
 
 const withElements = (
@@ -29,9 +29,7 @@ describe('the rules booklet in the words of the edition', () => {
             'words.currency': { name: 'Korfbalpunten', text: 'KP' },
         });
         const { pages, text } = textOf(edition);
-        const prices = pages.find(
-            (page): page is PriceListPage => page.kind === 'prices',
-        );
+        const prices = pages.find((page) => page.kind === 'prices');
 
         expect(text).toContain('KP 1.500');
         expect(text).not.toContain('€');
@@ -48,9 +46,7 @@ describe('the rules booklet in the words of the edition', () => {
             'space.30': { name: 'Off to the Clink' },
         });
         const { pages, text } = textOf(edition);
-        const prices = pages.find(
-            (page): page is PriceListPage => page.kind === 'prices',
-        );
+        const prices = pages.find((page) => page.kind === 'prices');
 
         expect(text).toContain('straight to the clink');
         expect(text).toContain('“Off to the Clink”');
@@ -80,9 +76,7 @@ describe('the rules booklet in the words of the edition', () => {
             'words.utility': { name: 'kantine', text: 'kantines' },
         });
         const { pages, text } = textOf(edition);
-        const prices = pages.filter(
-            (page): page is PriceListPage => page.kind === 'prices',
-        );
+        const prices = pages.filter((page) => page.kind === 'prices');
 
         expect(text).toContain('Bushaltes en kantines');
         expect(text).toContain('bij 1, 2, 3 of 4 bushaltes');
