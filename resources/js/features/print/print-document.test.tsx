@@ -10,14 +10,19 @@ import {
     type PrintPayload,
 } from './print-document';
 
+const photo = {
+    photoId: 'photo-ref-0001',
+    cx: 0.5,
+    cy: 0.5,
+    scale: 1,
+    rotation: 0,
+    grayscale: false,
+    src: 'http://127.0.0.1/print-render/x.jpg',
+};
+
 const edition: PrintEdition = {
     elements: {
-        'deed.01': {
-            photo: {
-                photoId: 'photo-ref-0001',
-                src: 'http://127.0.0.1/print-render/x.jpg',
-            },
-        },
+        'deed.01': { photo },
     },
 };
 

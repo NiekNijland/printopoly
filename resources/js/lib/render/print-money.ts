@@ -1,4 +1,5 @@
 import { standardEdition } from '@/lib/render/standard-edition';
+import type { PrintSet } from '@/types/generated';
 
 /**
  * How much play money a set prints (B156): enough for 2 to 4 players, enough for the starting split of 8, or
@@ -12,7 +13,7 @@ export type MoneyAmount = (typeof MONEY_AMOUNTS)[number];
 export const isMoneyAmount = (value: unknown): value is MoneyAmount => {
     return (
         typeof value === 'string' &&
-        (MONEY_AMOUNTS as readonly string[]).includes(value)
+        MONEY_AMOUNTS.some((amount) => amount === value)
     );
 };
 
@@ -39,7 +40,7 @@ export const MONEY_PLAYERS: Readonly<
 };
 
 /** Without a choice: 2 to 4 players at home, the full bank at the print shop (B156). */
-export const defaultMoneyAmount = (set: 'printer' | 'home'): MoneyAmount => {
+export const defaultMoneyAmount = (set: PrintSet): MoneyAmount => {
     return set === 'home' ? 'four' : 'full';
 };
 
