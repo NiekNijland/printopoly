@@ -31,6 +31,8 @@ const NO_WARNINGS: ReadonlySet<string> = new Set();
 
 type View = 'space' | 'deed' | 'chance' | 'chest' | 'rules';
 
+const VIEWS: readonly View[] = ['space', 'deed', 'chance', 'chest', 'rules'];
+
 const ViewTabs = ({
     view,
     onView,
@@ -47,7 +49,12 @@ const ViewTabs = ({
     return (
         <SegmentedTabs
             value={view}
-            onValueChange={(value) => onView(value as View)}
+            onValueChange={(value) => {
+                const next = VIEWS.find((id) => id === value);
+                if (next !== undefined) {
+                    onView(next);
+                }
+            }}
             className="w-full md:w-auto md:self-center"
         >
             <SegmentedTabsList

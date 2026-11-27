@@ -16,6 +16,9 @@ export const useStoredEdition = (
     services: PrintServices,
 ): [Edition | null, (edition: Edition) => void] => {
     const [stored, setStored] = useState<Edition | null>(null);
+    if (job === null && stored !== null) {
+        setStored(null);
+    }
 
     useEffect(() => {
         if (job === null || localEditionId === null) {

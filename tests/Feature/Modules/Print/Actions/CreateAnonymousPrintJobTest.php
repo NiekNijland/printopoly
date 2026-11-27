@@ -33,7 +33,7 @@ final class CreateAnonymousPrintJobTest extends TestCase
         $json = json_encode(PrintScenario::editionArray(), JSON_THROW_ON_ERROR);
         $edition = resolve(PrintEditionReader::class)->fromJson($json);
 
-        $job = resolve(CreateAnonymousPrintJob::class)->handle($edition, $json, null, [], true, Locale::English, '', '10.0.0.1');
+        $job = resolve(CreateAnonymousPrintJob::class)->handle($edition, $json, null, [], true, Locale::ENGLISH, '', '10.0.0.1');
 
         self::assertSame('en', $job->locale);
         self::assertNull($job->user_id);

@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import type { FriendBox } from '@/features/edition/boxes/types';
 import BoxShow from '@/pages/boxes/show';
+import { defined } from '@/testing/defined';
 import { formOf, requestOf, stubFetch } from '@/testing/fetch';
 import { renderWithI18n } from '@/testing/render';
 
@@ -210,9 +211,11 @@ describe('the friends page of Samen maken', () => {
         const user = userEvent.setup();
         renderWithI18n(<BoxShow box={box()} />);
 
-        const chest = screen.getAllByRole('option', {
-            name: /Algemeen Fonds/,
-        })[0] as HTMLElement;
+        const chest = defined(
+            screen.getAllByRole('option', {
+                name: /Algemeen Fonds/,
+            })[0],
+        );
         expect(chest).toHaveAttribute('aria-disabled', 'true');
         await user.click(chest);
         expect(chest).toHaveAttribute('aria-selected', 'false');
@@ -254,9 +257,11 @@ describe('the friends page of Samen maken', () => {
 
         // Algemeen Fonds 2 pays out 200: an amount from 160 to 240, received.
         await user.click(
-            screen.getAllByRole('button', {
-                name: /De bank heeft zich vergist/,
-            })[0] as HTMLElement,
+            defined(
+                screen.getAllByRole('button', {
+                    name: /De bank heeft zich vergist/,
+                })[0],
+            ),
         );
         const amount = screen.getByRole('spinbutton', {
             name: 'Bedrag voorstellen',
@@ -277,9 +282,11 @@ describe('the friends page of Samen maken', () => {
 
         // A new card: free amount, paid or received.
         await user.click(
-            screen.getAllByRole('button', {
-                name: /Nieuwe kaart voorstellen/,
-            })[0] as HTMLElement,
+            defined(
+                screen.getAllByRole('button', {
+                    name: /Nieuwe kaart voorstellen/,
+                })[0],
+            ),
         );
         expect(
             screen.getByRole('heading', { name: /Nieuwe kaart voor Kans/ }),

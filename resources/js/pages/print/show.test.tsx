@@ -2,6 +2,7 @@ import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import PrintShow from '@/pages/print/show';
+import { defined } from '@/testing/defined';
 import { stubFetch } from '@/testing/fetch';
 import { partRow, printJob, printPageEdition } from '@/testing/print-job';
 import { renderWithI18n } from '@/testing/render';
@@ -175,7 +176,9 @@ describe('print page', () => {
 
         expect(order(trial, game)).toBeTruthy();
         expect(order(game, extra)).toBeTruthy();
-        expect(order(screen.getAllByText('Speelgeld')[0]!, extra)).toBeTruthy();
+        expect(
+            order(defined(screen.getAllByText('Speelgeld')[0]), extra),
+        ).toBeTruthy();
         // The extras the edition had off are rows that are not ticked, not a line with a way to the editor.
         expect(
             screen.getByRole('checkbox', {
@@ -306,7 +309,7 @@ describe('print page', () => {
 
         // The standard edition at home: board 7, cards 8 (alignment test and 7 sheets), money 24 (2 to 4
         // players), pawns 1 sheet of A4; the box lid on 2 sheets of A4 (R5-29).
-        const bar = () => document.querySelector('[data-estimate]')!;
+        const bar = () => defined(document.querySelector('[data-estimate]'));
         expect(bar()).toHaveTextContent(
             'Samen 42 vellen A4, waarvan 24 speelgeld',
         );

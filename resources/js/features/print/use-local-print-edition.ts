@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 import type { PrintServices } from '@/features/print/print-page-setup';
+import { reportAndReturn } from '@/lib/bugsnag';
 import type { Edition } from '@/lib/render/edition-types';
 import { findReusableJob } from '@/lib/render/print-api';
 import { show as printShow } from '@/routes/print';
@@ -57,9 +58,9 @@ export const useLocalPrintEdition = (
                 );
                 const printedBefore =
                     token === null &&
-                    (await storage.listPrintJobs().catch(() => [])).some(
-                        (record) => record.editionId === found.id,
-                    );
+                    (
+                        await storage.listPrintJobs().catch(reportAndReturn([]))
+                    ).some((record) => record.editionId === found.id);
 
                 return { token, printedBefore };
             })

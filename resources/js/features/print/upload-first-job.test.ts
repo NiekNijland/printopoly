@@ -1,7 +1,7 @@
 import { makeEdition } from '@/testing/edition-test-utils';
 import { requestsOf, stubFetch } from '@/testing/fetch';
 import { visit } from '@/testing/inertia';
-import { fakePrintServices } from '@/testing/print-job';
+import { fakePrintServices, printJob } from '@/testing/print-job';
 
 import { uploadFirstJob } from './upload-first-job';
 
@@ -37,7 +37,9 @@ describe('uploadFirstJob', () => {
         });
         const fetchMock = stubFetch((url) =>
             url.endsWith('/generate')
-                ? new Response('{}', { status: 200 })
+                ? new Response(JSON.stringify(printJob([]).status), {
+                      status: 200,
+                  })
                 : new Response(
                       JSON.stringify({
                           token: 'k',

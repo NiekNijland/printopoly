@@ -1,3 +1,5 @@
+import { listenToWindow } from '@/lib/dom-events';
+
 /** Where an upload stands: photos and bytes on the server, and whether it waits for the connection. */
 export type UploadProgress = {
     done: number;
@@ -67,4 +69,23 @@ export const trackUpload = (
     report({});
 
     return { offline, sent };
+};
+
+/** A request that could not reach the server: no connection. A server answer is never this. */
+export const isNetworkError = (error: unknown): boolean => {
+    return error instanceof TypeError;
+};
+
+/** Waits for the browser to say it is online again, or a few seconds, whichever comes first. */
+export const waitForConnection = (ms: number): Promise<void> => {
+    return new Promise((resolve) => {
+        const done = () => {
+            stopListening();
+            window.clearTimeout(timer);
+            resolve();
+        };
+        const timer = window.setTimeout(done, ms);
+
+        const stopListening = listenToWindow('online', done);
+    });
 };

@@ -7,7 +7,6 @@ namespace Tests\Guards;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\ActionNamingGuard;
-use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\SourceSandbox;
 
@@ -78,7 +77,7 @@ final class ActionNamingArchitectureTest extends TestCase
         {
         $guard = new ActionNamingGuard(new PhpFileInspector(), $this->root(), 'app', 'Actions');
 
-        self::assertSame([], new CountedList($this->root(), 'lists/action-naming.txt')->violations($guard->findings(), $guard->explain(...)));
+        self::assertSame([], $guard->explain($guard->findings()));
     }
 
     /**

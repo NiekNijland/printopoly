@@ -6,6 +6,7 @@ import {
 import { INVITATION } from '@/lib/render/print-extras';
 import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
+import type { Locale } from '@/types/generated';
 
 import { Board, type BoardProps } from './board';
 import { FitText } from './fit-text';
@@ -32,7 +33,7 @@ export type InvitationProps = {
 } & ElementProps;
 
 /** What the card says until its owner writes something: lines to fill in by hand. */
-const defaultInvitationText = (locale: 'nl' | 'en'): string => {
+const defaultInvitationText = (locale: Locale): string => {
     return locale === 'nl'
         ? 'Wanneer: …………………………\nWaar: …………………………\nNeem mee: …………………………'
         : 'When: …………………………\nWhere: …………………………\nBring: …………………………';

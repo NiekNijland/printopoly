@@ -27,7 +27,18 @@ export const photoBleed = (
             return BLEED;
         case 'space':
             return BLEED - 0.5;
-        default:
+        case 'boardCenter':
+        case 'cardBack':
+        case 'group':
+        case 'houseRules':
+        case 'invitation':
+        case 'note':
+        case 'partStyle':
+        case 'pawn':
+        case 'rulesBooklet':
+        case 'themeAccent':
+        case 'words':
+        case undefined:
             return 0;
     }
 };

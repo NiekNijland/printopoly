@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Seo\Sitemap;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Content\Enums\PublicPage;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Config;
 
 /**
  * sitemap.xml: every public page in every language, each with its hreflang
@@ -22,7 +23,7 @@ final readonly class ShowController
             . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">' . "\n";
 
         foreach (PublicPage::cases() as $page) {
-            $modified = config('seo.lastmod.' . $page->value);
+            $modified = Config::array('seo.lastmod')[$page->value] ?? null;
 
             foreach (Locale::cases() as $locale) {
                 $xml .= "  <url>\n    <loc>" . $this->escape($page->absoluteUrl($locale)) . "</loc>\n";

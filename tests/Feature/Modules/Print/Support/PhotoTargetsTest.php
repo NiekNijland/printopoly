@@ -132,7 +132,7 @@ final class PhotoTargetsTest extends TestCase
             'board_center' => ['background' => $photo, 'subtitle' => 'Ons dorp'],
             'group.brown' => ['color' => '#123456'],
             'invitation' => ['name' => 'Kom spelen'],
-        ]])->onlyFor(PrintPart::Invitation);
+        ]])->onlyFor(PrintPart::INVITATION);
 
         $json = (string) json_encode($edition->toPrintPayload([])['elements']);
 

@@ -141,8 +141,10 @@ const PickTabs = ({
         <SegmentedTabs
             value={tab}
             onValueChange={(value) => {
-                const next = value as Tab;
-                onTab(next);
+                const next = tabs.find((id) => id === value);
+                if (next !== undefined) {
+                    onTab(next);
+                }
             }}
         >
             <SegmentedTabsList aria-label={t('friend.pick')}>
@@ -169,11 +171,11 @@ const useFriendPick = () => {
         setThanks(null);
         // On a phone the form sits below the board: bring it into view.
         if (window.innerWidth < 1024) {
-            requestAnimationFrame(() =>
-                document
-                    .getElementById('friend-form')
-                    ?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }),
-            );
+            requestAnimationFrame(() => {
+                const form: Partial<HTMLElement> | null =
+                    document.getElementById('friend-form');
+                form?.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
+            });
         }
     };
     const switchTab = (next: Tab): void => {

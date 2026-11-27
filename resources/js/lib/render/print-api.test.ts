@@ -43,8 +43,11 @@ describe('a busy server (bug 4 of test round 3)', () => {
         ]).catch((caught: unknown) => caught);
 
         expect(error).toBeInstanceOf(PrintApiError);
-        expect((error as PrintApiError).status).toBe(429);
-        expect((error as PrintApiError).retryAfter).toBe(42);
+        if (!(error instanceof PrintApiError)) {
+            throw new Error('Expected a PrintApiError');
+        }
+        expect(error.status).toBe(429);
+        expect(error.retryAfter).toBe(42);
     });
 });
 

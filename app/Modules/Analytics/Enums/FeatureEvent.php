@@ -13,19 +13,19 @@ use App\Modules\Print\Enums\PrintPart;
  */
 enum FeatureEvent: string
 {
-    case EditionCreated = 'edition_created';
-    case TemplateChosen = 'template_chosen';
-    case PhotoAdded = 'photo_added';
-    case ShareImageMade = 'share_image_made';
-    case BoxCreated = 'box_created';
-    case PrintBoard = 'print_board';
-    case PrintCards = 'print_cards';
-    case PrintMoney = 'print_money';
-    case PrintTokens = 'print_tokens';
-    case PrintBoxLid = 'print_box_lid';
-    case PrintRulesBooklet = 'print_rules_booklet';
-    case PrintInvitation = 'print_invitation';
-    case PrintCalibration = 'print_calibration';
+    case EDITION_CREATED = 'edition_created';
+    case TEMPLATE_CHOSEN = 'template_chosen';
+    case PHOTO_ADDED = 'photo_added';
+    case SHARE_IMAGE_MADE = 'share_image_made';
+    case BOX_CREATED = 'box_created';
+    case PRINT_BOARD = 'print_board';
+    case PRINT_CARDS = 'print_cards';
+    case PRINT_MONEY = 'print_money';
+    case PRINT_TOKENS = 'print_tokens';
+    case PRINT_BOX_LID = 'print_box_lid';
+    case PRINT_RULES_BOOKLET = 'print_rules_booklet';
+    case PRINT_INVITATION = 'print_invitation';
+    case PRINT_CALIBRATION = 'print_calibration';
 
     /**
      * The events that happen in the browser only: an edition and its photos live there (B80).
@@ -34,7 +34,7 @@ enum FeatureEvent: string
      */
     public static function fromBrowser(): array
     {
-        return [self::EditionCreated, self::TemplateChosen, self::PhotoAdded];
+        return [self::EDITION_CREATED, self::TEMPLATE_CHOSEN, self::PHOTO_ADDED];
     }
 
     /**
@@ -43,14 +43,14 @@ enum FeatureEvent: string
     public static function printed(PrintPart $part): self
     {
         return match ($part) {
-            PrintPart::Board => self::PrintBoard,
-            PrintPart::Cards => self::PrintCards,
-            PrintPart::Money => self::PrintMoney,
-            PrintPart::Tokens => self::PrintTokens,
-            PrintPart::BoxLid => self::PrintBoxLid,
-            PrintPart::RulesBooklet => self::PrintRulesBooklet,
-            PrintPart::Invitation => self::PrintInvitation,
-            PrintPart::Calibration => self::PrintCalibration,
+            PrintPart::BOARD => self::PRINT_BOARD,
+            PrintPart::CARDS => self::PRINT_CARDS,
+            PrintPart::MONEY => self::PRINT_MONEY,
+            PrintPart::TOKENS => self::PRINT_TOKENS,
+            PrintPart::BOX_LID => self::PRINT_BOX_LID,
+            PrintPart::RULES_BOOKLET => self::PRINT_RULES_BOOKLET,
+            PrintPart::INVITATION => self::PRINT_INVITATION,
+            PrintPart::CALIBRATION => self::PRINT_CALIBRATION,
         };
     }
 }

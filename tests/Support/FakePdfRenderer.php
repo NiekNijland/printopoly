@@ -60,7 +60,7 @@ final class FakePdfRenderer implements PdfRenderer
             $quote = '(?:"|\\\\u0022)';
             $sets = preg_match('/' . $quote . 'sets' . $quote . ':(\d+)/', $html, $found) === 1 ? (int) $found[1] : 1;
             $form = preg_match('/' . $quote . 'boardForm' . $quote . ':' . $quote . '([a-z]+)/', $html, $found) === 1 ? BoardForm::tryFrom($found[1]) : null;
-            $edition = $this->edition->forSet($set, $this->edition->moneyAmount, sets: $sets, boardForm: $form ?? BoardForm::Panels);
+            $edition = $this->edition->forSet($set, $this->edition->moneyAmount, sets: $sets, boardForm: $form ?? BoardForm::PANELS);
             $expected = PrintLayout::expect($part, $set, $edition->onlyFor($part));
             $pages = $expected->pages ?? 1;
         }

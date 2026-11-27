@@ -29,7 +29,7 @@ final class WordsTest extends TestCase
         foreach (['house', 'hotel', 'jail', 'currency', 'chance', 'chest', 'station', 'utility'] as $word) {
             $kind = ElementKind::fromKey('words.' . $word, $standard);
 
-            self::assertSame(ElementKind::Words, $kind);
+            self::assertSame(ElementKind::WORDS, $kind);
             self::assertSame(['name', 'text'], $kind->allowedFields());
         }
 
@@ -124,11 +124,11 @@ final class WordsTest extends TestCase
         ]]);
 
         // The lid shows the board (B256), so it prints the words too.
-        foreach ([PrintPart::Board, PrintPart::Cards, PrintPart::Money, PrintPart::BoxLid] as $part) {
+        foreach ([PrintPart::BOARD, PrintPart::CARDS, PrintPart::MONEY, PrintPart::BOX_LID] as $part) {
             self::assertArrayHasKey('words.house', $edition->onlyFor($part)->elements, $part->value);
         }
 
-        self::assertArrayNotHasKey('words.house', $edition->onlyFor(PrintPart::Tokens)->elements);
+        self::assertArrayNotHasKey('words.house', $edition->onlyFor(PrintPart::TOKENS)->elements);
     }
 
     public function test_a_changed_word_makes_the_printed_parts_outdated_but_not_the_pawns(): void
@@ -136,17 +136,17 @@ final class WordsTest extends TestCase
         $base = resolve(PrintEditionReader::class)->fromArray(['elements' => ['words.currency' => ['text' => 'RP']]]);
         $changed = resolve(PrintEditionReader::class)->fromArray(['elements' => ['words.currency' => ['text' => 'PG']]]);
 
-        foreach ([PrintPart::Board, PrintPart::Cards, PrintPart::Money] as $part) {
+        foreach ([PrintPart::BOARD, PrintPart::CARDS, PrintPart::MONEY] as $part) {
             self::assertNotSame(
-                PrintCacheKey::make($part, PrintSet::Printer, $base->onlyFor($part), []),
-                PrintCacheKey::make($part, PrintSet::Printer, $changed->onlyFor($part), []),
+                PrintCacheKey::make($part, PrintSet::PRINTER, $base->onlyFor($part), []),
+                PrintCacheKey::make($part, PrintSet::PRINTER, $changed->onlyFor($part), []),
                 $part->value,
             );
         }
 
         self::assertSame(
-            PrintCacheKey::make(PrintPart::Tokens, PrintSet::Printer, $base->onlyFor(PrintPart::Tokens), []),
-            PrintCacheKey::make(PrintPart::Tokens, PrintSet::Printer, $changed->onlyFor(PrintPart::Tokens), []),
+            PrintCacheKey::make(PrintPart::TOKENS, PrintSet::PRINTER, $base->onlyFor(PrintPart::TOKENS), []),
+            PrintCacheKey::make(PrintPart::TOKENS, PrintSet::PRINTER, $changed->onlyFor(PrintPart::TOKENS), []),
         );
     }
 
@@ -154,9 +154,9 @@ final class WordsTest extends TestCase
     {
         $edition = resolve(PrintEditionReader::class)->fromArray(['elements' => ['space.00' => ['name' => 'Begin', 'text' => 'Pak 200 pegels']]]);
 
-        self::assertSame(['name' => 'Begin', 'text' => 'Pak 200 pegels'], $edition->onlyFor(PrintPart::Board)->elements['space.00']);
+        self::assertSame(['name' => 'Begin', 'text' => 'Pak 200 pegels'], $edition->onlyFor(PrintPart::BOARD)->elements['space.00']);
         // The cards only need the name, for the texts that name Start.
-        self::assertSame(['name' => 'Begin'], $edition->onlyFor(PrintPart::Cards)->elements['space.00']);
+        self::assertSame(['name' => 'Begin'], $edition->onlyFor(PrintPart::CARDS)->elements['space.00']);
     }
 
     /**

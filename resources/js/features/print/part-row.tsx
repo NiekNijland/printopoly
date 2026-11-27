@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { PartActions } from '@/features/print/part-actions';
@@ -8,6 +8,7 @@ import {
 } from '@/features/print/part-status-badge';
 import { PartThumb } from '@/features/print/part-thumb';
 import { canShareFiles } from '@/features/print/share-set-button';
+import { useBrowserValue } from '@/hooks/use-browser-value';
 import { useTranslation } from '@/hooks/use-translation';
 import type { Edition } from '@/lib/render/edition-types';
 import type { PhotoInfos } from '@/lib/render/editor-photo-cache';
@@ -318,11 +319,7 @@ export const PartRow = (props: PartRowProps) => {
     });
     const { name, skipped, inLine, status } = state;
     // Checked after the first render, like the bar: the server knows nothing of the phone.
-    const [shareFiles, setShareFiles] = useState(false);
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- only the browser knows whether it can share files
-        setShareFiles(canShareFiles());
-    }, []);
+    const shareFiles = useBrowserValue(canShareFiles, false);
     // The picture and the name tick the box too (R5-27, Gerda): the whole head of the row is one big target.
     const tickable = included !== null && !locked;
 
@@ -335,8 +332,10 @@ export const PartRow = (props: PartRowProps) => {
                 />
             ) : (
                 // The label gives the box a 48 px tap area without moving the row.
-                // eslint-disable-next-line jsx-a11y/label-has-associated-control -- the shadcn Checkbox inside is the control; its name is its aria-label
-                <label className="-m-3 flex size-12 flex-none cursor-pointer items-center justify-center has-disabled:cursor-default">
+                <label
+                    htmlFor={tickId}
+                    className="-m-3 flex size-12 flex-none cursor-pointer items-center justify-center has-disabled:cursor-default"
+                >
                     <Checkbox
                         id={tickId}
                         checked={included}

@@ -32,7 +32,7 @@ final readonly class BoardProfileParser
         $panels = $value['panels'] ?? null;
         $boxLid = $value['boxLid'] ?? null;
 
-        if (! is_string($id) || $id === '' || strlen($id) > 64 || ! is_string($name) || ! JsonValue::isString($name, EditionValidator::MAX_NAME_LENGTH)) {
+        if (! is_string($id) || $id === '' || mb_strlen($id, encoding: '8bit') > 64 || ! is_string($name) || ! JsonValue::isString($name, EditionValidator::MAX_NAME_LENGTH)) {
             $errors[] = 'boardProfile: id and name must be strings';
 
             return null;

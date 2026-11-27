@@ -40,7 +40,7 @@ final readonly class PrintStatusService
         $parts = [];
         foreach (PrintSet::cases() as $set) {
             foreach (PrintPart::cases() as $part) {
-                if ($part !== PrintPart::Calibration || $set === PrintSet::Home) {
+                if ($part !== PrintPart::CALIBRATION || $set === PrintSet::HOME) {
                     $parts[] = $this->partStatus($job, $set, $part, $files, $images, $current);
                 }
             }
@@ -49,9 +49,9 @@ final readonly class PrintStatusService
         $zipAny = [];
         $zipReady = [];
         foreach (PrintSet::cases() as $set) {
-            $zipped = array_filter($parts, static fn (PrintPartStatusData $row): bool => $row->set === $set && $row->part !== PrintPart::Calibration && $row->status !== PartStatus::Idle);
+            $zipped = array_filter($parts, static fn (PrintPartStatusData $row): bool => $row->set === $set && $row->part !== PrintPart::CALIBRATION && $row->status !== PartStatus::IDLE);
             $zipAny[$set->value] = $zipped !== [];
-            $zipReady[$set->value] = array_all($zipped, static fn (PrintPartStatusData $row): bool => $row->status === PartStatus::Done);
+            $zipReady[$set->value] = array_all($zipped, static fn (PrintPartStatusData $row): bool => $row->status === PartStatus::DONE);
         }
 
         // Every ZIP has its order sheet (B230). A run makes it after its last part, and the ZIP waits for that. Outside
@@ -75,10 +75,10 @@ final readonly class PrintStatusService
 
         return new PrintJobStatusData(
             busy: array_any($parts, static fn (PrintPartStatusData $row): bool => $row->status->isActive()),
-            printerZipUrl: route('print.zip', ['printJob' => $job, 'set' => PrintSet::Printer]),
-            homeZipUrl: route('print.zip', ['printJob' => $job, 'set' => PrintSet::Home]),
-            printerZipReady: $zipAny[PrintSet::Printer->value] && $zipReady[PrintSet::Printer->value],
-            homeZipReady: $zipAny[PrintSet::Home->value] && $zipReady[PrintSet::Home->value],
+            printerZipUrl: route('print.zip', ['printJob' => $job, 'set' => PrintSet::PRINTER]),
+            homeZipUrl: route('print.zip', ['printJob' => $job, 'set' => PrintSet::HOME]),
+            printerZipReady: $zipAny[PrintSet::PRINTER->value] && $zipReady[PrintSet::PRINTER->value],
+            homeZipReady: $zipAny[PrintSet::HOME->value] && $zipReady[PrintSet::HOME->value],
             zipPreparing: $zipPreparing,
             parts: $parts,
         );
@@ -114,25 +114,25 @@ final readonly class PrintStatusService
 
         // A run whose worker died never reported back: after the timeout it counts as failed, so retry works.
         if ($status->isActive() && ! $job->isBusy()) {
-            $status = PartStatus::Failed;
+            $status = PartStatus::FAILED;
         }
 
-        if ($status === PartStatus::Done && ($file === null || $recorded['cache_key'] !== ($current[$key] ?? null))) {
-            $status = PartStatus::Outdated;
+        if ($status === PartStatus::DONE && ($file === null || $recorded['cache_key'] !== ($current[$key] ?? null))) {
+            $status = PartStatus::OUTDATED;
         }
 
-        $done = $status === PartStatus::Done;
+        $done = $status === PartStatus::DONE;
 
         return new PrintPartStatusData(
             set: $set,
             part: $part,
             status: $status,
-            waitingFor: $status === PartStatus::Waiting ? $this->waitingFor($job, $set, $part) : null,
+            waitingFor: $status === PartStatus::WAITING ? $this->waitingFor($job, $set, $part) : null,
             pages: $done ? $file->pages : null,
             bytes: $done ? $file->bytes : null,
             downloadUrl: $done ? route('print.download', ['printJob' => $job, 'set' => $set, 'part' => $part]) : null,
             instructionsUrl: $done ? route('print.instructions', ['printJob' => $job, 'part' => $part, 'set' => $set->value]) : null,
-            reason: $status === PartStatus::Failed ? ($recorded['error'] ?? FailureReason::Timeout->value) : null,
+            reason: $status === PartStatus::FAILED ? ($recorded['error'] ?? FailureReason::TIMEOUT->value) : null,
             imageUrl: $done && isset($images[$key]) ? route('print.image', ['printJob' => $job, 'set' => $set, 'part' => $part]) : null,
         );
     }

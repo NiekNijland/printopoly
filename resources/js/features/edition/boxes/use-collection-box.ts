@@ -27,6 +27,7 @@ import type {
     ContributionPart,
     OwnerBox,
 } from '@/features/edition/boxes/types';
+import { reportAndReturn, reportUnlessOffline } from '@/lib/bugsnag';
 import { getEcho } from '@/lib/echo';
 import type { Edition } from '@/lib/render/edition-types';
 
@@ -79,14 +80,19 @@ const useBoxAction = () => {
         useState<CollectionBox['errorReason']>(null);
 
     const run = useCallback(
-        async (action: () => Promise<void>): Promise<void> => {
+        async (action: () => Promise<void>): Promise<boolean> => {
             setBusy(true);
             setError(false);
             setErrorReason(null);
             try {
                 await action();
+
+                return true;
             } catch (failure) {
                 setError(true);
+                if (!(failure instanceof BoxApiError)) {
+                    reportUnlessOffline(failure);
+                }
                 // Laravel's own limit per minute says "Too Many Attempts."; the limit per day has our message.
                 if (failure instanceof BoxApiError && failure.status === 429) {
                     setErrorReason(
@@ -95,7 +101,8 @@ const useBoxAction = () => {
                             : 'too_many_boxes',
                     );
                 }
-                throw new Error('box action failed');
+
+                return false;
             } finally {
                 setBusy(false);
             }
@@ -140,7 +147,9 @@ const useFirstLook = (
                     remember(null);
                     if (!cancelled && loggedIn) {
                         apply(
-                            await findAccountBox(editionId).catch(() => null),
+                            await findAccountBox(editionId).catch(
+                                reportAndReturn(null),
+                            ),
                         );
                     }
                 } else if (!cancelled) {
@@ -212,7 +221,7 @@ const useSnapshotUpdate = (
             updateBox(boxId, secretRef.current, {
                 editionName: editionRef.current.name,
                 snapshot: buildSnapshot(editionRef.current),
-            }).catch(() => undefined);
+            }).catch(reportUnlessOffline);
         }, 2000);
 
         return () => window.clearTimeout(timer);
@@ -229,30 +238,33 @@ const useBoxActions = (
     secretRef: RefObject<string | null>,
     forget: () => void,
     apply: (next: OwnerBox | null) => void,
-    run: (action: () => Promise<void>) => Promise<void>,
+    run: (action: () => Promise<void>) => Promise<boolean>,
 ): BoxActions => ({
-    close: () =>
-        run(async () => {
+    close: async () => {
+        await run(async () => {
             if (box !== null) {
                 apply(await closeBox(box.id, secretRef.current));
             }
-        }),
-    renew: () =>
-        run(async () => {
+        });
+    },
+    renew: async () => {
+        await run(async () => {
             if (box !== null) {
                 apply(await renewBoxLink(box.id, secretRef.current));
             }
-        }),
-    remove: () =>
-        run(async () => {
+        });
+    },
+    remove: async () => {
+        await run(async () => {
             if (box !== null) {
                 await deleteBox(box.id, secretRef.current);
                 forget();
                 apply(null);
             }
-        }),
-    hideCards: (hidden) =>
-        run(async () => {
+        });
+    },
+    hideCards: async (hidden) => {
+        await run(async () => {
             if (box !== null) {
                 apply(
                     await updateBox(box.id, secretRef.current, {
@@ -260,9 +272,10 @@ const useBoxActions = (
                     }),
                 );
             }
-        }),
-    resolve: (contributionId, decision, parts) =>
-        run(async () => {
+        });
+    },
+    resolve: async (contributionId, decision, parts) => {
+        const done = await run(async () => {
             if (box !== null) {
                 apply(
                     await resolveContribution(
@@ -274,7 +287,11 @@ const useBoxActions = (
                     ),
                 );
             }
-        }),
+        });
+        if (!done) {
+            throw new Error('box action failed');
+        }
+    },
 });
 
 /**
@@ -319,28 +336,26 @@ export const useCollectionBox = (
     const loaded = useFirstLook(editionId, loggedIn, apply, remember, setError);
     useFollowBox(box?.channel, box?.id, refresh);
 
-    const start = useCallback(
-        () =>
-            run(async () => {
-                const created = await createBox({
-                    editionId,
-                    editionName: edition.name,
-                    language: edition.language,
-                    snapshot: buildSnapshot(edition),
+    const start = useCallback(async () => {
+        await run(async () => {
+            const created = await createBox({
+                editionId,
+                editionName: edition.name,
+                language: edition.language,
+                snapshot: buildSnapshot(edition),
+            });
+            if (created.ownerSecret !== undefined) {
+                writeOwnerRecord(editionId, {
+                    id: created.id,
+                    secret: created.ownerSecret,
                 });
-                if (created.ownerSecret !== undefined) {
-                    writeOwnerRecord(editionId, {
-                        id: created.id,
-                        secret: created.ownerSecret,
-                    });
-                    remember(created.ownerSecret);
-                }
-                const { ownerSecret, ...owned } = created;
-                void ownerSecret;
-                apply(owned);
-            }),
-        [run, edition, editionId, apply, remember],
-    );
+                remember(created.ownerSecret);
+            }
+            const { ownerSecret, ...owned } = created;
+            void ownerSecret;
+            apply(owned);
+        });
+    }, [run, edition, editionId, apply, remember]);
 
     useSnapshotUpdate(edition, box?.id, secretRef);
     const actions = useBoxActions(

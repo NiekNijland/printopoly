@@ -14,21 +14,21 @@ use App\Modules\Content\Enums\Locale;
  */
 enum PrintPart: string
 {
-    case Board = 'board';
-    case Cards = 'cards';
-    case Money = 'money';
-    case Tokens = 'tokens';
-    case BoxLid = 'box_lid';
-    case RulesBooklet = 'rules_booklet';
-    case Invitation = 'invitation';
-    case Calibration = 'calibration';
+    case BOARD = 'board';
+    case CARDS = 'cards';
+    case MONEY = 'money';
+    case TOKENS = 'tokens';
+    case BOX_LID = 'box_lid';
+    case RULES_BOOKLET = 'rules_booklet';
+    case INVITATION = 'invitation';
+    case CALIBRATION = 'calibration';
 
     /**
      * @return list<self>
      */
     public static function production(): array
     {
-        return array_filter(self::cases(), static fn (self $part): bool => $part !== self::Calibration);
+        return array_filter(self::cases(), static fn (self $part): bool => $part !== self::CALIBRATION);
     }
 
     /**
@@ -41,18 +41,18 @@ enum PrintPart: string
     public function ownsElement(string $key): bool
     {
         return match ($this) {
-            self::Board => str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.board',
-            self::Cards => str_starts_with($key, 'deed.') || str_starts_with($key, 'group.') || str_starts_with($key, 'card.') || str_starts_with($key, 'card_back.') || $key === 'house_rules' || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.cards' || $key === 'style.deeds',
-            self::Money => str_starts_with($key, 'note.') || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.money',
-            self::Tokens => str_starts_with($key, 'pawn.') || $key === 'theme_accent' || $key === 'style.pawns',
+            self::BOARD => str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.board',
+            self::CARDS => str_starts_with($key, 'deed.') || str_starts_with($key, 'group.') || str_starts_with($key, 'card.') || str_starts_with($key, 'card_back.') || $key === 'house_rules' || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.cards' || $key === 'style.deeds',
+            self::MONEY => str_starts_with($key, 'note.') || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.money',
+            self::TOKENS => str_starts_with($key, 'pawn.') || $key === 'theme_accent' || $key === 'style.pawns',
             // A lid without an own photo shows the real board (B256), so the board's elements are on it too.
-            self::BoxLid => $key === 'box_lid' || str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.box_lid' || $key === 'style.board',
-            self::RulesBooklet => $key === 'rules_booklet' || $key === 'house_rules' || str_starts_with($key, 'group.') || str_starts_with($key, 'words.') || $key === 'theme_accent',
+            self::BOX_LID => $key === 'box_lid' || str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.box_lid' || $key === 'style.board',
+            self::RULES_BOOKLET => $key === 'rules_booklet' || $key === 'house_rules' || str_starts_with($key, 'group.') || str_starts_with($key, 'words.') || $key === 'theme_accent',
             // The invitation shows the real board (bug 5 of ronde 3): spaces, colours and the centre with its photo.
-            self::Invitation => $key === 'invitation' || str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.board',
+            self::INVITATION => $key === 'invitation' || str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.board',
             // The test sheet draws the corner space and the first space as on the board, in the edition's own
             // currency (R5-26); `elementsFor` keeps only their words and amounts.
-            self::Calibration => str_starts_with($key, 'words.') || str_starts_with($key, 'group.') || $key === 'theme_accent' || $key === 'style.board',
+            self::CALIBRATION => str_starts_with($key, 'words.') || str_starts_with($key, 'group.') || $key === 'theme_accent' || $key === 'style.board',
         };
     }
 
@@ -62,14 +62,14 @@ enum PrintPart: string
     public function instructionSlug(): string
     {
         return match ($this) {
-            self::Board => 'bord',
-            self::Cards => 'kaarten',
-            self::Money => 'geld',
-            self::Tokens => 'pionnen',
-            self::BoxLid => 'doosdeksel',
-            self::RulesBooklet => 'spelregelboekje',
-            self::Invitation => 'uitnodiging',
-            self::Calibration => 'proefvel',
+            self::BOARD => 'bord',
+            self::CARDS => 'kaarten',
+            self::MONEY => 'geld',
+            self::TOKENS => 'pionnen',
+            self::BOX_LID => 'doosdeksel',
+            self::RULES_BOOKLET => 'spelregelboekje',
+            self::INVITATION => 'uitnodiging',
+            self::CALIBRATION => 'proefvel',
         };
     }
 
@@ -79,25 +79,25 @@ enum PrintPart: string
     public function fileName(Locale $locale): string
     {
         return match ($locale) {
-            Locale::Dutch => match ($this) {
-                self::Board => 'bord',
-                self::Cards => 'kaarten-en-eigendomsbewijzen',
-                self::Money => 'speelgeld',
-                self::Tokens => 'pionnen',
-                self::BoxLid => 'doosdeksel',
-                self::RulesBooklet => 'spelregelboekje',
-                self::Invitation => 'uitnodiging',
-                self::Calibration => 'proefvel',
+            Locale::DUTCH => match ($this) {
+                self::BOARD => 'bord',
+                self::CARDS => 'kaarten-en-eigendomsbewijzen',
+                self::MONEY => 'speelgeld',
+                self::TOKENS => 'pionnen',
+                self::BOX_LID => 'doosdeksel',
+                self::RULES_BOOKLET => 'spelregelboekje',
+                self::INVITATION => 'uitnodiging',
+                self::CALIBRATION => 'proefvel',
             },
-            Locale::English => match ($this) {
-                self::Board => 'board',
-                self::Cards => 'cards-and-deeds',
-                self::Money => 'play-money',
-                self::Tokens => 'pawns',
-                self::BoxLid => 'box-lid',
-                self::RulesBooklet => 'rules-booklet',
-                self::Invitation => 'invitation',
-                self::Calibration => 'test-sheet',
+            Locale::ENGLISH => match ($this) {
+                self::BOARD => 'board',
+                self::CARDS => 'cards-and-deeds',
+                self::MONEY => 'play-money',
+                self::TOKENS => 'pawns',
+                self::BOX_LID => 'box-lid',
+                self::RULES_BOOKLET => 'rules-booklet',
+                self::INVITATION => 'invitation',
+                self::CALIBRATION => 'test-sheet',
             },
         };
     }

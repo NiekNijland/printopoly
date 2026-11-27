@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/hooks/use-translation';
+import { reportError } from '@/lib/bugsnag';
 import { fetchSetFile } from '@/lib/render/print-api';
 import { cn } from '@/lib/utils';
 
@@ -31,7 +32,11 @@ export const canShareFiles = (): boolean => {
         return navigator.canShare({
             files: [new File([''], 'set.pdf', { type: 'application/pdf' })],
         });
-    } catch {
+    } catch (error) {
+        if (!(error instanceof TypeError)) {
+            reportError(error);
+        }
+
         return false;
     }
 };

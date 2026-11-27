@@ -53,6 +53,6 @@ final class RenderShareImageJob implements ShouldQueue
     public function failed(Throwable $exception): void
     {
         unset($exception);
-        resolve(ShareImages::class)->failed($this->id);
+        new ShareImages()->failed($this->id);
     }
 }

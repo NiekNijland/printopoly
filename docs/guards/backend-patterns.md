@@ -7,7 +7,7 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 | Regel | Waar | Lijst |
 | --- | --- | --- |
 | geen `sleep`, `time()`, `is_null`, sessiehelper, observers, strengheidsaanroepen buiten `AppServiceProvider`, automatisch eager loaden, `forceScheme`, cache-locks, directe HTTP-client- of foutmelderaanroepen, handmatige listeners, processen en bestandswerk in acties en controllers | `phpstan.neon` | geen |
-| config lezen met `Config::string()` en verwanten, geen container met de hand, events via `XEvent::dispatch()`, vertalen met `__()`, de tijd met `now()`, geen `Carbon`, `lazyById()`/`chunkById()`, routes alleen in `routes/` | `phpstan-banned-calls.neon` | `tests/Support/Architecture/lists/phpstan-banned-calls.txt` |
+| config lezen met `Config::string()` en verwanten, geen container met de hand, events via `Event::dispatch(new XEvent(...))`, vertalen met `__()`, de tijd met `now()`, geen `Carbon`, `lazyById()`/`chunkById()`, routes alleen in `routes/` | `phpstan-banned-calls.neon` | `tests/Support/Architecture/lists/phpstan-banned-calls.txt` |
 
 ## HTTP
 
@@ -41,7 +41,7 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 | model: `casts()`, onveranderlijke datums, `#[Fillable]`, `#[Table]`, `#[Connection]`, `#[Hidden]`, `booted()`, nooit unguarded | `ModelConventionGuard` | geen |
 | brede catch meldt, redt of gooit opnieuw | `EmptyCatchGuard` | geen |
 | logregel vast, de fout als context | `LogMessageGuard` | geen |
-| geen `Event::dispatch(new X)` | `EventDispatchGuard` | geen |
+| een event zonder de trait `Dispatchable`, geen dispatcher met de hand | `EventDispatchGuard` | geen |
 | wachtrij via de enum | `QueueNameGuard` | geen |
 | wachtrijklasse met timeout en tries, unieke job met eigen sleutel | `QueuedClassLimitsGuard`, `UniqueJobGuard` | geen |
 | geplande taak met `withoutOverlapping(<minuten>)` | `ScheduledTaskGuard` | geen |

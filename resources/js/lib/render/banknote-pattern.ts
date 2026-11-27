@@ -1,3 +1,4 @@
+import { reportAndReturn } from '@/lib/bugsnag';
 /**
  * Line work of a play money note (B137): a fine guilloche that we draw ourselves.
  * Everything is in mm, so the SVG stays sharp at any print resolution.
@@ -347,8 +348,8 @@ const drawPattern = (raster: PatternRaster): string | null => {
 
     try {
         context = canvas.getContext('2d');
-    } catch {
-        return null;
+    } catch (error) {
+        return reportAndReturn(null)(error);
     }
 
     if (context === null) {
@@ -393,7 +394,7 @@ const drawPattern = (raster: PatternRaster): string | null => {
         const url = canvas.toDataURL('image/png');
 
         return url.startsWith('data:image/png') ? url : null;
-    } catch {
-        return null;
+    } catch (error) {
+        return reportAndReturn(null)(error);
     }
 };

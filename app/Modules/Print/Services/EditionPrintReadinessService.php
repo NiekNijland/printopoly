@@ -84,16 +84,16 @@ final readonly class EditionPrintReadinessService
         }
 
         $status = $this->status->resolve($job);
-        $outdated = [PrintSet::Printer->value => false, PrintSet::Home->value => false];
+        $outdated = [PrintSet::PRINTER->value => false, PrintSet::HOME->value => false];
 
         foreach ($status->parts as $part) {
-            if ($part->status === PartStatus::Outdated) {
+            if ($part->status === PartStatus::OUTDATED) {
                 $outdated[$part->set->value] = true;
             }
         }
 
-        $printer = PrintSet::Printer->value;
-        $home = PrintSet::Home->value;
+        $printer = PrintSet::PRINTER->value;
+        $home = PrintSet::HOME->value;
 
         return [
             'printerReadyUntil' => $status->printerZipReady ? ($expiry[$printer] ?? null) : null,

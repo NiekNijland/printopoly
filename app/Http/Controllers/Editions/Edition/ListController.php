@@ -6,10 +6,10 @@ namespace App\Http\Controllers\Editions\Edition;
 
 use App\Models\Edition;
 use App\Models\User;
-use App\Modules\Editions\Actions\StoreEdition;
 use App\Modules\Editions\Data\EditionListData;
 use App\Modules\Editions\Data\EditionSummaryData;
 use Illuminate\Container\Attributes\CurrentUser;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The editions in the account, newest change first, and the account limit
@@ -27,6 +27,6 @@ final readonly class ListController
             ->map(EditionSummaryData::fromEdition(...))
             ->all();
 
-        return new EditionListData(editions: array_values($editions), limit: StoreEdition::limit());
+        return new EditionListData(editions: array_values($editions), limit: Config::integer('printopoly.limits.editions_per_account'));
     }
 }

@@ -55,7 +55,7 @@ final readonly class LayerParser
 
         $id = $value['id'] ?? null;
 
-        if (! is_string($id) || $id === '' || strlen($id) > 128) {
+        if (! is_string($id) || $id === '' || mb_strlen($id, encoding: '8bit') > 128) {
             $errors[] = "{$at}: id must be a non-empty string";
 
             return null;

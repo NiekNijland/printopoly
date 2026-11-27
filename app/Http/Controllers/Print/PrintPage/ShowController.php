@@ -11,6 +11,7 @@ use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Modules\Print\Services\PrintStatusService;
 use App\Modules\Print\Support\PrintChannel;
 use App\Modules\Print\Support\PrintJobContext;
+use Illuminate\Support\Facades\Config;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -46,7 +47,7 @@ final readonly class ShowController
                 channel: PrintChannel::data($printJob),
                 status: $status->resolve($printJob),
                 anonymous: $printJob->isAnonymous(),
-                retentionDays: config()->integer('printopoly.print_files.retention_days'),
+                retentionDays: Config::integer('printopoly.print_files.retention_days'),
                 choices: $printJob->choicesData(),
             ),
             'edition' => ['name' => $name, 'cards' => $cards, 'parts' => $enabled],

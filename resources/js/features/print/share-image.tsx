@@ -30,7 +30,8 @@ export const isSharePayload = (payload: unknown): payload is SharePayload => {
     return (
         typeof payload === 'object' &&
         payload !== null &&
-        (payload as { part?: unknown }).part === 'share'
+        'part' in payload &&
+        payload.part === 'share'
     );
 };
 

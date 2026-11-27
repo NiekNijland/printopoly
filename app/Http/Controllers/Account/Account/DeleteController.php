@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Modules\Accounts\Actions\DeleteAccount;
 use App\Modules\Accounts\Data\AccountDeletedData;
 use Illuminate\Container\Attributes\CurrentUser;
+use Illuminate\Support\Facades\App;
 
 /**
  * "Account verwijderen" (B68). The answer says where to go next; the local copy in the
@@ -23,6 +24,6 @@ final readonly class DeleteController
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return new AccountDeletedData(deleted: true, redirect: route('home', ['locale' => app()->getLocale()]));
+        return new AccountDeletedData(deleted: true, redirect: route('home', ['locale' => App::getLocale()]));
     }
 }

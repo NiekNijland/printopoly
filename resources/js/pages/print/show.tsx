@@ -74,7 +74,7 @@ const selectionOf = (
             : selectionOfRows(
                   set,
                   SET_PARTS.filter((part) =>
-                      (serverParts as readonly string[]).includes(part),
+                      serverParts.some((server) => server === part),
                   ),
               );
 
@@ -88,7 +88,7 @@ const PARTS: SetPart[] = [...GAME_PARTS, ...EXTRA_PARTS];
 const anyMadeIn = (status: PrintJobStatusData, set: PrintSet): boolean =>
     status.parts.some(
         (row) =>
-            (PARTS as readonly PrintPart[]).includes(row.part) &&
+            PARTS.some((part) => part === row.part) &&
             row.set === set &&
             row.status !== 'idle',
     );

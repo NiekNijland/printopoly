@@ -427,12 +427,13 @@ export const checkBoard = (profile: BoardProfile): CheckIssue[] => {
         issue(code, key, field, 'error', message);
 
     const positive = (v: number) => Number.isFinite(v) && v > 0;
+    const panels: unknown = profile.panels;
     const basicsValid =
         positive(profile.outer) &&
         positive(profile.corner) &&
         Number.isFinite(profile.border) &&
         profile.border >= 0 &&
-        (profile.panels === 2 || profile.panels === 4) &&
+        (panels === 2 || panels === 4) &&
         positive(profile.boxLid.w) &&
         positive(profile.boxLid.h);
     if (!basicsValid) {

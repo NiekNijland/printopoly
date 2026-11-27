@@ -169,7 +169,7 @@ final class PrintAuthorizationTest extends TestCase
 
         PrintScenario::generate($this, $job, 'printer', ['board'])->assertOk();
 
-        self::assertSame('failed', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Board));
+        self::assertSame('failed', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::BOARD));
         self::assertNull(PrintFile::query()->where('print_job_id', $job->publicId())->first());
     }
 

@@ -1,5 +1,4 @@
 import { reportUnlessOffline } from '@/lib/bugsnag';
-import { listenToWindow } from '@/lib/dom-events';
 import type { EditionStorage } from '@/lib/render/edition-storage';
 import type { PhotoRecord } from '@/lib/render/edition-types';
 import { store as storeAsset } from '@/routes/api/editions/assets';
@@ -11,13 +10,16 @@ import type {
     PrintPart,
     PrintSet,
 } from '@/types/generated';
+import { isJobStatus, isJobsReady, isUploadResult } from './print-api-answers';
 import { PrintApiError, fileNameOf, retryAfterOf } from './print-api-error';
 import type { MoneyAmount } from './print-money';
 import type { PhotoTargets } from './print-photo-targets';
 import {
     appendPhotos,
+    isNetworkError,
     photoBatches,
     trackUpload,
+    waitForConnection,
     type UploadProgress,
 } from './print-upload-progress';
 
@@ -29,7 +31,10 @@ const csrfToken = (): string => {
     );
 };
 
-const parse = async <T>(response: Response): Promise<T> => {
+const parse = async <T>(
+    response: Response,
+    isAnswer: (body: unknown) => body is T,
+): Promise<T> => {
     if (!response.ok) {
         throw new PrintApiError(
             response.status,
@@ -38,7 +43,13 @@ const parse = async <T>(response: Response): Promise<T> => {
         );
     }
 
-    return (await response.json()) as T;
+    const body: unknown = await response.json();
+
+    if (!isAnswer(body)) {
+        throw new Error('The print server sent an unexpected answer');
+    }
+
+    return body;
 };
 
 /** What the page chose for one set (bug 6 of test round 3, B156): only the fields sent change on the server. */
@@ -69,6 +80,7 @@ export const saveChoices = async (
             credentials: 'same-origin',
             body: JSON.stringify({ set, ...choice }),
         }),
+        isJobStatus,
     );
 };
 
@@ -133,6 +145,7 @@ export const fetchStatus = async (url: string): Promise<PrintJobStatusData> => {
             headers: { Accept: 'application/json' },
             credentials: 'same-origin',
         }),
+        isJobStatus,
     );
 };
 
@@ -165,6 +178,7 @@ export const startRun = async (
                 ...(locale === undefined ? {} : { locale }),
             }),
         }),
+        isJobStatus,
     );
 };
 
@@ -193,25 +207,6 @@ export type LocalEditionUpload = {
 /** How long an upload keeps waiting for the connection before it gives up. */
 const OFFLINE_PATIENCE_MS = 10 * 60 * 1000;
 
-/** A request that could not reach the server: no connection. A server answer is never this. */
-const isNetworkError = (error: unknown): boolean => {
-    return error instanceof TypeError;
-};
-
-/** Waits for the browser to say it is online again, or a few seconds, whichever comes first. */
-const waitForConnection = (ms: number): Promise<void> => {
-    return new Promise((resolve) => {
-        const done = () => {
-            stopListening();
-            window.clearTimeout(timer);
-            resolve();
-        };
-        const timer = window.setTimeout(done, ms);
-
-        const stopListening = listenToWindow('online', done);
-    });
-};
-
 /**
  * Posts a form and tries again when the connection drops (bug 12 of test round 4): Durk lost his network while
  * printing and got a generic error. The request is sent again as soon as the browser is online, up to ten minutes.
@@ -219,6 +214,7 @@ const waitForConnection = (ms: number): Promise<void> => {
 const postForm = async <T>(
     url: string,
     body: () => FormData,
+    isAnswer: (answer: unknown) => answer is T,
     onOffline: (offline: boolean) => void,
 ): Promise<T> => {
     const started = Date.now();
@@ -237,7 +233,7 @@ const postForm = async <T>(
 
             onOffline(false);
 
-            return await parse<T>(response);
+            return await parse(response, isAnswer);
         } catch (error) {
             // One request per photo can meet the limit of the photo route: wait as long as the server asks.
             if (
@@ -282,7 +278,7 @@ export const uploadPrintJob = async (
     const [first = []] = batches;
     const { offline, sent } = trackUpload(upload.photos, onProgress);
 
-    const created = await postForm<UploadResult>(
+    const created = await postForm(
         url,
         () => {
             const body = new FormData();
@@ -303,6 +299,7 @@ export const uploadPrintJob = async (
 
             return body;
         },
+        isUploadResult,
         offline,
     );
 
@@ -318,6 +315,7 @@ export const uploadPrintJob = async (
 
                 return more;
             },
+            (answer): answer is unknown => answer !== undefined,
             offline,
         );
         sent(batch);
@@ -368,7 +366,7 @@ export const fetchPrintJobsReady = async (
         body: JSON.stringify({ tokens }),
     });
 
-    return (await parse<{ jobs: PrintJobReadyData[] }>(response)).jobs;
+    return (await parse(response, isJobsReady)).jobs;
 };
 
 /** One file of a print set as a File to share: the name the server sends, else `name`; `type` when the server sends none. */

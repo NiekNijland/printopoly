@@ -51,11 +51,11 @@ final class SpaceIconPhotoTest extends TestCase
 
     public function test_the_cards_part_gets_the_icons_of_the_spaces_for_deeds_and_card_backs(): void
     {
-        $elements = $this->edition()->onlyFor(PrintPart::Cards)->elements;
+        $elements = $this->edition()->onlyFor(PrintPart::CARDS)->elements;
 
         self::assertSame(['name' => 'Veer', 'icon' => ['preset' => 'ferry']], $elements['space.05']);
         self::assertSame(['icon' => ['preset' => 'clover']], $elements['space.07']);
         self::assertArrayHasKey('icon', $elements['space.12']);
-        self::assertArrayNotHasKey('space.05', $this->edition()->onlyFor(PrintPart::Money)->elements);
+        self::assertArrayNotHasKey('space.05', $this->edition()->onlyFor(PrintPart::MONEY)->elements);
     }
 }

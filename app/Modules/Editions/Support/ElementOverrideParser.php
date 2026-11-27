@@ -75,7 +75,7 @@ final readonly class ElementOverrideParser
             return null;
         }
 
-        if ($field === 'text' && $kind === ElementKind::Space && ! $this->spaces->isCorner($key)) {
+        if ($field === 'text' && $kind === ElementKind::SPACE && ! $this->spaces->isCorner($key)) {
             $errors[] = "{$at}: only a corner has a text";
 
             return null;
@@ -117,9 +117,9 @@ final readonly class ElementOverrideParser
     {
         return match ($kind) {
             // The bank name was its own element with the length of a name; it keeps that room (B148).
-            ElementKind::Words => ['name' => $key === 'words.bank' ? EditionValidator::MAX_NAME_LENGTH : EditionValidator::MAX_WORD_LENGTH, 'text' => $key === 'words.currency' ? EditionValidator::MAX_SYMBOL_LENGTH : EditionValidator::MAX_WORD_LENGTH],
-            ElementKind::Space => ['name' => EditionValidator::MAX_NAME_LENGTH, 'text' => EditionValidator::MAX_CORNER_TEXT_LENGTH],
-            ElementKind::Deed => ['name' => EditionValidator::MAX_NAME_LENGTH, 'text' => EditionValidator::MAX_STORY_LENGTH],
+            ElementKind::WORDS => ['name' => $key === 'words.bank' ? EditionValidator::MAX_NAME_LENGTH : EditionValidator::MAX_WORD_LENGTH, 'text' => $key === 'words.currency' ? EditionValidator::MAX_SYMBOL_LENGTH : EditionValidator::MAX_WORD_LENGTH],
+            ElementKind::SPACE => ['name' => EditionValidator::MAX_NAME_LENGTH, 'text' => EditionValidator::MAX_CORNER_TEXT_LENGTH],
+            ElementKind::DEED => ['name' => EditionValidator::MAX_NAME_LENGTH, 'text' => EditionValidator::MAX_STORY_LENGTH],
             default => ['name' => EditionValidator::MAX_NAME_LENGTH, 'text' => EditionValidator::MAX_TEXT_LENGTH],
         };
     }

@@ -1,8 +1,10 @@
 import {
     PHOTOS_PER_REQUEST,
     appendPhotos,
+    isNetworkError,
     photoBatches,
     trackUpload,
+    waitForConnection,
     type UploadProgress,
 } from './print-upload-progress';
 
@@ -47,5 +49,31 @@ describe('print-upload-progress', () => {
             [1, 10, true],
             [1, 10, false],
         ]);
+    });
+
+    it('calls only a request that never reached the server a network error', () => {
+        expect(isNetworkError(new TypeError('Failed to fetch'))).toBe(true);
+        expect(isNetworkError(new Error('500'))).toBe(false);
+    });
+
+    it('waits for the browser to be online again, or the time given (bug 12)', async () => {
+        vi.useFakeTimers();
+        let done = false;
+        void waitForConnection(15000).then(() => {
+            done = true;
+        });
+        window.dispatchEvent(new Event('online'));
+        await vi.advanceTimersByTimeAsync(0);
+        expect(done).toBe(true);
+
+        let late = false;
+        void waitForConnection(1000).then(() => {
+            late = true;
+        });
+        await vi.advanceTimersByTimeAsync(999);
+        expect(late).toBe(false);
+        await vi.advanceTimersByTimeAsync(1);
+        expect(late).toBe(true);
+        vi.useRealTimers();
     });
 });

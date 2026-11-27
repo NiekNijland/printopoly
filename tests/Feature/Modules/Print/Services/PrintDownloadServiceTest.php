@@ -22,7 +22,7 @@ final class PrintDownloadServiceTest extends TestCase
         $job = PrintJob::factory()->createOne();
         $file = PrintFile::factory()->createOne(['print_job_id' => $job->publicId(), 'part' => 'cards', 'set' => 'home']);
 
-        self::assertTrue($file->is(resolve(PrintDownloadService::class)->part($job, PrintSet::Home, PrintPart::Cards)));
+        self::assertTrue($file->is(resolve(PrintDownloadService::class)->part($job, PrintSet::HOME, PrintPart::CARDS)));
     }
 
     public function test_an_expired_part_is_not_found(): void
@@ -32,7 +32,7 @@ final class PrintDownloadServiceTest extends TestCase
 
         $this->expectException(NotFoundHttpException::class);
 
-        resolve(PrintDownloadService::class)->part($job, PrintSet::Home, PrintPart::Cards);
+        resolve(PrintDownloadService::class)->part($job, PrintSet::HOME, PrintPart::CARDS);
     }
 
     public function test_a_part_of_another_job_is_not_found(): void
@@ -42,7 +42,7 @@ final class PrintDownloadServiceTest extends TestCase
 
         $this->expectException(NotFoundHttpException::class);
 
-        resolve(PrintDownloadService::class)->part($job, PrintSet::Home, PrintPart::Cards);
+        resolve(PrintDownloadService::class)->part($job, PrintSet::HOME, PrintPart::CARDS);
     }
 
     public function test_instructions_without_a_set_are_found_for_any_set(): void
@@ -50,6 +50,6 @@ final class PrintDownloadServiceTest extends TestCase
         $job = PrintJob::factory()->createOne();
         $file = PrintFile::factory()->createOne(['print_job_id' => $job->publicId(), 'kind' => PrintFile::KIND_INSTRUCTIONS, 'part' => 'cards', 'set' => 'printer']);
 
-        self::assertTrue($file->is(resolve(PrintDownloadService::class)->instructions($job, PrintPart::Cards, null)));
+        self::assertTrue($file->is(resolve(PrintDownloadService::class)->instructions($job, PrintPart::CARDS, null)));
     }
 }
