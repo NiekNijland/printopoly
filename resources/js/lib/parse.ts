@@ -115,16 +115,11 @@ export const array = <T>(item: Parser<T>): Parser<T[]> => {
     };
 };
 
-const isPlainObject = (input: unknown): input is object =>
+const isPlainObject = (input: unknown): input is Record<string, unknown> =>
     typeof input === 'object' && input !== null && !Array.isArray(input);
 
-const fieldOf = (input: object, key: string): unknown => {
-    const value: unknown = Object.hasOwn(input, key)
-        ? Reflect.get(input, key)
-        : undefined;
-
-    return value;
-};
+const fieldOf = (input: Record<string, unknown>, key: string): unknown =>
+    Object.hasOwn(input, key) ? input[key] : undefined;
 
 export const dictionary = <T>(value: Parser<T>): Parser<Record<string, T>> => {
     return (input) => {
@@ -144,7 +139,8 @@ export const dictionary = <T>(value: Parser<T>): Parser<Record<string, T>> => {
     };
 };
 
-export const object: Parser<Record<string, unknown>> = dictionary(anything);
+export const object: Parser<Record<string, unknown>> = (input) =>
+    isPlainObject(input) ? ok(input) : expected('an object', input);
 
 // docs/decisions/0011-typepredicaten.md: the one narrowing the compiler does not check.
 const checked = <T>(input: unknown, failures: readonly string[]): input is T =>
