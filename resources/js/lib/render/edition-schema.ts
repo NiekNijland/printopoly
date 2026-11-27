@@ -1,3 +1,4 @@
+import { is, oneOf } from '@/lib/parse';
 import {
     migrateHouseRules,
     migrateTemplateCardTexts,
@@ -6,7 +7,6 @@ import {
 import { validateProfile, type BoardProfile } from '@/lib/render/print-board';
 import { isMoneyAmount } from '@/lib/render/print-money';
 import { standardEdition } from '@/lib/render/standard-edition';
-import type { CurrencyId, Locale } from '@/types/game';
 import {
     ALLOWED_FIELDS,
     LEGACY_KEYS,
@@ -44,20 +44,11 @@ import {
 export type ParseResult<T> =
     { ok: true; value: T } | { ok: false; errors: string[] };
 
-const isLocale = (value: unknown): value is Locale => {
-    return value === 'nl' || value === 'en';
-};
+const isLocale = (value: unknown) => value === 'nl' || value === 'en';
 
-const isCurrency = (value: unknown): value is CurrencyId => {
-    return standardEdition.currencies.some((currency) => currency.id === value);
-};
+const currency = oneOf(standardEdition.currencies.map((entry) => entry.id));
 
-const isAllowedField = (
-    allowed: readonly ElementField[],
-    field: string,
-): field is ElementField => {
-    return allowed.some((candidate) => candidate === field);
-};
+const isCurrency = (value: unknown) => is(currency, value);
 
 const setField = <F extends ElementField>(
     out: Partial<FieldValues>,
@@ -98,7 +89,7 @@ export const parseOverride = (
         if (field === 'layout') {
             continue;
         }
-        if (!isAllowedField(allowed, field)) {
+        if (!is(oneOf(allowed), field)) {
             errors.push(`${key}: field "${field}" is not allowed here`);
             continue;
         }
