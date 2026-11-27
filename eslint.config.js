@@ -31,6 +31,7 @@ import { MAX_FILE_LINES, MAX_FUNCTION_LINES } from './eslint-rules/limits.js';
 import { namesPlugin } from './eslint-rules/names.js';
 import { navigationPlugin } from './eslint-rules/navigation.js';
 import { pagesPlugin } from './eslint-rules/pages.js';
+import { predicatesPlugin } from './eslint-rules/predicates.js';
 import { settledCoreRules } from './eslint-rules/settled-core.js';
 import {
     settledImportRules,
@@ -72,6 +73,7 @@ const localPlugins = {
     downloads: downloadsPlugin,
     navigation: navigationPlugin,
     tests: testsPlugin,
+    predicates: predicatesPlugin,
 };
 
 const reactVersion = createRequire(import.meta.url)(
@@ -228,6 +230,7 @@ export default [
             'visits/no-visit-state': 'error',
             'downloads/no-download-link': 'error',
             'navigation/no-location-write': 'error',
+            'predicates/no-type-predicate': 'error',
         },
     },
     {
