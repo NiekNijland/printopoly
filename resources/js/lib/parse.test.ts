@@ -6,6 +6,7 @@ import {
     finiteNumber,
     instanceOf,
     is,
+    keyOf,
     literal,
     nullable,
     number,
@@ -65,6 +66,17 @@ describe('parse', () => {
         });
         expect(oneOf([null, 0])(null)).toEqual({ ok: true, value: null });
         expect(literal(2)(2).ok).toBe(true);
+    });
+
+    it('reads a key of a record, not one it inherits', () => {
+        const sizes = keyOf({ small: 1, large: 2 });
+
+        expect(sizes('large')).toEqual({ ok: true, value: 'large' });
+        expect(sizes('toString')).toEqual({
+            ok: false,
+            error: 'expected a key of small, large, got toString',
+        });
+        expect(sizes(1).ok).toBe(false);
     });
 
     it('reads an instance of a class', () => {

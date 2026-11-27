@@ -76,6 +76,22 @@ export const oneOf = <const V extends Literal>(
     };
 };
 
+const isKey = <K extends string>(
+    keys: Readonly<Record<K, unknown>>,
+    input: unknown,
+): input is K => typeof input === 'string' && Object.hasOwn(keys, input);
+
+export const keyOf = <K extends string>(
+    keys: Readonly<Record<K, unknown>>,
+): Parser<K> => {
+    return (input) =>
+        isKey(keys, input)
+            ? ok(input)
+            : fail(
+                  `expected a key of ${Object.keys(keys).join(', ')}, got ${String(input)}`,
+              );
+};
+
 export const literal = <const V extends Literal>(value: V): Parser<V> =>
     oneOf([value]);
 
