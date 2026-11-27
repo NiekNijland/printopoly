@@ -31,6 +31,25 @@ const baseEdition = (): Edition => {
     );
 };
 
+const notUsed = (): Promise<never> =>
+    Promise.reject(new Error('not used by this test'));
+
+const accountStore = (
+    overrides: Partial<AccountEditionStore>,
+): AccountEditionStore => ({
+    list: notUsed,
+    get: notUsed,
+    put: notUsed,
+    putPhoto: notUsed,
+    delete: notUsed,
+    listWithLimit: notUsed,
+    patch: notUsed,
+    rename: notUsed,
+    duplicate: notUsed,
+    importEditions: notUsed,
+    ...overrides,
+});
+
 const setup = async (remote: Partial<AccountEditionStore>) => {
     const storage = new MemoryEditionStorage();
     const edition = baseEdition();
@@ -43,7 +62,7 @@ const setup = async (remote: Partial<AccountEditionStore>) => {
     });
     const events: RemoteSyncEvent[] = [];
     const sync = new RemoteSync(
-        remote as AccountEditionStore,
+        accountStore(remote),
         session,
         (event) => events.push(event),
         () => 500,

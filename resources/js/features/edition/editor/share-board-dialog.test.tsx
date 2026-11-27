@@ -2,7 +2,7 @@ import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { sampleEdition } from '@/testing/editions';
-import { inOrder, stubFetch } from '@/testing/fetch';
+import { inOrder, requestOf, stubFetch } from '@/testing/fetch';
 import { renderWithI18n } from '@/testing/render';
 
 import { ShareBoardDialog } from './share-board-dialog';
@@ -45,12 +45,13 @@ describe('ShareBoardDialog (B202)', () => {
         ).toHaveAttribute('href', 'blob:board');
 
         // The whole edition goes along, with its own words, not only the names (R5-24).
-        const body = JSON.parse(fetch.mock.calls[0]?.[1]?.body as string) as {
-            edition: { id: string; elements: object };
-            photos: unknown[];
-        };
-        expect(body.edition.id).toBe('sample-edition-1');
-        expect(body.photos).toEqual([]);
+        const sent = requestOf(fetch).init.body;
+        const body: unknown =
+            typeof sent === 'string' ? JSON.parse(sent) : undefined;
+        expect(body).toMatchObject({
+            edition: { id: 'sample-edition-1', elements: {} },
+            photos: [],
+        });
     });
 
     it('says when the picture failed and tries again on request', async () => {

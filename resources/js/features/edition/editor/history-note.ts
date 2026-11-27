@@ -35,6 +35,12 @@ const NOTED_FIELDS = [
 
 type NotedField = (typeof NOTED_FIELDS)[number];
 
+const isNoted = (field: string | undefined): field is NotedField =>
+    NOTED_FIELDS.some((noted) => noted === field);
+
+const fieldsOf = (override: ElementOverride): ElementField[] =>
+    Object.keys(override).filter((key): key is ElementField => key in override);
+
 /** What an undo or redo touched, for the short note and for the jump (UX 7, ronde 3). */
 export type HistoryStepInfo = {
     target: HistoryTarget | undefined;
@@ -49,12 +55,10 @@ export type HistoryStepInfo = {
 const changedFields = (change: ElementChange): string[] => {
     const before: ElementOverride = change.before ?? {};
     const after: ElementOverride = change.after ?? {};
-    const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
+    const keys = new Set([...fieldsOf(before), ...fieldsOf(after)]);
 
     return [...keys].filter(
-        (key) =>
-            JSON.stringify(before[key as ElementField]) !==
-            JSON.stringify(after[key as ElementField]),
+        (key) => JSON.stringify(before[key]) !== JSON.stringify(after[key]),
     );
 };
 
@@ -93,7 +97,19 @@ const targetOfKey = (
                 ? undefined
                 : { kind: 'element', key: street, deed: false };
         }
-        default:
+        case 'space':
+        case 'card':
+        case 'note':
+        case 'pawn':
+        case 'cardBack':
+        case 'boxLid':
+        case 'boardCenter':
+        case 'houseRules':
+        case 'rulesBooklet':
+        case 'invitation':
+        case 'words':
+        case 'themeAccent':
+        case 'partStyle':
             return { kind: 'element', key, deed: false };
     }
 };
@@ -122,10 +138,7 @@ export const describeHistoryStep = (
         target:
             first === undefined ? undefined : targetOfKey(first.key, fields),
         elementKey: changes.length === 1 ? first?.key : undefined,
-        field:
-            same && (NOTED_FIELDS as readonly string[]).includes(only)
-                ? (only as NotedField)
-                : undefined,
+        field: same && isNoted(only) ? only : undefined,
         count: changes.length,
     };
 };

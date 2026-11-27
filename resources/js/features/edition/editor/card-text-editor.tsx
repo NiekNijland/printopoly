@@ -7,55 +7,30 @@ import {
     useState,
     type ClipboardEvent,
     type KeyboardEvent,
+    type RefObject,
 } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+    readFrom,
+    renderInto,
+    updateChips,
+    type ChipView,
+} from '@/features/edition/editor/card-text-chips';
 import {
     deleteChipAtCaret,
     deleteAcrossAnchor,
     deleteSelection,
     insertPlainText,
     insertToken,
-    readFrom,
-    renderInto,
-    updateChips,
-    type ChipView,
 } from '@/features/edition/editor/card-text-dom';
+import { CardTextInsertDialog } from '@/features/edition/editor/card-text-insert-dialog';
+import { describeToken } from '@/features/edition/editor/card-text-tokens';
 import { StandardButton } from '@/features/edition/editor/panel/panel-parts';
 import { useTranslation } from '@/hooks/use-translation';
-import {
-    AMOUNT_TOKEN,
-    CURRENCY_TOKEN,
-    spaceToken,
-    tokenValue,
-    cardTextContext,
-    parseCardText,
-    wordOf,
-    wordToken,
-    type CardTextToken,
-    type CardTextWord,
-} from '@/lib/render/edition-card-text';
+import type { CardTextToken } from '@/lib/render/edition-card-text';
 import type { ResolvedEdition } from '@/lib/render/edition-resolve';
 import { cn } from '@/lib/utils';
-
-/** Space types a card text can name. Chance and Community Chest spaces have no name of their own. */
-const NAMEABLE = new Set(['street', 'station', 'utility', 'corner', 'tax']);
-
-/** The words the insert list offers (B177); plurals stay as typed tokens, they come with the standard texts. */
-const OFFERED_WORDS: readonly CardTextWord[] = [
-    'station',
-    'utility',
-    'house',
-    'hotel',
-    'jail',
-];
 
 export type CardTextEditorProps = {
     label: string;
@@ -74,35 +49,10 @@ export type CardTextEditorProps = {
     withAmount?: boolean;
 };
 
-/**
- * The text field of a card (B131). Variables show as chips that act as one character: arrow keys
- * step over them and Backspace or Delete removes the whole chip. The field reports the stored
- * text, in which a chip is its token.
- */
-export const CardTextEditor = ({
-    label,
-    value,
-    onChange,
-    resolved,
-    amount,
-    invalid = false,
-    onStandard,
-    hint,
-    withAmount = true,
-}: CardTextEditorProps) => {
-    const t = useTranslation();
-    const labelId = useId();
-    const hintId = useId();
-    const root = useRef<HTMLDivElement>(null);
-    const saved = useRef<Range | null>(null);
-    const resume = useRef<Range | null>(null);
-    // The latest `emit`, for the native beforeinput listener that is added once.
-    const emitRef = useRef<() => void>(() => undefined);
-    // Clearing the field falls back to the standard text; keep showing the empty field until blur.
-    const emptied = useRef(false);
-    const [open, setOpen] = useState(false);
-    const [search, setSearch] = useState('');
-
+const useBlockFormatting = (
+    root: RefObject<HTMLDivElement | null>,
+    emitRef: RefObject<() => void>,
+): void => {
     // No bold or italic in a card text. React's onBeforeInput is Chrome's textInput event, which has no
     // inputType, so listen to the native beforeinput event instead.
     useEffect(() => {
@@ -139,79 +89,72 @@ export const CardTextEditor = ({
 
         return () =>
             element.removeEventListener('beforeinput', blockFormatting);
-    }, []);
+    }, [root, emitRef]);
+};
 
-    const describe = useCallback(
-        (token: CardTextToken): ChipView => {
-            const context = cardTextContext(
-                {
-                    elements: {},
-                    language: resolved.language,
-                    currency: resolved.currency.id,
-                },
-                amount,
-            );
-            switch (token.type) {
-                case 'space': {
-                    const space = resolved.spaces.find(
-                        (candidate) => candidate.position === token.position,
-                    );
-                    const name =
-                        space === undefined
-                            ? ''
-                            : space.name.trim() ||
-                              space.base.name[resolved.language];
-                    const kind = t(
-                        space?.base.type === 'street' ||
-                            space?.base.type === 'station' ||
-                            space?.base.type === 'utility'
-                            ? `editor.token_${space.base.type}`
-                            : 'editor.token_space',
-                    );
+const caretRange = (element: HTMLElement): Range | null => {
+    const selection = element.ownerDocument.getSelection();
 
-                    return {
-                        text: name,
-                        label: `${kind}: ${name}`,
-                        broken: space === undefined,
-                    };
-                }
-                case 'currency':
-                    return {
-                        text: resolved.currency.symbol,
-                        label: `${t('editor.token_currency')}: ${resolved.currency.name[resolved.language]}`,
-                        broken: false,
-                    };
-                case 'amount': {
-                    const shown = tokenValue(token, context);
+    return selection !== null && selection.rangeCount > 0
+        ? selection.getRangeAt(0).cloneRange()
+        : null;
+};
 
-                    return {
-                        text: shown ?? t('editor.token_amount_unset'),
-                        label:
-                            shown === undefined
-                                ? t('editor.token_amount_unset')
-                                : `${t('editor.token_amount')}: ${shown}`,
-                        broken: shown === undefined,
-                    };
-                }
-                case 'word': {
-                    const word = wordOf(resolved.words, token.word);
+const rangeInside = (element: HTMLElement): Range | null => {
+    const selection = element.ownerDocument.getSelection();
 
-                    return {
-                        text: word,
-                        label: `${t('editor.token_word')}: ${word}`,
-                        broken: false,
-                    };
-                }
-                case 'unknown':
-                    return {
-                        text: token.raw,
-                        label: `${t('editor.token_unknown')}: ${token.raw}`,
-                        broken: true,
-                    };
-            }
-        },
-        [resolved, amount, t],
-    );
+    return selection !== null &&
+        selection.rangeCount > 0 &&
+        element.contains(selection.anchorNode)
+        ? selection.getRangeAt(0).cloneRange()
+        : null;
+};
+
+const selectRange = (element: HTMLElement, range: Range): void => {
+    const selection = element.ownerDocument.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+};
+
+const editByKey = (
+    element: HTMLElement,
+    event: KeyboardEvent<HTMLDivElement>,
+): boolean => {
+    if (event.nativeEvent.isComposing) {
+        return false;
+    }
+    if (
+        (event.key === 'Backspace' || event.key === 'Delete') &&
+        (deleteSelection(element) ||
+            deleteChipAtCaret(element, event.key) ||
+            deleteAcrossAnchor(element, event.key))
+    ) {
+        event.preventDefault();
+
+        return true;
+    }
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        insertPlainText(element, '\n');
+
+        return true;
+    }
+
+    return false;
+};
+
+const useTextSync = (
+    root: RefObject<HTMLDivElement | null>,
+    value: string,
+    describe: (token: CardTextToken) => ChipView,
+    onChange: (text: string) => void,
+) => {
+    // The latest `emit`, for the native beforeinput listener that is added once.
+    const emitRef = useRef<() => void>(() => undefined);
+    // Clearing the field falls back to the standard text; keep showing the empty field until blur.
+    const emptied = useRef(false);
+
+    useBlockFormatting(root, emitRef);
 
     // Bring the field in line with the stored text after every render: an outside change (undo,
     // restore) rebuilds it, and a rename refreshes the names on the chips.
@@ -241,22 +184,29 @@ export const CardTextEditor = ({
         emitRef.current = emit;
     });
 
+    return {
+        emit,
+        release: (): void => {
+            emptied.current = false;
+        },
+    };
+};
+
+const useCardTextField = (
+    value: string,
+    onChange: (text: string) => void,
+    describe: (token: CardTextToken) => ChipView,
+) => {
+    const root = useRef<HTMLDivElement>(null);
+    const saved = useRef<Range | null>(null);
+    const resume = useRef<Range | null>(null);
+    const [open, setOpen] = useState(false);
+
+    const { emit, release } = useTextSync(root, value, describe, onChange);
+
     const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
         const element = root.current;
-        if (element === null || event.nativeEvent.isComposing) {
-            return;
-        }
-        if (
-            (event.key === 'Backspace' || event.key === 'Delete') &&
-            (deleteSelection(element) ||
-                deleteChipAtCaret(element, event.key) ||
-                deleteAcrossAnchor(element, event.key))
-        ) {
-            event.preventDefault();
-            emit();
-        } else if (event.key === 'Enter') {
-            event.preventDefault();
-            insertPlainText(element, '\n');
+        if (element !== null && editByKey(element, event)) {
             emit();
         }
     };
@@ -280,45 +230,103 @@ export const CardTextEditor = ({
             return;
         }
         insertToken(element, token, describe, saved.current);
-        const selection = element.ownerDocument.getSelection();
-        resume.current =
-            selection !== null && selection.rangeCount > 0
-                ? selection.getRangeAt(0).cloneRange()
-                : null;
+        resume.current = caretRange(element);
         emit();
         setOpen(false);
     };
 
-    const needle = search.trim().toLowerCase();
-    const items = resolved.spaces
-        .filter((space) => NAMEABLE.has(space.base.type))
-        .map((space) => ({
-            position: space.position,
-            name: space.name.trim() || space.base.name[resolved.language],
-            kind: t(
-                space.base.type === 'street' ||
-                    space.base.type === 'station' ||
-                    space.base.type === 'utility'
-                    ? `editor.token_${space.base.type}`
-                    : 'editor.token_space',
-            ),
-        }))
-        .filter(
-            (item) =>
-                needle === '' ||
-                item.name.toLowerCase().includes(needle) ||
-                item.kind.toLowerCase().includes(needle),
-        );
-    const wordKind = t('editor.token_word');
-    const words = OFFERED_WORDS.map((word) => ({
-        word,
-        name: wordOf(resolved.words, word),
-    })).filter(
-        (item) =>
-            needle === '' ||
-            item.name.toLowerCase().includes(needle) ||
-            wordKind.toLowerCase().includes(needle),
+    const onBlur = (): void => {
+        const element = root.current;
+        const range = element === null ? null : rangeInside(element);
+        if (range !== null) {
+            saved.current = range;
+        }
+        release();
+    };
+
+    const restore = (event: Event): void => {
+        event.preventDefault();
+        const element = root.current;
+        element?.focus();
+        const range = resume.current;
+        resume.current = null;
+        if (element !== null && range !== null) {
+            selectRange(element, range);
+        }
+    };
+
+    return {
+        root,
+        open,
+        setOpen,
+        emit,
+        onKeyDown,
+        onPaste,
+        onBlur,
+        pick,
+        restore,
+    };
+};
+
+type InsertRowProps = {
+    hintId: string;
+    hint: string | undefined;
+    onInsert: () => void;
+};
+
+const InsertRow = ({ hintId, hint, onInsert }: InsertRowProps) => {
+    const t = useTranslation();
+
+    return (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <Button type="button" variant="secondary" onClick={onInsert}>
+                {t('editor.card_text_insert')}
+            </Button>
+            <span
+                id={hintId}
+                className="min-w-0 flex-1 text-xs font-normal text-ink-soft"
+            >
+                {hint ?? t('editor.card_text_hint')}
+            </span>
+        </div>
     );
+};
+
+/**
+ * The text field of a card (B131). Variables show as chips that act as one character: arrow keys
+ * step over them and Backspace or Delete removes the whole chip. The field reports the stored
+ * text, in which a chip is its token.
+ */
+export const CardTextEditor = ({
+    label,
+    value,
+    onChange,
+    resolved,
+    amount,
+    invalid = false,
+    onStandard,
+    hint,
+    withAmount = true,
+}: CardTextEditorProps) => {
+    const t = useTranslation();
+    const labelId = useId();
+    const hintId = useId();
+    const describe = useCallback(
+        (token: CardTextToken): ChipView =>
+            describeToken(token, resolved, amount, t),
+        [resolved, amount, t],
+    );
+    const {
+        root,
+        open,
+        setOpen,
+        emit,
+        onKeyDown,
+        onPaste,
+        onBlur,
+        pick,
+        restore,
+    } = useCardTextField(value, onChange, describe);
 
     return (
         <div className="flex flex-col gap-1 text-sm font-semibold">
@@ -344,178 +352,26 @@ export const CardTextEditor = ({
                 onKeyDown={onKeyDown}
                 onPaste={onPaste}
                 onDrop={(event) => event.preventDefault()}
-                onBlur={() => {
-                    const element = root.current;
-                    const selection = element?.ownerDocument.getSelection();
-                    if (
-                        element !== null &&
-                        selection !== null &&
-                        selection !== undefined &&
-                        selection.rangeCount > 0 &&
-                        element.contains(selection.anchorNode)
-                    ) {
-                        saved.current = selection.getRangeAt(0).cloneRange();
-                    }
-                    emptied.current = false;
-                }}
+                onBlur={onBlur}
                 className={cn(
                     'min-h-28 w-full rounded-control border-2 border-ink bg-card px-3 py-2 text-base leading-8 font-normal break-words whitespace-pre-wrap text-ink aria-invalid:border-press',
                 )}
             />
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => {
-                        setSearch('');
-                        setOpen(true);
-                    }}
-                >
-                    {t('editor.card_text_insert')}
-                </Button>
-                <span
-                    id={hintId}
-                    className="min-w-0 flex-1 text-xs font-normal text-ink-soft"
-                >
-                    {hint ?? t('editor.card_text_hint')}
-                </span>
-            </div>
+            <InsertRow
+                hintId={hintId}
+                hint={hint}
+                onInsert={() => setOpen(true)}
+            />
 
-            <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent
-                    onCloseAutoFocus={(event) => {
-                        event.preventDefault();
-                        const element = root.current;
-                        element?.focus();
-                        const range = resume.current;
-                        resume.current = null;
-                        if (element !== null && range !== null) {
-                            const selection =
-                                element.ownerDocument.getSelection();
-                            selection?.removeAllRanges();
-                            selection?.addRange(range);
-                        }
-                    }}
-                >
-                    <DialogTitle>
-                        {t('editor.card_text_insert_title')}
-                    </DialogTitle>
-                    <DialogDescription>
-                        {t(
-                            withAmount
-                                ? 'editor.card_text_insert_hint'
-                                : 'editor.card_text_insert_hint_names',
-                        )}
-                    </DialogDescription>
-                    <div className="mt-4 flex flex-col gap-3">
-                        <Input
-                            type="search"
-                            aria-label={t('editor.card_text_search')}
-                            placeholder={t('editor.card_text_search')}
-                            value={search}
-                            onChange={(event) => setSearch(event.target.value)}
-                        />
-                        <ul className="m-0 flex max-h-72 list-none flex-col gap-1 overflow-auto p-0">
-                            <li>
-                                <ChoiceButton
-                                    onClick={() =>
-                                        pick(parseOnly(CURRENCY_TOKEN))
-                                    }
-                                    name={`${t('editor.card_text_currency_item')} (${resolved.currency.symbol})`}
-                                />
-                            </li>
-                            {withAmount && (
-                                <li>
-                                    <ChoiceButton
-                                        onClick={() =>
-                                            pick(parseOnly(AMOUNT_TOKEN))
-                                        }
-                                        name={t('editor.card_text_amount_item')}
-                                        note={
-                                            amount === undefined
-                                                ? t(
-                                                      'editor.card_text_amount_unset',
-                                                  )
-                                                : undefined
-                                        }
-                                    />
-                                </li>
-                            )}
-                            {words.map((item) => (
-                                <li key={item.word}>
-                                    <ChoiceButton
-                                        onClick={() =>
-                                            pick(
-                                                parseOnly(wordToken(item.word)),
-                                            )
-                                        }
-                                        name={item.name}
-                                        note={wordKind}
-                                    />
-                                </li>
-                            ))}
-                            {items.map((item) => (
-                                <li key={item.position}>
-                                    <ChoiceButton
-                                        onClick={() =>
-                                            pick(
-                                                parseOnly(
-                                                    spaceToken(item.position),
-                                                ),
-                                            )
-                                        }
-                                        name={item.name}
-                                        note={item.kind}
-                                    />
-                                </li>
-                            ))}
-                            {items.length === 0 && words.length === 0 && (
-                                <li
-                                    role="status"
-                                    className="px-3 py-2 text-base font-normal text-ink-soft"
-                                >
-                                    {t('editor.card_text_no_results')}
-                                </li>
-                            )}
-                        </ul>
-                    </div>
-                </DialogContent>
-            </Dialog>
+            <CardTextInsertDialog
+                open={open}
+                onOpenChange={setOpen}
+                onCloseAutoFocus={restore}
+                resolved={resolved}
+                amount={amount}
+                withAmount={withAmount}
+                onPick={pick}
+            />
         </div>
-    );
-};
-
-const parseOnly = (token: string): CardTextToken => {
-    const [segment] = parseCardText(token);
-
-    if (segment === undefined || segment.type === 'text') {
-        throw new RangeError(`Not a token: ${token}`);
-    }
-
-    return segment;
-};
-
-const ChoiceButton = ({
-    name,
-    note,
-    onClick,
-}: {
-    name: string;
-    note?: string | undefined;
-    onClick: () => void;
-}) => {
-    return (
-        <button
-            type="button"
-            onClick={onClick}
-            className="flex min-h-11 w-full cursor-pointer items-center justify-between gap-3 rounded-control border-0 bg-transparent px-3 py-2 text-left text-base font-semibold text-ink hover:bg-table"
-        >
-            <span>{name}</span>
-            {note !== undefined && (
-                <span className="text-sm font-normal text-ink-soft">
-                    {note}
-                </span>
-            )}
-        </button>
     );
 };
