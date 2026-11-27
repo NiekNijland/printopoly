@@ -13,7 +13,7 @@ export type MeasureText = (text: string, fontSizeMm: number) => number;
 export type WrapMode = 'none' | 'words';
 
 /** Share of the box that stays empty: the text gets 97% of the width and height. */
-export const FIT_MARGIN = 0.03;
+const FIT_MARGIN = 0.03;
 
 export type FitTextOptions = {
     text: string;
@@ -41,7 +41,7 @@ export type FitTextResult = {
 
 const ITERATIONS = 24;
 
-export const wrapLines = (
+const wrapLines = (
     text: string,
     maxWidthMm: number,
     fontSizeMm: number,
