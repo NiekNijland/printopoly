@@ -32,15 +32,6 @@ export type PrintPayload = {
     edition: PrintEdition;
 };
 
-export const isPrintPayload = (payload: unknown): payload is PrintPayload =>
-    typeof payload === 'object' &&
-    payload !== null &&
-    'part' in payload &&
-    typeof payload.part === 'string' &&
-    'edition' in payload &&
-    typeof payload.edition === 'object' &&
-    payload.edition !== null;
-
 const Lines = ({
     segments,
     dashed,
