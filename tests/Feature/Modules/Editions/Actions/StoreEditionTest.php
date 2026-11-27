@@ -86,4 +86,30 @@ final class StoreEditionTest extends TestCase
 
         self::assertNull(Edition::query()->where('edition_id', 'drie')->first());
     }
+
+    public function test_an_account_takes_a_new_edition_again_once_one_is_gone(): void
+    {
+        config(['printopoly.limits.editions_per_account' => 2]);
+        $user = User::factory()->create();
+        $gone = Editions::store($user, 'een');
+        Editions::store($user, 'twee');
+        $gone->delete();
+
+        Editions::store($user, 'drie');
+
+        $this->expectException(EditionLimitReachedException::class);
+        Editions::store($user, 'vier');
+    }
+
+    public function test_an_account_with_more_editions_than_a_lowered_limit_takes_none(): void
+    {
+        $user = User::factory()->create();
+        Editions::store($user, 'een');
+        Editions::store($user, 'twee');
+        Editions::store($user, 'drie');
+        config(['printopoly.limits.editions_per_account' => 2]);
+
+        $this->expectException(EditionLimitReachedException::class);
+        Editions::store($user, 'vier');
+    }
 }
