@@ -138,11 +138,6 @@
       "count": 1
     }
   },
-  "resources/js/components/render/render.test.tsx": {
-    "max-lines": {
-      "count": 1
-    }
-  },
   "resources/js/components/render/rules-booklet.tsx": {
     "max-lines": {
       "count": 1
@@ -225,63 +220,6 @@
       "count": 1
     }
   },
-  "resources/js/lib/render/checks.test.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/checks.ts": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/edition-card-text.ts": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/edition-resolve.test.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/edition-resolve.ts": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/edition-templates.test.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/edition-words.test.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/editor-checks-input.ts": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/editor-layers.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
   "resources/js/lib/render/print-api.ts": {
     "max-lines": {
       "count": 1
@@ -294,11 +232,6 @@
   },
   "resources/js/lib/render/print-home-stickers.ts": {
     "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/ronde-3-beeld.test.tsx": {
-    "max-lines": {
       "count": 1
     }
   },

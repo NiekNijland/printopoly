@@ -13,7 +13,7 @@ import {
     centerFoldItems,
     faceOffFold,
     faceOnFold,
-} from '../../../lib/render/editor-layers';
+} from '../../../lib/render/editor-layer-fold';
 import { startingPlacement } from '../../../lib/render/editor-placements';
 
 const centre = centerRect(DEFAULT_BOARD_PROFILE);

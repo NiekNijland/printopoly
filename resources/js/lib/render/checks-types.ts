@@ -1,7 +1,7 @@
 import type { Localized } from '../../types/game';
 import type { PhotoTransform } from '../../types/photos';
 import type { Size } from '../../types/print';
-import type { CardTextProblem } from './edition-card-text';
+import type { CardTextProblem } from './edition-card-text-problems';
 import type { BoardProfile } from './print-board';
 
 /** B99: the parts of an edition. Only the board is required. */
