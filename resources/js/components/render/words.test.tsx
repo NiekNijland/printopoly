@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { spaceAt } from '@/lib/render/standard-edition';
+import { isOwnable, spaceAt } from '@/lib/render/standard-edition';
 import type { OwnableSpace } from '@/types/game';
 
 import { Banknote } from './banknote';
@@ -11,6 +11,16 @@ import { GameCard } from './game-card';
 import { TitleDeed } from './title-deed';
 
 const base = { theme: 'classic', locale: 'nl' } as const;
+
+const ownableAt = (position: number): OwnableSpace => {
+    const space = spaceAt(position);
+
+    if (!isOwnable(space)) {
+        throw new Error(`Space ${String(position)} has no deed`);
+    }
+
+    return space;
+};
 
 const words = {
     house: { singular: 'Schuurtje', plural: 'Schuurtjes' },
@@ -32,7 +42,7 @@ describe('the words of an edition in the renderers', () => {
         const deed = render(
             <TitleDeed
                 {...base}
-                space={spaceAt(1) as OwnableSpace}
+                space={ownableAt(1)}
                 side="front"
                 words={words}
             />,
@@ -103,12 +113,12 @@ describe('the words of an edition in the renderers', () => {
         const { container } = render(
             <TitleDeed
                 {...base}
-                space={spaceAt(1) as OwnableSpace}
+                space={ownableAt(1)}
                 side="front"
                 words={words}
             />,
         );
-        const text = container.textContent ?? '';
+        const text = container.textContent;
 
         expect(text).toContain('Huur met 3 Schuurtjes');
         expect(text).toContain('Huur met Boerderij');

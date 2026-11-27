@@ -4,6 +4,7 @@ import type { PatternId } from '@/lib/render/patterns';
 import type { BoardProfile } from '@/lib/render/print-board';
 import {
     standardEdition as defaultStandardEdition,
+    isOwnable,
     withCurrency,
 } from '@/lib/render/standard-edition';
 import type {
@@ -590,10 +591,11 @@ export const resolveEdition = (
     );
     const deeds: ResolvedDeed[] = ownables.map((standardSpace, index) => {
         const key = deedKey(index + 1);
-        const space = applyAmounts(
+        const amended = applyAmounts(
             standardSpace,
             edition.elements[spaceKey(standardSpace.position)]?.amounts,
-        ) as OwnableSpace;
+        );
+        const space = isOwnable(amended) ? amended : standardSpace;
         const spaceName =
             edition.elements[spaceKey(space.position)]?.name ??
             space.name[language];

@@ -37,3 +37,24 @@ export const reportUnlessOffline = (error: unknown): void => {
         reportError(error);
     }
 };
+
+/** An AbortError is the person (or the page) calling the work off, such as a closed share sheet: anything else is reported. */
+export const reportUnlessCancelled = (error: unknown): void => {
+    if (!(error instanceof DOMException && error.name === 'AbortError')) {
+        reportError(error);
+    }
+};
+
+/** For a `.catch` that goes on with a fallback: the failure is reported unless offline, then the fallback is the answer. */
+export const reportAndReturn =
+    <T>(fallback: T) =>
+    (error: unknown): T => {
+        reportUnlessOffline(error);
+
+        return fallback;
+    };
+
+/** A repair the user never sees, for a developer reading the console; the one place that writes to it. */
+export const logWarning = (message: string): void => {
+    console.warn(message);
+};

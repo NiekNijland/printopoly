@@ -22,7 +22,11 @@ const createDomMeasure = (
     fontFamily: string,
     fontWeight: number,
 ): DomMeasure => {
-    if (typeof document === 'undefined' || document.body === null) {
+    if (typeof document === 'undefined') {
+        return estimateMeasure;
+    }
+    const body: unknown = document.body;
+    if (!(body instanceof HTMLElement)) {
         return estimateMeasure;
     }
 
@@ -39,7 +43,7 @@ const createDomMeasure = (
         fontSize: `${REFERENCE_SIZE_MM}mm`,
         lineHeight: '1',
     });
-    document.body.appendChild(probe);
+    body.appendChild(probe);
 
     const cache = new Map<string, number>();
 
@@ -98,8 +102,10 @@ const subscribeFonts = (listener: () => void): (() => void) => {
 
     if (!watchingFonts && typeof document !== 'undefined') {
         watchingFonts = true;
-        void document.fonts?.ready.then(fontsLoaded);
-        document.fonts?.addEventListener?.('loadingdone', fontsLoaded);
+        const page: Partial<Document> = document;
+        const fonts: Partial<FontFaceSet> | undefined = page.fonts;
+        void fonts?.ready?.then(fontsLoaded);
+        fonts?.addEventListener?.('loadingdone', fontsLoaded);
     }
 
     return () => {

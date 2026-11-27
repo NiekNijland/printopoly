@@ -8,7 +8,12 @@ import {
     noteKey,
     pawnKey,
 } from '@/lib/render/edition-keys';
+import type { Elements } from '@/lib/render/edition-types';
 import { standardEdition } from '@/lib/render/standard-edition';
+import type {
+    BoardForm,
+    PrintSet as GeneratedPrintSet,
+} from '@/types/generated';
 import type { Rect, Segment, Size } from '../../types/print';
 import { DEFAULT_BOARD_PROFILE, type BoardProfile } from './print-board';
 import { calibrationSheet } from './print-calibration';
@@ -46,25 +51,10 @@ export type PrintPart =
     | 'invitation'
     | 'calibration';
 
-export type PrintSet = 'printer' | 'home';
-
-/** How the print shop delivers the board (B243): sticker panels for your own board, or one whole board. */
-type BoardForm = 'panels' | 'whole';
+export type PrintSet = GeneratedPrintSet;
 
 /** The most sets one PDF holds; the same as PrintJob::MAX_COPIES. */
 const MAX_SETS = 40;
-
-/** The photo of an element, as the edition stores it, with the crop the server made of it. */
-type PrintPhoto = {
-    photoId: string;
-    /** Signed URL of the pre-cropped JPEG, filled in by the print job. */
-    src?: string;
-};
-
-type PrintElement = {
-    photo?: PrintPhoto;
-    [key: string]: unknown;
-};
 
 /**
  * The part of an edition the print pipeline needs: the `Edition` of lib/render/edition-types.ts. The elements are
@@ -90,7 +80,7 @@ export type PrintEdition = {
     boardForm?: BoardForm | null;
     /** How many invitations the set counts with (B244). Only the counts follow it, never the PDF. */
     invitations?: number;
-    elements: Record<string, PrintElement>;
+    elements: Elements;
 };
 
 type PageItemKind =
@@ -159,7 +149,7 @@ export const cardKeys = (edition: PrintEdition): string[] => {
     }
 
     for (const deck of ['chance', 'chest'] as const) {
-        keys.push(...deckCardKeys(edition.elements ?? {}, deck));
+        keys.push(...deckCardKeys(edition.elements, deck));
     }
 
     // The house rules card is off unless the edition says so (B99), unlike the parts above.

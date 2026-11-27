@@ -1,3 +1,4 @@
+import { reportError } from '@/lib/bugsnag';
 import type { Edition } from '@/lib/render/edition-types';
 
 import type { PhotoTargets } from './print-photo-targets';
@@ -148,7 +149,9 @@ export const downscaleForPrint = async (
         });
 
         return smaller !== null && smaller.size < blob.size ? smaller : blob;
-    } catch {
+    } catch (error) {
+        reportError(error);
+
         return blob;
     }
 };

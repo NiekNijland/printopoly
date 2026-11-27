@@ -1,3 +1,4 @@
+import type { Locale } from '@/types/generated';
 import {
     formatMm,
     type Rect,
@@ -160,7 +161,7 @@ export const foldLines = (p: BoardProfile): FoldLine[] => {
     return lines;
 };
 
-type ProfileLocale = 'nl' | 'en';
+type ProfileLocale = Locale;
 
 const PROFILE_PROBLEMS: Record<
     ProfileLocale,
@@ -229,7 +230,11 @@ export const profileProblems = (
     const text = PROFILE_PROBLEMS[locale];
     const mm = (value: number) => formatMm(value, locale);
     const problems: ProfileProblem[] = [];
-    const positive = (v: number) => Number.isFinite(v) && v > 0;
+    const positive = (v: number | undefined) =>
+        typeof v === 'number' && Number.isFinite(v) && v > 0;
+    const panels: unknown = p.panels;
+    const stored: Partial<BoardProfile> = p;
+    const lid: Partial<Size> | undefined = stored.boxLid;
 
     if (!positive(p.outer))
         problems.push({ field: 'outer', message: text.outer });
@@ -237,9 +242,9 @@ export const profileProblems = (
         problems.push({ field: 'corner', message: text.corner });
     if (!Number.isFinite(p.border) || p.border < 0)
         problems.push({ field: 'border', message: text.border });
-    if (p.panels !== 2 && p.panels !== 4)
+    if (panels !== 2 && panels !== 4)
         problems.push({ field: 'other', message: text.panels });
-    if (!positive(p.boxLid?.w) || !positive(p.boxLid?.h))
+    if (!positive(lid?.w) || !positive(lid?.h))
         problems.push({ field: 'lid', message: text.boxLid });
     if (problems.length > 0) return problems;
 

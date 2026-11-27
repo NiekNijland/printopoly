@@ -1,3 +1,5 @@
+import { logWarning } from '@/lib/bugsnag';
+
 import { applyEditionPatch } from '../../lib/render/edition-changes';
 import { migrateElements } from '../../lib/render/edition-schema';
 import {
@@ -22,7 +24,7 @@ import { readStoredEdition } from './repair';
 const readRow = (row: unknown): Edition | undefined => {
     const read = readStoredEdition(row);
     if (read !== undefined && read.repaired.length > 0) {
-        console.warn(
+        logWarning(
             `Edition ${read.edition.id} was repaired on read: ${read.repaired.join('; ')}`,
         );
     }

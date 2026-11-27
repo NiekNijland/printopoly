@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react';
+import { useId, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,11 +27,11 @@ export const InvitationCount = ({
     const label = useId();
     const field = useId();
     const [draft, setDraft] = useState(String(value));
-
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- the number changed elsewhere (a reload, the server)
+    const [drafted, setDrafted] = useState(value);
+    if (drafted !== value) {
+        setDrafted(value);
         setDraft(String(value));
-    }, [value]);
+    }
 
     const clamp = (count: number): number =>
         Math.min(MAX_INVITATIONS, Math.max(1, Math.round(count)));

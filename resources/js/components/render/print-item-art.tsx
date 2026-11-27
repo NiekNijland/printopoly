@@ -29,6 +29,7 @@ import {
     resolvedCardOf,
     type ResolvedEdition,
 } from '@/lib/render/edition-resolve';
+import { isObject } from '@/lib/render/edition-schema-values';
 import type { Edition, FreeLayer } from '@/lib/render/edition-types';
 import { renderWords } from '@/lib/render/edition-words';
 import type { PhotoSource } from '@/lib/render/photo';
@@ -71,6 +72,9 @@ export type ArtContext = {
     measure?: boolean;
 };
 
+const printedSrc = (photo: unknown): string | undefined =>
+    isObject(photo) && typeof photo.src === 'string' ? photo.src : undefined;
+
 /**
  * The photo of an element as the renderers take it. In print this is the crop the server made for exactly
  * this frame (so no transform: the picture fills the frame), and nothing when the element has no photo or
@@ -82,8 +86,7 @@ export const photoOf = (
     field: 'photo' | 'background' = 'photo',
 ): PhotoSource | undefined => {
     const override = ctx.edition.elements[key];
-    const photo = override?.[field] as
-        { src?: string; fit?: boolean } | undefined;
+    const photo = override?.[field];
     // The background photo always fills the centre; only the element photo has a style (B124).
     const style =
         field === 'photo' && override?.photoStyle === 'full'
@@ -104,7 +107,9 @@ export const photoOf = (
         return { src: 'measure', ...extra };
     }
 
-    return photo.src === undefined ? undefined : { src: photo.src, ...extra };
+    const src = printedSrc(photo);
+
+    return src === undefined ? undefined : { src, ...extra };
 };
 
 /**
@@ -126,7 +131,7 @@ const iconOf = (ctx: ArtContext, key: string): SpaceIconSource | undefined => {
         return { photo: { src: 'measure' }, aspect: icon.aspect };
     }
 
-    const src = (icon.photo as { src?: string }).src;
+    const src = printedSrc(icon.photo);
 
     return src === undefined
         ? undefined
@@ -181,7 +186,7 @@ const layersOf = (
             };
         }
 
-        const src = (layer.photo as { src?: string }).src;
+        const src = printedSrc(layer.photo);
 
         return {
             ...box,
@@ -828,6 +833,15 @@ const ItemBody = ({
     }
 };
 
+const loneItem = (elementKey: string, kind: PageItem['kind']): PageItem => ({
+    id: elementKey,
+    kind,
+    elementKey,
+    label: elementKey,
+    bleed: { x: 0, y: 0, w: 0, h: 0 },
+    trim: { x: 0, y: 0, w: 0, h: 0 },
+});
+
 /**
  * One element of the edition drawn on its own, with the bleed it has in this set. Only used to measure the
  * photo frames (lib/render/print-photo-targets.ts): it draws the same renderers with the same bleed as `ItemArt`.
@@ -840,14 +854,8 @@ export const ElementArt = ({
     elementKey: string;
 }): ReactNode => {
     const parsed = parseKey(elementKey);
-    const asItem = (kind: PageItem['kind']): PageItem => ({
-        id: elementKey,
-        kind,
-        elementKey,
-        label: elementKey,
-        bleed: { x: 0, y: 0, w: 0, h: 0 },
-        trim: { x: 0, y: 0, w: 0, h: 0 },
-    });
+    const asItem = (kind: PageItem['kind']): PageItem =>
+        loneItem(elementKey, kind);
 
     switch (parsed?.kind) {
         case 'space':
@@ -910,7 +918,11 @@ export const ElementArt = ({
             );
         case 'invitation':
             return <InvitationArt ctx={ctx} />;
-        default:
+        case 'group':
+        case 'partStyle':
+        case 'themeAccent':
+        case 'words':
+        case undefined:
             return null;
     }
 };
