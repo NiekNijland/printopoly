@@ -50,6 +50,7 @@ Elke regel van de gidsen noemt zijn guard bij een naam van deze lijst. Elke guar
 | `layout` | `docs/guards/layout.md` | waar een klasse staat en hoe ze heet |
 | `method-size` | `docs/guards/method-size.md` | de lengte van een methode en een controller-actie |
 | `pure-layers` | `docs/guards/pure-layers.md` | welke lagen nooit een model of de database noemen |
+| `project-files` | `docs/guards/project-files.md` | de PHPUnit-configs en -runs naast de code |
 | `single-use-traits` | `docs/guards/single-use-traits.md` | dat een trait meerdere gebruikers heeft |
 | `test-classes` | `docs/guards/test-classes.md` | welke typen een testbestand declareert |
 | `test-declarations` | `docs/guards/test-declarations.md` | hoe een test in PHPUnit gedeclareerd wordt |

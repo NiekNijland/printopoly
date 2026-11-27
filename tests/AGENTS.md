@@ -21,6 +21,7 @@ Een unittest breidt `PHPUnit\Framework\TestCase` uit en gebruikt geen opstartend
 - Een `*Test.php` declareert één klasse, met de naam van het bestand (guard `test-classes`). Een klasse, trait, interface of enum buiten een testbestand staat in `tests/Support` of `tests/Concerns`; de basis-testcase is de uitzondering.
 - Een test is een methode `test_<zin>`, zonder het attribuut `Test` (guard `test-declarations`). De naam na `test_` is een zin in snake case, de casing van de formatter. Elke testmethode declareert `: void`. Geen annotatie `@test`.
 - Een dataprovider staat in het attribuut `DataProvider` met een statische provider. Geen annotatie `@group`; de guardtests zijn de suite `Guards` van `phpunit.xml`.
+- Een test die risky is of een notice geeft, faalt (guard `project-files`): `phpunit.xml` en `phpunit.smoke.xml` zetten `failOnRisky` en `failOnNotice`, en elke run van PHPUnit in `composer.json`, `scripts/checks.sh` en de workflows geeft `--fail-on-risky --fail-on-notice` mee.
 
 ### Opbouw
 

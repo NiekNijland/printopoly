@@ -124,9 +124,9 @@
             "Composer\\Config::disableProcessTimeout",
             "rm -f storage/logs/model-strictness-*.log",
             "@php artisan config:clear --ansi",
-            "@php -d memory_limit=2G -d pcov.enabled=1 vendor/bin/phpunit --exclude-testsuite ModelStrictness --coverage-clover coverage/clover.xml --fail-on-warning --fail-on-deprecation",
+            "@php -d memory_limit=2G -d pcov.enabled=1 vendor/bin/phpunit --exclude-testsuite ModelStrictness --coverage-clover coverage/clover.xml --fail-on-warning --fail-on-deprecation --fail-on-risky --fail-on-notice",
             "bash scripts/checks.sh --coverage coverage/clover.xml",
-            "@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite"
+            "@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite --fail-on-risky --fail-on-notice"
         ],
         "lint": [
             "Composer\\Config::disableProcessTimeout",
