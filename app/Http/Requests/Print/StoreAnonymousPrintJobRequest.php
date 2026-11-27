@@ -80,7 +80,9 @@ final class StoreAnonymousPrintJobRequest extends FormRequest
         }
 
         try {
-            return PhotoTargets::clean(json_decode($this->safe()->string('targets')->toString(), true, 16, JSON_THROW_ON_ERROR));
+            $targets = json_decode($this->safe()->string('targets')->toString(), true, 16, JSON_THROW_ON_ERROR);
+
+            return PhotoTargets::clean(is_array($targets) ? $targets : []);
         } catch (JsonException) {
             throw ValidationException::withMessages(['targets' => __('print.edition_invalid')]);
         }

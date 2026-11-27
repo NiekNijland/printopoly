@@ -97,8 +97,8 @@ final readonly class BoxSnapshot
         ];
     }
 
-    public static function language(mixed $value): string
+    public static function language(?string $value): string
     {
-        return (Locale::tryFrom(is_string($value) ? $value : '') ?? Locale::default())->value;
+        return (Locale::tryFrom($value ?? '') ?? Locale::default())->value;
     }
 }

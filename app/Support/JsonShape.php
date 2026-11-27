@@ -39,6 +39,30 @@ final class JsonShape
         return is_string($value) ? $value : throw new UnexpectedValueException("{$path} is not a string.");
     }
 
+    /**
+     * A string that is not empty, or null for anything else: an optional text from a document or the config.
+     */
+    public static function filledString(mixed $value): ?string
+    {
+        return is_string($value) && $value !== '' ? $value : null;
+    }
+
+    /**
+     * A string, or null for anything else: an optional text that may be empty.
+     */
+    public static function optionalString(mixed $value): ?string
+    {
+        return is_string($value) ? $value : null;
+    }
+
+    /**
+     * A number (or a numeric string) as a float, or the default for anything else.
+     */
+    public static function floatOr(mixed $value, float $default): float
+    {
+        return is_numeric($value) ? (float) $value : $default;
+    }
+
     public static function int(mixed $value, string $path): int
     {
         return is_int($value) ? $value : throw new UnexpectedValueException("{$path} is not a whole number.");

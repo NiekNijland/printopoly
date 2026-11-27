@@ -22,6 +22,24 @@ final class JsonShapeTest extends TestCase
         self::assertSame(['nl' => 'Straat', 'en' => 'Street'], JsonShape::localized(['nl' => 'Straat', 'en' => 'Street', 'de' => 'Strasse'], 'x'));
     }
 
+    public function test_the_lenient_readers_fall_back_for_a_value_of_another_shape(): void
+    {
+        self::assertSame('a', JsonShape::filledString('a'));
+        self::assertNull(JsonShape::filledString(''));
+        self::assertNull(JsonShape::filledString(127));
+        self::assertNull(JsonShape::filledString(null));
+
+        self::assertSame('', JsonShape::optionalString(''));
+        self::assertSame('MAP a 127.0.0.1', JsonShape::optionalString('MAP a 127.0.0.1'));
+        self::assertNull(JsonShape::optionalString(127));
+        self::assertNull(JsonShape::optionalString(['a']));
+
+        self::assertSame(2.5, JsonShape::floatOr(2.5, 1.0));
+        self::assertSame(3.0, JsonShape::floatOr('3', 1.0));
+        self::assertSame(1.0, JsonShape::floatOr('wide', 1.0));
+        self::assertSame(0.5, JsonShape::floatOr(null, 0.5));
+    }
+
     /**
      * @return iterable<string, array{callable(): mixed, string}>
      */

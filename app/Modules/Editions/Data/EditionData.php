@@ -10,6 +10,7 @@ use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
 use Spatie\TypeScriptTransformer\Attributes\LiteralTypeScriptType;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+use stdClass;
 
 /**
  * An edition the way the browser holds it, as EditionPayload::data() builds it (B81).
@@ -23,6 +24,7 @@ final class EditionData extends Data
     /**
      * @param Profile|null $boardProfile
      * @param array<string, bool>|null $parts
+     * @param array<string, mixed>|stdClass $elements
      * @param Selection|Optional $printSelection
      */
     public function __construct(
@@ -37,7 +39,7 @@ final class EditionData extends Data
         #[LiteralTypeScriptType('Record<string, boolean>')]
         public readonly ?array $parts,
         #[LiteralTypeScriptType('Record<string, Record<string, unknown>>')]
-        public readonly mixed $elements,
+        public readonly array|stdClass $elements,
         public readonly int $revision,
         public readonly int $createdAt,
         public readonly int $updatedAt,

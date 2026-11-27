@@ -14,9 +14,9 @@ final class ChromeFlags
     /**
      * @return list<string>
      */
-    public static function forHostResolverRules(mixed $rules): array
+    public static function forHostResolverRules(?string $rules): array
     {
-        if (! is_string($rules) || trim($rules) === '') {
+        if ($rules === null || trim($rules) === '') {
             return [];
         }
 

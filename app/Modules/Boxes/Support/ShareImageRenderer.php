@@ -191,17 +191,15 @@ final readonly class ShareImageRenderer
     private function photoIds(array $elements): array
     {
         $ids = [];
-        $walk = static function (mixed $value) use (&$walk, &$ids): void {
-            if (! is_array($value)) {
-                return;
-            }
-
+        $walk = static function (array $value) use (&$walk, &$ids): void {
             if (is_string($value['photoId'] ?? null)) {
                 $ids[$value['photoId']] = true;
             }
 
             foreach ($value as $child) {
-                $walk($child);
+                if (is_array($child)) {
+                    $walk($child);
+                }
             }
         };
         $walk($elements);

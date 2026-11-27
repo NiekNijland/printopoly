@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Integrations\Chrome\ChromeFlags;
+use App\Support\JsonShape;
 use Spatie\LaravelPdf\Caching\DefaultPdfCache;
 use Spatie\LaravelPdf\Encryption\DefaultPdfEncrypter;
 use Spatie\LaravelPdf\Jobs\GeneratePdfJob;
@@ -173,7 +174,7 @@ return [
         'user_data_dir' => env('LARAVEL_PDF_CHROME_USER_DATA_DIR'),
 
         // Extra Chrome flags, see App\Integrations\Chrome\ChromeFlags.
-        'custom_flags' => ChromeFlags::forHostResolverRules(env('PRINTOPOLY_CHROME_HOST_RESOLVER_RULES')),
+        'custom_flags' => ChromeFlags::forHostResolverRules(JsonShape::optionalString(env('PRINTOPOLY_CHROME_HOST_RESOLVER_RULES'))),
 
         'env_variables' => [],
     ],
