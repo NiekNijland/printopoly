@@ -6,7 +6,6 @@ namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\EnumShapeGuard;
 use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\SourceSandbox;
@@ -71,7 +70,7 @@ final class EnumShapeArchitectureTest extends TestCase
         {
         $guard = new EnumShapeGuard(new PhpFileInspector(), $this->root(), 'app', 'Enums');
 
-        self::assertSame([], new CountedList($this->root(), 'lists/enum-shape.txt')->violations($guard->findings(), $guard->explain(...)));
+        self::assertSame([], $guard->explain($guard->findings()));
     }
 
     /**

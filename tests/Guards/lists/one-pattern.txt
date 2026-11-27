@@ -1,2 +1,1 @@
-example-on-list Enum app/Modules/Print/Enums/PrintSet.php lists/enum-shape.txt
 example-on-list Verzoek naar de server resources/js/lib/render/print-api.ts eslint-suppressions.json
