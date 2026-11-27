@@ -7,7 +7,7 @@ namespace App\Modules\Editions\Support;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use RuntimeException;
+use Throwable;
 
 /**
  * A limit per group that holds under parallel requests: a document takes the lowest free slot below the limit, and a
@@ -43,7 +43,7 @@ final readonly class QuotaSlots
      * @param Closure(array<string, int>): void $save saves the document with these slots
      * @return string|null the slot field of the quota that is full, or null when the document is saved
      *
-     * @throws RuntimeException when the save fails on anything but a slot that another request took
+     * @throws Throwable when the save fails on anything but a slot that another request took
      */
     public function claim(array $quotas, Closure $save): ?string
     {
@@ -60,15 +60,19 @@ final readonly class QuotaSlots
                 $slots[$field] = $slot;
             }
 
-            try {
+            $failure = rescue(static function () use ($save, $slots): null {
                 $save($slots);
 
                 return null;
-            } catch (RuntimeException $runtimeException) {
-                if ($runtimeException->getCode() !== self::DUPLICATE_KEY || $attempt >= self::ATTEMPTS || ! $this->anyTaken($quotas, $slots)) {
-                    throw $runtimeException;
-                }
+            }, static fn (Throwable $throwable): Throwable => $throwable, report: false);
+
+            if ($failure === null) {
+                return null;
             }
+
+            $lostSlot = $failure->getCode() === self::DUPLICATE_KEY && $attempt < self::ATTEMPTS && $this->anyTaken($quotas, $slots);
+
+            throw_unless($lostSlot, $failure);
         }
     }
 
