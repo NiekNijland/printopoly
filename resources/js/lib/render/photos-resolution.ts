@@ -1,17 +1,10 @@
 import type { Locale, Localized } from '../../types/game';
-import type { PhotoTransform, Rotation } from '../../types/photos';
-import type { Rect, Size } from '../../types/print';
-import {
-    clampTransform,
-    mmPerPx,
-    orientedSize,
-    visibleRegion,
-} from './photos-transform';
+import type { PhotoTransform } from '../../types/photos';
+import type { Size } from '../../types/print';
+import { clampTransform, mmPerPx } from './photos-transform';
 
 const MM_PER_INCH = 25.4;
 
-/** B9, B61: print sources are cut to at most this many dpi, bleed included. */
-const MAX_PRINT_DPI = 300;
 /** B94: neutral from here, a warning below. */
 const MIN_SHARP_DPI = 150;
 
@@ -24,7 +17,7 @@ export const placementTarget = (frame: Size, bleed: number): Size => {
  * Pixels per inch the photo has on the printed target. `source` is the photo in pixels after
  * EXIF orientation; `target` is in mm and includes the bleed.
  */
-export const effectiveDpi = (
+const effectiveDpi = (
     source: Size,
     t: PhotoTransform,
     target: Size,
@@ -40,14 +33,14 @@ const LARGE_TARGET_MM = 100;
 const MIN_SHARP_DPI_LARGE = 100;
 
 /** The dpi a photo needs on this target (frame plus bleed, in mm) to count as sharp. */
-export const minSharpDpi = (target?: Size): number => {
+const minSharpDpi = (target?: Size): number => {
     return target !== undefined &&
         Math.min(target.w, target.h) >= LARGE_TARGET_MM
         ? MIN_SHARP_DPI_LARGE
         : MIN_SHARP_DPI;
 };
 
-export const isSharpEnough = (dpi: number, target?: Size): boolean => {
+const isSharpEnough = (dpi: number, target?: Size): boolean => {
     return Math.round(dpi) >= minSharpDpi(target);
 };
 
@@ -136,90 +129,4 @@ export const lowResolutionMessage = (
               nl: `Deze foto is ${has} en wordt op papier wat korrelig. Scherp wordt hij vanaf ongeveer ${needs}. Printen kan ook zo.`,
               en: `This photo is ${has} and will look a little grainy on paper. It is sharp from about ${needs}. You can print it as it is.`,
           };
-};
-
-/** What the server-side print job does for one placement (B61). See `docs/archive/foto-uitsnede.md`. */
-export type CropSpec = {
-    /** Whole-pixel rectangle in the original photo (after EXIF orientation, before the quarter turn). */
-    rect: Rect;
-    /** Quarter turn clockwise, applied after the crop. */
-    rotation: Rotation;
-    grayscale: boolean;
-    /** Size of the finished image in pixels; its aspect ratio is that of the target. */
-    output: Size;
-    /** Effective dpi of the source on the target, before the 300 dpi cap. */
-    sourceDpi: number;
-    /** dpi of the finished image: `min(sourceDpi, 300)`. */
-    outputDpi: number;
-};
-
-/** Maps a rectangle from rotated photo pixels back to original photo pixels. */
-const unrotateRect = (r: Rect, source: Size, rotation: Rotation): Rect => {
-    const map = (u: number, v: number): [number, number] => {
-        switch (rotation) {
-            case 90:
-                return [v, source.h - u];
-            case 180:
-                return [source.w - u, source.h - v];
-            case 270:
-                return [source.w - v, u];
-            case 0:
-                return [u, v];
-        }
-    };
-    const [x1, y1] = map(r.x, r.y);
-    const [x2, y2] = map(r.x + r.w, r.y + r.h);
-    return {
-        x: Math.min(x1, x2),
-        y: Math.min(y1, y2),
-        w: Math.abs(x2 - x1),
-        h: Math.abs(y2 - y1),
-    };
-};
-
-export const cropSpec = (
-    source: Size,
-    placed: PhotoTransform,
-    target: Size,
-): CropSpec => {
-    // Kept on the photo for this target, as the server does (PhotoCrop::compute).
-    const t = clampTransform(source, placed, target);
-    const o = orientedSize(source, t.rotation);
-    const region = visibleRegion(source, t, target);
-    // Pull the rectangle onto the photo (rounding noise only; the transform is clamped).
-    const x0 = Math.max(0, region.x);
-    const y0 = Math.max(0, region.y);
-    const x1 = Math.min(o.w, region.x + region.w);
-    const y1 = Math.min(o.h, region.y + region.h);
-    const exact = unrotateRect(
-        { x: x0, y: y0, w: x1 - x0, h: y1 - y0 },
-        source,
-        t.rotation,
-    );
-
-    const left = Math.max(0, Math.floor(exact.x + 1e-6));
-    const top = Math.max(0, Math.floor(exact.y + 1e-6));
-    const right = Math.min(source.w, Math.ceil(exact.x + exact.w - 1e-6));
-    const bottom = Math.min(source.h, Math.ceil(exact.y + exact.h - 1e-6));
-
-    const sourceDpi = effectiveDpi(source, t, target);
-    const outputDpi = Math.min(MAX_PRINT_DPI, sourceDpi);
-    // A photo that fits (B168) may be smaller than the target: the output is the visible part only, at its own
-    // size, and the renderer draws it whole in the middle of the frame.
-    const k = MM_PER_INCH / sourceDpi;
-    const out =
-        t.fit === true
-            ? { w: (x1 - x0) * k, h: (y1 - y0) * k }
-            : { w: target.w, h: target.h };
-    return {
-        rect: { x: left, y: top, w: right - left, h: bottom - top },
-        rotation: t.rotation,
-        grayscale: t.grayscale,
-        output: {
-            w: Math.max(1, Math.round((out.w / MM_PER_INCH) * outputDpi)),
-            h: Math.max(1, Math.round((out.h / MM_PER_INCH) * outputDpi)),
-        },
-        sourceDpi,
-        outputDpi,
-    };
 };
