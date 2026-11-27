@@ -16,6 +16,7 @@ import {
     parseOrUndefined,
     record,
     string,
+    text,
     union,
     validItems,
     type Parser,
@@ -52,6 +53,11 @@ describe('parse', () => {
         expect(boolean(null)).toEqual({
             ok: false,
             error: 'expected a boolean, got null',
+        });
+        expect(text(2)('ab').ok).toBe(true);
+        expect(text(2)('abc')).toEqual({
+            ok: false,
+            error: 'expected a string of at most 2 characters, got string',
         });
         expect(anything(undefined)).toEqual({ ok: true, value: undefined });
     });

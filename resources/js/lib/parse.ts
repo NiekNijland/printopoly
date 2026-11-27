@@ -51,6 +51,16 @@ const at = (path: string, error: string): string =>
 export const string: Parser<string> = (input) =>
     typeof input === 'string' ? ok(input) : expected('a string', input);
 
+export const text =
+    (maxLength: number): Parser<string> =>
+    (input) =>
+        typeof input === 'string' && input.length <= maxLength
+            ? ok(input)
+            : expected(
+                  `a string of at most ${String(maxLength)} characters`,
+                  input,
+              );
+
 export const number: Parser<number> = (input) =>
     typeof input === 'number' ? ok(input) : expected('a number', input);
 
