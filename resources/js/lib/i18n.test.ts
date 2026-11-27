@@ -1,14 +1,14 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-import { catalogPath, loadCatalog } from '@/lib/i18n';
+import { loadCatalog } from '@/lib/i18n';
 
 import en from '../../../lang/en.json';
 import nl from '../../../lang/nl.json';
 
 describe('i18n', () => {
-    it('keys the catalogue the way the provider expects', () => {
-        expect(catalogPath('nl')).toBe('/lang/nl.json');
+    it('keys the catalogue the way the provider expects', async () => {
+        expect(Object.keys(await loadCatalog('nl'))).toEqual(['/lang/nl.json']);
     });
 
     it('loads only the requested language', async () => {
