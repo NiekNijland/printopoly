@@ -6,8 +6,9 @@ namespace App\Http\Controllers\Print\PrintJobReady;
 
 use App\Http\Requests\Print\ListPrintJobReadyRequest;
 use App\Models\User;
+use App\Modules\Print\Data\PrintJobReadyListData;
 use App\Modules\Print\Services\EditionPrintReadinessService;
-use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * What is ready to download for the print jobs a browser started for its own editions (B95, bug 14 of the
@@ -17,11 +18,15 @@ use Illuminate\Http\JsonResponse;
  */
 final readonly class ListController
 {
-    public function __invoke(ListPrintJobReadyRequest $request, EditionPrintReadinessService $readiness): JsonResponse
+    public function __invoke(ListPrintJobReadyRequest $request, EditionPrintReadinessService $readiness): Response
     {
         $user = $request->user();
 
-        return response()->json(['jobs' => $readiness->forTokens($request->tokens(), $user instanceof User ? $user : null)])
-            ->header('Cache-Control', 'private, no-store');
+        $response = new PrintJobReadyListData($readiness->forTokens($request->tokens(), $user instanceof User ? $user : null))
+            ->toResponse($request)
+            ->setStatusCode(Response::HTTP_OK);
+        $response->headers->set('Cache-Control', 'private, no-store');
+
+        return $response;
     }
 }

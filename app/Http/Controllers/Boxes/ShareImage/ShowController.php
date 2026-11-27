@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Boxes\ShareImage;
 
+use App\Modules\Boxes\Data\ShareImageStatusData;
 use App\Modules\Boxes\Support\ShareImages;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -15,7 +16,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 final readonly class ShowController
 {
-    public function __invoke(string $id, ShareImages $images): JsonResponse|Response
+    public function __invoke(Request $request, string $id, ShareImages $images): Response
     {
         $entry = $images->find($id) ?? throw new NotFoundHttpException();
 
@@ -28,10 +29,11 @@ final readonly class ShowController
         }
 
         $waiting = $entry['status'] === 'waiting';
+        $status = $waiting ? new ShareImageStatusData('waiting') : new ShareImageStatusData('failed', __('boxes.share_image_failed'));
 
-        return response()->json(
-            $waiting ? ['status' => 'waiting'] : ['status' => 'failed', 'message' => __('boxes.share_image_failed')],
-            $waiting ? 202 : 200,
-        )->header('Cache-Control', 'private, no-store');
+        $response = $status->toResponse($request)->setStatusCode($waiting ? 202 : 200);
+        $response->headers->set('Cache-Control', 'private, no-store');
+
+        return $response;
     }
 }

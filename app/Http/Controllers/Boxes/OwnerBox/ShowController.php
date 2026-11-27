@@ -6,8 +6,8 @@ namespace App\Http\Controllers\Boxes\OwnerBox;
 
 use App\Modules\Boxes\Support\BoxAccess;
 use App\Modules\Boxes\Support\BoxPresenter;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * The state of a box and the contributions waiting, for the owner only (B128). The editor asks again every
@@ -15,9 +15,11 @@ use Illuminate\Http\Request;
  */
 final readonly class ShowController
 {
-    public function __invoke(Request $request, string $boxId, BoxAccess $access, BoxPresenter $presenter): JsonResponse
+    public function __invoke(Request $request, string $boxId, BoxAccess $access, BoxPresenter $presenter): Response
     {
-        return response()->json($presenter->owner($access->owned($request, $boxId)))
-            ->header('Cache-Control', 'private, no-store');
+        $response = $presenter->owner($access->owned($request, $boxId))->toResponse($request);
+        $response->headers->set('Cache-Control', 'private, no-store');
+
+        return $response;
     }
 }

@@ -7,8 +7,8 @@ namespace App\Http\Controllers\Account\Account;
 use App\Http\Requests\Account\DeleteAccountRequest;
 use App\Models\User;
 use App\Modules\Accounts\Actions\DeleteAccount;
+use App\Modules\Accounts\Data\AccountDeletedData;
 use Illuminate\Container\Attributes\CurrentUser;
-use Illuminate\Http\JsonResponse;
 
 /**
  * "Account verwijderen" (B68). The answer says where to go next; the local copy in the
@@ -16,16 +16,13 @@ use Illuminate\Http\JsonResponse;
  */
 final readonly class DeleteController
 {
-    public function __invoke(#[CurrentUser] User $user, DeleteAccountRequest $request, DeleteAccount $deleteAccount): JsonResponse
+    public function __invoke(#[CurrentUser] User $user, DeleteAccountRequest $request, DeleteAccount $deleteAccount): AccountDeletedData
     {
         $deleteAccount->handle($user);
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json([
-            'deleted' => true,
-            'redirect' => route('home', ['locale' => app()->getLocale()]),
-        ]);
+        return new AccountDeletedData(deleted: true, redirect: route('home', ['locale' => app()->getLocale()]));
     }
 }

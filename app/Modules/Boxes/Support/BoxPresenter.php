@@ -6,6 +6,9 @@ namespace App\Modules\Boxes\Support;
 
 use App\Models\BoxContribution;
 use App\Models\CollectionBox;
+use App\Modules\Boxes\Data\BoxContributionData;
+use App\Modules\Boxes\Data\OwnerBoxData;
+use Spatie\LaravelData\Optional;
 
 /**
  * The JSON a box shows to the people who may see it (B128). Friends get the snapshot and the state of the box and
@@ -91,53 +94,45 @@ final readonly class BoxPresenter
         ];
     }
 
-    /**
-     * What the owner's editor needs: the link, the state and the contributions waiting.
-     *
-     * @return array<string, mixed>
-     */
-    public function owner(CollectionBox $box): array
+    public function owner(CollectionBox $box, ?string $ownerSecret = null): OwnerBoxData
     {
         $contributions = BoxContribution::query()->where('box_id', $box->publicId())->oldest()->orderBy('_id')->get();
 
-        return [
-            'id' => $box->publicId(),
-            'editionId' => $box->edition_id,
-            'url' => $this->friendUrl($box),
-            'status' => $box->isOpen() ? CollectionBox::OPEN : CollectionBox::CLOSED,
-            'expiresAt' => $box->expires_at->getTimestampMs(),
-            'accepted' => $box->accepted_count,
-            'rejected' => $box->rejected_count,
-            'cardsHidden' => $box->cards_hidden === true,
-            'channel' => 'box-owner.' . $box->channel,
-            'contributions' => $contributions->map(fn (BoxContribution $contribution): array => $this->contribution($box, $contribution))->values()->all(),
-        ];
+        return new OwnerBoxData(
+            id: $box->publicId(),
+            editionId: $box->edition_id,
+            url: $this->friendUrl($box),
+            status: $box->isOpen() ? CollectionBox::OPEN : CollectionBox::CLOSED,
+            expiresAt: $box->expires_at->getTimestampMs(),
+            accepted: $box->accepted_count,
+            rejected: $box->rejected_count,
+            cardsHidden: $box->cards_hidden === true,
+            channel: 'box-owner.' . $box->channel,
+            contributions: array_values($contributions->map(fn (BoxContribution $contribution): BoxContributionData => $this->contribution($box, $contribution))->all()),
+            ownerSecret: $ownerSecret ?? new Optional(),
+        );
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function contribution(CollectionBox $box, BoxContribution $contribution): array
+    private function contribution(CollectionBox $box, BoxContribution $contribution): BoxContributionData
     {
         $key = $contribution->element_key;
         $field = $this->targets->field($key);
 
-        return [
-            'id' => $contribution->publicId(),
-            'elementKey' => $key,
-            'firstName' => $contribution->first_name,
-            'field' => $field,
-            'value' => $contribution->value,
-            'amount' => $contribution->amount,
-            // What the owner has not applied or passed over yet (B175).
-            'open' => $contribution->openParts($field),
-            'hasPhoto' => $contribution->hasPhoto(),
-            'width' => $contribution->width,
-            'height' => $contribution->height,
-            'photoUrl' => $contribution->hasPhoto()
+        return new BoxContributionData(
+            id: $contribution->publicId(),
+            elementKey: $key,
+            firstName: $contribution->first_name,
+            field: $field,
+            value: $contribution->value,
+            amount: $contribution->amount,
+            open: $contribution->openParts($field),
+            hasPhoto: $contribution->hasPhoto(),
+            width: $contribution->width,
+            height: $contribution->height,
+            photoUrl: $contribution->hasPhoto()
                 ? route('api.boxes.photo', ['boxId' => $box->publicId(), 'contributionId' => $contribution->publicId()], false)
                 : null,
-            'createdAt' => $contribution->created_at?->getTimestampMs(),
-        ];
+            createdAt: $contribution->created_at?->getTimestampMs(),
+        );
     }
 }

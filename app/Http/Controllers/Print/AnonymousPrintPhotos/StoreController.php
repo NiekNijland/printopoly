@@ -9,8 +9,9 @@ use App\Models\Asset;
 use App\Models\PrintJob;
 use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use App\Modules\Photos\Support\PhotoStore;
-use Illuminate\Http\JsonResponse;
+use App\Modules\Print\Data\StoredPhotosData;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * More photos for a job without an account. PHP accepts only `max_file_uploads` files (20 by default) per
@@ -19,7 +20,7 @@ use Illuminate\Validation\ValidationException;
  */
 final readonly class StoreController
 {
-    public function __invoke(StoreAnonymousPrintPhotosRequest $request, PrintJob $printJob, PhotoStore $photos): JsonResponse
+    public function __invoke(StoreAnonymousPrintPhotosRequest $request, PrintJob $printJob, PhotoStore $photos): Response
     {
         $stored = Asset::query()->where('print_job_id', $printJob->publicId())->count();
         if ($stored + $request->photoCount() > config()->integer('printopoly.limits.anonymous_photos_per_job')) {
@@ -34,6 +35,6 @@ final readonly class StoreController
             throw ValidationException::withMessages(['photos' => $photoRejectedException->translated()]);
         }
 
-        return response()->json(['stored' => $request->photoCount()], 201);
+        return new StoredPhotosData($request->photoCount())->toResponse($request);
     }
 }

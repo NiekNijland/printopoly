@@ -7,8 +7,8 @@ namespace App\Http\Controllers\Editions\Edition;
 use App\Http\Requests\Editions\ReplaceEditionRequest;
 use App\Models\Edition;
 use App\Modules\Editions\Actions\SaveEditionChanges;
+use App\Modules\Editions\Data\EditionRevisionData;
 use App\Modules\Editions\Support\EditionValidator;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Replaces the whole content of an edition, for a browser that catches up
@@ -19,7 +19,7 @@ use Illuminate\Http\JsonResponse;
  */
 final readonly class ReplaceController
 {
-    public function __invoke(ReplaceEditionRequest $request, Edition $edition, EditionValidator $validator, SaveEditionChanges $save): JsonResponse
+    public function __invoke(ReplaceEditionRequest $request, Edition $edition, EditionValidator $validator, SaveEditionChanges $save): EditionRevisionData
     {
         $input = $request->edition($validator, $edition);
         $base = $request->baseRevision();
@@ -42,9 +42,6 @@ final readonly class ReplaceController
 
         $saved = $save->handle($edition, $base, $attributes, $input['revision']);
 
-        return response()->json([
-            'revision' => $saved->revision,
-            'updatedAt' => $saved->updated_at_ms,
-        ]);
+        return new EditionRevisionData(revision: $saved->revision, updatedAt: $saved->updated_at_ms);
     }
 }

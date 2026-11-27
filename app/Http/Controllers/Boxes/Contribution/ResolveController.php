@@ -8,14 +8,14 @@ use App\Http\Requests\Boxes\ResolveContributionRequest;
 use App\Modules\Boxes\Actions\ResolveContribution;
 use App\Modules\Boxes\Support\BoxAccess;
 use App\Modules\Boxes\Support\BoxPresenter;
-use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 final readonly class ResolveController
 {
-    public function __invoke(ResolveContributionRequest $request, string $boxId, string $contributionId, BoxAccess $access, ResolveContribution $resolve, BoxPresenter $presenter): JsonResponse
+    public function __invoke(ResolveContributionRequest $request, string $boxId, string $contributionId, BoxAccess $access, ResolveContribution $resolve, BoxPresenter $presenter): Response
     {
         $box = $resolve->handle($access->owned($request, $boxId), $contributionId, $request->isAccepted(), $request->parts());
 
-        return response()->json($presenter->owner($box));
+        return $presenter->owner($box)->toResponse($request)->setStatusCode(Response::HTTP_OK);
     }
 }

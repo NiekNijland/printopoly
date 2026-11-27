@@ -7,11 +7,12 @@ namespace App\Http\Controllers\Boxes\ShareImage;
 use App\Http\Requests\Boxes\StoreShareImageRequest;
 use App\Modules\Analytics\Enums\FeatureEvent;
 use App\Modules\Analytics\Support\FeatureCounter;
+use App\Modules\Boxes\Data\ShareImageRequestData;
 use App\Modules\Boxes\Jobs\RenderShareImageJob;
 use App\Modules\Boxes\Support\ShareImageRenderer;
 use App\Modules\Boxes\Support\ShareImages;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * "Deel je bord" (B77, B128, B228): a PNG of the board as it is, 1080 pixels, for the group chat. The browser sends
@@ -21,7 +22,7 @@ use Illuminate\Support\Str;
  */
 final readonly class StoreController
 {
-    public function __invoke(StoreShareImageRequest $request, ShareImageRenderer $renderer, ShareImages $images): JsonResponse
+    public function __invoke(StoreShareImageRequest $request, ShareImageRenderer $renderer, ShareImages $images): Response
     {
         $input = $renderer->clean($request->edition(), $request->photos());
         $id = Str::random(40);
@@ -30,6 +31,9 @@ final readonly class StoreController
         // Anonymous: only that a share image was asked for today (B206).
         resolve(FeatureCounter::class)->count(FeatureEvent::ShareImageMade);
 
-        return response()->json(['id' => $id, 'status' => 'waiting'], 202)->header('Cache-Control', 'private, no-store');
+        $response = new ShareImageRequestData(id: $id, status: 'waiting')->toResponse($request)->setStatusCode(Response::HTTP_ACCEPTED);
+        $response->headers->set('Cache-Control', 'private, no-store');
+
+        return $response;
     }
 }

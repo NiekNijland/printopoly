@@ -8,19 +8,17 @@ use App\Http\Requests\Boxes\StoreBoxRequest;
 use App\Models\User;
 use App\Modules\Boxes\Actions\CreateBox;
 use App\Modules\Boxes\Support\BoxPresenter;
-use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 final readonly class StoreController
 {
-    public function __invoke(StoreBoxRequest $request, CreateBox $create, BoxPresenter $presenter): JsonResponse
+    public function __invoke(StoreBoxRequest $request, CreateBox $create, BoxPresenter $presenter): Response
     {
         $user = $request->user();
         $made = $create->handle($user instanceof User ? $user : null, $request->editionId(), $request->editionName(), $request->language(), $request->snapshot(), (string) $request->ip());
 
-        if ($made['secret'] === null) {
-            return response()->json($presenter->owner($made['box']));
-        }
+        $box = $presenter->owner($made['box'], $made['secret'])->toResponse($request);
 
-        return response()->json([...$presenter->owner($made['box']), 'ownerSecret' => $made['secret']], 201);
+        return $made['secret'] === null ? $box->setStatusCode(Response::HTTP_OK) : $box;
     }
 }

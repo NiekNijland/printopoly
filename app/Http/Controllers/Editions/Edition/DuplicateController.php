@@ -8,16 +8,16 @@ use App\Http\Requests\Editions\DuplicateEditionRequest;
 use App\Models\Edition;
 use App\Models\User;
 use App\Modules\Editions\Actions\DuplicateEdition;
-use App\Modules\Editions\Support\EditionPayload;
+use App\Modules\Editions\Data\EditionData;
 use Illuminate\Container\Attributes\CurrentUser;
-use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 final readonly class DuplicateController
 {
-    public function __invoke(#[CurrentUser] User $user, DuplicateEditionRequest $request, Edition $edition, DuplicateEdition $duplicate): JsonResponse
+    public function __invoke(#[CurrentUser] User $user, DuplicateEditionRequest $request, Edition $edition, DuplicateEdition $duplicate): Response
     {
         $copy = $duplicate->handle($user, $edition, $request->name());
 
-        return response()->json(['edition' => EditionPayload::from($copy)], 201);
+        return EditionData::fromEdition($copy)->wrap('edition')->toResponse($request);
     }
 }

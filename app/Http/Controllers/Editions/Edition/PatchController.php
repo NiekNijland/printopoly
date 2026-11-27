@@ -7,8 +7,8 @@ namespace App\Http\Controllers\Editions\Edition;
 use App\Http\Requests\Editions\PatchEditionRequest;
 use App\Models\Edition;
 use App\Modules\Editions\Actions\PatchEdition;
+use App\Modules\Editions\Data\EditionRevisionData;
 use App\Modules\Editions\Support\EditionValidator;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Autosave: changed settings and changed elements against a base revision.
@@ -17,13 +17,10 @@ use Illuminate\Http\JsonResponse;
  */
 final readonly class PatchController
 {
-    public function __invoke(PatchEditionRequest $request, Edition $edition, EditionValidator $validator, PatchEdition $patch): JsonResponse
+    public function __invoke(PatchEditionRequest $request, Edition $edition, EditionValidator $validator, PatchEdition $patch): EditionRevisionData
     {
         $saved = $patch->handle($edition, $request->patch($validator));
 
-        return response()->json([
-            'revision' => $saved->revision,
-            'updatedAt' => $saved->updated_at_ms,
-        ]);
+        return new EditionRevisionData(revision: $saved->revision, updatedAt: $saved->updated_at_ms);
     }
 }

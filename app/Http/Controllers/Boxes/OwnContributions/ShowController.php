@@ -6,8 +6,9 @@ namespace App\Http\Controllers\Boxes\OwnContributions;
 
 use App\Http\Requests\Boxes\ShowOwnContributionsRequest;
 use App\Models\BoxContribution;
+use App\Modules\Boxes\Data\OwnContributionsData;
 use App\Modules\Boxes\Support\BoxAccess;
-use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * What became of the things a friend sent (B128). The friend's browser holds a receipt per contribution and asks
@@ -17,7 +18,7 @@ use Illuminate\Http\JsonResponse;
  */
 final readonly class ShowController
 {
-    public function __invoke(ShowOwnContributionsRequest $request, string $token, BoxAccess $access): JsonResponse
+    public function __invoke(ShowOwnContributionsRequest $request, string $token, BoxAccess $access): Response
     {
         $box = $access->liveByLink($token);
 
@@ -33,6 +34,9 @@ final readonly class ShowController
             $result[$receipt] = in_array($receipt, $waiting, true) ? 'waiting' : ($box->outcomes[$receipt] ?? 'handled');
         }
 
-        return response()->json(['contributions' => $result])->header('Cache-Control', 'private, no-store');
+        $response = new OwnContributionsData($result)->toResponse($request);
+        $response->headers->set('Cache-Control', 'private, no-store');
+
+        return $response;
     }
 }

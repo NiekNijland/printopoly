@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Editions\Edition;
 
 use App\Models\Edition;
-use App\Modules\Editions\Support\EditionPayload;
-use Illuminate\Http\JsonResponse;
+use App\Modules\Editions\Data\EditionData;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 final readonly class ShowController
 {
-    public function __invoke(Edition $edition): JsonResponse
+    public function __invoke(Request $request, Edition $edition): Response
     {
-        return response()->json(['edition' => EditionPayload::from($edition)]);
+        return EditionData::fromEdition($edition)->wrap('edition')->toResponse($request);
     }
 }

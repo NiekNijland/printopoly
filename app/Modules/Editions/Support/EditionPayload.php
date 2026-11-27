@@ -29,7 +29,7 @@ final class EditionPayload
             'theme' => $edition->theme,
             'boardProfile' => $edition->board_profile,
             'parts' => $edition->parts,
-            'elements' => self::asObject(self::repaired($edition)),
+            'elements' => self::elements($edition),
             'revision' => $edition->revision,
             'createdAt' => $edition->created_at_ms,
             'updatedAt' => $edition->updated_at_ms,
@@ -53,6 +53,14 @@ final class EditionPayload
         }
 
         return $payload;
+    }
+
+    /**
+     * @return array<string, mixed>|stdClass
+     */
+    public static function elements(Edition $edition): array|stdClass
+    {
+        return self::asObject(self::repaired($edition));
     }
 
     /**

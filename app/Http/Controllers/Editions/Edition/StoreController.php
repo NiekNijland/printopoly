@@ -7,10 +7,10 @@ namespace App\Http\Controllers\Editions\Edition;
 use App\Http\Requests\Editions\StoreEditionRequest;
 use App\Models\User;
 use App\Modules\Editions\Actions\StoreEdition;
-use App\Modules\Editions\Support\EditionPayload;
+use App\Modules\Editions\Data\EditionData;
 use App\Modules\Editions\Support\EditionValidator;
 use Illuminate\Container\Attributes\CurrentUser;
-use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Stores one edition from the browser in the account, under the id the
@@ -19,10 +19,10 @@ use Illuminate\Http\JsonResponse;
  */
 final readonly class StoreController
 {
-    public function __invoke(#[CurrentUser] User $user, StoreEditionRequest $request, EditionValidator $validator, StoreEdition $store): JsonResponse
+    public function __invoke(#[CurrentUser] User $user, StoreEditionRequest $request, EditionValidator $validator, StoreEdition $store): Response
     {
         $edition = $store->handle($user, $request->edition($validator));
 
-        return response()->json(['edition' => EditionPayload::from($edition)], 201);
+        return EditionData::fromEdition($edition)->wrap('edition')->toResponse($request);
     }
 }

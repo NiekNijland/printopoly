@@ -7,8 +7,9 @@ namespace App\Http\Controllers\Editions\Edition;
 use App\Http\Requests\Editions\ImportEditionsRequest;
 use App\Models\User;
 use App\Modules\Editions\Actions\ImportEditions;
+use App\Modules\Editions\Data\EditionImportData;
 use Illuminate\Container\Attributes\CurrentUser;
-use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * The one question after login (B81): "Je hebt 2 edities op dit apparaat. Wil
@@ -17,8 +18,10 @@ use Illuminate\Http\JsonResponse;
  */
 final readonly class ImportController
 {
-    public function __invoke(#[CurrentUser] User $user, ImportEditionsRequest $request, ImportEditions $import): JsonResponse
+    public function __invoke(#[CurrentUser] User $user, ImportEditionsRequest $request, ImportEditions $import): Response
     {
-        return response()->json($import->handle($user, $request->editions()));
+        $report = $import->handle($user, $request->editions());
+
+        return new EditionImportData(imported: $report['imported'], conflicts: $report['conflicts'], overLimit: $report['overLimit'], invalid: $report['invalid'])->toResponse($request)->setStatusCode(Response::HTTP_OK);
     }
 }

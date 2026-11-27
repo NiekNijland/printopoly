@@ -121,7 +121,6 @@ guard-shape-list                       max  grep   tests/Guards/lists/guard-shap
 model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
 list-flash-messages                    max  grep   tests/Support/Architecture/lists/flash-messages.txt  ^.
 list-inline-var-casts                  max  grep   tests/Support/Architecture/lists/inline-var-casts.txt  ^.
-list-json-endpoints                    max  grep   tests/Support/Architecture/lists/json-endpoints.txt  ^.
 list-phpstan-banned-calls              max  grep   tests/Support/Architecture/lists/phpstan-banned-calls.txt  ^.
 TABLE
 }
@@ -796,9 +795,6 @@ list-flash-messages 0
 list-inline-var-casts 1 app/A.php: a finding
 list-inline-var-casts 2 app/A.php: a finding~NL~app/B.php: another
 list-inline-var-casts 0 
-list-json-endpoints 1 app/A.php: a finding
-list-json-endpoints 2 app/A.php: a finding~NL~app/B.php: another
-list-json-endpoints 0 
 list-phpstan-banned-calls 1 app/A.php: Calling config() is forbidden
 list-phpstan-banned-calls 2 app/A.php: a~NL~app/B.php: b
 list-phpstan-banned-calls 0 

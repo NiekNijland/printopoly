@@ -16,7 +16,7 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 | validatie in een form request | `RequestValidationGuard` | geen |
 | invoer via `$request->validated()` | `ValidatedInputGuard` | geen |
 | geen weigering in een actie (`abort*`, `Gate::`, `authorize()`, `can()`); geen HTTP-weigering buiten `app/Http` | `ControllerAuthorizationGuard`, `HttpRefusalGuard` | geen |
-| JSON-antwoord is een Data-object | `JsonEndpointGuard` | `json-endpoints` |
+| JSON-antwoord is een Data-object | `JsonEndpointGuard` | geen |
 | Inertia-pagina bij letterlijke naam met een bestand in `resources/js/pages` | `InertiaPageGuard` | geen |
 | redirect met `to_route()` of `back()` | `RedirectGuard` | geen |
 | flash: één vertaalde regel onder `success`, `error` of `info` | `FlashMessageGuard` | `flash-messages` |

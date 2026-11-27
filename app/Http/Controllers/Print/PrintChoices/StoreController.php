@@ -12,7 +12,7 @@ use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Jobs\RefreshPrintTextsJob;
 use App\Modules\Print\Services\PrintStatusService;
 use App\Modules\Print\Support\PrintChoiceInput;
-use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Keeps what the print page chose for one set (bug 6 of test round 3, B156): the parts it skips, the amount of play
@@ -20,7 +20,7 @@ use Illuminate\Http\JsonResponse;
  */
 final readonly class StoreController
 {
-    public function __invoke(StorePrintChoicesRequest $request, PrintJob $printJob, PrintStatusService $status): JsonResponse
+    public function __invoke(StorePrintChoicesRequest $request, PrintJob $printJob, PrintStatusService $status): Response
     {
         $set = $request->set();
         $before = $printJob->choiceFor($set);
@@ -39,7 +39,7 @@ final readonly class StoreController
             dispatch(new RefreshPrintTextsJob($printJob->publicId(), $set->value));
         }
 
-        return response()->json($status->resolve($printJob)->toArray());
+        return $status->resolve($printJob)->toResponse($request)->setStatusCode(Response::HTTP_OK);
     }
 
     private function hasDoneParts(PrintJob $printJob, PrintSet $set): bool
