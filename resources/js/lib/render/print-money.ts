@@ -1,3 +1,4 @@
+import { is, oneOf } from '@/lib/parse';
 import { standardEdition } from '@/lib/render/standard-edition';
 import type { PrintSet } from '@/types/generated';
 
@@ -10,12 +11,9 @@ export const MONEY_AMOUNTS = ['four', 'eight', 'full'] as const;
 
 export type MoneyAmount = (typeof MONEY_AMOUNTS)[number];
 
-export const isMoneyAmount = (value: unknown): value is MoneyAmount => {
-    return (
-        typeof value === 'string' &&
-        MONEY_AMOUNTS.some((amount) => amount === value)
-    );
-};
+const moneyAmount = oneOf(MONEY_AMOUNTS);
+
+export const isMoneyAmount = (value: unknown) => is(moneyAmount, value);
 
 /**
  * Notes per value. Every count is a multiple of 6, so a home sheet (6 notes) holds one value. "four" covers the
