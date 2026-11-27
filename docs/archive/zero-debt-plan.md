@@ -391,3 +391,11 @@ Goedkoop en mechanisch:
 8. `.env.example` mist `PRINTOPOLY_CONTACT_EMAIL` (voor de eigen configbestanden).
 
 Oordeel zonder guard: 7 controllers lezen met `::query()`; 28 array-index React-keys.
+
+## Slot (2026-11-27, na de derde audit)
+De eigenaar liet alle keuzes aan de lead; de vier ontwerpsoorten zijn daarna toch gebouwd en gemerged:
+- te veel laden en N+1: opruimklassen per pagina, één query voor de gereedheid (guard `QueryLoadGuard`, rij `cleanup-load-all` 0);
+- tellen-dan-invoegen: atomaire plekken met een gedeeltelijke unieke index (guard `QuotaCountGuard`, rij `quota-count-checks` 0; de migratie draait bij de deploy);
+- dubbele code: teller `code-clones` 38 naar 16 groepen, besluit 0012;
+- type-predicaten: parser in `lib/parse.ts`, rij `lint-type-predicates` 1 (`isServerElements`), besluit 0011.
+Het programma is hiermee gesloten; wat de eigenaar nog met de hand doet staat in `CONTINUE.md` van de overdrachtsmap.
