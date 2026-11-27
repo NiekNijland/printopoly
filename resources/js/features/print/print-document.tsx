@@ -218,7 +218,7 @@ const fitSnapshot = (): string => {
  * inside a box with `overflow: hidden`, and every page then prints at the wrong scale (measured with
  * Chrome 131). Content that is partly on the page is clipped by the page as usual.
  */
-export const cullOutsidePages = (root: ParentNode): number => {
+const cullOutsidePages = (root: ParentNode): number => {
     const outside: HTMLElement[] = [];
 
     const visit = (parent: Element, bounds: DOMRect): void => {
