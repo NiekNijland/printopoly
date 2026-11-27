@@ -51,10 +51,12 @@ import {
 import { usePrintJob } from '@/features/print/use-print-job';
 import { usePrintQueue } from '@/features/print/use-print-queue';
 import type { StartOutcome } from '@/features/print/use-print-queue';
+import { useBrowserValue } from '@/hooks/use-browser-value';
 import { useSmallPhone, useWideScreen } from '@/hooks/use-media-query';
 import { useOnline } from '@/hooks/use-online';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { readStored, writeStored } from '@/lib/browser-storage';
+import { reportAndReturn } from '@/lib/bugsnag';
 import { reportError, reportUnlessOffline } from '@/lib/bugsnag';
 import { listIssues } from '@/lib/render/checks-summary';
 import type { Edition, PrintSelection } from '@/lib/render/edition-types';
@@ -261,11 +263,7 @@ const PrintShow = ({
     const smallPhone = useSmallPhone();
     const narrow = !useWideScreen();
     // Checked after the first render: the server and the first paint know nothing of the phone.
-    const [shareFiles, setShareFiles] = useState(false);
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- only the browser knows whether it can share files
-        setShareFiles(canShareFiles());
-    }, []);
+    const shareFiles = useBrowserValue(canShareFiles, false);
     const [set, setSet] = useState<PrintSet>(() => initialSet(localEditionId));
     // "niet in je set" in the editor opens the page at the row of that part (R6 Kees): `?part=tokens`.
     const [askedPart, setAskedPart] = useState<SetPart | null>(readAskedPart);
@@ -333,9 +331,9 @@ const PrintShow = ({
                 );
                 const printedBefore =
                     token === null &&
-                    (await storage.listPrintJobs().catch(() => [])).some(
-                        (record) => record.editionId === found.id,
-                    );
+                    (
+                        await storage.listPrintJobs().catch(reportAndReturn([]))
+                    ).some((record) => record.editionId === found.id);
 
                 return { token, printedBefore };
             })
@@ -414,14 +412,11 @@ const PrintShow = ({
     // The edition as the editor has it, for the open Controle messages in the bar (UX 7, B179). On the page of a
     // job it is read from this browser as well; without it the bar says nothing about the Controle.
     const [stored, setStored] = useState<Edition | null>(null);
+    if (job === null && stored !== null) {
+        setStored(null);
+    }
     useEffect(() => {
-        if (job === null) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect -- before a job the edition is `local`, loaded above
-            setStored(null);
-
-            return undefined;
-        }
-        if (localEditionId === null) {
+        if (job === null || localEditionId === null) {
             return undefined;
         }
         let cancelled = false;
