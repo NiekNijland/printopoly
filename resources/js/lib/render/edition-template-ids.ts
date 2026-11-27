@@ -1,3 +1,4 @@
+import { is, oneOf } from '@/lib/parse';
 /**
  * The templates a new edition can start from (B127, B201), in display order. Leeg (the standard edition) comes
  * first on screen and is no template. Their data is in `resources/js/lib/render/edition-templates.ts`.
@@ -46,12 +47,10 @@ export const KNOWN_TEMPLATE_IDS: readonly TemplateId[] = [
 ];
 
 /** Whether a new edition can start from this template: one of the seven starts on Nieuwe editie (B201). */
-export const isOfferedTemplate = (
-    value: unknown,
-): value is (typeof TEMPLATE_IDS)[number] => {
-    return TEMPLATE_IDS.some((id) => id === value);
-};
+const offeredTemplate = oneOf(TEMPLATE_IDS);
 
-export const isTemplateId = (value: unknown): value is TemplateId => {
-    return KNOWN_TEMPLATE_IDS.some((id) => id === value);
-};
+export const isOfferedTemplate = (value: unknown) => is(offeredTemplate, value);
+
+const templateId = oneOf(KNOWN_TEMPLATE_IDS);
+
+export const isTemplateId = (value: unknown) => is(templateId, value);
