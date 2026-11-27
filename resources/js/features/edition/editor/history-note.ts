@@ -1,3 +1,4 @@
+import { is, oneOf } from '@/lib/parse';
 import { firstStreetKey } from '@/lib/render/boxes-labels';
 import { parseKey, spaceKey } from '@/lib/render/edition-keys';
 import type {
@@ -35,11 +36,7 @@ const NOTED_FIELDS = [
 
 type NotedField = (typeof NOTED_FIELDS)[number];
 
-const isNoted = (field: string | undefined): field is NotedField =>
-    NOTED_FIELDS.some((noted) => noted === field);
-
-const fieldsOf = (override: ElementOverride): ElementField[] =>
-    Object.keys(override).filter((key): key is ElementField => key in override);
+const notedField = oneOf(NOTED_FIELDS);
 
 /** What an undo or redo touched, for the short note and for the jump (UX 7, ronde 3). */
 export type HistoryStepInfo = {
@@ -52,13 +49,17 @@ export type HistoryStepInfo = {
     count: number;
 };
 
+const fieldsOf = (override: ElementOverride | undefined) =>
+    new Map<string, unknown>(Object.entries(override ?? {}));
+
 const changedFields = (change: ElementChange): string[] => {
-    const before: ElementOverride = change.before ?? {};
-    const after: ElementOverride = change.after ?? {};
-    const keys = new Set([...fieldsOf(before), ...fieldsOf(after)]);
+    const before = fieldsOf(change.before);
+    const after = fieldsOf(change.after);
+    const keys = new Set([...before.keys(), ...after.keys()]);
 
     return [...keys].filter(
-        (key) => JSON.stringify(before[key]) !== JSON.stringify(after[key]),
+        (key) =>
+            JSON.stringify(before.get(key)) !== JSON.stringify(after.get(key)),
     );
 };
 
@@ -138,7 +139,7 @@ export const describeHistoryStep = (
         target:
             first === undefined ? undefined : targetOfKey(first.key, fields),
         elementKey: changes.length === 1 ? first?.key : undefined,
-        field: same && isNoted(only) ? only : undefined,
+        field: same && is(notedField, only) ? only : undefined,
         count: changes.length,
     };
 };
