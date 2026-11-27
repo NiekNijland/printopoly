@@ -14,7 +14,7 @@ use Override;
 use RuntimeException;
 use Tests\TestCase;
 
-final class SsrGatewayTest extends TestCase
+final class ReleaseCheckedSsrGatewayTest extends TestCase
 {
     private const string RELEASE = '0dad59b4-1978-4741-bf8e-6a56d9370ca8';
 

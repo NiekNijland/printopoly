@@ -58,7 +58,7 @@ De guard `assertion-spelling` houdt deze regels vast.
 
 ### Dekking
 
-- De vloer van de backend is 93 in `scripts/coverage-floor.txt`; de `min`-rij `coverage-floor` van `scripts/ci-ratchets.sh` houdt hem vast. Het doel van de kit is 95.
+- De vloer van de backend is 97 in `scripts/coverage-floor.txt`; de `min`-rij `coverage-floor` van `scripts/ci-ratchets.sh` houdt hem vast. Het doel van de kit is 95.
 - De vloer van de frontend staat in `vitest.config.ts`: 95 voor alle regels (rij `frontend-coverage-floor`) en 95 voor de `.ts`-bestanden in `resources/js` (rij `frontend-logic-coverage-floor`).
 - De mutatiescore is 93 in `scripts/mutation-floor.txt`; de rij `mutation-floor` houdt hem vast. De volledige mutatierun draait elke zondag.
 
