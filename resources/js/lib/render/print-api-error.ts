@@ -1,3 +1,5 @@
+import { now } from '@/lib/clock';
+
 export class PrintApiError extends Error {
     constructor(
         readonly status: number,
@@ -27,7 +29,7 @@ export const retryAfterOf = (response: Response): number | null => {
 
     return Number.isNaN(at)
         ? null
-        : Math.max(1, Math.ceil((at - Date.now()) / 1000));
+        : Math.max(1, Math.ceil((at - now()) / 1000));
 };
 
 /** The file name the server sends (`attachment; filename="…"`), else the fallback. */
