@@ -29,14 +29,9 @@ type StripItem = {
     standard?: boolean;
 };
 
-/**
- * "Begin met…": the starting points as small tiles with a card each, linking to the new edition screen (B127). The
- * same seven as on that screen (B201), blank first and in the same colours: all seven in one row where there is room,
- * two rows of four on a tablet with Leeg two wide (as on Nieuwe editie), and a strip to swipe on a phone.
- */
-export const TemplateStrip = ({ locale, className }: TemplateStripProps) => {
+const useStripItems = (locale: Locale): StripItem[] => {
     const t = useTranslation();
-    const items: StripItem[] = [
+    return [
         {
             id: 'blank',
             label: t('templates.blank'),
@@ -62,6 +57,16 @@ export const TemplateStrip = ({ locale, className }: TemplateStripProps) => {
             };
         }),
     ];
+};
+
+/**
+ * "Begin met…": the starting points as small tiles with a card each, linking to the new edition screen (B127). The
+ * same seven as on that screen (B201), blank first and in the same colours: all seven in one row where there is room,
+ * two rows of four on a tablet with Leeg two wide (as on Nieuwe editie), and a strip to swipe on a phone.
+ */
+export const TemplateStrip = ({ locale, className }: TemplateStripProps) => {
+    const t = useTranslation();
+    const items = useStripItems(locale);
 
     return (
         <section

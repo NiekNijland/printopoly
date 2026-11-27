@@ -26,7 +26,7 @@ describe('previewSize', () => {
 });
 
 const input = (bytes: Uint8Array, name: string): PhotoInput => {
-    return Object.assign(new Blob([bytes as BlobPart]), { name });
+    return Object.assign(new Blob([new Uint8Array(bytes)]), { name });
 };
 
 const fakeDeps = (

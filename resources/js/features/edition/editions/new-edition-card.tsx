@@ -47,6 +47,102 @@ type NewEditionCardProps = {
     barShown?: boolean;
 };
 
+type NewEditionPreviewProps = Pick<
+    NewEditionCardProps,
+    'template' | 'shownName' | 'language' | 'currency' | 'theme' | 'profile'
+> & { empty: boolean };
+
+const NewEditionPreview = ({
+    template,
+    empty,
+    shownName,
+    language,
+    currency,
+    theme,
+    profile,
+}: NewEditionPreviewProps) => {
+    const edition = useMemo(
+        () =>
+            template === null ? undefined : templateEdition(template, language),
+        [template, language],
+    );
+    const spaces = useMemo(
+        () => (empty ? EMPTY_SPACES : templateSpaces(edition)),
+        [edition, empty],
+    );
+    const chance: ElementOverride | undefined = empty
+        ? { text: '' }
+        : edition?.elements['card.chance.07'];
+    const standard = standardEdition.decks.chance[6];
+
+    return (
+        <div
+            aria-hidden="true"
+            className="pointer-events-none relative hidden h-64 items-center justify-center overflow-hidden rounded-control bg-table lg:flex"
+        >
+            <Scaled
+                widthMm={profile.outer}
+                heightMm={profile.outer}
+                width={200}
+                className="shadow-sheet"
+                style={{ transform: 'rotate(-4deg)' }}
+            >
+                <Board
+                    theme={theme}
+                    locale={language}
+                    currency={currency}
+                    editionName={shownName === '' ? ' ' : shownName}
+                    profile={profile}
+                    spaces={spaces}
+                />
+            </Scaled>
+            <Scaled
+                widthMm={63}
+                heightMm={88}
+                width={74}
+                className="absolute right-3 bottom-4 shadow-sheet"
+                style={{ transform: 'rotate(8deg)' }}
+            >
+                <GameCard
+                    theme={theme}
+                    locale={language}
+                    currency={currency}
+                    deck="chance"
+                    side="front"
+                    card={chance === undefined ? standard : undefined}
+                    text={chance?.text}
+                    amount={chance?.amount}
+                />
+            </Scaled>
+        </div>
+    );
+};
+
+const NewEditionLinks = ({
+    locale,
+    template,
+}: Pick<NewEditionCardProps, 'locale' | 'template'>) => {
+    const t = useTranslation();
+
+    return (
+        <>
+            {template !== null && (
+                <Link
+                    href={editionsSample(locale, {
+                        query: { template },
+                    })}
+                    className="hidden min-h-11 items-center justify-center text-sm font-semibold underline underline-offset-4 hover:text-press lg:inline-flex"
+                >
+                    {t('templates.preview')}
+                </Link>
+            )}
+            <p className="m-0 hidden text-center text-xs text-ink-soft lg:block">
+                {t('edition.storage_note')}
+            </p>
+        </>
+    );
+};
+
 /**
  * The card next to the form (on a tablet and a phone a bar stuck to the bottom of the screen): the board of what is
  * chosen, the name and the button, so the name and the button are always in reach together (B150; vindbaarheid,
@@ -71,19 +167,6 @@ export const NewEditionCard = ({
     barShown = true,
 }: NewEditionCardProps) => {
     const t = useTranslation();
-    const edition = useMemo(
-        () =>
-            template === null ? undefined : templateEdition(template, language),
-        [template, language],
-    );
-    const spaces = useMemo(
-        () => (empty ? EMPTY_SPACES : templateSpaces(edition)),
-        [edition, empty],
-    );
-    const chance: ElementOverride | undefined = empty
-        ? { text: '' }
-        : edition?.elements['card.chance.07'];
-    const standard = standardEdition.decks.chance[6];
 
     return (
         <aside
@@ -99,45 +182,15 @@ export const NewEditionCard = ({
                 'lg:sticky lg:top-24 lg:flex-col lg:flex-nowrap lg:items-stretch lg:gap-4 lg:self-start lg:rounded-control lg:border-2 lg:p-5 lg:shadow-paper',
             )}
         >
-            <div
-                aria-hidden="true"
-                className="pointer-events-none relative hidden h-64 items-center justify-center overflow-hidden rounded-control bg-table lg:flex"
-            >
-                <Scaled
-                    widthMm={profile.outer}
-                    heightMm={profile.outer}
-                    width={200}
-                    className="shadow-sheet"
-                    style={{ transform: 'rotate(-4deg)' }}
-                >
-                    <Board
-                        theme={theme}
-                        locale={language}
-                        currency={currency}
-                        editionName={shownName === '' ? ' ' : shownName}
-                        profile={profile}
-                        spaces={spaces}
-                    />
-                </Scaled>
-                <Scaled
-                    widthMm={63}
-                    heightMm={88}
-                    width={74}
-                    className="absolute right-3 bottom-4 shadow-sheet"
-                    style={{ transform: 'rotate(8deg)' }}
-                >
-                    <GameCard
-                        theme={theme}
-                        locale={language}
-                        currency={currency}
-                        deck="chance"
-                        side="front"
-                        card={chance === undefined ? standard : undefined}
-                        text={chance?.text}
-                        amount={chance?.amount}
-                    />
-                </Scaled>
-            </div>
+            <NewEditionPreview
+                template={template}
+                empty={empty}
+                shownName={shownName}
+                language={language}
+                currency={currency}
+                theme={theme}
+                profile={profile}
+            />
             {/* On a phone too: what the button makes, right above it (R5-21). */}
             <p className="m-0 min-w-0 truncate text-sm text-ink-soft md:flex-1 lg:flex-none lg:text-center lg:whitespace-normal">
                 <span className="lg:hidden">{t('edition.start_with')} </span>
@@ -172,19 +225,7 @@ export const NewEditionCard = ({
             >
                 {busy ? t('edition.submitting') : t('edition.submit')}
             </Button>
-            {template !== null && (
-                <Link
-                    href={editionsSample(locale, {
-                        query: { template },
-                    })}
-                    className="hidden min-h-11 items-center justify-center text-sm font-semibold underline underline-offset-4 hover:text-press lg:inline-flex"
-                >
-                    {t('templates.preview')}
-                </Link>
-            )}
-            <p className="m-0 hidden text-center text-xs text-ink-soft lg:block">
-                {t('edition.storage_note')}
-            </p>
+            <NewEditionLinks locale={locale} template={template} />
         </aside>
     );
 };

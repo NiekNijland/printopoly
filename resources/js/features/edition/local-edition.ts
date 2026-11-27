@@ -1,7 +1,12 @@
 import { getServices } from '@/features/edition/editor/services';
 import { withDeedPhotos } from '@/lib/render/edition-deed-photos';
 import type { EditionStorage } from '@/lib/render/edition-storage';
-import { PART_IDS, type Edition, type Parts } from '@/lib/render/edition-types';
+import {
+    DEFAULT_PARTS,
+    PART_IDS,
+    type Edition,
+    type Parts,
+} from '@/lib/render/edition-types';
 import type { Locale } from '@/types/game';
 
 import type { LocalEditionUpload } from '../../lib/render/print-api';
@@ -76,7 +81,9 @@ export const loadLocalEditionRecord = async (
 export const printable = (edition: Edition): Edition => {
     return {
         ...edition,
-        parts: Object.fromEntries(PART_IDS.map((id) => [id, true])) as Parts,
+        parts: PART_IDS.reduce<Parts>((all, id) => ({ ...all, [id]: true }), {
+            ...DEFAULT_PARTS,
+        }),
     };
 };
 

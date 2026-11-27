@@ -7,10 +7,8 @@ import {
 } from '@/features/edition/editor/account';
 import { RemoteSync } from '@/features/edition/editor/remote-sync';
 import { createRemoteEditionStore } from '@/features/edition/remote/store';
-import type {
-    EditionConflict,
-    EditionSession,
-} from '@/features/edition/session';
+import type { EditionSession } from '@/features/edition/session';
+import type { EditionConflict } from '@/features/edition/session-conflict';
 import { summarizeDifference } from '@/features/edition/summary';
 import { uploadAccountPhoto } from '@/lib/render/print-api';
 
@@ -28,9 +26,12 @@ export type RemotePush = {
 export const useRemotePush = (session: EditionSession): RemotePush => {
     const { auth, locale } = usePage().props;
     const loggedIn = auth.user !== null;
-    const [state, setState] = useState({
+    const [state, setState] = useState<{
+        pending: boolean;
+        syncedAt: number | null;
+    }>({
         pending: false,
-        syncedAt: null as number | null,
+        syncedAt: null,
     });
     const [conflict, setConflict] = useState<EditionConflict | null>(null);
     const [problem, setProblem] = useState<SyncProblem | null>(null);

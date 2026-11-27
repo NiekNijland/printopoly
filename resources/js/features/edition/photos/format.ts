@@ -154,7 +154,7 @@ type Box = {
     end: number;
 };
 
-const boxes = function* (
+const boxes = function* boxes(
     b: Uint8Array,
     from: number,
     to: number,

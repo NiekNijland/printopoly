@@ -85,7 +85,11 @@ const repairSettings = (input: Obj, repaired: string[]): Obj => {
     if (!isThemeId(theme)) {
         fix('theme', 'classic');
     }
-    if (!Number.isInteger(revision) || (revision as number) < 0) {
+    if (
+        typeof revision !== 'number' ||
+        !Number.isInteger(revision) ||
+        revision < 0
+    ) {
         fix('revision', 0);
     }
     if (typeof createdAt !== 'number' || !Number.isFinite(createdAt)) {
@@ -152,7 +156,7 @@ const repairElements = (
     for (const [key, override] of Object.entries(value)) {
         const whole = parseOverride(key, override, []);
         if (whole !== undefined) {
-            out[key] = override as ElementOverride;
+            out[key] = whole;
             continue;
         }
         if (parseKey(key) === null || !isObject(override)) {
@@ -191,9 +195,14 @@ const repairOverride = (
             key,
             extra ? { added: true, [field]: value } : { [field]: value },
             [],
-        ) as Obj | undefined;
+        );
 
-        if (single !== undefined && single[field] !== undefined) {
+        if (
+            single !== undefined &&
+            Object.entries(single).some(
+                ([name, kept]) => name === field && kept !== undefined,
+            )
+        ) {
             kept[field] = value;
             if (JSON.stringify(value) !== JSON.stringify(raw)) {
                 repaired.push(`${key}.${field}: pulled into range`);

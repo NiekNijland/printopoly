@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 
 import { fetchBox, findAccountBox } from '@/features/edition/boxes/api';
 import { readOwnerRecord } from '@/features/edition/boxes/local';
+import type { OwnerBox } from '@/features/edition/boxes/types';
+import { isJsonObject } from '@/features/edition/remote/client';
 import type { EditionStorage } from '@/lib/render/edition-storage';
 import type {
     EditionSummary,
@@ -13,6 +15,7 @@ import { ready as printJobsReady } from '@/routes/print-jobs';
 import type {
     EditionPrintReadyData,
     PrintJobReadyData,
+    PrintSet,
 } from '@/types/generated';
 
 /** What is waiting on an edition, for the lines on its card in Mijn edities. Everything is optional: no answer, no line. */
@@ -41,6 +44,16 @@ export const NO_STATUS: EditionStatus = {
     home: NONE,
 };
 
+const isPrintReady = (value: unknown): value is EditionPrintReadyData =>
+    isJsonObject(value) &&
+    typeof value.editionId === 'string' &&
+    (value.printerReadyUntil === null ||
+        typeof value.printerReadyUntil === 'number') &&
+    typeof value.printerOutdated === 'boolean' &&
+    (value.homeReadyUntil === null ||
+        typeof value.homeReadyUntil === 'number') &&
+    typeof value.homeOutdated === 'boolean';
+
 const readPrintReady = async (): Promise<
     Map<string, EditionPrintReadyData>
 > => {
@@ -52,11 +65,13 @@ const readPrintReady = async (): Promise<
     if (!response.ok) {
         return new Map();
     }
-    const body = (await response.json()) as {
-        editions: EditionPrintReadyData[];
-    };
+    const body: unknown = await response.json();
+    const editions =
+        isJsonObject(body) && Array.isArray(body.editions)
+            ? body.editions.filter(isPrintReady)
+            : [];
 
-    return new Map(body.editions.map((item) => [item.editionId, item]));
+    return new Map(editions.map((item) => [item.editionId, item]));
 };
 
 /**
@@ -94,7 +109,7 @@ const readLocalJobs = async (
  * job made before the edition changed is outdated, as the server says for an edition in an account.
  */
 export const localSetStatus = (
-    set: 'printer' | 'home',
+    set: PrintSet,
     revision: number,
     jobs: readonly PrintJobRecord[],
     ready: ReadonlyMap<string, PrintJobReadyData>,
@@ -126,7 +141,10 @@ export const localSetStatus = (
 };
 
 /** The box of an edition: with the owner secret of this browser, else through the account. Never throws. */
-const readBox = async (id: string, inAccount: boolean) => {
+const readBox = async (
+    id: string,
+    inAccount: boolean,
+): Promise<OwnerBox | null> => {
     try {
         const record = readOwnerRecord(id);
 
@@ -138,6 +156,38 @@ const readBox = async (id: string, inAccount: boolean) => {
     } catch {
         return null;
     }
+};
+
+const statusOf = (
+    box: OwnerBox | null,
+    files: EditionPrintReadyData | undefined,
+    revision: number,
+    jobs: readonly PrintJobRecord[],
+    ready: ReadonlyMap<string, PrintJobReadyData>,
+): EditionStatus => {
+    // The account knows the jobs it made; the browser the jobs it made without one.
+    const set = (
+        which: PrintSet,
+        readyUntil: number | null | undefined,
+        outdated: boolean | undefined,
+    ): SetStatus =>
+        (readyUntil ?? null) !== null || outdated === true
+            ? {
+                  readyUntil: readyUntil ?? null,
+                  outdated: outdated ?? false,
+              }
+            : localSetStatus(which, revision, jobs, ready);
+
+    return {
+        contributions: box?.contributions.length ?? 0,
+        boxUntil: box !== null && box.status === 'open' ? box.expiresAt : null,
+        printer: set(
+            'printer',
+            files?.printerReadyUntil,
+            files?.printerOutdated,
+        ),
+        home: set('home', files?.homeReadyUntil, files?.homeOutdated),
+    };
 };
 
 /**
@@ -185,45 +235,13 @@ export const useEditionStatus = (
             await Promise.all(
                 wanted.map(async ({ id, revision }) => {
                     const box = await readBox(id, inAccount.has(id));
-                    const files = ready.get(id);
-                    const jobs = local.jobs.filter(
-                        (job) => job.editionId === id,
+                    next[id] = statusOf(
+                        box,
+                        ready.get(id),
+                        revision,
+                        local.jobs.filter((job) => job.editionId === id),
+                        local.ready,
                     );
-                    // The account knows the jobs it made; the browser the jobs it made without one.
-                    const set = (
-                        which: 'printer' | 'home',
-                        readyUntil: number | null | undefined,
-                        outdated: boolean | undefined,
-                    ): SetStatus =>
-                        (readyUntil ?? null) !== null || outdated === true
-                            ? {
-                                  readyUntil: readyUntil ?? null,
-                                  outdated: outdated ?? false,
-                              }
-                            : localSetStatus(
-                                  which,
-                                  revision,
-                                  jobs,
-                                  local.ready,
-                              );
-
-                    next[id] = {
-                        contributions: box?.contributions.length ?? 0,
-                        boxUntil:
-                            box !== null && box.status === 'open'
-                                ? box.expiresAt
-                                : null,
-                        printer: set(
-                            'printer',
-                            files?.printerReadyUntil,
-                            files?.printerOutdated,
-                        ),
-                        home: set(
-                            'home',
-                            files?.homeReadyUntil,
-                            files?.homeOutdated,
-                        ),
-                    };
                 }),
             );
 

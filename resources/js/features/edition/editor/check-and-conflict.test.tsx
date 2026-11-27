@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { EditionConflict } from '@/features/edition/session';
+import type { EditionConflict } from '@/features/edition/session-conflict';
 import type { CheckIssue } from '@/lib/render/checks-types';
 import { sampleEdition } from '@/testing/editions';
 import { renderWithI18n } from '@/testing/render';

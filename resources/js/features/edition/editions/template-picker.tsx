@@ -160,6 +160,57 @@ const TITLE = 'font-display text-base leading-tight font-extrabold';
 // The tagline says who the template is for (UX 8, round 4), so it is shown whole.
 const TAGLINE = 'text-xs text-ink-soft sm:text-sm';
 
+const TemplateCard = ({
+    item,
+    index,
+    locale,
+}: {
+    item: ReturnType<typeof templates>[number];
+    index: number;
+    locale: Locale;
+}) => {
+    const t = useTranslation();
+
+    return (
+        <div
+            className={cn(
+                CHOICE_CARD,
+                'cursor-auto gap-0 p-0 hover:shadow-none',
+            )}
+        >
+            <label className="flex flex-1 cursor-pointer flex-col gap-2 p-2 pb-1">
+                <TemplateThumb
+                    choice={item.id}
+                    locale={locale}
+                    name={item.name}
+                    tone={TILE_TONES[(index + 2) % 8] ?? 'bg-board'}
+                    board={62}
+                    className="h-24"
+                />
+                <span className={cn(TITLE, 'flex items-center gap-2 px-1')}>
+                    <RadioGroupItem value={item.id} />
+                    {/* "Village or neighbourhood" is wider than a card at 1024 px: it breaks inside it (R5-22). */}
+                    <span className="min-w-0 [overflow-wrap:anywhere] hyphens-auto">
+                        {item.label}
+                    </span>
+                </span>
+                <span className={cn(TAGLINE, 'px-1')}>{item.tagline}</span>
+            </label>
+            <Link
+                href={editionsSample(locale, {
+                    query: { template: item.id },
+                })}
+                aria-label={t('templates.preview_of', {
+                    name: item.label,
+                })}
+                className="inline-flex min-h-11 items-center px-3 pb-1 text-sm font-semibold underline underline-offset-4 hover:text-press"
+            >
+                {t('templates.preview')}
+            </Link>
+        </div>
+    );
+};
+
 /**
  * "Begin met…" (B127, B201, B259): Standaard, Leeg and the six templates as cards in shadcn's RadioGroup, eight of
  * the same size in two rows of four from a small screen up and rows of two on a phone. Standaard is the standard
@@ -232,50 +283,12 @@ export const TemplatePicker = ({
                     </label>
                 ))}
                 {all.map((item, index) => (
-                    <div
+                    <TemplateCard
                         key={item.id}
-                        className={cn(
-                            CHOICE_CARD,
-                            'cursor-auto gap-0 p-0 hover:shadow-none',
-                        )}
-                    >
-                        <label className="flex flex-1 cursor-pointer flex-col gap-2 p-2 pb-1">
-                            <TemplateThumb
-                                choice={item.id}
-                                locale={locale}
-                                name={item.name}
-                                tone={TILE_TONES[(index + 2) % 8] ?? 'bg-board'}
-                                board={62}
-                                className="h-24"
-                            />
-                            <span
-                                className={cn(
-                                    TITLE,
-                                    'flex items-center gap-2 px-1',
-                                )}
-                            >
-                                <RadioGroupItem value={item.id} />
-                                {/* "Village or neighbourhood" is wider than a card at 1024 px: it breaks inside it (R5-22). */}
-                                <span className="min-w-0 [overflow-wrap:anywhere] hyphens-auto">
-                                    {item.label}
-                                </span>
-                            </span>
-                            <span className={cn(TAGLINE, 'px-1')}>
-                                {item.tagline}
-                            </span>
-                        </label>
-                        <Link
-                            href={editionsSample(locale, {
-                                query: { template: item.id },
-                            })}
-                            aria-label={t('templates.preview_of', {
-                                name: item.label,
-                            })}
-                            className="inline-flex min-h-11 items-center px-3 pb-1 text-sm font-semibold underline underline-offset-4 hover:text-press"
-                        >
-                            {t('templates.preview')}
-                        </Link>
-                    </div>
+                        item={item}
+                        index={index}
+                        locale={locale}
+                    />
                 ))}
             </RadioGroup>
         </fieldset>

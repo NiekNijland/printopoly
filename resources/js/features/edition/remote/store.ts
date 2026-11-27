@@ -38,7 +38,7 @@ type RemoteImportReport = {
     invalid: Record<string, string[]>;
 };
 
-type RemoteEditionList = {
+export type RemoteEditionList = {
     editions: RemoteEditionSummary[];
     /** Editions an account may hold (B70). */
     limit: number;
@@ -163,6 +163,70 @@ const changeResult = (response: ApiResponse): RemoteChangeResult => {
     return fail(response);
 };
 
+const putResult = (response: ApiResponse): RemotePutResult => {
+    if (response.status === 201 || response.status === 200) {
+        return {
+            ok: true,
+            revision:
+                response.status === 201 && isJsonObject(response.body)
+                    ? readEdition(response.body.edition).revision
+                    : readNumber(response.body, 'revision'),
+        };
+    }
+    if (response.status === 409) {
+        return {
+            ok: false,
+            reason: 'conflict',
+            current: summaryOf(readCurrent(response)),
+        };
+    }
+    if (response.status === 422 && isLimitError(response.body)) {
+        return { ok: false, reason: 'limit' };
+    }
+
+    return fail(response);
+};
+
+const duplicateResult = (response: ApiResponse): RemoteDuplicateResult => {
+    if (response.status === 201 && isJsonObject(response.body)) {
+        return {
+            ok: true,
+            edition: readEdition(response.body.edition),
+        };
+    }
+    if (response.status === 404) {
+        return { ok: false, reason: 'missing' };
+    }
+    if (response.status === 422 && isLimitError(response.body)) {
+        return {
+            ok: false,
+            reason: 'limit',
+            limit: response.body.limit,
+        };
+    }
+
+    return fail(response);
+};
+
+const importReport = (response: ApiResponse): RemoteImportReport => {
+    if (!response.ok || !isJsonObject(response.body)) {
+        return fail(response);
+    }
+    const invalid: Record<string, string[]> = {};
+    if (isJsonObject(response.body.invalid)) {
+        for (const [id, messages] of Object.entries(response.body.invalid)) {
+            invalid[id] = readStrings(messages);
+        }
+    }
+
+    return {
+        imported: readStrings(response.body.imported),
+        conflicts: readStrings(response.body.conflicts),
+        overLimit: readStrings(response.body.overLimit),
+        invalid,
+    };
+};
+
 const path = (id: string) => `/api/editions/${encodeURIComponent(id)}`;
 
 /**
@@ -181,7 +245,7 @@ export const createRemoteEditionStore = (
             return fail(response);
         }
         const editions = Array.isArray(response.body.editions)
-            ? (response.body.editions as unknown[]).map(readSummary)
+            ? response.body.editions.map(readSummary)
             : [];
 
         return { editions, limit: readNumber(response.body, 'limit') };
@@ -215,27 +279,7 @@ export const createRemoteEditionStore = (
                           baseRevision: expectedRevision,
                       });
 
-            if (response.status === 201 || response.status === 200) {
-                return {
-                    ok: true,
-                    revision:
-                        response.status === 201 && isJsonObject(response.body)
-                            ? readEdition(response.body.edition).revision
-                            : readNumber(response.body, 'revision'),
-                };
-            }
-            if (response.status === 409) {
-                return {
-                    ok: false,
-                    reason: 'conflict',
-                    current: summaryOf(readCurrent(response)),
-                };
-            }
-            if (response.status === 422 && isLimitError(response.body)) {
-                return { ok: false, reason: 'limit' };
-            }
-
-            return fail(response);
+            return putResult(response);
         },
 
         async putPhoto(photo) {
@@ -269,24 +313,7 @@ export const createRemoteEditionStore = (
                 `${path(id)}/duplicate`,
                 name === undefined ? undefined : { name },
             );
-            if (response.status === 201 && isJsonObject(response.body)) {
-                return {
-                    ok: true,
-                    edition: readEdition(response.body.edition),
-                };
-            }
-            if (response.status === 404) {
-                return { ok: false, reason: 'missing' };
-            }
-            if (response.status === 422 && isLimitError(response.body)) {
-                return {
-                    ok: false,
-                    reason: 'limit',
-                    limit: response.body.limit,
-                };
-            }
-
-            return fail(response);
+            return duplicateResult(response);
         },
 
         async importEditions(editions) {
@@ -295,24 +322,7 @@ export const createRemoteEditionStore = (
                 '/api/editions/import',
                 { editions },
             );
-            if (!response.ok || !isJsonObject(response.body)) {
-                return fail(response);
-            }
-            const invalid: Record<string, string[]> = {};
-            if (isJsonObject(response.body.invalid)) {
-                for (const [id, messages] of Object.entries(
-                    response.body.invalid,
-                )) {
-                    invalid[id] = readStrings(messages);
-                }
-            }
-
-            return {
-                imported: readStrings(response.body.imported),
-                conflicts: readStrings(response.body.conflicts),
-                overLimit: readStrings(response.body.overLimit),
-                invalid,
-            };
+            return importReport(response);
         },
     };
 };

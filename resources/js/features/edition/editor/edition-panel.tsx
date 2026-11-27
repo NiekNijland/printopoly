@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { WarningIcon } from '@/components/icons';
 import { tabsListVariants, tabsTriggerVariants } from '@/components/ui/tabs';
 import type { CollectionBox } from '@/features/edition/boxes/use-collection-box';
-import { BoardChoice } from '@/features/edition/editions/edition-choices';
+import { BoardChoice } from '@/features/edition/editions/board-choice';
 import { GeneralFields } from '@/features/edition/editor/general-fields';
 import { LookFields } from '@/features/edition/editor/look-fields';
 import type { FriendsProps } from '@/features/edition/editor/panel/friends-section';
