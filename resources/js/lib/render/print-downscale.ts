@@ -73,7 +73,7 @@ export const photoNeeds = (
 };
 
 /** The size a photo can have for print: the same, or smaller when it has far more pixels than the paper uses. */
-export const printSize = (
+const printSize = (
     width: number,
     height: number,
     frameMm: number,
