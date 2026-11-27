@@ -584,9 +584,6 @@
   "resources/js/pages/editions/sample.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
     }
   },
   "resources/js/pages/print/show.test.tsx": {

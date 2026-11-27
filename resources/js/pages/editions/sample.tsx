@@ -1,5 +1,5 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ComponentProps } from 'react';
 
 import {
     ElementPreview,
@@ -219,6 +219,53 @@ const SampleHeading = ({
     );
 };
 
+const PreviewColumn = ({
+    view,
+    onView,
+    hasDeed,
+    cards,
+    target,
+    resolved,
+    size,
+}: {
+    view: View;
+    onView: (view: View) => void;
+    hasDeed: boolean;
+    cards: {
+        index: number;
+        count: number;
+        onIndex: (index: number) => void;
+    } | null;
+    target: ComponentProps<typeof ElementPreview>['target'];
+    resolved: ComponentProps<typeof ElementPreview>['resolved'];
+    size: { w: number; h: number };
+}) => (
+    <div className="flex min-w-0 flex-col gap-3">
+        <ViewTabs
+            view={view}
+            onView={onView}
+            hasDeed={hasDeed}
+            hasRules={cards !== null}
+        />
+        {cards !== null && (view === 'chance' || view === 'chest') && (
+            <CardStepper
+                index={cards.index}
+                count={cards.count}
+                onIndex={cards.onIndex}
+            />
+        )}
+        <div className="flex h-[420px] min-h-0 flex-col rounded-control bg-table md:h-[560px]">
+            <ElementStage widthMm={size.w} heightMm={size.h}>
+                <ElementPreview
+                    target={target}
+                    resolved={resolved}
+                    photos={new Map()}
+                />
+            </ElementStage>
+        </div>
+    </div>
+);
+
 /**
  * "Voorbeeld bekijken" (B97): the sample edition, or with `?template=` a starting point (B127),
  * read-only, with a button that copies it into a new local edition.
@@ -285,31 +332,23 @@ const EditionsSample = ({
                             setView('space');
                         }}
                     />
-                    <div className="flex min-w-0 flex-col gap-3">
-                        <ViewTabs
-                            view={view}
-                            onView={setView}
-                            hasDeed={hasDeed}
-                            hasRules={data !== undefined}
-                        />
-                        {data !== undefined &&
-                            (view === 'chance' || view === 'chest') && (
-                                <CardStepper
-                                    index={cardIndex}
-                                    count={cardCount}
-                                    onIndex={setCardIndex}
-                                />
-                            )}
-                        <div className="flex h-[420px] min-h-0 flex-col rounded-control bg-table md:h-[560px]">
-                            <ElementStage widthMm={size.w} heightMm={size.h}>
-                                <ElementPreview
-                                    target={target}
-                                    resolved={resolved}
-                                    photos={new Map()}
-                                />
-                            </ElementStage>
-                        </div>
-                    </div>
+                    <PreviewColumn
+                        view={view}
+                        onView={setView}
+                        hasDeed={hasDeed}
+                        cards={
+                            data === undefined
+                                ? null
+                                : {
+                                      index: cardIndex,
+                                      count: cardCount,
+                                      onIndex: setCardIndex,
+                                  }
+                        }
+                        target={target}
+                        resolved={resolved}
+                        size={size}
+                    />
                 </div>
             </main>
         </>
