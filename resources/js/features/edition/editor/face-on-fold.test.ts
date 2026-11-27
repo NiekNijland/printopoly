@@ -8,11 +8,11 @@ import { placementTarget } from '@/lib/render/photos-resolution';
 import { seamClearX, subjectOffset } from '@/lib/render/photos-transform';
 import { centerRect, DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { sampleEdition } from '@/testing/editions';
+import { faceOnFold } from '@/testing/face-on-fold';
 
 import {
     centerFoldItems,
     faceOffFold,
-    faceOnFold,
 } from '../../../lib/render/editor-layer-fold';
 import { startingPlacement } from '../../../lib/render/editor-placements';
 

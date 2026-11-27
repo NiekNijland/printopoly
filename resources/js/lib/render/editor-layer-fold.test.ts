@@ -3,6 +3,7 @@ import { resolveEdition } from '@/lib/render/edition-resolve';
 import type { FreeLayer } from '@/lib/render/edition-types';
 import { centerRect, DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { makeEdition, photo } from '@/testing/edition-test-utils';
+import { faceOnFold } from '@/testing/face-on-fold';
 
 import { updateElement } from './edition-changes';
 import type { Edition } from './edition-types';
@@ -10,7 +11,6 @@ import {
     boxOfLayer,
     centerFoldItems,
     faceOffFold,
-    faceOnFold,
     layerOffFold,
     layerOnFold,
     polygonsOverlap,
