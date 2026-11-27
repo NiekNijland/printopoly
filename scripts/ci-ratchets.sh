@@ -110,7 +110,6 @@ loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS  (^
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
-method-size-list                       max  grep   lists/method-size.txt  ^.
 final-readonly-list                    max  grep   lists/final-readonly.txt  ^.
 action-naming-list                     max  grep   lists/action-naming.txt  ^.
 enum-shape-list                        max  grep   lists/enum-shape.txt  ^.
@@ -119,7 +118,6 @@ one-pattern-list                       max  grep   tests/Guards/lists/one-patter
 guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
 model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
 list-flash-messages                    max  grep   tests/Support/Architecture/lists/flash-messages.txt  ^.
-list-inline-var-casts                  max  grep   tests/Support/Architecture/lists/inline-var-casts.txt  ^.
 list-phpstan-banned-calls              max  grep   tests/Support/Architecture/lists/phpstan-banned-calls.txt  ^.
 TABLE
 }
@@ -791,9 +789,6 @@ queue-bus-fake-all 0 Bus::assertDispatched(SendMail::class);
 list-flash-messages 1 app/A.php: a finding
 list-flash-messages 2 app/A.php: a finding~NL~app/B.php: another
 list-flash-messages 0 
-list-inline-var-casts 1 app/A.php: a finding
-list-inline-var-casts 2 app/A.php: a finding~NL~app/B.php: another
-list-inline-var-casts 0 
 list-phpstan-banned-calls 1 app/A.php: Calling config() is forbidden
 list-phpstan-banned-calls 2 app/A.php: a~NL~app/B.php: b
 list-phpstan-banned-calls 0 
@@ -1070,7 +1065,6 @@ byte-string-functions 1 $n = strripos($s, 1);
 byte-string-functions 1 $n = strstr($s, 1);
 byte-string-functions 1 $n = stristr($s, 1);
 byte-string-functions 1 $n = strrchr($s, 1);
-method-size-list 1 app/Print/PrintStatusResolver.php::PrintStatusResolver::resolve::109
 final-readonly-list 1 app/Actions/Account/RecordActivity.php
 action-naming-list 1 entry app/Actions/Editions/StoreEdition.php
 enum-shape-list 1 cases app/Enums/PrintPart.php
