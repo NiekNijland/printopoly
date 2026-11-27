@@ -19,7 +19,7 @@ import {
 import type { PhotoCache } from '@/lib/render/editor-photo-cache';
 import { standardEdition } from '@/lib/render/standard-edition';
 import { THEMES } from '@/lib/render/themes';
-import type { Space } from '@/types/game';
+import type { GroupId, Space } from '@/types/game';
 
 import { CenterPlaceControls } from './center-place-controls';
 import { FieldLabel } from './panel-parts';
@@ -158,6 +158,78 @@ const ElementLayers = ({
     );
 };
 
+const StreetColorField = ({
+    session,
+    edition,
+    resolved,
+    group,
+}: Pick<StyleSectionProps, 'session' | 'edition' | 'resolved'> & {
+    group: GroupId;
+}) => {
+    const t = useTranslation();
+    const { locale } = usePage().props;
+    const count = standardEdition.spaces.filter(
+        (candidate) => candidate.type === 'street' && candidate.group === group,
+    ).length;
+
+    return (
+        <GroupColorField
+            session={session}
+            edition={edition}
+            resolved={resolved}
+            group={group}
+            label={t('editor.group_color')}
+            tag={t('editor.group_streets', {
+                count,
+                color: groupColorName(edition, group, locale).before,
+            })}
+        />
+    );
+};
+
+const TitlePlace = ({
+    session,
+    edition,
+    resolved,
+    editKey,
+    kind,
+}: Pick<
+    StyleSectionProps,
+    'session' | 'edition' | 'resolved' | 'editKey' | 'kind'
+>) => {
+    const lid = resolved.boxLid;
+    // The board centre always has its layout (B187): where the name, photo or logo sit, and how large. The box lid
+    // can move its title over a photo over the whole lid (B170).
+    return kind === 'boardCenter' ? (
+        <CenterPlaceControls
+            session={session}
+            editKey={editKey}
+            resolved={resolved}
+            theme={edition.theme}
+        />
+    ) : kind === 'boxLid' &&
+      lid !== null &&
+      (lid.photo === undefined || lid.logo) ? (
+        // The lid shows the name on a plate above the board or the logo (B256): its look is a choice of its own.
+        <LidNameControls
+            session={session}
+            editKey={editKey}
+            value={lid.titleStyle}
+            theme={edition.theme}
+        />
+    ) : kind === 'boxLid' &&
+      lid !== null &&
+      lid.photo !== undefined &&
+      lid.photoStyle === 'full' ? (
+        <TitleControls
+            session={session}
+            editKey={editKey}
+            offset={lid.titleOffset}
+            band={lid.titleBand}
+        />
+    ) : null;
+};
+
 const ElementStyle = ({
     session,
     edition,
@@ -170,26 +242,13 @@ const ElementStyle = ({
     selectedLayer,
     onSelectLayer,
 }: StyleSectionProps) => {
-    const t = useTranslation();
-    const { locale } = usePage().props;
-
     if (space?.type === 'street') {
-        const count = standardEdition.spaces.filter(
-            (candidate) =>
-                candidate.type === 'street' && candidate.group === space.group,
-        ).length;
-
         return (
-            <GroupColorField
+            <StreetColorField
                 session={session}
                 edition={edition}
                 resolved={resolved}
                 group={space.group}
-                label={t('editor.group_color')}
-                tag={t('editor.group_streets', {
-                    count,
-                    color: groupColorName(edition, space.group, locale).before,
-                })}
             />
         );
     }
@@ -216,42 +275,15 @@ const ElementStyle = ({
         return null;
     }
 
-    const lid = resolved.boxLid;
-    // The board centre always has its layout (B187): where the name, photo or logo sit, and how large. The box lid
-    // can move its title over a photo over the whole lid (B170).
-    const title =
-        kind === 'boardCenter' ? (
-            <CenterPlaceControls
-                session={session}
-                editKey={editKey}
-                resolved={resolved}
-                theme={edition.theme}
-            />
-        ) : kind === 'boxLid' &&
-          lid !== null &&
-          (lid.photo === undefined || lid.logo) ? (
-            // The lid shows the name on a plate above the board or the logo (B256): its look is a choice of its own.
-            <LidNameControls
-                session={session}
-                editKey={editKey}
-                value={lid.titleStyle}
-                theme={edition.theme}
-            />
-        ) : kind === 'boxLid' &&
-          lid !== null &&
-          lid.photo !== undefined &&
-          lid.photoStyle === 'full' ? (
-            <TitleControls
-                session={session}
-                editKey={editKey}
-                offset={lid.titleOffset}
-                band={lid.titleBand}
-            />
-        ) : null;
-
     return (
         <>
-            {title}
+            <TitlePlace
+                session={session}
+                edition={edition}
+                resolved={resolved}
+                editKey={editKey}
+                kind={kind}
+            />
             <ElementLayers
                 session={session}
                 edition={edition}

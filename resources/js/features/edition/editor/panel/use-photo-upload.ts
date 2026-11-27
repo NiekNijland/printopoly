@@ -9,7 +9,7 @@ import {
 import {
     movePhoto,
     placeChoice,
-    placePhoto,
+    withMissedPlaced,
     undoChanges,
     type Before,
     type Placed,
@@ -21,7 +21,7 @@ import {
 import { isTypingTarget } from '@/features/edition/editor/shortcuts';
 import type { EditionSession } from '@/features/edition/session';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
-import type { Edition } from '@/lib/render/edition-types';
+import type { Edition, PhotoRecord } from '@/lib/render/edition-types';
 import type { PhotoCache } from '@/lib/render/editor-photo-cache';
 
 type PhotoUploadOptions = {
@@ -141,6 +141,9 @@ const clipboardImages = async (clipboard: Clipboard): Promise<File[]> => {
 const browserClipboard = (): Clipboard | undefined =>
     typeof navigator === 'undefined' ? undefined : navigator.clipboard;
 
+const carriesFiles = (transfer: DataTransfer | undefined): boolean =>
+    transfer === undefined || [...transfer.types].includes('Files');
+
 const useDrop = (
     canHold: boolean,
     assign: (files: File[]) => Promise<void>,
@@ -152,12 +155,7 @@ const useDrop = (
         dropProps: {
             onDragOver: (event) => {
                 // Only files: a photo dragged from row to row in the list is a swap (B238), not an upload.
-                const transfer: DataTransfer | undefined = event.dataTransfer;
-                const types = transfer?.types;
-                if (
-                    canHold &&
-                    (types === undefined || [...types].includes('Files'))
-                ) {
+                if (canHold && carriesFiles(event.dataTransfer)) {
                     event.preventDefault();
                     setDragging(true);
                 }
@@ -198,6 +196,80 @@ const usePreviews = () => {
     return { free, preview };
 };
 
+const usePlacedPhotos = (
+    session: EditionSession,
+    labelOf: (key: string) => string,
+    ingest: (file: File) => Promise<PhotoRecord | null>,
+) => {
+    const [placed, setPlaced] = useState<Placed | null>(null);
+    // How the elements of the last choice of several photos were before it, for Ongedaan maken.
+    const before = useRef<Before>(new Map());
+    const say = (text: string): void => setPlaced({ kind: 'message', text });
+    const batch = placed?.kind === 'batch' && !placed.undone ? placed : null;
+
+    const placeMissed = async (index: number, key: string): Promise<void> => {
+        const photo = batch?.missed[index];
+        if (
+            batch === null ||
+            photo === undefined ||
+            batch.items.some((item) => item.key === key)
+        ) {
+            return;
+        }
+        const record = await ingest(photo.file);
+        if (record === null) {
+            return;
+        }
+        setPlaced(
+            withMissedPlaced(session, before.current, batch, {
+                index,
+                key,
+                record,
+                label: labelOf(key),
+                file: photo.name,
+            }),
+        );
+    };
+
+    return {
+        placed,
+        setPlaced,
+        say,
+        startChoice: (): Before => {
+            before.current = new Map();
+
+            return before.current;
+        },
+        undoPlaced: () => {
+            undoChanges(session, before.current);
+            before.current = new Map();
+            setPlaced((current) =>
+                current?.kind === 'batch'
+                    ? { ...current, undone: true }
+                    : current,
+            );
+        },
+        dismissPlaced: () => setPlaced(null),
+        movePlaced: (index: number, key: string) => {
+            const items =
+                batch === null
+                    ? null
+                    : movePhoto(
+                          session,
+                          before.current,
+                          batch,
+                          index,
+                          key,
+                          labelOf,
+                      );
+            if (batch !== null && items !== null) {
+                setPlaced({ ...batch, items });
+            }
+        },
+        placeMissed,
+    };
+};
+
 /**
  * Choosing, dropping and pasting photos on an element (B93): one file goes on the element, several fill the
  * next elements that can show one. Ctrl/Cmd+V with an image on the clipboard works outside text fields.
@@ -215,9 +287,11 @@ export const usePhotoUpload = ({
     const t = useTranslation();
     const tc = useTranslationChoice();
     const { uploads, setUploads, ingest } = usePhotoIngest(edition, cache);
-    const [placed, setPlaced] = useState<Placed | null>(null);
-    // How the elements of the last choice of several photos were before it, for Ongedaan maken.
-    const before = useRef<Before>(new Map());
+    const { setPlaced, say, startChoice, ...list } = usePlacedPhotos(
+        session,
+        labelOf,
+        ingest,
+    );
     const previews = usePreviews();
     const [uploadsKey, setUploadsKey] = useState(editKey);
     // Errors belong to the element they were made for: another element starts clean. The list after several
@@ -227,14 +301,12 @@ export const usePhotoUpload = ({
         setPlaced((current) => (current?.kind === 'batch' ? current : null));
         setUploads((list) => list.filter((item) => item.kind === 'working'));
     }
-    const say = (text: string): void => setPlaced({ kind: 'message', text });
-    const batch = placed?.kind === 'batch' && !placed.undone ? placed : null;
 
     const assign = async (files: File[]): Promise<void> => {
         // A new choice replaces the errors of the previous one.
         setUploads((list) => list.filter((item) => item.kind === 'working'));
         setPlaced(null);
-        before.current = new Map();
+        const before = startChoice();
         previews.free();
         const result = await placeChoice(
             {
@@ -242,7 +314,7 @@ export const usePhotoUpload = ({
                 editKey,
                 siblings,
                 labelOf,
-                before: before.current,
+                before,
                 ingest,
                 preview: previews.preview,
                 skipped: (count) => tc('editor.photos_skipped', count),
@@ -254,79 +326,13 @@ export const usePhotoUpload = ({
         }
     };
 
-    const placeMissed = async (index: number, key: string): Promise<void> => {
-        const photo = batch?.missed[index];
-        if (
-            batch === null ||
-            photo === undefined ||
-            batch.items.some((item) => item.key === key)
-        ) {
-            return;
-        }
-        const record = await ingest(photo.file);
-        if (record === null) {
-            return;
-        }
-        const replaced = session.edition.elements[key]?.photo !== undefined;
-        const group = `photos-move:${String(Date.now())}`;
-        const placement = placePhoto(
-            session,
-            before.current,
-            key,
-            record,
-            group,
-        );
-        setPlaced({
-            ...batch,
-            items: [
-                ...batch.items,
-                {
-                    key,
-                    label: labelOf(key),
-                    file: photo.name,
-                    placement,
-                    how: 'chosen',
-                    replaced,
-                },
-            ],
-            missed: batch.missed.filter((_, at) => at !== index),
-        });
-    };
-
     usePasteShortcut(pasteShortcut, { assign, canHold, t, say });
     const clipboard = browserClipboard();
     const drop = useDrop(canHold, assign);
 
     return {
         uploads,
-        placed,
-        undoPlaced: () => {
-            undoChanges(session, before.current);
-            before.current = new Map();
-            setPlaced((current) =>
-                current?.kind === 'batch'
-                    ? { ...current, undone: true }
-                    : current,
-            );
-        },
-        dismissPlaced: () => setPlaced(null),
-        movePlaced: (index, key) => {
-            const items =
-                batch === null
-                    ? null
-                    : movePhoto(
-                          session,
-                          before.current,
-                          batch,
-                          index,
-                          key,
-                          labelOf,
-                      );
-            if (batch !== null && items !== null) {
-                setPlaced({ ...batch, items });
-            }
-        },
-        placeMissed,
+        ...list,
         assign,
         canPasteButton: typeof clipboard?.read === 'function',
         choose: (event) => {

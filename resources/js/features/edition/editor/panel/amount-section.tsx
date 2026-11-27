@@ -153,7 +153,7 @@ const directionOptions = (
     { id: 'receive', label: t('editor.amount_receive') },
 ];
 
-export const cardAmountState = (
+const cardAmountState = (
     card: ResolvedCard,
     baseline: number | undefined,
     own: number | undefined,
@@ -179,6 +179,18 @@ export const cardAmountState = (
         value: shown ? Math.abs(card.amount ?? standardSigned) : Math.abs(base),
     };
 };
+
+const suggestedAmount = (
+    named: number | undefined,
+    range: { min: number; max: number },
+    current: number | undefined,
+): number | undefined =>
+    named !== undefined &&
+    Math.abs(named) >= range.min &&
+    Math.abs(named) <= range.max &&
+    named !== current
+        ? named
+        : undefined;
 
 /**
  * The amount line of a standard card (B132, B140): first whether the player pays or receives, or no amount line at
@@ -217,15 +229,11 @@ const CardAmount = ({
             `amount:${editKey}`,
         );
 
-    const range = amountRange(standard);
-    const named = textAmount(override?.text ?? '');
-    const suggest =
-        named !== undefined &&
-        Math.abs(named) >= range.min &&
-        Math.abs(named) <= range.max &&
-        (!shown || named !== sign * value)
-            ? named
-            : undefined;
+    const suggest = suggestedAmount(
+        textAmount(override?.text ?? ''),
+        amountRange(standard),
+        shown ? sign * value : undefined,
+    );
 
     return (
         <div className="flex flex-col gap-3">

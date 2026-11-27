@@ -259,6 +259,11 @@ export type ChoiceOption<T extends string> = {
     icon?: ReactNode;
 };
 
+const fullLabel = <T extends string>(
+    option: ChoiceOption<T>,
+): string | undefined =>
+    option.short === undefined ? undefined : option.label;
+
 /**
  * A row of choices, only those the element has (§3.4): "Geen / Foto", "Standaard / Icoon / Eigen / Foto". It is
  * shadcn's ToggleGroup as one segmented bar (B195, B196): the chosen segment has the red selection of the design
@@ -324,16 +329,8 @@ export const ChoiceRow = <T extends string>({
                         value={option.id}
                         data-choice={option.id}
                         data-field={fields?.[option.id]}
-                        aria-label={
-                            option.short === undefined
-                                ? undefined
-                                : option.label
-                        }
-                        title={
-                            option.short === undefined
-                                ? undefined
-                                : option.label
-                        }
+                        aria-label={fullLabel(option)}
+                        title={fullLabel(option)}
                         className={cn(
                             'h-auto min-h-12 flex-1 shrink basis-auto px-2 py-1 text-center text-sm leading-tight whitespace-normal min-[400px]:px-3',
                             grid &&

@@ -118,24 +118,57 @@ const DeedLine = ({
     );
 };
 
-/**
- * The Afbeelding section (§3.4, B141): one row with only the choices the element has, then the tools for that
- * choice. Photo tools (In kader / Hele vak, zoom, a quarter turn, black and white) come after a photo is chosen.
- */
-export const ImageSection = ({
+const SectionPhotoTools = ({
     session,
     edition,
-    resolved,
     editKey,
     kind,
-    iconSpace,
+    override,
     photoStyle,
     context,
     onAct,
     cache,
     upload,
-    onAnnounce,
-}: ImageSectionProps) => {
+    onChoose,
+    onSwapped,
+    chooseButton,
+}: Omit<ImageSectionProps, 'resolved' | 'iconSpace' | 'onAnnounce'> & {
+    override: ElementOverride | undefined;
+    onChoose: () => void;
+    onSwapped?: (text: string) => void;
+    chooseButton: boolean;
+}) => (
+    <PhotoTools
+        chooseButton={chooseButton}
+        session={session}
+        editKey={editKey}
+        override={override}
+        photoStyle={photoStyle}
+        extra={
+            <DeedLine
+                session={session}
+                edition={edition}
+                editKey={editKey}
+                kind={kind}
+                override={override}
+            />
+        }
+        context={context}
+        onAct={onAct}
+        cache={cache}
+        upload={upload}
+        onChoose={onChoose}
+        onSwapped={onSwapped}
+    />
+);
+
+/**
+ * The Afbeelding section (§3.4, B141): one row with only the choices the element has, then the tools for that
+ * choice. Photo tools (In kader / Hele vak, zoom, a quarter turn, black and white) come after a photo is chosen.
+ */
+export const ImageSection = (props: ImageSectionProps) => {
+    const { session, edition, resolved, editKey, kind, iconSpace } = props;
+    const { cache, upload } = props;
     const override: ElementOverride | undefined = edition.elements[editKey];
     const placement = override?.photo;
     const fileInput = useRef<HTMLInputElement>(null);
@@ -148,27 +181,12 @@ export const ImageSection = ({
         setPending(choice === null ? null : { key: editKey, choice });
     const openFiles = (): void => fileInput.current?.click();
     const photoTools = (chooseButton: boolean) => (
-        <PhotoTools
-            chooseButton={chooseButton}
-            session={session}
-            editKey={editKey}
+        <SectionPhotoTools
+            {...props}
             override={override}
-            photoStyle={photoStyle}
-            extra={
-                <DeedLine
-                    session={session}
-                    edition={edition}
-                    editKey={editKey}
-                    kind={kind}
-                    override={override}
-                />
-            }
-            context={context}
-            onAct={onAct}
-            cache={cache}
-            upload={upload}
             onChoose={openFiles}
-            onSwapped={onAnnounce}
+            onSwapped={props.onAnnounce}
+            chooseButton={chooseButton}
         />
     );
     const parts: ImageParts = {

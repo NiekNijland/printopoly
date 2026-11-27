@@ -10,9 +10,11 @@ import {
     ALLOWED_FIELDS,
     PAWN_COUNT,
     parseKey,
+    type ElementKind,
 } from '@/lib/render/edition-keys';
 import {
     resolvedCardOf,
+    type ResolvedCard,
     type ResolvedEdition,
 } from '@/lib/render/edition-resolve';
 import type { Edition } from '@/lib/render/edition-types';
@@ -23,7 +25,7 @@ import {
     spaceOfKey,
     type PanelSection as SectionId,
 } from '@/lib/render/editor-panel-sections';
-import type { PhotoCache } from '@/lib/render/editor-photo-cache';
+import type { PhotoCache, PhotoInfos } from '@/lib/render/editor-photo-cache';
 import type {
     PlacementAction,
     PlacementContext,
@@ -38,7 +40,7 @@ import { PanelHeader } from './panel/panel-header';
 import { FieldIssues, PanelSection } from './panel/panel-section';
 import { SectionBody } from './panel/section-body';
 import { sectionSummary } from './panel/section-summary';
-import { usePhotoUpload } from './panel/use-photo-upload';
+import { usePhotoUpload, type PhotoUpload } from './panel/use-photo-upload';
 
 export type ElementPanelProps = {
     session: EditionSession;
@@ -156,6 +158,16 @@ export const kindLine = (
     return t(`editor.kind_${kind ?? 'space'}`);
 };
 
+const canHoldPhoto = (editKey: string, resolved: ResolvedEdition): boolean => {
+    const kind = parseKey(editKey)?.kind;
+
+    return kind === 'boardCenter'
+        ? resolved.boardCenter.mode !== 'name'
+        : holdsPhoto(editKey) &&
+              kind !== undefined &&
+              ALLOWED_FIELDS[kind].includes('photo');
+};
+
 /**
  * The field panel (B93, B141): a head with the ⋯ menu, the Controle messages of the element, then the fixed
  * sections Tekst, Afbeelding, Bedragen, Stijl and, when a friend sent something, Van vrienden. A section is only
@@ -163,7 +175,7 @@ export const kindLine = (
  */
 export const ElementPanel = (props: ElementPanelProps) => {
     const { session, edition, resolved, editKey, title, cache } = props;
-    const { friends, status: shared } = props;
+    const { status: shared } = props;
     const t = useTranslation();
     const { locale: interfaceLocale } = usePage().props;
     const ownStatus = useElementStatus(editKey);
@@ -172,7 +184,6 @@ export const ElementPanel = (props: ElementPanelProps) => {
     const space = spaceOfKey(editKey);
     const card =
         kind === 'card' ? resolvedCardOf(resolved, editKey) : undefined;
-    const allowed = kind === undefined ? [] : ALLOWED_FIELDS[kind];
     const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
     const upload = usePhotoUpload({
         session,
@@ -180,19 +191,10 @@ export const ElementPanel = (props: ElementPanelProps) => {
         editKey,
         cache,
         siblings: props.siblings,
-        canHold:
-            kind === 'boardCenter'
-                ? resolved.boardCenter.mode !== 'name'
-                : holdsPhoto(editKey) && allowed.includes('photo'),
+        canHold: canHoldPhoto(editKey, resolved),
         labelOf: (key) => elementLabel(key, edition, interfaceLocale),
     });
     const { own, top } = elementIssues(props.issues, editKey, space);
-    const titles: Record<SectionId, string> = {
-        text: t('editor.section_text'),
-        image: t('editor.section_image'),
-        amounts: t('editor.section_amounts'),
-        style: t('editor.section_style'),
-    };
 
     return (
         <aside
@@ -227,76 +229,127 @@ export const ElementPanel = (props: ElementPanelProps) => {
                 />
             </div>
 
-            {top.length > 0 && (
-                <div className="flex flex-col gap-2">
-                    <FieldIssues
-                        issues={top}
-                        action={(issue) => (
-                            <IssueFix
-                                issue={issue}
-                                session={session}
-                                edition={edition}
-                                editKey={editKey}
-                                card={card}
-                                photos={photos}
-                                announce={status.announce}
-                            />
-                        )}
-                    />
-                </div>
-            )}
+            <PanelIssues
+                {...props}
+                top={top}
+                card={card}
+                photos={photos}
+                announce={status.announce}
+            />
 
             {/* The key starts every element with fresh sections: on a phone the first one is open. */}
-            <div key={editKey} className="flex flex-col gap-4 md:gap-5">
-                {panelSections(editKey).map((id, index) => (
-                    <PanelSection
-                        key={id}
-                        id={id}
-                        title={titles[id]}
-                        summary={sectionSummary(
-                            id,
-                            { edition, editKey, kind, space },
-                            t,
-                        )}
-                        defaultOpen={index === 0}
-                    >
-                        <SectionBody
-                            {...props}
-                            id={id}
-                            kind={kind}
-                            space={space}
-                            iconSpace={
-                                kind === 'space' && space?.type !== 'street'
-                                    ? space
-                                    : undefined
-                            }
-                            card={card}
-                            own={own}
-                            photoStyle={
-                                edition.elements[editKey]?.photo !==
-                                    undefined &&
-                                allowed.includes('photoStyle') &&
-                                (kind !== 'space' ||
-                                    space === undefined ||
-                                    cornerOf(space.position) === undefined)
-                            }
-                            upload={upload}
-                            announce={status.announce}
-                            selectedLayer={props.selectedLayer ?? null}
-                        />
-                    </PanelSection>
-                ))}
-                <FriendsPart
-                    friends={friends}
-                    editKey={editKey}
-                    space={space}
-                />
-            </div>
+            <PanelSections
+                key={editKey}
+                {...props}
+                kind={kind}
+                space={space}
+                card={card}
+                own={own}
+                upload={upload}
+                announce={status.announce}
+            />
 
             <p role="status" className="m-0 min-h-5 text-sm">
                 {status.text}
             </p>
         </aside>
+    );
+};
+
+const PanelIssues = ({
+    top,
+    session,
+    edition,
+    editKey,
+    card,
+    photos,
+    announce,
+}: ElementPanelProps & {
+    top: CheckIssue[];
+    card: ResolvedCard | undefined;
+    photos: PhotoInfos;
+    announce: (text: string) => void;
+}) =>
+    top.length === 0 ? null : (
+        <div className="flex flex-col gap-2">
+            <FieldIssues
+                issues={top}
+                action={(issue) => (
+                    <IssueFix
+                        issue={issue}
+                        session={session}
+                        edition={edition}
+                        editKey={editKey}
+                        card={card}
+                        photos={photos}
+                        announce={announce}
+                    />
+                )}
+            />
+        </div>
+    );
+
+type PanelSectionsProps = ElementPanelProps & {
+    kind: ElementKind | undefined;
+    space: Space | undefined;
+    card: ResolvedCard | undefined;
+    own: CheckIssue[];
+    upload: PhotoUpload;
+    announce: (text: string) => void;
+};
+
+const PanelSections = (props: PanelSectionsProps) => {
+    const { edition, editKey, kind, space, friends } = props;
+    const t = useTranslation();
+    const allowed = kind === undefined ? [] : ALLOWED_FIELDS[kind];
+    const titles: Record<SectionId, string> = {
+        text: t('editor.section_text'),
+        image: t('editor.section_image'),
+        amounts: t('editor.section_amounts'),
+        style: t('editor.section_style'),
+    };
+
+    return (
+        <div className="flex flex-col gap-4 md:gap-5">
+            {panelSections(editKey).map((id, index) => (
+                <PanelSection
+                    key={id}
+                    id={id}
+                    title={titles[id]}
+                    summary={sectionSummary(
+                        id,
+                        { edition, editKey, kind, space },
+                        t,
+                    )}
+                    defaultOpen={index === 0}
+                >
+                    <SectionBody
+                        {...props}
+                        id={id}
+                        kind={kind}
+                        space={space}
+                        iconSpace={
+                            kind === 'space' && space?.type !== 'street'
+                                ? space
+                                : undefined
+                        }
+                        card={props.card}
+                        own={props.own}
+                        photoStyle={
+                            edition.elements[editKey]?.photo !== undefined &&
+                            allowed.includes('photoStyle') &&
+                            (kind !== 'space' ||
+                                space === undefined ||
+                                cornerOf(space.position) === undefined)
+                        }
+                        upload={props.upload}
+                        announce={props.announce}
+                        selectedLayer={props.selectedLayer ?? null}
+                    />
+                </PanelSection>
+            ))}
+            <FriendsPart friends={friends} editKey={editKey} space={space} />
+        </div>
     );
 };
 

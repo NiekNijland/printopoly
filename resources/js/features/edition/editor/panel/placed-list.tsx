@@ -11,6 +11,49 @@ import { MissedRows, PlacedRows } from './placed-rows';
 
 type Batch = Extract<Placed, { kind: 'batch' }>;
 
+const PlacedHead = ({
+    placed,
+    onClose,
+}: {
+    placed: Batch;
+    onClose: () => void;
+}) => {
+    const t = useTranslation();
+    const tc = useTranslationChoice();
+    const named = placed.items.filter((item) => item.how === 'name').length;
+    const title = placed.undone
+        ? tc('editor.photos_undone', placed.items.length)
+        : placed.items.length === 0
+          ? tc('editor.photos_none_found', placed.missed.length)
+          : tc('editor.photos_placed_title', placed.items.length);
+
+    return (
+        <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+                <p className="m-0 font-display text-base font-extrabold">
+                    {title}
+                </p>
+                {!placed.undone && named > 0 && (
+                    <p className="m-0 text-sm text-ink-soft">
+                        {named === placed.items.length &&
+                        placed.missed.length === 0
+                            ? t('editor.photos_all_by_name')
+                            : tc('editor.photos_by_name', named)}
+                    </p>
+                )}
+            </div>
+            <Button
+                variant="icon"
+                className="-mt-1 -mr-1 size-9 min-h-9"
+                aria-label={t('editor.photos_close')}
+                onClick={onClose}
+            >
+                <CloseIcon size={16} />
+            </Button>
+        </div>
+    );
+};
+
 /**
  * The list after a choice of several photos (ronde 3, UX 1; ronde 4, UX 4; B237): which photo went on which
  * element, found by its name or put on the next empty one, with a choice per row to put it on another element.
@@ -40,10 +83,8 @@ export const PlacedList = ({
     scrollTo?: ScrollLogicalPosition;
 }) => {
     const t = useTranslation();
-    const tc = useTranslationChoice();
     const box = useRef<HTMLDivElement>(null);
     const first = placed.items[0]?.file ?? placed.missed[0]?.name;
-    const named = placed.items.filter((item) => item.how === 'name').length;
 
     // A new list comes into view, also when the panel was scrolled down to the photo field (bug 7).
     useEffect(() => {
@@ -52,12 +93,6 @@ export const PlacedList = ({
             node.scrollIntoView({ block: scrollTo, behavior: 'smooth' });
         }
     }, [first, scrollTo]);
-
-    const title = placed.undone
-        ? tc('editor.photos_undone', placed.items.length)
-        : placed.items.length === 0
-          ? tc('editor.photos_none_found', placed.missed.length)
-          : tc('editor.photos_placed_title', placed.items.length);
 
     return (
         <div
@@ -69,29 +104,7 @@ export const PlacedList = ({
             )}
             data-testid="photos-placed"
         >
-            <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                    <p className="m-0 font-display text-base font-extrabold">
-                        {title}
-                    </p>
-                    {!placed.undone && named > 0 && (
-                        <p className="m-0 text-sm text-ink-soft">
-                            {named === placed.items.length &&
-                            placed.missed.length === 0
-                                ? t('editor.photos_all_by_name')
-                                : tc('editor.photos_by_name', named)}
-                        </p>
-                    )}
-                </div>
-                <Button
-                    variant="icon"
-                    className="-mt-1 -mr-1 size-9 min-h-9"
-                    aria-label={t('editor.photos_close')}
-                    onClick={onClose}
-                >
-                    <CloseIcon size={16} />
-                </Button>
-            </div>
+            <PlacedHead placed={placed} onClose={onClose} />
             {!placed.undone && placed.items.length > 0 && (
                 <PlacedRows placed={placed} photos={photos} onMove={onMove} />
             )}

@@ -235,7 +235,7 @@ describe('ElementPanel on an edition from a template (B152)', () => {
         const template = templateEdition('village', 'nl');
         const key = Object.entries(template?.elements ?? {}).find(
             ([name, override]) =>
-                name.startsWith('card.') && override?.amount !== undefined,
+                name.startsWith('card.') && override.amount !== undefined,
         )?.[0];
         expect(key).toBeDefined();
         const { props, session } = await fromTemplate(key ?? '', {});
@@ -247,7 +247,7 @@ describe('ElementPanel on an edition from a template (B152)', () => {
             );
         const summaries = (): string[] =>
             [...document.querySelectorAll('[data-section-summary]')].map(
-                (node) => node.textContent ?? '',
+                (node) => node.textContent,
             );
 
         const first = renderWithI18n(<ElementPanel {...props} />);

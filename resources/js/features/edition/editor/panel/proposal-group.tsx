@@ -127,6 +127,38 @@ const OptionActions = ({
     );
 };
 
+const OptionPreview = ({
+    group,
+    contribution,
+    context,
+    photo,
+}: {
+    group: PartGroup;
+    contribution: BoxContributionData;
+    context: ProposalContext;
+    photo: string | null;
+}) => {
+    const { edition, photos } = context;
+
+    return (
+        <div className="flex justify-center rounded-control bg-table p-2">
+            <ContributionPreview
+                edition={edition}
+                contribution={{
+                    ...contribution,
+                    elementKey: group.elementKey,
+                    amount: null,
+                    value: group.part === 'photo' ? null : contribution.value,
+                }}
+                photoUrl={group.part === 'photo' ? photo : null}
+                photos={photos}
+                maxWidth={220}
+                maxHeight={200}
+            />
+        </div>
+    );
+};
+
 /** One proposal for one field: what it says, who sent it, Toepassen and Niet gebruiken. */
 const Option = ({
     group,
@@ -140,7 +172,7 @@ const Option = ({
     competing: boolean;
 }) => {
     const t = useTranslation();
-    const { edition, secret, photos } = context;
+    const { edition, secret } = context;
     const [looking, setLooking] = useState(false);
     const photo = useContributionPhoto(
         group.part === 'photo'
@@ -185,24 +217,12 @@ const Option = ({
                 </p>
             </div>
             {looking && group.part !== 'amount' && (
-                <div className="flex justify-center rounded-control bg-table p-2">
-                    <ContributionPreview
-                        edition={edition}
-                        contribution={{
-                            ...contribution,
-                            elementKey: group.elementKey,
-                            amount: null,
-                            value:
-                                group.part === 'photo'
-                                    ? null
-                                    : contribution.value,
-                        }}
-                        photoUrl={group.part === 'photo' ? photo : null}
-                        photos={photos}
-                        maxWidth={220}
-                        maxHeight={200}
-                    />
-                </div>
+                <OptionPreview
+                    group={group}
+                    contribution={contribution}
+                    context={context}
+                    photo={photo}
+                />
             )}
             <OptionActions
                 group={group}

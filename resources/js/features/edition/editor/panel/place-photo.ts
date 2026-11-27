@@ -64,7 +64,7 @@ export type Placed =
 export type Before = Map<string, ElementOverride | undefined>;
 
 /** Puts a new photo on `key`, remembering how the element was for Ongedaan maken. */
-export const placePhoto = (
+const placePhoto = (
     session: EditionSession,
     before: Before,
     key: string,
@@ -130,7 +130,7 @@ export const placePhoto = (
  * Where a photo of this choice may go in the list "foto → vak" (UX 4): every space and pawn a name can find
  * (B237), or for cards and notes the open element and the empty ones of its kind after it.
  */
-export const photoPool = (
+const photoPool = (
     session: EditionSession,
     editKey: string | null,
     siblings: readonly string[],
@@ -303,4 +303,48 @@ export const placeChoice = async (
               pool,
           }
         : null;
+};
+
+export const withMissedPlaced = (
+    session: EditionSession,
+    before: Before,
+    batch: Batch,
+    {
+        index,
+        key,
+        record,
+        label,
+        file,
+    }: {
+        index: number;
+        key: string;
+        record: PhotoRecord;
+        label: string;
+        file: string;
+    },
+): Batch => {
+    const replaced = session.edition.elements[key]?.photo !== undefined;
+    const placement = placePhoto(
+        session,
+        before,
+        key,
+        record,
+        `photos-move:${String(Date.now())}`,
+    );
+
+    return {
+        ...batch,
+        items: [
+            ...batch.items,
+            {
+                key,
+                label,
+                file,
+                placement,
+                how: 'chosen',
+                replaced,
+            },
+        ],
+        missed: batch.missed.filter((_, at) => at !== index),
+    };
 };

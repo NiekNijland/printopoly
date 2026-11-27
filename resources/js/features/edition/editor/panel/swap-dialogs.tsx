@@ -269,3 +269,34 @@ export const PhotoSwapDialog = ({
         </Dialog>
     );
 };
+
+export const ResetDialog = ({
+    open,
+    onOpenChange,
+    title,
+    onReset,
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    title: string;
+    onReset: () => void;
+}) => {
+    const t = useTranslation();
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogTitle>{t('editor.reset_confirm_title')}</DialogTitle>
+                <DialogDescription>
+                    {t('editor.reset_confirm_photo', { name: title })}
+                </DialogDescription>
+                <div className="mt-6 flex flex-wrap justify-end gap-2">
+                    <DialogClose asChild>
+                        <Button variant="secondary">{t('app.cancel')}</Button>
+                    </DialogClose>
+                    <Button onClick={onReset}>{t('editor.reset')}</Button>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+};
