@@ -8,10 +8,10 @@ import { updateElement } from '@/lib/render/edition-changes';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import { parseEdition } from '@/lib/render/edition-schema';
 import {
-    DEFAULT_PARTS,
     HIDDEN_TEMPLATE_IDS,
     isOfferedTemplate,
-} from '@/lib/render/edition-types';
+} from '@/lib/render/edition-template-ids';
+import { DEFAULT_PARTS } from '@/lib/render/edition-types';
 import { buildCheckInput } from '@/lib/render/editor-checks-input';
 import { editorView } from '@/lib/render/editor-print-selection';
 import { standardEdition } from '@/lib/render/standard-edition';

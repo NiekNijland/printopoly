@@ -4,7 +4,6 @@ import type { CurrencyId, Locale } from '@/types/game';
 import { parseKey } from './edition-keys';
 import { messages } from './edition-strings';
 import {
-    PART_IDS,
     type Edition,
     type ElementChange,
     type PartId,
@@ -22,10 +21,17 @@ export type SettingsChange = {
 
 /** Count of elements with an override per part. */
 export const customizedPerPart = (edition: Edition): Record<PartId, number> => {
-    const counts = Object.fromEntries(PART_IDS.map((id) => [id, 0])) as Record<
-        PartId,
-        number
-    >;
+    const counts: Record<PartId, number> = {
+        board: 0,
+        deeds: 0,
+        cards: 0,
+        money: 0,
+        pawns: 0,
+        boxLid: 0,
+        houseRules: 0,
+        rulesBooklet: 0,
+        invitation: 0,
+    };
     for (const key of Object.keys(edition.elements)) {
         const part = parseKey(key)?.part;
         if (part !== undefined) {

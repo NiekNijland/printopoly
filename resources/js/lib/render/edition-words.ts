@@ -163,23 +163,19 @@ export const resolveWords = (
         // A plural left empty is the singular, so one filled field already gives a usable word.
         house: {
             singular: house ?? base.house.singular,
-            plural: houses ?? (house === undefined ? base.house.plural : house),
+            plural: houses ?? house ?? base.house.plural,
         },
         hotel: {
             singular: hotel ?? base.hotel.singular,
-            plural: hotels ?? (hotel === undefined ? base.hotel.plural : hotel),
+            plural: hotels ?? hotel ?? base.hotel.plural,
         },
         station: {
             singular: station ?? base.station.singular,
-            plural:
-                stations ??
-                (station === undefined ? base.station.plural : station),
+            plural: stations ?? station ?? base.station.plural,
         },
         utility: {
             singular: utility ?? base.utility.singular,
-            plural:
-                utilities ??
-                (utility === undefined ? base.utility.plural : utility),
+            plural: utilities ?? utility ?? base.utility.plural,
         },
         jail: jail ?? base.jail,
         decks: {

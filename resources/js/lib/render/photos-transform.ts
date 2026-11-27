@@ -180,6 +180,19 @@ export const nudge = (
     return panBy(source, t, target, dx, dy);
 };
 
+const CLOCKWISE: Record<Rotation, Rotation> = {
+    0: 90,
+    90: 180,
+    180: 270,
+    270: 0,
+};
+const ANTICLOCKWISE: Record<Rotation, Rotation> = {
+    0: 270,
+    90: 0,
+    180: 90,
+    270: 180,
+};
+
 /** Rotates the photo a quarter turn (1 = clockwise, -1 = anticlockwise) and keeps the same spot centred. */
 export const rotateQuarter = (
     source: Size,
@@ -187,7 +200,8 @@ export const rotateQuarter = (
     target: Size,
     turns: 1 | -1,
 ): PhotoTransform => {
-    const rotation = ((t.rotation + 90 * turns + 360) % 360) as Rotation;
+    const rotation =
+        turns === 1 ? CLOCKWISE[t.rotation] : ANTICLOCKWISE[t.rotation];
     const [x, y] = turns === 1 ? [1 - t.y, t.x] : [t.y, 1 - t.x];
     return clampTransform(source, { ...t, rotation, x, y }, target);
 };

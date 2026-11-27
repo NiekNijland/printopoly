@@ -14,7 +14,7 @@ import {
 import type { EditionSession } from '@/features/edition/session';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { baselineOf } from '@/lib/render/edition-baseline';
-import { MAX_NAME_LENGTH } from '@/lib/render/edition-schema';
+import { MAX_NAME_LENGTH } from '@/lib/render/edition-schema-limits';
 import type { Edition } from '@/lib/render/edition-types';
 import { elementLabel, isCustomized } from '@/lib/render/editor-catalogue';
 import { isNamedSpaceKey } from '@/lib/render/editor-clear-names';

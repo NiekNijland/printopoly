@@ -35,7 +35,7 @@ export const buildStyle = (
     const groupColors: Partial<Record<GroupId, string>> = {};
 
     for (const group of resolved.groups) {
-        if (group.customized && group.color !== undefined) {
+        if (group.customized) {
             groupColors[group.id] = group.color;
         }
     }

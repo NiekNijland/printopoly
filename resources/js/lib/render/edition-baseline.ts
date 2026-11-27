@@ -4,15 +4,17 @@ import type { Locale } from '@/types/game';
 import { sameOverride } from './edition-changes';
 import { NAMED_SPACE_KEYS, deckCardKeys } from './edition-keys';
 import {
-    DEFAULT_PARTS,
     EMPTY_TEMPLATE,
     KNOWN_TEMPLATE_IDS,
+    type TemplateId,
+} from './edition-template-ids';
+import {
+    DEFAULT_PARTS,
     type Edition,
     type ElementField,
     type ElementOverride,
     type Elements,
     type Parts,
-    type TemplateId,
 } from './edition-types';
 
 /**
@@ -185,12 +187,11 @@ const sameValue = (a: unknown, b: unknown): boolean => {
     }
     const left = Object.entries(a).filter(([, value]) => value !== undefined);
     const right = Object.entries(b).filter(([, value]) => value !== undefined);
+    const rightByKey = new Map<string, unknown>(right);
 
     return (
         left.length === right.length &&
-        left.every(([key, value]) =>
-            sameValue(value, (b as Record<string, unknown>)[key]),
-        )
+        left.every(([key, value]) => sameValue(value, rightByKey.get(key)))
     );
 };
 

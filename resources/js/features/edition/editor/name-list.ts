@@ -5,7 +5,7 @@ import {
     pawnKey,
     spaceKey,
 } from '@/lib/render/edition-keys';
-import { MAX_NAME_LENGTH } from '@/lib/render/edition-schema';
+import { MAX_NAME_LENGTH } from '@/lib/render/edition-schema-limits';
 import type { Edition, ElementChange } from '@/lib/render/edition-types';
 import { spaceAt, standardEdition } from '@/lib/render/standard-edition';
 

@@ -29,8 +29,9 @@ import {
 import { useServices } from '@/features/edition/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import { messages } from '@/lib/render/edition-strings';
+import { isOfferedTemplate } from '@/lib/render/edition-template-ids';
 import { template, templateEdition } from '@/lib/render/edition-templates';
-import { DEFAULT_PARTS, isOfferedTemplate } from '@/lib/render/edition-types';
+import { DEFAULT_PARTS } from '@/lib/render/edition-types';
 import { emptiedEdition } from '@/lib/render/editor-clear-names';
 import { defaultCurrency } from '@/lib/render/game-currency';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';

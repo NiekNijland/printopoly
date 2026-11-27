@@ -1,4 +1,4 @@
-import { luminance } from './color';
+import { luminance, rgbOf } from './color';
 
 const INK = '#1B1F24';
 const WHITE = '#FFFFFF';
@@ -8,14 +8,6 @@ export const contrastRatio = (a: string, b: string): number => {
     const [light, dark] = [luminance(a), luminance(b)].sort((x, y) => y - x);
 
     return ((light ?? 0) + 0.05) / ((dark ?? 0) + 0.05);
-};
-
-const rgb = (hex: string): [number, number, number] => {
-    const value = hex.replace('#', '');
-
-    return [0, 2, 4].map((offset) =>
-        parseInt(value.slice(offset, offset + 2), 16),
-    ) as [number, number, number];
 };
 
 const toHex = (r: number, g: number, b: number): string => {
@@ -29,7 +21,7 @@ const toHex = (r: number, g: number, b: number): string => {
 
 /** Hue (0 to 360), saturation and value (0 to 1) of a `#RRGGBB` colour. */
 const hsv = (hex: string): { h: number; s: number; v: number } => {
-    const [r, g, b] = rgb(hex).map((c) => c / 255) as [number, number, number];
+    const [r, g, b] = rgbOf(hex, 255);
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
     const d = max - min;

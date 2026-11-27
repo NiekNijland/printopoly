@@ -73,7 +73,8 @@ export const amountFields = (space: Space): AmountField[] => {
             return space.corner === 'start' && space.salary !== undefined
                 ? [{ id: 'salary', standard: space.salary }]
                 : [];
-        default:
+        case 'chance':
+        case 'chest':
             return [];
     }
 };
@@ -101,27 +102,38 @@ export const applyAmounts = (
 
         return own === undefined ? standard : clampAmount(own, standard);
     };
+    const rent = (index: number, standard: number): number =>
+        value(`rent.${String(index)}`, standard);
 
     switch (space.type) {
-        case 'street':
+        case 'street': {
+            const [r0, r1, r2, r3, r4, r5] = space.rent;
+
             return {
                 ...space,
                 price: value('price', space.price),
-                rent: space.rent.map((standard, index) =>
-                    value(`rent.${String(index)}`, standard),
-                ) as unknown as typeof space.rent,
+                rent: [
+                    rent(0, r0),
+                    rent(1, r1),
+                    rent(2, r2),
+                    rent(3, r3),
+                    rent(4, r4),
+                    rent(5, r5),
+                ],
                 houseCost: value('houseCost', space.houseCost),
                 mortgage: value('mortgage', space.mortgage),
             };
-        case 'station':
+        }
+        case 'station': {
+            const [r0, r1, r2, r3] = space.rent;
+
             return {
                 ...space,
                 price: value('price', space.price),
-                rent: space.rent.map((standard, index) =>
-                    value(`rent.${String(index)}`, standard),
-                ) as unknown as typeof space.rent,
+                rent: [rent(0, r0), rent(1, r1), rent(2, r2), rent(3, r3)],
                 mortgage: value('mortgage', space.mortgage),
             };
+        }
         case 'utility':
             return {
                 ...space,
@@ -134,7 +146,8 @@ export const applyAmounts = (
             return space.salary === undefined
                 ? space
                 : { ...space, salary: value('salary', space.salary) };
-        default:
+        case 'chance':
+        case 'chest':
             return space;
     }
 };

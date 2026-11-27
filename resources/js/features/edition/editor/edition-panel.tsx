@@ -35,7 +35,7 @@ import {
 } from '@/lib/render/edition-keys';
 import { partsWithStyles } from '@/lib/render/edition-part-styles';
 import type { ResolvedEdition } from '@/lib/render/edition-resolve';
-import { MAX_NAME_LENGTH } from '@/lib/render/edition-schema';
+import { MAX_NAME_LENGTH } from '@/lib/render/edition-schema-limits';
 import {
     changeBoardProfile,
     changeLanguage,

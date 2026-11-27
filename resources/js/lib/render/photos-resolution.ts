@@ -163,7 +163,7 @@ const unrotateRect = (r: Rect, source: Size, rotation: Rotation): Rect => {
                 return [source.w - u, source.h - v];
             case 270:
                 return [source.w - v, u];
-            default:
+            case 0:
                 return [u, v];
         }
     };
