@@ -3,7 +3,11 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { setServices } from '@/features/edition/editor/testing/services';
 import { EditionRepository } from '@/features/edition/repository';
 import { MemoryEditionStorage } from '@/lib/render/edition-storage';
-import { createFakeNetwork, makeBus } from '@/testing/edition-test-utils';
+import {
+    createFakeNetwork,
+    makeBus,
+    settle,
+} from '@/testing/edition-test-utils';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
 
 import { useEditionList, useServices } from './use-editions';
@@ -77,7 +81,7 @@ describe('useEditionList', () => {
 
         await storage.createEdition(sampleEdition({ id: 'a' }));
         other.post({ kind: 'saved', editionId: 'a', revision: 1 });
-        await new Promise((resolve) => setTimeout(resolve, 20));
+        await act(settle);
         expect(result.current.editions).toEqual([]);
 
         other.post({ kind: 'deleted', editionId: 'b' });
