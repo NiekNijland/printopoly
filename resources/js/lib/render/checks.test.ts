@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkParts, checkPawns, runChecks } from './checks';
+import { runChecks } from './checks';
 import type { CheckInput, CheckPhoto, PartSelection } from './checks-types';
 import { coverTransform, setZoom } from './photos-transform';
 import { DEFAULT_BOARD_PROFILE } from './print-board';
@@ -13,6 +13,20 @@ const parts: PartSelection = {
     boxLid: false,
     houseRules: false,
 };
+
+const checkParts = (selection: PartSelection) =>
+    runChecks({ board: DEFAULT_BOARD_PROFILE, parts: selection, elements: [] });
+
+const checkPawns = (
+    selection: PartSelection,
+    pawnsWithoutPhoto: readonly string[],
+) =>
+    runChecks({
+        board: DEFAULT_BOARD_PROFILE,
+        parts: selection,
+        elements: [],
+        pawnsWithoutPhoto,
+    });
 
 const photo = (width: number, height: number, zoom = 1): CheckPhoto => {
     const frame = { w: 40, h: 30 };
