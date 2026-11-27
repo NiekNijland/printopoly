@@ -119,7 +119,7 @@ export const describeSaveStatus = (
     const time = status.at === undefined ? null : format(status.at, locale);
     const action = m.loginAction;
     const line = (parts: (string | null)[]) =>
-        parts.filter((part): part is string => part !== null).join(' · ');
+        parts.filter((part) => part !== null).join(' · ');
     const result = (
         message: string,
         actionLabel: string | null,
