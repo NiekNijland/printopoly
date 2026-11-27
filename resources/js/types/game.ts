@@ -161,15 +161,3 @@ export type StandardEdition = {
     components: Components;
     currencies: readonly Currency[];
 };
-
-export type SpacesBySide = {
-    corners: readonly CornerSpace[];
-    /** Positions 1 to 9, right to left. */
-    bottom: readonly Space[];
-    /** Positions 11 to 19, bottom to top. */
-    left: readonly Space[];
-    /** Positions 21 to 29, left to right. */
-    top: readonly Space[];
-    /** Positions 31 to 39, top to bottom. */
-    right: readonly Space[];
-};
