@@ -4,7 +4,6 @@ describe('clock', () => {
     it('reads the time the fake clock sets', () => {
         vi.setSystemTime(new Date('2026-11-20T12:00:00Z'));
 
-        // The set-up lets the fake clock run on, so a few milliseconds may have passed.
         expect(now() - Date.UTC(2026, 10, 20, 12)).toBeGreaterThanOrEqual(0);
         expect(now() - Date.UTC(2026, 10, 20, 12)).toBeLessThan(1000);
     });
