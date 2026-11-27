@@ -124,3 +124,34 @@ describe('EditionsSample', () => {
         });
     });
 });
+
+describe('preview of a template (B127)', () => {
+    it('shows the template read-only and copies it as a base', async () => {
+        const user = userEvent.setup();
+        const services = installMemoryServices();
+        visit.mockClear();
+        renderWithI18n(<EditionsSample template="village" />);
+
+        expect(
+            screen.getByRole('heading', { name: 'Voorbeeld: Dorp of wijk' }),
+        ).toBeInTheDocument();
+
+        await user.click(screen.getByRole('tab', { name: 'Kans' }));
+        expect(screen.getByText('Kaart 1 van 16')).toBeInTheDocument();
+        await user.click(
+            screen.getByRole('button', { name: 'Volgende kaart' }),
+        );
+        expect(screen.getByText('Kaart 2 van 16')).toBeInTheDocument();
+        await user.click(screen.getByRole('tab', { name: 'Huisregels' }));
+
+        await user.click(
+            screen.getByRole('button', { name: 'Begin met deze als basis' }),
+        );
+        await waitFor(() => expect(visit).toHaveBeenCalled());
+
+        const [summary] = await services.repository.list();
+        const edition = await services.repository.get(summary?.id ?? '');
+        expect(edition?.name).toBe('Ons dorp');
+        expect(edition?.elements['space.11']?.name).toBe('Jullie stamkroeg');
+    });
+});

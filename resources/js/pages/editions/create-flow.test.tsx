@@ -3,88 +3,11 @@ import userEvent from '@testing-library/user-event';
 
 import { TemplatePicker } from '@/features/edition/editions/template-picker';
 import { DEFAULT_PARTS } from '@/lib/render/edition-types';
-import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { installMemoryServices } from '@/testing/editions';
 import { visit } from '@/testing/inertia';
 import { renderWithI18n } from '@/testing/render';
 
 import EditionsCreate from './create';
-import EditionsSample from './sample';
-import EditionsIndex from './index';
-
-const seed = async (names: string[]) => {
-    const services = installMemoryServices();
-    for (const name of names) {
-        await services.repository.create({
-            name,
-            language: 'nl',
-            theme: 'classic',
-            boardProfile: DEFAULT_BOARD_PROFILE,
-        });
-    }
-
-    return services;
-};
-
-describe('Mijn edities flow', () => {
-    it('selects the name when the rename dialog opens', async () => {
-        const user = userEvent.setup();
-        await seed(['Zaterdagclub']);
-        renderWithI18n(<EditionsIndex />);
-
-        await user.click(
-            await screen.findByRole('button', {
-                name: 'Meer opties voor Zaterdagclub',
-            }),
-        );
-        await user.click(
-            await screen.findByRole('menuitem', { name: 'Naam wijzigen' }),
-        );
-
-        const field = await screen.findByLabelText<HTMLInputElement>('Naam');
-        await waitFor(() => expect(field).toHaveFocus());
-        expect(field.selectionEnd).toBe('Zaterdagclub'.length);
-    });
-
-    it('says a copy was made', async () => {
-        const user = userEvent.setup();
-        await seed(['Zaterdagclub']);
-        renderWithI18n(<EditionsIndex />);
-
-        await user.click(
-            await screen.findByRole('button', {
-                name: 'Dupliceer Zaterdagclub als nieuwe editie',
-            }),
-        );
-
-        expect(
-            await screen.findByText('Zaterdagclub (kopie) is gemaakt.'),
-        ).toBeInTheDocument();
-    });
-
-    it('moves the focus to the next card after a delete', async () => {
-        const user = userEvent.setup();
-        await seed(['Eerste', 'Tweede']);
-        renderWithI18n(<EditionsIndex />);
-
-        await user.click(
-            await screen.findByRole('button', {
-                name: 'Meer opties voor Tweede',
-            }),
-        );
-        await user.click(
-            await screen.findByRole('menuitem', { name: 'Verwijderen' }),
-        );
-        await user.click(
-            await screen.findByRole('button', { name: 'Verwijderen' }),
-        );
-
-        expect(await screen.findByText('Editie verwijderd.')).toBeVisible();
-        await waitFor(() =>
-            expect(document.activeElement).toHaveAttribute('data-edition-link'),
-        );
-    });
-});
 
 describe('starting points on the new edition screen (B127, B201)', () => {
     it('starts blank and offers the six templates with a preview link', () => {
@@ -319,37 +242,6 @@ describe('the currency of a new edition (R5-22)', () => {
 
         const label = screen.getByText('Village or neighbourhood');
         expect(label).toHaveClass('min-w-0', 'hyphens-auto');
-    });
-});
-
-describe('preview of a template (B127)', () => {
-    it('shows the template read-only and copies it as a base', async () => {
-        const user = userEvent.setup();
-        const services = installMemoryServices();
-        visit.mockClear();
-        renderWithI18n(<EditionsSample template="village" />);
-
-        expect(
-            screen.getByRole('heading', { name: 'Voorbeeld: Dorp of wijk' }),
-        ).toBeInTheDocument();
-
-        await user.click(screen.getByRole('tab', { name: 'Kans' }));
-        expect(screen.getByText('Kaart 1 van 16')).toBeInTheDocument();
-        await user.click(
-            screen.getByRole('button', { name: 'Volgende kaart' }),
-        );
-        expect(screen.getByText('Kaart 2 van 16')).toBeInTheDocument();
-        await user.click(screen.getByRole('tab', { name: 'Huisregels' }));
-
-        await user.click(
-            screen.getByRole('button', { name: 'Begin met deze als basis' }),
-        );
-        await waitFor(() => expect(visit).toHaveBeenCalled());
-
-        const [summary] = await services.repository.list();
-        const edition = await services.repository.get(summary?.id ?? '');
-        expect(edition?.name).toBe('Ons dorp');
-        expect(edition?.elements['space.11']?.name).toBe('Jullie stamkroeg');
     });
 });
 

@@ -15,6 +15,11 @@ vi.mock('@inertiajs/react', async (importOriginal) => {
 
     return fakeInertia(await importOriginal());
 });
+vi.mock('@inertiajs/react/server', async () => {
+    const { fakeCreateServer } = await import('@/testing/inertia');
+
+    return { default: fakeCreateServer };
+});
 
 beforeEach(() => {
     setPage(fakePage());
