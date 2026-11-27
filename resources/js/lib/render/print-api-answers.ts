@@ -37,7 +37,7 @@ const PART_STATUSES: Readonly<Record<PartStatus, true>> = {
     outdated: true,
 };
 
-const printPart = keyOf(PRINT_PARTS);
+export const printPart = keyOf(PRINT_PARTS);
 
 const partStatusData: Parser<PrintPartStatusData> = record({
     set: oneOf(['printer', 'home']),

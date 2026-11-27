@@ -3,7 +3,6 @@ import {
     boolean,
     dictionary,
     is,
-    keyOf,
     literal,
     nullable,
     number,
@@ -16,22 +15,12 @@ import {
     type Parser,
 } from '@/lib/parse';
 import type { Elements } from '@/lib/render/edition-types';
+import { printPart } from '@/lib/render/print-api-answers';
 import type { BoardProfile } from '@/lib/render/print-board';
-import type { PrintEdition, PrintPart } from '@/lib/render/print-composition';
+import type { PrintEdition } from '@/lib/render/print-composition';
 
 import type { PrintPayload } from './print-document';
 import type { SharePayload } from './share-image';
-
-const PRINT_PARTS: Readonly<Record<PrintPart, true>> = {
-    board: true,
-    cards: true,
-    money: true,
-    tokens: true,
-    box_lid: true,
-    rules_booklet: true,
-    invitation: true,
-    calibration: true,
-};
 
 const boardProfile: Parser<BoardProfile> = record({
     id: string,
@@ -82,7 +71,7 @@ const sharePayload: Parser<SharePayload> = record({
 });
 
 const printPayload: Parser<PrintPayload> = record({
-    part: keyOf(PRINT_PARTS),
+    part: printPart,
     set: oneOf(['printer', 'home']),
     pageShaveMm: number,
     assetBase: optional(string),
