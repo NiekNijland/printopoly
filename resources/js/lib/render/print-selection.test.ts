@@ -8,9 +8,8 @@ import {
     defaultPrintSelection,
     editionInSet,
     inPrintSelection,
-    printSelectionOf,
     selectionFromSkipped,
-    setPartsOf,
+    SET_PARTS,
     skippedOf,
     toggleSelectionPart,
 } from './print-selection';
@@ -23,27 +22,25 @@ describe('print selection (B198, B199)', () => {
             set: 'home',
             parts: ['board', 'deeds', 'cards', 'houseRules'],
         });
-        expect(
-            setPartsOf(
-                defaultPrintSelection({
-                    ...base,
-                    parts: {
-                        ...base.parts,
-                        money: true,
-                        pawns: true,
-                        invitation: true,
-                    },
-                }),
-            ),
-        ).toEqual(['board', 'cards', 'money', 'tokens', 'invitation']);
-    });
-
-    it('keeps what the print page chose', () => {
-        const chosen: PrintSelection = { set: 'printer', parts: ['board'] };
-
-        expect(printSelectionOf({ ...base, printSelection: chosen })).toBe(
-            chosen,
+        const skipped = skippedOf(
+            defaultPrintSelection({
+                ...base,
+                parts: {
+                    ...base.parts,
+                    money: true,
+                    pawns: true,
+                    invitation: true,
+                },
+            }),
         );
+
+        expect(SET_PARTS.filter((part) => !skipped.includes(part))).toEqual([
+            'board',
+            'cards',
+            'money',
+            'tokens',
+            'invitation',
+        ]);
     });
 
     it('never takes the board out, and switches every edition part of a row', () => {
