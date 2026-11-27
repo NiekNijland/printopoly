@@ -3,39 +3,56 @@ import { describe, expect, it } from 'vitest';
 import { elementLabel } from '@/lib/render/editor-catalogue';
 import { makeEdition, photo } from '@/testing/edition-test-utils';
 
-import {
-    matchPhotosByName,
-    nameCandidates,
-    nameScore,
-    normalizeName,
-    planPhotoChoice,
-} from './editor-photo-match';
+import { nameCandidates, planPhotoChoice } from './editor-photo-match';
 
 const label = (edition: ReturnType<typeof makeEdition>) => (key: string) =>
     elementLabel(key, edition, 'nl');
 
+const matchPhotosByName = (
+    fileNames: readonly string[],
+    candidates: readonly { key: string; label: string }[],
+): (string | null)[] =>
+    planPhotoChoice(makeEdition(), null, [], fileNames, candidates).targets.map(
+        (target) => target?.key ?? null,
+    );
+
+const match = (fileName: string, ...labels: string[]): string | null =>
+    matchPhotosByName(
+        [fileName],
+        labels.map((name, index) => ({
+            key: `k${String(index)}`,
+            label: name,
+        })),
+    )[0] ?? null;
+
 describe('photos matched by file name (B237)', () => {
     it('ignores case, accents, separators and the extension', () => {
-        expect(normalizeName('Kroonpléin_Oost-zijde')).toBe(
-            'kroonplein oost zijde',
+        expect(
+            match('Kroonpléin_Oost-zijde.jpg', 'Kroonplein Oost zijde'),
+        ).toBe('k0');
+        expect(match('bakker_jansen.JPG', 'Bakker', 'Bakker Jansen')).toBe(
+            'k1',
         );
-        expect(nameScore('bakker_jansen.JPG', 'Bakker Jansen')).toBe(1);
-        expect(nameScore('BakkerJansen.heic', 'Bakker Jansen')).toBe(1);
-        expect(nameScore('Café de Zon.jpg', 'Cafe De Zon')).toBe(1);
+        expect(match('BakkerJansen.heic', 'Bakker', 'Bakker Jansen')).toBe(
+            'k1',
+        );
+        expect(match('Café de Zon.jpg', 'De Zon', 'Cafe De Zon')).toBe('k1');
     });
 
     it('finds the name inside a longer file name, and a part of a long name', () => {
-        expect(nameScore('Raadhuisplein (1).jpg', 'Raadhuisplein')).toBe(0.9);
-        expect(nameScore('Domplein 2026.jpg', 'Domplein')).toBe(0.9);
+        expect(match('Raadhuisplein (1).jpg', 'Raadhuisplein')).toBe('k0');
         expect(
-            nameScore('scheve toren.jpg', 'De kerk met de scheve toren'),
-        ).toBe(0.85);
+            match('Domplein 2026.jpg', 'Het Domplein 2026 feest', 'Domplein'),
+        ).toBe('k1');
+        expect(match('scheve toren.jpg', 'De kerk met de scheve toren')).toBe(
+            'k0',
+        );
     });
 
     it('forgives a small typo and nothing more', () => {
-        expect(nameScore('Kasteelaan.jpg', 'Kasteellaan')).toBeGreaterThan(0.8);
-        expect(nameScore('kapper.jpg', 'Kapsalon Knip')).toBeLessThan(0.8);
-        expect(nameScore('IMG_4021.jpg', 'Kerkstraat')).toBeLessThan(0.8);
+        expect(match('Kasteelaan.jpg', 'Kasteellaan')).toBe('k0');
+        expect(match('kapper.jpg', 'Kapsalon Knip')).toBeNull();
+        expect(match('IMG_4021.jpg', 'Kerkstraat')).toBeNull();
     });
 
     it('puts each file on one space and never guesses between two', () => {

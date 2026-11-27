@@ -14,7 +14,7 @@ import { standardEdition } from '@/lib/render/standard-edition';
 const MATCH_THRESHOLD = 0.8;
 
 /** Lower case, without accents, with every run of other characters as one space. */
-export const normalizeName = (text: string): string => {
+const normalizeName = (text: string): string => {
     return text
         .normalize('NFKD')
         .replace(/\p{M}/gu, '')
@@ -64,7 +64,7 @@ const holdsWords = (outer: string, inner: string): boolean =>
  * a file name that is a part of the name scores 0.85 ("scheve toren.jpg" for "De kerk met de scheve toren").
  * Otherwise the score is how many pairs of letters they share, so "Kasteelaan" still fits "Kasteellaan".
  */
-export const nameScore = (fileName: string, label: string): number => {
+const nameScore = (fileName: string, label: string): number => {
     const file = normalizeName(fileStem(fileName));
     const name = normalizeName(label);
     if (file === '' || name === '') {
@@ -119,7 +119,7 @@ export const nameCandidates = (
  * `MATCH_THRESHOLD`, or when two elements fit it equally well. Two files that fit the same element best: the
  * better one gets it.
  */
-export const matchPhotosByName = (
+const matchPhotosByName = (
     fileNames: readonly string[],
     candidates: readonly NameCandidate[],
 ): (string | null)[] => {
