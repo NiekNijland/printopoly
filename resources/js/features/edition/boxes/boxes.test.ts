@@ -2,11 +2,7 @@ import { resolveEdition } from '@/lib/render/edition-resolve';
 import { sampleEdition } from '@/testing/editions';
 import { formOf, requestOf, stubFetch } from '@/testing/fetch';
 
-import {
-    firstStreetKey,
-    groupOf,
-    targetLabel,
-} from '../../../lib/render/boxes-labels';
+import { firstStreetKey, targetLabel } from '../../../lib/render/boxes-labels';
 import { BoxApiError, createBox, fetchBox, sendContribution } from './api';
 import {
     addSent,
@@ -124,9 +120,8 @@ describe('buildSnapshot', () => {
 
 describe('labels', () => {
     it('knows colour groups and their first street', () => {
-        expect(groupOf('group.brown')?.id).toBe('brown');
-        expect(groupOf('space.01')).toBeUndefined();
-        expect(firstStreetKey('group.brown')).toMatch(/^space\.\d{2}$/);
+        expect(firstStreetKey('group.brown')).toBe('space.01');
+        expect(firstStreetKey('space.01')).toBeUndefined();
     });
 
     it('names a group through the given words', () => {
