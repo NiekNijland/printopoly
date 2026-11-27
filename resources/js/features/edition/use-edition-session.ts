@@ -16,6 +16,7 @@ import {
 import { SaveStatusMachine } from '@/features/edition/save-status-machine';
 import type { EditionSession } from '@/features/edition/session';
 import type { EditionConflict } from '@/features/edition/session-conflict';
+import { listenToWindow } from '@/lib/dom-events';
 import type { Edition } from '@/lib/render/edition-types';
 
 import { useServices } from './use-editions';
@@ -126,8 +127,8 @@ export const useSaveStatus = (
         const unsubscribe = machine.subscribe(setStatus);
         const online = () => machine.setOnline(true);
         const offline = () => machine.setOnline(false);
-        window.addEventListener('online', online);
-        window.addEventListener('offline', offline);
+        const stopOnline = listenToWindow('online', online);
+        const stopOffline = listenToWindow('offline', offline);
         machine.setOnline(navigator.onLine);
 
         void getEnvironment()
@@ -138,8 +139,8 @@ export const useSaveStatus = (
         return () => {
             unbind();
             unsubscribe();
-            window.removeEventListener('online', online);
-            window.removeEventListener('offline', offline);
+            stopOnline();
+            stopOffline();
         };
     }, [machine, session]);
 

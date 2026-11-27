@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 
-import { WarningIcon } from '@/components/icons';
+import { WarningIcon } from '@/components/ui/icons';
 import { useTranslation } from '@/hooks/use-translation';
 import type { Edition, PartId } from '@/lib/render/edition-types';
 import { elementLabel, isCustomized } from '@/lib/render/editor-catalogue';

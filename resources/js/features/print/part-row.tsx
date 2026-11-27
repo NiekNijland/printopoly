@@ -8,6 +8,7 @@ import {
     ShareSetButton,
 } from '@/features/print/share-set-button';
 import { useTranslation } from '@/hooks/use-translation';
+import { reportError } from '@/lib/bugsnag';
 import type { Edition } from '@/lib/render/edition-types';
 import type { PhotoInfos } from '@/lib/render/editor-photo-cache';
 import { cn } from '@/lib/utils';
@@ -40,7 +41,7 @@ const TILE: Record<PrintPart, string> = {
     calibration: 'bg-white',
 };
 
-interface PartRowProps {
+type PartRowProps = {
     set: PrintSet;
     part: PrintPart;
     /** The row from the server; undefined before the first run. */
@@ -78,7 +79,7 @@ interface PartRowProps {
     order?: string;
     /** A choice that belongs to the part, under the row (how much play money, B156). */
     children?: ReactNode;
-}
+};
 
 const TURN = ['md:-rotate-2', 'md:rotate-1', 'md:-rotate-1', 'md:rotate-2'];
 
@@ -87,7 +88,7 @@ const TURN = ['md:-rotate-2', 'md:rotate-1', 'md:-rotate-1', 'md:rotate-2'];
  * mono, the status as text and the buttons that fit the status, and a link to the part in the print guide (B205).
  * Colour never carries the status alone (B98).
  */
-export function PartRow({
+export const PartRow = ({
     set,
     part,
     row,
@@ -109,7 +110,7 @@ export function PartRow({
     spec: ownSpec,
     order: ownOrder,
     children,
-}: PartRowProps) {
+}: PartRowProps) => {
     const t = useTranslation();
     const lockId = useId();
     const tickId = useId();
@@ -337,7 +338,15 @@ export function PartRow({
                                             window.location.href,
                                         ).href,
                                     })
-                                    .catch(() => undefined);
+                                    .catch((error: unknown) => {
+                                        // Closing the share sheet is no error.
+                                        if (!(
+                                            error instanceof DOMException &&
+                                            error.name === 'AbortError'
+                                        )) {
+                                            reportError(error);
+                                        }
+                                    });
                             }}
                         >
                             {t('print.share')}
@@ -378,14 +387,14 @@ export function PartRow({
             )}
         </li>
     );
-}
+};
 
 const REASONS = ['timeout', 'photos', 'layout', 'edition', 'other'] as const;
 
 /** The reason code from the server, or `other` for anything it does not know (an older run). */
-function failureReason(reason: string | null | undefined): string {
+const failureReason = (reason: string | null | undefined): string => {
     return REASONS.find((known) => known === reason) ?? 'other';
-}
+};
 
 type Shown = PrintPartStatusData['status'] | 'skipped' | 'queued';
 
@@ -401,23 +410,23 @@ const GLYPH: Record<Shown, string> = {
     outdated: '…',
 };
 
-function actionLabel(
+const actionLabel = (
     status: 'idle' | 'failed',
     t: (key: string) => string,
     trial: boolean,
-): string {
+): string => {
     if (status === 'failed') {
         return t('print.retry');
     }
 
     return trial ? t('print.make_trial') : t('print.make_part');
-}
+};
 
-function statusLabel(
+const statusLabel = (
     status: Shown,
     waitingFor: PrintPart | null,
     t: (key: string, replacements?: Record<string, string | number>) => string,
-): string {
+): string => {
     switch (status) {
         case 'waiting':
             return waitingFor === null
@@ -440,4 +449,4 @@ function statusLabel(
         case 'skipped':
             return t('print.status.skipped');
     }
-}
+};

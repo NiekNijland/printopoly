@@ -3,7 +3,7 @@ import type { EditionSession } from '@/features/edition/session';
 import { useTranslation } from '@/hooks/use-translation';
 import { deedContent } from '@/lib/render/deed-rows';
 import { BANK_KEY, wordKey } from '@/lib/render/edition-keys';
-import { MAX_NAME_LENGTH } from '@/lib/render/edition-schema';
+import { MAX_NAME_LENGTH } from '@/lib/render/edition-schema-limits';
 import type { Edition } from '@/lib/render/edition-types';
 import { defaultWords, resolveWords } from '@/lib/render/edition-words';
 import { standardEdition } from '@/lib/render/standard-edition';

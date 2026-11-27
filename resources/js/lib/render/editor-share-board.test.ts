@@ -5,7 +5,7 @@ import { makeEdition, photo } from '@/testing/edition-test-utils';
 
 import { shareBoardRequest, sharePhotoSizes } from './editor-share-board';
 
-function withPhotos(): Edition {
+const withPhotos = (): Edition => {
     return {
         ...makeEdition(),
         elements: {
@@ -21,9 +21,9 @@ function withPhotos(): Edition {
             'words.chest': { name: 'Huwelijkskas' },
         },
     };
-}
+};
 
-function record(id: string, type = 'image/jpeg'): PhotoRecord {
+const record = (id: string, type = 'image/jpeg'): PhotoRecord => {
     return {
         id,
         editionId: 'e1',
@@ -32,7 +32,7 @@ function record(id: string, type = 'image/jpeg'): PhotoRecord {
         height: 3000,
         createdAt: 0,
     };
-}
+};
 
 describe('the photos of "Deel je bord" (R5-24)', () => {
     it('takes the photos on the board, larger in the centre, and none from cards or pawns', () => {

@@ -43,14 +43,14 @@ const options = (
     ...more,
 });
 
-function withCentre(centre: ElementOverride): Edition {
+const withCentre = (centre: ElementOverride): Edition => {
     const edition = makeEdition();
 
     return {
         ...edition,
         elements: { ...edition.elements, board_center: centre },
     };
-}
+};
 
 describe('the centre clear of the fold lines (B183, B187)', () => {
     it('puts the name, the photo and a straight logo in the free squares by default', () => {

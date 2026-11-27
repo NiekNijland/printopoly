@@ -1,6 +1,6 @@
 import type { CSSProperties, PointerEvent, ReactNode } from 'react';
 
-import { WarningIcon } from '@/components/icons';
+import { WarningIcon } from '@/components/ui/icons';
 import {
     bandStyle,
     canSwapKeys,

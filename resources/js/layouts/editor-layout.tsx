@@ -13,10 +13,7 @@ type EditorLayoutProps = EditorHeaderProps & {
  * table colour (Editor.dc.html). Editor pages render it themselves because the
  * header needs the edition; they are client-rendered only (B66).
  */
-export default function EditorLayout({
-    children,
-    ...header
-}: EditorLayoutProps) {
+const EditorLayout = ({ children, ...header }: EditorLayoutProps) => {
     const { height, keyboardOpen } = useVisualViewport();
 
     return (
@@ -34,4 +31,5 @@ export default function EditorLayout({
             </main>
         </div>
     );
-}
+};
+export default EditorLayout;

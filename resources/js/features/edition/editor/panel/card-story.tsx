@@ -20,7 +20,7 @@ import type {
     ResolvedCard,
     ResolvedEdition,
 } from '@/lib/render/edition-resolve';
-import { MAX_PURPOSE_LENGTH } from '@/lib/render/edition-schema';
+import { MAX_PURPOSE_LENGTH } from '@/lib/render/edition-schema-limits';
 import { formatMoney } from '@/lib/render/standard-edition';
 
 type CardStoryProps = TextEdit & {

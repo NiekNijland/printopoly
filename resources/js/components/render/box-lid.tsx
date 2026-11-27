@@ -37,7 +37,7 @@ import {
 import { pieceText } from './piece-styles';
 import { Abs, Sheet, useRender, type ElementProps } from './sheet';
 
-export interface BoxLidProps extends ElementProps {
+export type BoxLidProps = {
     editionName: string;
     /** Line under the name: the number of players when absent, none when empty (B169). */
     subtitle?: string;
@@ -68,10 +68,10 @@ export interface BoxLidProps extends ElementProps {
      * name plate only, so it does not draw a whole board four times (B271).
      */
     boardPicture?: boolean;
-}
+} & ElementProps;
 
 /** The sticker for the box lid, sized by the board profile (B57). */
-export function BoxLid({
+export const BoxLid = ({
     editionName,
     subtitle,
     lines,
@@ -85,7 +85,7 @@ export function BoxLid({
     logo = false,
     boardPicture = true,
     ...element
-}: BoxLidProps) {
+}: BoxLidProps) => {
     const { w, h } = profile.boxLid;
     const theme = THEMES[element.theme];
     return (
@@ -115,13 +115,13 @@ export function BoxLid({
             {layers !== undefined && <FreeLayers layers={layers} />}
         </Sheet>
     );
-}
+};
 
 /** A dark fade behind light text on a photo without the band: strongest in the middle of the text block. */
 const TEXT_FADE =
     'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0))';
 
-function LidFace({
+const LidFace = ({
     w,
     h,
     editionName,
@@ -151,7 +151,7 @@ function LidFace({
     profile: BoardProfile;
     logo: boolean;
     boardPicture: boolean;
-}) {
+}) => {
     const { theme, locale, currency, words, style } = useRender();
     // The style of the lid (B271): its frame, background and decoration; the name plate keeps its title style.
     const look = partStyleOf(style, 'boxLid');
@@ -453,4 +453,4 @@ function LidFace({
             {text}
         </>
     );
-}
+};

@@ -1,13 +1,18 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 
-import { BoardSpace, GameCard, TitleDeed } from '@/components/render';
+import { BoardSpace } from '@/components/render/board-space';
+import { GameCard } from '@/components/render/game-card';
 import { PATH_NAMES } from '@/components/render/icons';
 import { LUCIDE_SPACE_ICONS } from '@/components/render/lucide-space-icons';
+import { TitleDeed } from '@/components/render/title-deed';
 import { parseOverride } from '@/lib/render/edition-schema';
 import { iconTargets, photoTargets } from '@/lib/render/print-photo-targets';
-import { spaceAt, standardEdition } from '@/lib/render/standard-edition';
+import {
+    isOwnable,
+    spaceAt,
+    standardEdition,
+} from '@/lib/render/standard-edition';
 import { makeEdition, photo } from '@/testing/edition-test-utils';
-import type { OwnableSpace } from '@/types/game';
 
 import {
     ICON_CATEGORIES,
@@ -184,7 +189,10 @@ describe('space icons (B136)', () => {
     });
 
     it('passes the icon to the deed and the standard card back', () => {
-        const station = spaceAt(15) as OwnableSpace;
+        const station = spaceAt(15);
+        if (!isOwnable(station)) {
+            throw new TypeError('Space 15 is a station');
+        }
 
         for (const side of ['front', 'back'] as const) {
             expect(

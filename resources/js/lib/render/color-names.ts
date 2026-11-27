@@ -1,17 +1,18 @@
 import type { Locale } from '@/types/game';
+import { rgbOf } from './color';
 
 /** A colour in words: its name, and in Dutch the form before a plural noun ("paarse straten"). */
-export interface ColorName {
+export type ColorName = {
     name: string;
     /** "paarse" in "de paarse straten"; the same as `name` in English. */
     before: string;
-}
+};
 
-interface NamedColor {
+type NamedColor = {
     hex: string;
     nl: ColorName;
     en: string;
-}
+};
 
 /**
  * The colours a group can be called by. The first eight are the standard group colours, so a group in its standard
@@ -62,19 +63,12 @@ const NAMED: readonly NamedColor[] = [
     { hex: '#FAFAF7', nl: { name: 'wit', before: 'witte' }, en: 'white' },
 ];
 
-function channels(hex: string): [number, number, number] {
-    const value = hex.replace('#', '');
-
-    return [0, 2, 4].map(
-        (offset) => parseInt(value.slice(offset, offset + 2), 16) / 255,
-    ) as [number, number, number];
-}
-
 /** CIE Lab of a `#RRGGBB` colour (D65), so "nearest" is what the eye calls nearest. */
-function lab(hex: string): [number, number, number] {
-    const [r, g, b] = channels(hex).map((c) =>
-        c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4,
-    ) as [number, number, number];
+const lab = (hex: string): [number, number, number] => {
+    const linear = (c: number) =>
+        c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    const [sr, sg, sb] = rgbOf(hex, 255);
+    const [r, g, b] = [linear(sr), linear(sg), linear(sb)];
     const x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
     const y = r * 0.2126 + g * 0.7152 + b * 0.0722;
     const z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
@@ -83,17 +77,17 @@ function lab(hex: string): [number, number, number] {
     const [fx, fy, fz] = [f(x), f(y), f(z)];
 
     return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
-}
+};
 
-function distance(a: string, b: string): number {
+const distance = (a: string, b: string): number => {
     const [l1, a1, b1] = lab(a);
     const [l2, a2, b2] = lab(b);
 
     return Math.hypot(l1 - l2, a1 - a2, b1 - b2);
-}
+};
 
 /** The name of the nearest named colour, in the language asked for: `#9A4E8E` is "paars" (bug 27). */
-export function colorName(hex: string, locale: Locale): ColorName {
+export const colorName = (hex: string, locale: Locale): ColorName => {
     const valid = /^#[0-9a-f]{6}$/i.test(hex);
     const nearest =
         (valid
@@ -111,4 +105,4 @@ export function colorName(hex: string, locale: Locale): ColorName {
     return locale === 'nl'
         ? nearest.nl
         : { name: nearest.en, before: nearest.en };
-}
+};

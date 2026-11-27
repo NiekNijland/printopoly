@@ -1,3 +1,4 @@
+import { formatDateTime } from '@/lib/datetime';
 import type { Locale } from '@/types/game';
 import { messages } from '../../lib/render/edition-strings';
 import type { EnvironmentInfo } from './environment';
@@ -93,11 +94,11 @@ export type TimeFormatter = (at: number, locale: Locale) => string;
 
 /** "14:32" */
 export const formatClock: TimeFormatter = (at, locale) =>
-    new Intl.DateTimeFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', {
+    formatDateTime(at, locale === 'nl' ? 'nl-NL' : 'en-GB', {
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
-    }).format(at);
+    });
 
 export type SaveStatusText = {
     /** The sentence without the login prompt. */

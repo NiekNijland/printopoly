@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 
-import { ChevronLeftIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import { ChevronLeftIcon } from '@/components/ui/icons';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { editElement, resetField } from '@/features/edition/editor/edit';

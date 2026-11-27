@@ -11,7 +11,7 @@ import {
     type Imposition,
 } from './print-imposition';
 
-function expectSafe(result: Imposition, margin: number) {
+const expectSafe = (result: Imposition, margin: number) => {
     for (const sheet of result.sheets) {
         for (const it of sheet.items) {
             expect(it.bleed.x).toBeGreaterThanOrEqual(margin - 1e-9);
@@ -45,7 +45,7 @@ function expectSafe(result: Imposition, margin: number) {
             }
         }
     }
-}
+};
 
 describe('presets', () => {
     it('has the right sizes', () => {

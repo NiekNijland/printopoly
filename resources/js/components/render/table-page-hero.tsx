@@ -13,7 +13,7 @@ export const TONE_CLASS: Record<Tone, string> = {
     chest: 'bg-print-chest',
 };
 
-interface PageHeroProps {
+type PageHeroProps = {
     tone: Tone;
     art: PageArtName;
     title: string;
@@ -25,20 +25,20 @@ interface PageHeroProps {
      */
     artFromTablet?: boolean;
     children?: ReactNode;
-}
+};
 
 /**
  * The top of a public page: a colour band with the title and a drawing of printed things
  * lying on the table (B109).
  */
-export function PageHero({
+export const PageHero = ({
     tone,
     art,
     title,
     compact = false,
     artFromTablet = false,
     children,
-}: PageHeroProps) {
+}: PageHeroProps) => {
     return (
         <section className={cn(TONE_CLASS[tone])}>
             <div
@@ -66,4 +66,4 @@ export function PageHero({
             </div>
         </section>
     );
-}
+};

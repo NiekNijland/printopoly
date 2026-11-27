@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { mix, readableOn } from './color';
+import { mix, readableOn, rgbOf } from './color';
+
+describe('rgbOf', () => {
+    it('reads the three channels of a colour, divided when asked', () => {
+        expect(rgbOf('#FF8000')).toEqual([255, 128, 0]);
+        expect(rgbOf('#FF0033', 255)).toEqual([1, 0, 0.2]);
+    });
+});
 
 describe('mix', () => {
     it('returns the first colour at 0 and the second at 1', () => {

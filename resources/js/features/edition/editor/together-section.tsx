@@ -8,6 +8,7 @@ import type { FriendsProps } from '@/features/edition/editor/panel/friends-secti
 import { TogetherManage } from '@/features/edition/editor/together-manage';
 import { TogetherOverview } from '@/features/edition/editor/together-overview';
 import { useTranslation } from '@/hooks/use-translation';
+import { formatDateTime } from '@/lib/datetime';
 import type { Edition } from '@/lib/render/edition-types';
 import type { Locale } from '@/types/game';
 
@@ -22,10 +23,10 @@ type TogetherSectionProps = {
 };
 
 const formatDate = (at: number, locale: Locale): string => {
-    return new Intl.DateTimeFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', {
+    return formatDateTime(at, locale === 'nl' ? 'nl-NL' : 'en-GB', {
         day: 'numeric',
         month: 'long',
-    }).format(at);
+    });
 };
 
 const ShareButton = ({

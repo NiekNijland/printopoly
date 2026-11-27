@@ -43,17 +43,17 @@ const V_INSET = 1.7;
 const V_BAND = 1.4;
 
 /** The colours a style draws with: the engraving of Vintage, a tint of the block for Modern and Speels. */
-function tint(band: string, paper: string, street: boolean, theme: Theme) {
+const tint = (band: string, paper: string, street: boolean, theme: Theme) => {
     return street ? mix(band, paper, 0.84) : mix(theme.ink, paper, 0.93);
-}
+};
 
 /** The paper of the deed in a style, into the bleed. */
-export function styledDeedPaper(
+export const styledDeedPaper = (
     theme: Theme,
     style: DeedStyle,
     band: string,
     street: boolean,
-): string {
+): string => {
     switch (style) {
         case 'vintage':
             return creamed(theme.deedPaper, 0.5);
@@ -64,10 +64,10 @@ export function styledDeedPaper(
                 ? mix(band, theme.deedPaper, 0.72)
                 : theme.boardBackground;
     }
-}
+};
 
 /** The frame of a deed in a style; Modern has none. */
-export function StyledDeedFrame({
+export const StyledDeedFrame = ({
     style,
     w,
     h,
@@ -77,7 +77,7 @@ export function StyledDeedFrame({
     w: number;
     h: number;
     seed: number;
-}) {
+}) => {
     const { theme } = useRender();
 
     switch (style) {
@@ -109,26 +109,26 @@ export function StyledDeedFrame({
                 />
             );
     }
-}
+};
 
 /** Font props for `FitText` per text of the deed. */
-interface TextLook {
+type TextLook = {
     family?: string;
     weight?: number;
     caps?: boolean;
     letterSpacingEm?: number;
-}
+};
 
-export interface DeedLook {
+export type DeedLook = {
     label: TextLook;
     name: TextLook;
     /** The big mortgage value. */
     value: TextLook;
     /** The amounts in the rent table. */
     amount: CSSProperties;
-}
+};
 
-export function deedLookOf(style: DeedStyle): DeedLook {
+export const deedLookOf = (style: DeedStyle): DeedLook => {
     switch (style) {
         case 'vintage':
             return {
@@ -172,10 +172,10 @@ export function deedLookOf(style: DeedStyle): DeedLook {
                 amount: { fontFamily: SPARTAN, fontWeight: 800 },
             };
     }
-}
+};
 
 /** The block at the top of both sides in a style: the label, the town if any, and the name. */
-export function StyledDeedHeader({
+export const StyledDeedHeader = ({
     style,
     w,
     block,
@@ -202,7 +202,7 @@ export function StyledDeedHeader({
     street: boolean;
     bleed: number;
     seed: number;
-}) {
+}) => {
     const { theme } = useRender();
     const look = deedLookOf(style);
     const hasTown = townText !== undefined;
@@ -464,10 +464,10 @@ export function StyledDeedHeader({
             />
         </>
     );
-}
+};
 
 /** The line between the rent table and the costs in a style. */
-export function StyledDeedRule({
+export const StyledDeedRule = ({
     style,
     x,
     y,
@@ -481,7 +481,7 @@ export function StyledDeedRule({
     w: number;
     band: string;
     street: boolean;
-}) {
+}) => {
     const { theme } = useRender();
 
     switch (style) {
@@ -529,16 +529,16 @@ export function StyledDeedRule({
                 />
             );
     }
-}
+};
 
 /** How a row of the rent table is drawn in a style: leaders, stripes and the weight of the amounts. */
-export function styledRowStyle(
+export const styledRowStyle = (
     style: DeedStyle,
     index: number,
     band: string,
     street: boolean,
     theme: Theme,
-): { row: CSSProperties; leader: CSSProperties | null } {
+): { row: CSSProperties; leader: CSSProperties | null } => {
     switch (style) {
         case 'vintage':
             return {
@@ -572,10 +572,10 @@ export function styledRowStyle(
                 },
             };
     }
-}
+};
 
 /** The box with the mortgage on the back, in a style. */
-export function StyledMortgageBox({
+export const StyledMortgageBox = ({
     style,
     x,
     y,
@@ -593,7 +593,7 @@ export function StyledMortgageBox({
     band: string;
     street: boolean;
     seed: number;
-}) {
+}) => {
     const { theme } = useRender();
 
     switch (style) {
@@ -662,4 +662,4 @@ export function StyledMortgageBox({
                 />
             );
     }
-}
+};

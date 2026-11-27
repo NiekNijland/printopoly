@@ -19,7 +19,7 @@ const pages = import.meta.glob<ResolvedComponent>([
     '!**/*.test.*',
 ]);
 
-async function bootstrap(): Promise<void> {
+const bootstrap = async (): Promise<void> => {
     const initialPage = getInitialPageFromDOM<Page>('app');
     // Before Inertia adds its own listener: the back button closes an open layer first (R5-14).
     listenForBackLayers();
@@ -62,7 +62,7 @@ async function bootstrap(): Promise<void> {
             color: '#C8321F',
         },
     });
-}
+};
 
 void bootstrap();
 void startBugsnag();

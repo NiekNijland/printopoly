@@ -1,4 +1,4 @@
-import { ChevronLeftIcon } from '@/components/icons';
+import { ChevronLeftIcon } from '@/components/ui/icons';
 import {
     proposalGroups,
     type ProposalGroup,

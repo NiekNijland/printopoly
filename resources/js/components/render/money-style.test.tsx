@@ -1,21 +1,22 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
+import { RasterNotePattern } from '@/components/render/banknote-parts';
 import type { MoneyStyle } from '@/lib/render/edition-part-styles';
 import type { PhotoSource } from '@/lib/render/photo';
 import { THEME_IDS } from '@/lib/render/themes';
 
-import { Banknote, RasterNotePattern } from './banknote';
+import { Banknote } from './banknote';
 
 const STYLES: readonly MoneyStyle[] = ['vintage', 'modern', 'playful'];
 
 const photo = (placement: 'framed' | 'full'): PhotoSource =>
     placement === 'full' ? { src: 'a.jpg', style: 'full' } : { src: 'a.jpg' };
 
-function note(
+const note = (
     style: MoneyStyle | undefined,
     extra: Partial<Parameters<typeof Banknote>[0]> = {},
-) {
+) => {
     return render(
         <Banknote
             theme="classic"
@@ -27,7 +28,10 @@ function note(
             {...extra}
         />,
     ).container;
-}
+};
+
+const isContext2d = (value: object): value is CanvasRenderingContext2D =>
+    'stroke' in value && 'setLineDash' in value && 'clip' in value;
 
 const slotText = (container: HTMLElement, name: string) =>
     [...container.querySelectorAll(`[data-slot="${name}"]`)].map(
@@ -51,7 +55,10 @@ describe('money styles (B270)', () => {
                     style={{ parts: { money: style } }}
                 />,
             );
-            const root = container.firstElementChild as HTMLElement;
+            const root = container.firstElementChild;
+            if (!(root instanceof HTMLElement)) {
+                throw new Error('no note');
+            }
 
             // The paper keeps the colour of its value in every theme, Strak too (B85).
             expect(root.style.background.toUpperCase()).toBe('#F3F0A8');
@@ -66,17 +73,17 @@ describe('money styles (B270)', () => {
             ).toBe(true);
             expect(
                 slotText(container, 'bank-name').map((text) =>
-                    text?.toLowerCase(),
+                    text.toLowerCase(),
                 ),
             ).toEqual(['bank van de club']);
             expect(
                 slotText(container, 'edition-name').map((text) =>
-                    text?.toLowerCase(),
+                    text.toLowerCase(),
                 ),
             ).toEqual(['zaterdagclub']);
             expect(
                 slotText(container, 'play-money').map((text) =>
-                    text?.toLowerCase(),
+                    text.toLowerCase(),
                 ),
             ).toEqual(['speelgeld']);
             expect(container.textContent).not.toMatch(/hasbro|monopoly|©/i);
@@ -98,9 +105,9 @@ describe('money styles (B270)', () => {
                     style,
                     editionName === undefined ? {} : { editionName },
                 );
-                expect(
-                    container.textContent?.match(/speelgeld/gi),
-                ).toHaveLength(1);
+                expect(container.textContent.match(/speelgeld/gi)).toHaveLength(
+                    1,
+                );
                 expect(slotText(container, 'bank-name')).toEqual([]);
                 expect(
                     slotText(container, 'value-words')[0]?.toLowerCase(),
@@ -123,7 +130,7 @@ describe('money styles (B270)', () => {
     it('says Speelgeld, or the own currency, on a note without an edition name', () => {
         for (const style of STYLES) {
             const plain = note(style);
-            expect(plain.textContent?.toLowerCase()).toContain('speelgeld');
+            expect(plain.textContent.toLowerCase()).toContain('speelgeld');
             const kus = note(style, { words: { noteName: 'Kus' } });
             expect(slotText(kus, 'edition-name')[0]?.toLowerCase()).toBe('kus');
         }
@@ -184,22 +191,23 @@ describe('money styles (B270)', () => {
 
     it('draws the Vintage line work once per value as a picture on a print sheet', () => {
         const drawn: string[] = [];
+        const context = {
+            scale: () => undefined,
+            fillRect: () => undefined,
+            save: () => undefined,
+            restore: () => undefined,
+            beginPath: () => undefined,
+            rect: () => undefined,
+            clip: () => undefined,
+            stroke: (path: { d: string }) => drawn.push(path.d),
+            setLineDash: () => undefined,
+        };
+        if (!isContext2d(context)) {
+            throw new Error('no 2d context');
+        }
         const getContext = vi
             .spyOn(HTMLCanvasElement.prototype, 'getContext')
-            .mockImplementation(
-                () =>
-                    ({
-                        scale: () => undefined,
-                        fillRect: () => undefined,
-                        save: () => undefined,
-                        restore: () => undefined,
-                        beginPath: () => undefined,
-                        rect: () => undefined,
-                        clip: () => undefined,
-                        stroke: (path: { d: string }) => drawn.push(path.d),
-                        setLineDash: () => undefined,
-                    }) as unknown as CanvasRenderingContext2D,
-            );
+            .mockReturnValue(context);
         const toDataURL = vi
             .spyOn(HTMLCanvasElement.prototype, 'toDataURL')
             .mockImplementation(

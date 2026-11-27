@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
-import { Banknote, BANKNOTE_SIZE_MM } from '@/components/render/banknote';
+import { Banknote } from '@/components/render/banknote';
+import { BANKNOTE_SIZE_MM } from '@/components/render/banknote-parts';
 import { BoardSpace } from '@/components/render/board-space';
 import { BoxLid } from '@/components/render/box-lid';
 import { CARD_SIZE_MM, GameCard } from '@/components/render/game-card';

@@ -1,12 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 
-import {
-    ChevronDownIcon,
-    ChevronLeftIcon,
-    RedoIcon,
-    UndoIcon,
-} from '@/components/icons';
 import { LogoMark } from '@/components/logo';
 import { RegistrationStrip } from '@/components/registration-strip';
 import { Button } from '@/components/ui/button';
@@ -17,6 +11,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+    ChevronDownIcon,
+    ChevronLeftIcon,
+    RedoIcon,
+    UndoIcon,
+} from '@/components/ui/icons';
 import {
     NameMenuItems,
     type NameMenuActions,

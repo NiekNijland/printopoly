@@ -1,6 +1,6 @@
 import { readPublicConfig } from './public-config';
 
-function page(json: string | null): Document {
+const page = (json: string | null): Document => {
     const doc = document.implementation.createHTMLDocument('x');
 
     if (json !== null) {
@@ -13,7 +13,7 @@ function page(json: string | null): Document {
     }
 
     return doc;
-}
+};
 
 describe('public config', () => {
     it('reads what the server put in the page', () => {

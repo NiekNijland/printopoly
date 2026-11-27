@@ -35,7 +35,7 @@ import { photoLayout } from './photo';
 
 const base = { theme: 'classic', locale: 'nl' } as const;
 
-function withElements(elements: Edition['elements'], parts = {}): Edition {
+const withElements = (elements: Edition['elements'], parts = {}): Edition => {
     const edition = makeEdition();
 
     return {
@@ -43,7 +43,7 @@ function withElements(elements: Edition['elements'], parts = {}): Edition {
         parts: { ...edition.parts, ...parts },
         elements,
     };
-}
+};
 
 describe('photo that fits instead of fills (B168)', () => {
     const logo = { w: 4000, h: 1000 };

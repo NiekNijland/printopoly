@@ -44,7 +44,7 @@ const NAME_BOX = {
 const PAWN_NAME_MAX_MM = 5;
 
 /** The box of the name in a style: Vintage leaves room for its flourishes, Modern for its bar. */
-function nameBoxOf(style: PawnStyle | undefined) {
+const nameBoxOf = (style: PawnStyle | undefined) => {
     switch (style) {
         case 'vintage':
             return { ...NAME_BOX, y: 4.6, h: 13.3 };
@@ -55,21 +55,21 @@ function nameBoxOf(style: PawnStyle | undefined) {
         case undefined:
             return NAME_BOX;
     }
-}
+};
 
-export interface PawnSheetItemProps extends ElementProps {
+export type PawnSheetItemProps = {
     name: string;
     photo?: PhotoSource;
-}
+} & ElementProps;
 
 /** The first letter of the name in a round stamp, where a pawn without a photo would have one. */
-function Initial({
+const Initial = ({
     name,
     look,
 }: {
     name: string;
     look: PawnStyle | undefined;
-}) {
+}) => {
     const { theme } = useRender();
     const letter = Array.from(name.trim())[0]?.toLocaleUpperCase() ?? '';
     const size = Math.min(PORTRAIT.w, PORTRAIT.h) - 1;
@@ -146,10 +146,10 @@ function Initial({
             )}
         </>
     );
-}
+};
 
 /** Vintage: the letter in an oval medallion on fine guilloche rings, like the value on an old banknote. */
-function VintageInitial({ letter }: { letter: string }) {
+const VintageInitial = ({ letter }: { letter: string }) => {
     const { theme } = useRender();
     const rule = ruleColor(theme);
     const cx = PORTRAIT.w / 2;
@@ -216,10 +216,10 @@ function VintageInitial({ letter }: { letter: string }) {
             )}
         </>
     );
-}
+};
 
 /** Speels: the letter, a little turned, on a scalloped badge with a stitched ring. */
-function PlayfulInitial({ letter, seed }: { letter: string; seed: number }) {
+const PlayfulInitial = ({ letter, seed }: { letter: string; seed: number }) => {
     const { theme } = useRender();
     const cx = PORTRAIT.w / 2;
     const cy = PORTRAIT.h / 2;
@@ -278,16 +278,16 @@ function PlayfulInitial({ letter, seed }: { letter: string; seed: number }) {
             )}
         </>
     );
-}
+};
 
 /** The photo in the portrait, with the edge of the style around it. */
-function Portrait({
+const Portrait = ({
     photo,
     look,
 }: {
     photo: PhotoSource;
     look: PawnStyle | undefined;
-}) {
+}) => {
     const { theme } = useRender();
 
     if (look === 'playful') {
@@ -351,10 +351,10 @@ function Portrait({
             )}
         </>
     );
-}
+};
 
 /** A strip of paper tape over a corner, Speels. */
-function Tape({ x, y, turn }: { x: number; y: number; turn: number }) {
+const Tape = ({ x, y, turn }: { x: number; y: number; turn: number }) => {
     const { theme } = useRender();
     const w = 6.2;
     const h = 2.2;
@@ -375,16 +375,16 @@ function Tape({ x, y, turn }: { x: number; y: number; turn: number }) {
             }}
         />
     );
-}
+};
 
 /** What a style draws under the face of one panel: the cream and rules of Vintage, the tile of Speels. */
-function PanelBackdrop({
+const PanelBackdrop = ({
     look,
     seed,
 }: {
     look: PawnStyle | undefined;
     seed: number;
-}) {
+}) => {
     const { theme } = useRender();
     const { w } = PAWN_SIZE_MM;
     const h = PANEL_HEIGHT;
@@ -436,16 +436,16 @@ function PanelBackdrop({
     }
 
     return null;
-}
+};
 
 /** The double rule of Vintage around a panel, with a diamond in each corner and a double rule between the halves. */
-function VintagePanelRules({
+const VintagePanelRules = ({
     color,
     split = true,
 }: {
     color: string;
     split?: boolean;
-}) {
+}) => {
     const { w } = PAWN_SIZE_MM;
     const h = PANEL_HEIGHT;
     // Off the cut edge, so a cut a little beside the line still leaves an even frame.
@@ -494,16 +494,16 @@ function VintagePanelRules({
             )}
         </Art>
     );
-}
+};
 
 /** What a style draws around the name: the flourishes of Vintage, the bar of Modern, the confetti of Speels. */
-function NameDecor({
+const NameDecor = ({
     look,
     seed,
 }: {
     look: PawnStyle | undefined;
     seed: number;
-}) {
+}) => {
     const { theme, style } = useRender();
     const { w } = PAWN_SIZE_MM;
     const h = PANEL_HEIGHT;
@@ -578,13 +578,13 @@ function NameDecor({
     }
 
     return null;
-}
+};
 
 /** The colours of confetti: the accents of the theme and a few street colours. */
-function confettiColors(
+const confettiColors = (
     theme: Theme,
     own: Partial<Record<string, string>> | undefined,
-): string[] {
+): string[] => {
     const street = (id: string, standard: string) =>
         own?.[id] ?? theme.groupColors?.[id] ?? standard;
 
@@ -595,9 +595,9 @@ function confettiColors(
         theme.deckAccent.chest,
         street('green', '#1FA25A'),
     ];
-}
+};
 
-function PawnFace({ name, photo }: { name: string; photo?: PhotoSource }) {
+const PawnFace = ({ name, photo }: { name: string; photo?: PhotoSource }) => {
     const { w } = PAWN_SIZE_MM;
     const { theme, style } = useRender();
     const look = partStyleOf(style, 'pawns');
@@ -718,10 +718,14 @@ function PawnFace({ name, photo }: { name: string; photo?: PhotoSource }) {
             )}
         </>
     );
-}
+};
 
 /** One pawn on the sheet, 40 x 55 mm, with its two fold lines. */
-export function PawnSheetItem({ name, photo, ...element }: PawnSheetItemProps) {
+export const PawnSheetItem = ({
+    name,
+    photo,
+    ...element
+}: PawnSheetItemProps) => {
     const { w, h } = PAWN_SIZE_MM;
     const theme = THEMES[element.theme];
 
@@ -749,9 +753,9 @@ export function PawnSheetItem({ name, photo, ...element }: PawnSheetItemProps) {
             <FoldLines />
         </Sheet>
     );
-}
+};
 
-function FoldLines() {
+const FoldLines = () => {
     const { theme, locale, style } = useRender();
     const { w, h } = PAWN_SIZE_MM;
     const t = STRINGS[locale];
@@ -800,4 +804,4 @@ function FoldLines() {
             />
         </>
     );
-}
+};

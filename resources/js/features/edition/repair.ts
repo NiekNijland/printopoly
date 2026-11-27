@@ -4,12 +4,12 @@ import { standardEdition } from '@/lib/render/standard-edition';
 import { amountField, clampAmount } from '../../lib/render/edition-amounts';
 import { isExtraCardKey, parseKey } from '../../lib/render/edition-keys';
 import {
-    MAX_NAME_LENGTH,
     migrateElements,
     parseBoardProfile,
     parseEdition,
     parseOverride,
 } from '../../lib/render/edition-schema';
+import { MAX_NAME_LENGTH } from '../../lib/render/edition-schema-limits';
 import {
     DEFAULT_PARTS,
     EDITION_SCHEMA_VERSION,
@@ -199,7 +199,7 @@ const repairOverride = (
 
         if (
             single !== undefined &&
-            Object.entries(single).some(
+            Object.entries<unknown>(single).some(
                 ([name, kept]) => name === field && kept !== undefined,
             )
         ) {

@@ -1,7 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 
-import { WarningIcon } from '@/components/icons';
+import { WarningIcon } from '@/components/ui/icons';
 import { tabsListVariants, tabsTriggerVariants } from '@/components/ui/tabs';
 import type { CollectionBox } from '@/features/edition/boxes/use-collection-box';
 import { BoardChoice } from '@/features/edition/editions/board-choice';

@@ -1,6 +1,6 @@
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 
-import { WarningIcon } from '@/components/icons';
+import { WarningIcon } from '@/components/ui/icons';
 import { groupColor } from '@/features/edition/editor/board-grid';
 import { isNameable } from '@/features/edition/editor/name-list';
 import { NameRow } from '@/features/edition/editor/name-row';

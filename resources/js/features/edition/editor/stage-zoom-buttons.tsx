@@ -1,5 +1,5 @@
-import { FitIcon, MinusIcon, PlusIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import { FitIcon, MinusIcon, PlusIcon } from '@/components/ui/icons';
 import { MAX_ZOOM, MIN_ZOOM } from '@/features/edition/editor/stage-view';
 import { useTranslation } from '@/hooks/use-translation';
 

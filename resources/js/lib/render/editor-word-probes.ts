@@ -9,13 +9,13 @@ import { deedsFor, standardEdition } from '@/lib/render/standard-edition';
 import type { Localized } from '@/types/game';
 
 /** An element that shows a custom word, drawn out of sight so Controle can tell when the word does not fit. */
-export interface WordProbe {
+export type WordProbe = {
     key: string;
     /** The part that has to be on for the element to be printed. */
     part: PartId;
     /** Where the word is printed, in a sentence: "de eigendomsbewijzen". */
     place: Localized;
-}
+};
 
 const CARDS: Localized = { nl: 'de kaarten', en: 'the cards' };
 const BOARD: Localized = { nl: 'het bord', en: 'the board' };
@@ -33,14 +33,14 @@ const NOTE: WordProbe = {
 };
 
 /** The deed of the first station or utility, where the word stands in the rent lines. */
-function deedOf(type: 'station' | 'utility'): WordProbe {
+const deedOf = (type: 'station' | 'utility'): WordProbe => {
     return {
         ...DEED,
         key: deedKey(deedsFor().findIndex((space) => space.type === type) + 1),
     };
-}
+};
 
-function cardsWith(placeholder: string): WordProbe[] {
+const cardsWith = (placeholder: string): WordProbe[] => {
     const found: WordProbe[] = [];
 
     for (const deck of ['chance', 'chest'] as const) {
@@ -56,7 +56,7 @@ function cardsWith(placeholder: string): WordProbe[] {
     }
 
     return found;
-}
+};
 
 const onBoard = (position: number): WordProbe => ({
     key: spaceKey(position),

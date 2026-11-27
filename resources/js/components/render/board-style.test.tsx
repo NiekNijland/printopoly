@@ -24,7 +24,7 @@ const photo: PhotoSource = {
     transform: { x: 0.5, y: 0.5, scale: 1, rotation: 0, grayscale: false },
 };
 
-function space(position: number, style: BoardStyle | undefined, extra = {}) {
+const space = (position: number, style: BoardStyle | undefined, extra = {}) => {
     return render(
         <BoardSpace
             theme="classic"
@@ -36,7 +36,7 @@ function space(position: number, style: BoardStyle | undefined, extra = {}) {
             {...extra}
         />,
     ).container;
-}
+};
 
 describe('board styles (B268)', () => {
     it.each(

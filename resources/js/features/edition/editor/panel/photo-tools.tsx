@@ -7,8 +7,8 @@ import {
     type ReactNode,
 } from 'react';
 
-import { HandIcon, SwapIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import { HandIcon, SwapIcon } from '@/components/ui/icons';
 import { editElement } from '@/features/edition/editor/edit';
 import {
     PhotoFit,

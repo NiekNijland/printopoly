@@ -1,4 +1,4 @@
-import { WarningIcon } from '@/components/icons';
+import { WarningIcon } from '@/components/ui/icons';
 import {
     ListHeading,
     ListRow,

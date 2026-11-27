@@ -36,7 +36,7 @@ export const STANDARD_JAIL: Record<Locale, string> = {
 };
 
 /** The words of an edition after its own choices, in the language of the edition. */
-export interface ResolvedWords extends RenderWords {
+export type ResolvedWords = {
     house: WordPair;
     hotel: WordPair;
     /** Stations and utilities, as the deeds and the cards call them (`words.station`, `words.utility`). */
@@ -53,30 +53,30 @@ export interface ResolvedWords extends RenderWords {
     customCurrencyName: string | undefined;
     /** Which words the edition changed. */
     custom: Record<WordId, boolean>;
-}
+} & RenderWords;
 
-function typed(value: string | undefined): string | undefined {
+const typed = (value: string | undefined): string | undefined => {
     const trimmed = value?.trim();
 
     return trimmed === undefined || trimmed === '' ? undefined : trimmed;
-}
+};
 
-function standardDeckName(
+const standardDeckName = (
     standard: StandardEdition,
     deck: DeckId,
     language: Locale,
-): string {
+): string => {
     return (
         standard.spaces.find((space) => space.type === deck)?.name[language] ??
         deck
     );
-}
+};
 
 /** Standard currency of an edition, before its own name and symbol. */
-function standardCurrency(
+const standardCurrency = (
     edition: Edition,
     standard: StandardEdition,
-): Currency {
+): Currency => {
     const currency = standard.currencies.find(
         (candidate) => candidate.id === edition.currency,
     );
@@ -85,14 +85,14 @@ function standardCurrency(
     }
 
     return currency;
-}
+};
 
 /** The standard words of a language, with no overrides. */
-export function standardWords(
+export const standardWords = (
     language: Locale,
     currency: Currency,
     standard: StandardEdition = standardEdition,
-): ResolvedWords {
+): ResolvedWords => {
     const base = STANDARD_BUILDINGS[language];
 
     return {
@@ -121,25 +121,25 @@ export function standardWords(
             utility: false,
         },
     };
-}
+};
 
 /** What each word is when the edition does not say: used as placeholder in the editor. */
-export function defaultWords(
+export const defaultWords = (
     edition: Edition,
     standard: StandardEdition = standardEdition,
-): ResolvedWords {
+): ResolvedWords => {
     return standardWords(
         edition.language,
         standardCurrency(edition, standard),
         standard,
     );
-}
+};
 
 /** The words of an edition: the overrides of `words.*` on top of the standard words (B59). */
-export function resolveWords(
+export const resolveWords = (
     edition: Edition,
     standard: StandardEdition = standardEdition,
-): ResolvedWords {
+): ResolvedWords => {
     const base = defaultWords(edition, standard);
     const field = (id: WordId, name: 'name' | 'text') =>
         typed(edition.elements[wordKey(id)]?.[name]);
@@ -163,23 +163,19 @@ export function resolveWords(
         // A plural left empty is the singular, so one filled field already gives a usable word.
         house: {
             singular: house ?? base.house.singular,
-            plural: houses ?? (house === undefined ? base.house.plural : house),
+            plural: houses ?? house ?? base.house.plural,
         },
         hotel: {
             singular: hotel ?? base.hotel.singular,
-            plural: hotels ?? (hotel === undefined ? base.hotel.plural : hotel),
+            plural: hotels ?? hotel ?? base.hotel.plural,
         },
         station: {
             singular: station ?? base.station.singular,
-            plural:
-                stations ??
-                (station === undefined ? base.station.plural : station),
+            plural: stations ?? station ?? base.station.plural,
         },
         utility: {
             singular: utility ?? base.utility.singular,
-            plural:
-                utilities ??
-                (utility === undefined ? base.utility.plural : utility),
+            plural: utilities ?? utility ?? base.utility.plural,
         },
         jail: jail ?? base.jail,
         decks: {
@@ -202,10 +198,10 @@ export function resolveWords(
             utility: utility !== undefined || utilities !== undefined,
         },
     };
-}
+};
 
 /** The part of the words the renderers read: they do not need to know which ones are custom. */
-export function renderWords(words: ResolvedWords): RenderWords {
+export const renderWords = (words: ResolvedWords): RenderWords => {
     return {
         house: words.house,
         hotel: words.hotel,
@@ -216,7 +212,7 @@ export function renderWords(words: ResolvedWords): RenderWords {
         currencyName: words.currencyName,
         noteName: words.customCurrencyName,
     };
-}
+};
 
 const PLACEHOLDER =
     /\{(house|hotel|houses|hotels|jail|station|stations|utility|utilities)\}/g;
@@ -225,13 +221,13 @@ const PLACEHOLDER =
  * Fills the placeholders of a standard card text (`{house}`, `{hotel}`, `{jail}`, `{station}`, `{utility}` and
  * their plurals) with the words of an edition.
  */
-export function fillWords(
+export const fillWords = (
     text: string,
     words: Pick<
         ResolvedWords,
         'house' | 'hotel' | 'jail' | 'station' | 'utility'
     >,
-): string {
+): string => {
     const { station, utility } = words;
 
     return text.replace(PLACEHOLDER, (_, id: string) => {
@@ -256,7 +252,7 @@ export function fillWords(
                 return words.jail;
         }
     });
-}
+};
 
 /** Key of the space a corner is, for its name, short text and photo. */
 export const cornerKey = (corner: CornerKind): string =>

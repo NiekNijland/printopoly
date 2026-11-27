@@ -22,14 +22,14 @@ const seo = {
     },
 };
 
-function withSeo(value: typeof seo | null) {
+const withSeo = (value: typeof seo | null) => {
     const base = fakePage({ locale: 'en' });
     setPage({ ...base, props: { ...base.props, seo: value } });
-}
+};
 
-function content(selector: string): string | null {
+const content = (selector: string): string | null => {
     return document.querySelector(selector)?.getAttribute('content') ?? null;
-}
+};
 
 describe('Seo', () => {
     it('adds the canonical and an hreflang link per language, with x-default', () => {
@@ -82,11 +82,9 @@ describe('Seo', () => {
         )?.innerHTML;
 
         expect(json).not.toContain('</b>');
-        const parsed = JSON.parse(json ?? '{}') as {
-            '@graph': { name: string }[];
-        };
+        const parsed: unknown = JSON.parse(json ?? '{}');
 
-        expect(parsed['@graph'][0]?.name).toBe('a</b>');
+        expect(parsed).toHaveProperty(['@graph', 0, 'name'], 'a</b>');
     });
 
     it('does not repeat the site name in a title that has it', () => {

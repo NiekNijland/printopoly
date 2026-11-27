@@ -1,6 +1,8 @@
 import { Link } from '@inertiajs/react';
 
-import { Banknote, GameCard, TitleDeed } from '@/components/render';
+import { Banknote } from '@/components/render/banknote';
+import { GameCard } from '@/components/render/game-card';
+import { TitleDeed } from '@/components/render/title-deed';
 import { Button } from '@/components/ui/button';
 import { TemplateStrip } from '@/features/edition/editions/template-strip';
 import { useTranslation } from '@/hooks/use-translation';

@@ -12,7 +12,7 @@ import {
 import type { EditionSession } from '@/features/edition/session';
 import { useTranslation } from '@/hooks/use-translation';
 import { BOARD_CENTER_KEY, wordKey } from '@/lib/render/edition-keys';
-import { MAX_NAME_LENGTH } from '@/lib/render/edition-schema';
+import { MAX_NAME_LENGTH } from '@/lib/render/edition-schema-limits';
 import { changeLanguage, rename } from '@/lib/render/edition-settings';
 import { messages } from '@/lib/render/edition-strings';
 import type { Edition } from '@/lib/render/edition-types';

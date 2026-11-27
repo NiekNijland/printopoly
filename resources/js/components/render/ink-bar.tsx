@@ -4,7 +4,7 @@ import { mm } from '@/lib/render/units';
 import { Abs } from './sheet';
 
 /** The colour bar of a print shop proof: cyan, magenta, yellow and black, as on the edge of the site. */
-export function InkBar({
+export const InkBar = ({
     x,
     y,
     w,
@@ -16,7 +16,7 @@ export function InkBar({
     w: number;
     h?: number;
     theme: Theme;
-}) {
+}) => {
     const inks = [
         theme.deckAccent.chance,
         theme.deckAccent.chest,
@@ -35,4 +35,4 @@ export function InkBar({
             ))}
         </Abs>
     );
-}
+};

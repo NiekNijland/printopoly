@@ -1,3 +1,5 @@
+import { readStored, writeStored } from '@/lib/browser-storage';
+
 /**
  * The editor's keyboard shortcuts in one place: the handler, the "Sneltoetsen" dialog and the
  * tooltips (`title`, `aria-keyshortcuts`) all read this list so they cannot drift apart.
@@ -195,19 +197,12 @@ export const isInteractiveTarget = (target: EventTarget | null): boolean => {
 const PLAIN_KEY = 'printopoly.shortcuts.plain';
 
 export const readPlainEnabled = (): boolean => {
-    try {
-        return window.localStorage.getItem(PLAIN_KEY) !== 'off';
-    } catch {
-        return true;
-    }
+    return readStored(PLAIN_KEY) !== 'off';
 };
 
 export const writePlainEnabled = (enabled: boolean): void => {
-    try {
-        window.localStorage.setItem(PLAIN_KEY, enabled ? 'on' : 'off');
-    } catch {
-        // Storage can be blocked; the setting then lasts until the page closes.
-    }
+    // Storage can be blocked; the setting then lasts until the page closes.
+    writeStored(PLAIN_KEY, enabled ? 'on' : 'off');
 };
 
 export type ShortcutAction =

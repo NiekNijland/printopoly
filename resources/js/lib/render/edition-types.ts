@@ -4,76 +4,14 @@ import type { BoardProfile } from '@/lib/render/print-board';
 import type { MoneyAmount } from '@/lib/render/print-money';
 import type { SpaceIconPreset } from '@/lib/render/space-icons';
 import type { CurrencyId, Locale } from '@/types/game';
+import type { PrintSet } from '@/types/generated';
+import type { TemplateId } from './edition-template-ids';
 
 export type { PhotoStyle };
 
 export const EDITION_SCHEMA_VERSION = 1;
 
 export type ThemeId = 'classic' | 'riso' | 'strak' | 'gala';
-
-/**
- * The templates a new edition can start from (B127, B201), in display order. Leeg (the standard edition) comes
- * first on screen and is no template. Their data is in `resources/js/lib/render/edition-templates.ts`.
- */
-export const TEMPLATE_IDS = [
-    'village',
-    'family',
-    'friends',
-    'party',
-    'wedding',
-    'group',
-] as const;
-
-/**
- * Templates nobody starts from any more (B201), kept as the baseline of editions that started from them (B152), so
- * their untouched texts stay as they are and count as no change. The first six were on offer until round 5; `club1`
- * and `birthday1` are the versions of Club of vereniging and Verjaardag from before they were rewritten (B193).
- */
-export const HIDDEN_TEMPLATE_IDS = [
-    'company',
-    'school',
-    'club',
-    'bachelor',
-    'birthday',
-    'kidsparty',
-    'club1',
-    'birthday1',
-] as const;
-
-/**
- * The start Leeg (B259): no template, but the standard edition with empty names and card texts. The edition keeps
- * it as its template, so its baseline is that empty edition and an untouched Leeg shows no change dots.
- */
-export const EMPTY_TEMPLATE = 'empty';
-
-export type TemplateId =
-    | (typeof TEMPLATE_IDS)[number]
-    | (typeof HIDDEN_TEMPLATE_IDS)[number]
-    | typeof EMPTY_TEMPLATE;
-
-/** Every template an edition can carry: the ones on offer, the hidden ones and Leeg. */
-export const KNOWN_TEMPLATE_IDS: readonly TemplateId[] = [
-    ...TEMPLATE_IDS,
-    ...HIDDEN_TEMPLATE_IDS,
-    EMPTY_TEMPLATE,
-];
-
-/** Whether a new edition can start from this template: one of the seven starts on Nieuwe editie (B201). */
-export function isOfferedTemplate(
-    value: unknown,
-): value is (typeof TEMPLATE_IDS)[number] {
-    return (
-        typeof value === 'string' &&
-        (TEMPLATE_IDS as readonly string[]).includes(value)
-    );
-}
-
-export function isTemplateId(value: unknown): value is TemplateId {
-    return (
-        typeof value === 'string' &&
-        (KNOWN_TEMPLATE_IDS as readonly string[]).includes(value)
-    );
-}
 
 export const THEME_IDS: readonly ThemeId[] = [
     'classic',
@@ -150,13 +88,13 @@ export const PRINT_SELECTION_PART_IDS: readonly PartId[] = [
  * print page saves a choice: then `defaultPrintSelection` in lib/render/print-selection.ts gives the parts, from the
  * edition's own `parts`, and the home set (B199). The board is always in it.
  */
-export interface PrintSelection {
-    set: 'home' | 'printer';
+export type PrintSelection = {
+    set: PrintSet;
     parts: PartId[];
-}
+};
 
 /** Photo position, normalised so it survives a change of the box it sits in (B61). */
-export interface PhotoPlacement {
+export type PhotoPlacement = {
     /** Id in the photo store of this browser. */
     photoId: string;
     /** Centre of the visible crop as a fraction of the photo (0 to 1). */
@@ -177,7 +115,7 @@ export interface PhotoPlacement {
      * crop of the deed's own narrow frame once its size is known (`deedCrop`, B177), not the crop of the space.
      */
     borrowed?: true;
-}
+};
 
 /** The letter of a text layer: the heading font (the default), the body font or the mono font. */
 export type LayerFont = 'heading' | 'body' | 'mono';
@@ -246,7 +184,7 @@ export type SpaceIcon =
     { preset: SpaceIconPreset } | { photo: PhotoPlacement; aspect: number };
 
 /** Only what differs from the standard data is stored (B59). */
-export interface ElementOverride {
+export type ElementOverride = {
     name?: string;
     /** Town of a colour group (`group.brown`); shown small above the street names in that group. */
     town?: string;
@@ -317,13 +255,13 @@ export interface ElementOverride {
     hidden?: boolean;
     /** An extra Chance or Community Chest card after the standard 16 (B135); always `true` when present. */
     added?: boolean;
-}
+};
 
 export type ElementField = keyof ElementOverride;
 
 export type Elements = Record<string, ElementOverride>;
 
-export interface Edition {
+export type Edition = {
     schemaVersion: number;
     id: string;
     name: string;
@@ -349,16 +287,16 @@ export interface Edition {
     revision: number;
     createdAt: number;
     updatedAt: number;
-}
+};
 
 /** One change to one element; `undefined` means "no override". */
-export interface ElementChange {
+export type ElementChange = {
     key: string;
     before: ElementOverride | undefined;
     after: ElementOverride | undefined;
-}
+};
 
-export interface EditionPatch {
+export type EditionPatch = {
     /** Revision the patch was made against. */
     baseRevision: number;
     name?: string;
@@ -373,18 +311,18 @@ export interface EditionPatch {
     printSelection?: PrintSelection | null;
     /** `null` removes the override. */
     elements?: Record<string, ElementOverride | null>;
-}
+};
 
-export interface NewEditionInput {
+export type NewEditionInput = {
     name: string;
     language: Locale;
     currency?: CurrencyId;
     theme: ThemeId;
     boardProfile: BoardProfile;
     parts?: Partial<Parts>;
-}
+};
 
-export interface EditionSummary {
+export type EditionSummary = {
     id: string;
     name: string;
     language: Locale;
@@ -397,9 +335,9 @@ export interface EditionSummary {
     customizedElements: number;
     /** The share of the elements of the editor you changed, 0 to 100 (Niek, 22 nov). */
     customizedPercent: number;
-}
+};
 
-export interface PhotoRecord {
+export type PhotoRecord = {
     id: string;
     editionId: string;
     /** The original (or the JPEG/PNG made from a HEIC): this is what the print job needs. */
@@ -411,23 +349,20 @@ export interface PhotoRecord {
     height: number;
     fileName?: string;
     createdAt: number;
-}
+};
 
 /**
  * A print job this browser started for one of its editions without an account (bug 14 of the integration check).
  * The token is the secret of the job; Mijn edities sends it to ask whether a set is ready.
  */
-export interface PrintJobRecord {
+export type PrintJobRecord = {
     token: string;
     editionId: string;
     /** The revision of the edition when the job was made: a later revision means the set is outdated. */
     revision: number;
     createdAt: number;
-}
+};
 
-export function isThemeId(value: unknown): value is ThemeId {
-    return (
-        typeof value === 'string' &&
-        (THEME_IDS as readonly string[]).includes(value)
-    );
-}
+export const isThemeId = (value: unknown): value is ThemeId => {
+    return THEME_IDS.some((id) => id === value);
+};

@@ -34,11 +34,11 @@ type View = 'space' | 'deed' | 'chance' | 'chest' | 'rules';
  * "Voorbeeld bekijken" (B97): the sample edition, or with `?template=` a starting point (B127),
  * read-only, with a button that copies it into a new local edition.
  */
-export default function EditionsSample({
+const EditionsSample = ({
     template: templateParam = null,
 }: {
     template?: string | null;
-}) {
+}) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const { repository } = useServices();
@@ -236,4 +236,5 @@ export default function EditionsSample({
             </main>
         </>
     );
-}
+};
+export default EditionsSample;

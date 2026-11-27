@@ -42,15 +42,15 @@ const EDITION_PARTS: Readonly<Record<SetPart, readonly PartId[]>> = {
 };
 
 /** The row of the print page that holds an edition part: the pawns are on the row Pionnen (`tokens`). */
-export function setPartOf(part: PartId): SetPart | undefined {
+export const setPartOf = (part: PartId): SetPart | undefined => {
     return SET_PARTS.find((row) => EDITION_PARTS[row].includes(part));
-}
+};
 
 /** A selection of these rows; the board is always in. */
-export function selectionOfRows(
+export const selectionOfRows = (
     set: PrintSet,
     rows: readonly SetPart[],
-): PrintSelection {
+): PrintSelection => {
     return {
         set,
         parts: PRINT_SELECTION_PART_IDS.filter(
@@ -59,11 +59,11 @@ export function selectionOfRows(
                 rows.some((row) => EDITION_PARTS[row].includes(id)),
         ),
     };
-}
+};
 
-export function defaultPrintSelection(
+export const defaultPrintSelection = (
     edition: Pick<Edition, 'parts' | 'elements'>,
-): PrintSelection {
+): PrintSelection => {
     const on = (...ids: PartId[]) => ids.some((id) => edition.parts[id]);
     const wanted: Record<SetPart, boolean> = {
         board: true,
@@ -79,36 +79,36 @@ export function defaultPrintSelection(
         'home',
         SET_PARTS.filter((part) => wanted[part]),
     );
-}
+};
 
 /** The choice of the print page, or the default when it never chose. */
-export function printSelectionOf(
+export const printSelectionOf = (
     edition: Pick<Edition, 'parts' | 'elements' | 'printSelection'>,
-): PrintSelection {
+): PrintSelection => {
     return edition.printSelection ?? defaultPrintSelection(edition);
-}
+};
 
 /** Whether a row is in the set: the board always is. */
-export function inPrintSelection(
+export const inPrintSelection = (
     selection: PrintSelection,
     part: SetPart,
-): boolean {
+): boolean => {
     return (
         part === 'board' ||
         EDITION_PARTS[part].some((id) => selection.parts.includes(id))
     );
-}
+};
 
 /** The rows of the set, in page order. */
-export function setPartsOf(selection: PrintSelection): SetPart[] {
+export const setPartsOf = (selection: PrintSelection): SetPart[] => {
     return SET_PARTS.filter((part) => inPrintSelection(selection, part));
-}
+};
 
 /** The selection with one row switched; the board stays in. */
-export function toggleSelectionPart(
+export const toggleSelectionPart = (
     selection: PrintSelection,
     part: SetPart,
-): PrintSelection {
+): PrintSelection => {
     if (part === 'board') {
         return selection;
     }
@@ -120,33 +120,33 @@ export function toggleSelectionPart(
             row === part ? on : inPrintSelection(selection, row),
         ),
     );
-}
+};
 
 /** The rows the server leaves out of a set: every row that is not chosen. */
-export function skippedOf(selection: PrintSelection): SetPart[] {
+export const skippedOf = (selection: PrintSelection): SetPart[] => {
     return SET_PARTS.filter((part) => !inPrintSelection(selection, part));
-}
+};
 
 /** A selection from the parts a print job skips, for a job page in a browser that does not hold the edition. */
-export function selectionFromSkipped(
+export const selectionFromSkipped = (
     base: PrintSelection,
     skipped: readonly string[],
     set: PrintSet,
-): PrintSelection {
+): PrintSelection => {
     return selectionOfRows(
         set,
         setPartsOf(base).filter((part) => !skipped.includes(part)),
     );
-}
+};
 
 /**
  * The edition as the set prints it, for "Nog even nakijken" (B197): only the parts in the set give messages, the
  * same as `checkView` of the editor.
  */
-export function editionInSet(
+export const editionInSet = (
     edition: Edition,
     selection: PrintSelection,
-): Edition {
+): Edition => {
     const parts = Object.fromEntries(
         Object.keys(edition.parts).map((id) => [
             id,
@@ -157,4 +157,4 @@ export function editionInSet(
     // emptied again, the same as in the editor (B210).
 
     return { ...edition, parts };
-}
+};

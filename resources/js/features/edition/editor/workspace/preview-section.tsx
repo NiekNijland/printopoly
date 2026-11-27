@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { ChevronDownIcon } from '@/components/icons';
+import { ChevronDownIcon } from '@/components/ui/icons';
 import {
     SegmentedTabs,
     SegmentedTabsList,

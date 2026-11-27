@@ -14,7 +14,7 @@ export const clearsSomething = (
 ): boolean => {
     const fields = Object.keys(patch);
 
-    return Object.entries(now ?? {}).some(
+    return Object.entries<unknown>(now ?? {}).some(
         ([field, value]) => value !== undefined && fields.includes(field),
     );
 };

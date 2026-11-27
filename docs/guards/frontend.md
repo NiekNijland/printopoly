@@ -10,7 +10,7 @@ De linter houdt de regels van de frontend vast; `eslint.config.js` is de guard, 
 | one-way | een component en een hook zijn een const arrow; geen `forwardRef`, geen `enum`, geen re-export | `const X = ({ a }: Props) => ...` |
 | file-names | bestands- en mapnamen in kebab-case, geen `index`-barrel (een pagina mag `index` heten) | importeer de module die de naam definieert |
 | page-props | een pagina neemt haar props als parameters | `({ a, b }: Props) => ...` |
-| doors | storage, `matchMedia`, `fetch`, window- en document-events en `Intl` hebben elk één deur | `hooks/use-media-query`; `fetch` alleen in `lib/render/print-api.ts` en `features/edition/remote` |
+| doors | storage, `matchMedia`, `fetch`, window- en document-events en `Intl` hebben elk één deur | `lib/browser-storage`, `lib/media-query` (een component: `hooks/use-media-query`), `lib/dom-events`, `lib/number-format`, `lib/datetime`; `fetch` alleen in `lib/render/print-api.ts` en `features/edition/remote` |
 | navigation | geen schrijven naar `location`, geen zelfgebouwde downloadlink, geen succes-toast van de client, geen laadstatus in `onStart`/`onFinish` | `router.visit`, de ene downloadhelper, een flash van de server |
 | tests | geen focused, skipped of todo-test, geen snapshot, geen eigen `vi.mock` van `@inertiajs` | de gedeelde fake uit de test set-up: `setPage` en `visit` uit `resources/js/testing/inertia.tsx` |
 

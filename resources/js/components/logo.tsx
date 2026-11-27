@@ -15,24 +15,24 @@ const YELLOW = '#FFE600';
 const PAPER = '#F6F1E4';
 const RED = '#C8321F';
 
-interface RegistrationMarkProps {
+type RegistrationMarkProps = {
     size?: number;
     tone?: Tone;
     /** The heavier drawing for the mark on its own, as in the favicon. */
     heavy?: boolean;
     className?: string;
-}
+};
 
 /**
  * The registration mark (paspunt), drawn exactly as in docs/design: one
  * drawing for empty states and the like, paper-coloured on dark (B83, B87).
  */
-export function RegistrationMark({
+export const RegistrationMark = ({
     size = 28,
     tone = 'ink',
     heavy = false,
     className,
-}: RegistrationMarkProps) {
+}: RegistrationMarkProps) => {
     const stroke = STROKE[tone];
     const strokeWidth = heavy ? 2.5 : 2;
 
@@ -60,17 +60,17 @@ export function RegistrationMark({
             />
         </svg>
     );
-}
+};
 
 /** The board corner as one outline: square cells, rounded outer corners. */
 const CORNER =
     'M2 2H41A5 5 0 0 1 46 7V16H16V41A5 5 0 0 1 11 46H7A5 5 0 0 1 2 41Z';
 
-interface LogoMarkProps {
+type LogoMarkProps = {
     size?: number;
     tone?: Tone;
     className?: string;
-}
+};
 
 /**
  * The beeldmerk (B110): a board corner of square cells in cyan, magenta,
@@ -78,11 +78,11 @@ interface LogoMarkProps {
  * its inner corner. Hand-built on a 48 grid. public/favicon.svg is the same
  * drawing, simplified so it reads at 16 px.
  */
-export function LogoMark({
+export const LogoMark = ({
     size = 40,
     tone = 'ink',
     className,
-}: LogoMarkProps) {
+}: LogoMarkProps) => {
     const stroke = STROKE[tone];
     const clipId = useId();
 
@@ -146,20 +146,20 @@ export function LogoMark({
             />
         </svg>
     );
-}
+};
 
-interface LogoProps {
+type LogoProps = {
     size?: 'sm' | 'md';
     tone?: Tone;
     className?: string;
-}
+};
 
 /**
  * The logo (B110): the mark, then "Printopoly" in League Spartan 800 with a
  * red dot on the i. The i is the dotless ı and the dot is its own element, so
  * it stays crisp at every size.
  */
-export function Logo({ size = 'md', tone = 'ink', className }: LogoProps) {
+export const Logo = ({ size = 'md', tone = 'ink', className }: LogoProps) => {
     return (
         <span className={cn('inline-flex items-center gap-2', className)}>
             <LogoMark size={size === 'md' ? 40 : 32} tone={tone} />
@@ -181,4 +181,4 @@ export function Logo({ size = 'md', tone = 'ink', className }: LogoProps) {
             </span>
         </span>
     );
-}
+};

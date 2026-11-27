@@ -16,6 +16,7 @@ import {
     findRemoteOnly,
     type SyncQuestion,
 } from '@/features/edition/sync';
+import { readStored, writeStored } from '@/lib/browser-storage';
 import type { Edition, EditionSummary } from '@/lib/render/edition-types';
 import { uploadAccountPhoto } from '@/lib/render/print-api';
 import type { AuthUserData } from '@/types/generated';
@@ -45,11 +46,7 @@ export type AccountSync = {
 const declinedKey = (userId: string) => `printopoly.sync-declined.${userId}`;
 
 const wasDeclined = (userId: string): boolean => {
-    try {
-        return localStorage.getItem(declinedKey(userId)) === '1';
-    } catch {
-        return false;
-    }
+    return readStored(declinedKey(userId)) === '1';
 };
 
 type SyncServices = Pick<EditorServices, 'repository' | 'storage'> & {
@@ -235,11 +232,8 @@ export const useAccountSync = (onChanged: () => void): AccountSync => {
 
     const decline = useCallback(() => {
         if (userId !== undefined) {
-            try {
-                localStorage.setItem(declinedKey(userId), '1');
-            } catch {
-                // Without storage the question simply comes back next time.
-            }
+            // Without storage the question simply comes back next time.
+            writeStored(declinedKey(userId), '1');
         }
         setQuestion(null);
     }, [userId]);

@@ -6,6 +6,7 @@
  */
 
 import { isJsonObject } from '@/features/edition/remote/client';
+import { readStored, writeStored } from '@/lib/browser-storage';
 
 const OWNER_KEY = 'printopoly.boxes.owner';
 const FRIEND_KEY = 'printopoly.boxes.friend';
@@ -25,9 +26,12 @@ export type SentRecord = {
 };
 
 const readObject = (key: string): Record<string, unknown> => {
+    const raw = readStored(key);
+    if (raw === null) {
+        return {};
+    }
     try {
-        const raw = window.localStorage.getItem(key);
-        const parsed: unknown = raw === null ? null : JSON.parse(raw);
+        const parsed: unknown = JSON.parse(raw);
 
         return isJsonObject(parsed) ? parsed : {};
     } catch {
@@ -36,11 +40,8 @@ const readObject = (key: string): Record<string, unknown> => {
 };
 
 const writeObject = (key: string, value: Record<string, unknown>): void => {
-    try {
-        window.localStorage.setItem(key, JSON.stringify(value));
-    } catch {
-        // Private window or full storage: the page keeps working this session.
-    }
+    // Private window or full storage: the page keeps working this session.
+    writeStored(key, JSON.stringify(value));
 };
 
 export const readOwnerRecord = (editionId: string): OwnerRecord | null => {

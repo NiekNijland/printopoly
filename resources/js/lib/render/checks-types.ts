@@ -17,7 +17,7 @@ type PartId =
 export type PartSelection = Record<PartId, boolean>;
 
 /** A photo in a frame. */
-export interface CheckPhoto {
+export type CheckPhoto = {
     /** Field in the element, such as `photo` or `layer.2`. */
     field: string;
     /** Photo in pixels after EXIF orientation. */
@@ -32,12 +32,12 @@ export interface CheckPhoto {
      * (B157). A photo that is too small on both then gives one message, at the space (R5-09).
      */
     borrowedFrom?: string;
-}
+};
 
 /** Result of fitting a text, supplied by the text-fitting code (B55, B94). */
 type TextFitResult = { fits: true } | { fits: false; excessCharacters: number };
 
-export interface CheckText {
+export type CheckText = {
     field: string;
     /** Where the text is printed, for a custom word that is used in several places ("de kaarten"). */
     place?: Localized;
@@ -48,9 +48,9 @@ export interface CheckText {
      * names on the board (bug 13, ronde 3).
      */
     fontMm?: number;
-}
+};
 
-export interface CheckElement {
+export type CheckElement = {
     /** `space.01`, `card.chance.03`, `deed.24`, `note.50`, ... */
     key: string;
     photos?: readonly CheckPhoto[];
@@ -61,29 +61,29 @@ export interface CheckElement {
     cardAmount?: CheckCardAmount;
     /** Amounts outside 20% of the standard amount (B132). */
     amounts?: readonly CheckAmount[];
-}
+};
 
 /** An amount of the edition that is not allowed, with the range that is. */
-export interface CheckAmount {
+export type CheckAmount = {
     /** `amounts.price`, `amounts.rent.3`, or `amount` on a card. */
     field: string;
     value: number;
     min: number;
     max: number;
-}
+};
 
 /** The amount under a card, with the range it may take (B132, B135). */
-export interface CheckCardAmount {
+export type CheckCardAmount = {
     /** Signed: minus is paid. */
     value: number;
     min: number;
     max: number;
     /** How the amount looks on the card: "€ 18". */
     shown: string;
-}
+};
 
 /** A colour chosen for the edition, and what it sits on (B130). */
-export interface CheckColor {
+export type CheckColor = {
     /** `accent`, or the id of a colour group such as `red`. */
     field: string;
     /** What the colour is called in a message: "Rood" or "Accentkleur". */
@@ -94,10 +94,10 @@ export interface CheckColor {
     role: 'accent' | 'bar';
     /** The colour it is printed on: the board colour. */
     against: string;
-}
+};
 
 /** What the checks need from a resolved edition. The edition model maps itself onto this. */
-export interface CheckInput {
+export type CheckInput = {
     board: BoardProfile;
     parts: PartSelection;
     elements: readonly CheckElement[];
@@ -119,24 +119,24 @@ export interface CheckInput {
     longName?: readonly CheckNamePlace[];
     /** What lies over a fold line or a card spot of the board centre (B183, B187). */
     centerOnFold?: readonly CheckFold[];
-}
+};
 
 /** Something in the board centre that lies over a fold line or a card spot. */
-export interface CheckFold {
+export type CheckFold = {
     /** `center-place` for the name, photo or logo; `layer.<id>` for a free layer. */
     field: string;
     /** `face`: the middle of a photo over the whole centre, where a face usually is, lies on a fold (B261). */
     what: 'name' | 'photo' | 'logo' | 'layer' | 'face';
-}
+};
 
 /** A part where the edition name does not fit its box. */
-export interface CheckNamePlace {
+export type CheckNamePlace = {
     /** The element that shows the name: the rules booklet or a banknote. */
     elementKey: string;
     /** Where it is printed, in a sentence: "het spelregelboekje". */
     place: Localized;
     excessCharacters: number;
-}
+};
 
 export type CheckCode =
     | 'photo.low-resolution'
@@ -171,7 +171,7 @@ export type Severity = 'warning' | 'error';
 /** B98: an icon and a word with every issue, never colour alone. */
 export type IssueIcon = 'triangle-alert' | 'octagon-x';
 
-export interface CheckIssue {
+export type CheckIssue = {
     /** Stable: `code|elementKey|field`. */
     id: string;
     code: CheckCode;
@@ -206,4 +206,4 @@ export interface CheckIssue {
         /** Which way the text says the money goes, for `text.amount-direction`, so one tap can turn the card (R5-11). */
         says?: 'pay' | 'receive';
     };
-}
+};

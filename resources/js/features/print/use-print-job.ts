@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { reportUnlessOffline } from '@/lib/bugsnag';
 import { getEcho } from '@/lib/echo';
 import { fetchStatus } from '@/lib/render/print-api';
 import type { PrintJobData, PrintJobStatusData } from '@/types/generated';
@@ -7,18 +8,18 @@ import type { PrintJobData, PrintJobStatusData } from '@/types/generated';
 /** While a run is busy the status is also fetched this often, in case a Reverb message is missed. */
 const POLL_MS = 4000;
 
-interface PrintJobState {
+type PrintJobState = {
     status: PrintJobStatusData;
     /** Replace the status, for example with the answer to starting a run. */
     setStatus: (status: PrintJobStatusData) => void;
-}
+};
 
 /**
  * The live status of a print job (B95). It starts from the status the page was rendered with, listens on
  * the job's Reverb channel (private for a job with an account, secret by name for one without), and polls
  * the JSON endpoint while something is waiting or running.
  */
-export function usePrintJob(job: PrintJobData | null): PrintJobState {
+export const usePrintJob = (job: PrintJobData | null): PrintJobState => {
     const [status, setStatus] = useState<PrintJobStatusData | null>(
         job?.status ?? null,
     );
@@ -58,9 +59,7 @@ export function usePrintJob(job: PrintJobData | null): PrintJobState {
         }
 
         const timer = window.setInterval(() => {
-            fetchStatus(statusUrl)
-                .then(setStatus)
-                .catch(() => undefined);
+            fetchStatus(statusUrl).then(setStatus).catch(reportUnlessOffline);
         }, POLL_MS);
 
         return () => {
@@ -69,7 +68,7 @@ export function usePrintJob(job: PrintJobData | null): PrintJobState {
     }, [busy, statusUrl]);
 
     return { status: status ?? emptyStatus, setStatus };
-}
+};
 
 const emptyStatus: PrintJobStatusData = {
     busy: false,

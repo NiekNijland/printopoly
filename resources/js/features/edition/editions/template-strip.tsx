@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
 
-import { GameCard } from '@/components/render';
+import { GameCard } from '@/components/render/game-card';
 import { Scaled } from '@/components/render/table-scaled';
 import { useTranslation } from '@/hooks/use-translation';
 import { templateEdition, templates } from '@/lib/render/edition-templates';

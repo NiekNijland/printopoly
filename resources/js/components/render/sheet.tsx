@@ -5,7 +5,7 @@ import {
     type ReactNode,
 } from 'react';
 
-import { defaultCurrency } from '@/lib/render/strings';
+import { defaultCurrency } from '@/lib/render/game-currency';
 import type { RenderStyle } from '@/lib/render/style';
 import { THEMES, type Theme, type ThemeId } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
@@ -13,7 +13,7 @@ import { money as formatMoney, type RenderWords } from '@/lib/render/words';
 import type { CurrencyId, Locale } from '@/types/game';
 
 /** Props every element renderer takes: resolved theme and language, plus bleed for print. */
-export interface ElementProps {
+export type ElementProps = {
     theme: ThemeId;
     locale: Locale;
     /** Currency of the edition; defaults to euros in Dutch and play money (M) in English. */
@@ -25,9 +25,9 @@ export interface ElementProps {
     className?: string;
     /** What the edition changes on top of its theme: the group colours (B130). */
     style?: RenderStyle;
-}
+};
 
-interface RenderContextValue {
+type RenderContextValue = {
     theme: Theme;
     locale: Locale;
     currency: CurrencyId;
@@ -35,7 +35,7 @@ interface RenderContextValue {
     /** An amount in the currency of the edition: `€ 1.500`, or `RP 1.500` with its own symbol. */
     money: (amount: number) => string;
     style?: RenderStyle;
-}
+};
 
 const RenderContext = createContext<RenderContextValue>({
     theme: THEMES.classic,
@@ -45,11 +45,11 @@ const RenderContext = createContext<RenderContextValue>({
     money: (amount) => formatMoney(amount, 'eur', 'nl'),
 });
 
-export function useRender(): RenderContextValue {
+export const useRender = (): RenderContextValue => {
     return useContext(RenderContext);
-}
+};
 
-interface SheetProps extends ElementProps {
+type SheetProps = {
     /** Name of the element, exposed as `data-element` for tests and the print pages. */
     element: string;
     /** Trim size in mm. */
@@ -61,13 +61,13 @@ interface SheetProps extends ElementProps {
     /** Drawn over the whole sheet including the bleed, below the content (full-bleed photos). */
     underlay?: ReactNode;
     children?: ReactNode;
-}
+} & ElementProps;
 
 /**
  * The outer box of an element: trim size plus bleed on every side. Content is positioned
  * in mm relative to the trim box, so it is the same with and without bleed.
  */
-export function Sheet({
+export const Sheet = ({
     element,
     theme,
     locale,
@@ -82,7 +82,7 @@ export function Sheet({
     rounded = false,
     underlay,
     children,
-}: SheetProps) {
+}: SheetProps) => {
     const resolved = THEMES[theme];
     const radius = rounded && bleedMm === 0 ? resolved.cardRadiusMm : 0;
     const outer: CSSProperties = {
@@ -142,10 +142,10 @@ export function Sheet({
             </div>
         </RenderContext.Provider>
     );
-}
+};
 
 /** Absolutely positioned box in mm. */
-export function Abs({
+export const Abs = ({
     x,
     y,
     w,
@@ -161,7 +161,7 @@ export function Abs({
     style?: CSSProperties;
     slot?: string;
     children?: ReactNode;
-}) {
+}) => {
     return (
         <div
             style={{
@@ -177,13 +177,13 @@ export function Abs({
             {children}
         </div>
     );
-}
+};
 
 /**
  * Outline rectangle drawn as inline SVG; the stroke sits inside the given box. An `ornate` frame (the frame of a
  * card, deed, lid or booklet page) gets the thin second line of a theme with an ornament (Gala, B247).
  */
-export function Frame({
+export const Frame = ({
     x,
     y,
     w,
@@ -203,7 +203,7 @@ export function Frame({
     radiusMm?: number;
     fill?: string;
     ornate?: boolean;
-}) {
+}) => {
     const { theme } = useRender();
     const ornament = ornate ? theme.ornament : undefined;
     const inset =
@@ -250,4 +250,4 @@ export function Frame({
             )}
         </svg>
     );
-}
+};

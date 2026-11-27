@@ -1,9 +1,9 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { useEffect, useState } from 'react';
 
-import { CloseIcon, FitIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { DialogClose, DialogTitle } from '@/components/ui/dialog';
+import { CloseIcon, FitIcon } from '@/components/ui/icons';
 import {
     PreviewBoard,
     PreviewItems,

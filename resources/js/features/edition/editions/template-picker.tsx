@@ -1,22 +1,23 @@
 import { Link } from '@inertiajs/react';
 import { useMemo } from 'react';
 
-import { Board, GameCard, type SpaceOverride } from '@/components/render';
+import { Board, type SpaceOverride } from '@/components/render/board';
+import { GameCard } from '@/components/render/game-card';
 import { Scaled } from '@/components/render/table-scaled';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CHOICE_CARD } from '@/features/edition/editions/edition-choices';
 import { useTranslation } from '@/hooks/use-translation';
 import { NAMED_SPACE_KEYS } from '@/lib/render/edition-keys';
+import { isOfferedTemplate } from '@/lib/render/edition-template-ids';
 import {
     templateEdition,
     templates,
     type TemplateId,
 } from '@/lib/render/edition-templates';
-import {
-    isOfferedTemplate,
-    type Edition,
-    type ElementOverride,
-    type ThemeId,
+import type {
+    Edition,
+    ElementOverride,
+    ThemeId,
 } from '@/lib/render/edition-types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { standardEdition } from '@/lib/render/standard-edition';

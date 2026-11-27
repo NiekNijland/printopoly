@@ -1,4 +1,4 @@
-import { WarningIcon } from '@/components/icons';
+import { WarningIcon } from '@/components/ui/icons';
 import { editElement } from '@/features/edition/editor/edit';
 import {
     CheckField,
@@ -11,7 +11,7 @@ import type { EditionSession } from '@/features/edition/session';
 import { useTranslation } from '@/hooks/use-translation';
 import { CENTER_PLACES, type CenterPlace } from '@/lib/render/center-layout';
 import type { ResolvedEdition } from '@/lib/render/edition-resolve';
-import { MIN_TITLE_SCALE } from '@/lib/render/edition-schema';
+import { MIN_TITLE_SCALE } from '@/lib/render/edition-schema-limits';
 import type { Edition } from '@/lib/render/edition-types';
 import { THEMES } from '@/lib/render/themes';
 

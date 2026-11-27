@@ -1,7 +1,7 @@
 import { useRef, useSyncExternalStore, type ChangeEvent } from 'react';
 
-import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import { WarningIcon } from '@/components/ui/icons';
 import { LayerControls } from '@/features/edition/editor/layer-controls';
 import { LayerList } from '@/features/edition/editor/layer-list';
 import { FieldLabel } from '@/features/edition/editor/panel/panel-parts';

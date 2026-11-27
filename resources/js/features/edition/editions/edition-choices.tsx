@@ -1,4 +1,5 @@
-import { Board, GameCard } from '@/components/render';
+import { Board } from '@/components/render/board';
+import { GameCard } from '@/components/render/game-card';
 import { Scaled } from '@/components/render/table-scaled';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useTranslation } from '@/hooks/use-translation';

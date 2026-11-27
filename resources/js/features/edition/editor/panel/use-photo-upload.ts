@@ -21,6 +21,7 @@ import {
 import { isTypingTarget } from '@/features/edition/editor/shortcuts';
 import type { EditionSession } from '@/features/edition/session';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
+import { listenToDocument } from '@/lib/dom-events';
 import type { Edition, PhotoRecord } from '@/lib/render/edition-types';
 import type { PhotoCache } from '@/lib/render/editor-photo-cache';
 
@@ -112,9 +113,7 @@ const usePasteShortcut = (pasteShortcut: boolean, latest: Latest): void => {
                 void place(files);
             }
         };
-        document.addEventListener('paste', onPaste);
-
-        return () => document.removeEventListener('paste', onPaste);
+        return listenToDocument('paste', onPaste);
     }, [pasteShortcut]);
 };
 

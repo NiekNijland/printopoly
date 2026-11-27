@@ -20,7 +20,7 @@ import type {
     ResolvedCard,
     ResolvedEdition,
 } from '@/lib/render/edition-resolve';
-import { MAX_LID_LINES_LENGTH } from '@/lib/render/edition-schema';
+import { MAX_LID_LINES_LENGTH } from '@/lib/render/edition-schema-limits';
 import { lidExample } from '@/lib/render/edition-templates';
 import type { Edition } from '@/lib/render/edition-types';
 import { deckLabel } from '@/lib/render/editor-catalogue';

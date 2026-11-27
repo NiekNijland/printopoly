@@ -8,6 +8,7 @@ import {
 } from '@/features/edition/use-edition-status';
 import { useServices } from '@/features/edition/use-editions';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
+import { formatDateTime } from '@/lib/datetime';
 import type { EditionSummary } from '@/lib/render/edition-types';
 import type { PrintedState } from '@/lib/render/print-printed';
 import { cn } from '@/lib/utils';
@@ -50,10 +51,10 @@ const TILT = [
 ] as const;
 
 const formatDate = (at: number, locale: string): string => {
-    return new Intl.DateTimeFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', {
+    return formatDateTime(at, locale === 'nl' ? 'nl-NL' : 'en-GB', {
         day: 'numeric',
         month: 'short',
-    }).format(at);
+    });
 };
 
 const useEditionActions = (

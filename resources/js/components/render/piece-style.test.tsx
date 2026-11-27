@@ -24,10 +24,10 @@ const photo: PhotoSource = {
     transform: { x: 0.5, y: 0.5, scale: 1, rotation: 0, grayscale: false },
 };
 
-function pawn(
+const pawn = (
     style: PawnStyle | undefined,
     extra: { photo?: PhotoSource; theme?: (typeof THEME_IDS)[number] } = {},
-) {
+) => {
     return render(
         <PawnSheetItem
             theme={extra.theme ?? 'classic'}
@@ -39,16 +39,16 @@ function pawn(
                 : { style: { parts: { pawns: style } } })}
         />,
     ).container;
-}
+};
 
-function lid(
+const lid = (
     style: BoxLidStyle | undefined,
     extra: {
         photo?: PhotoSource;
         theme?: (typeof THEME_IDS)[number];
         size?: { w: number; h: number };
     } = {},
-) {
+) => {
     return render(
         <BoxLid
             theme={extra.theme ?? 'classic'}
@@ -70,7 +70,7 @@ function lid(
                 : { style: { parts: { boxLid: style } } })}
         />,
     ).container;
-}
+};
 
 const box = (element: Element | null) => [
     element?.getAttribute('data-w'),

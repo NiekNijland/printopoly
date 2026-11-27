@@ -1,6 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
 
-import { CopyIcon, MoreIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -8,6 +7,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { CopyIcon, MoreIcon } from '@/components/ui/icons';
 import { useTranslation } from '@/hooks/use-translation';
 import type { EditionSummary } from '@/lib/render/edition-types';
 import { cn } from '@/lib/utils';

@@ -16,7 +16,7 @@ import { amountOf } from '@/lib/render/edition-amounts';
 import { groupColorName } from '@/lib/render/edition-group-names';
 import { groupKey, type ElementKind } from '@/lib/render/edition-keys';
 import type { ResolvedEdition } from '@/lib/render/edition-resolve';
-import { MAX_STORY_LENGTH } from '@/lib/render/edition-schema';
+import { MAX_STORY_LENGTH } from '@/lib/render/edition-schema-limits';
 import { MAX_CORNER_TEXT_LENGTH } from '@/lib/render/edition-words';
 import { spaceAt, standardEdition } from '@/lib/render/standard-edition';
 import type { Space } from '@/types/game';

@@ -6,7 +6,7 @@ import { mm } from '@/lib/render/units';
 const T = PATTERN_TILE_MM;
 
 /** The shapes of one tile of a pattern, in a box of `PATTERN_TILE_MM` mm. */
-function tile(id: PatternId, color: string): ReactNode {
+const tile = (id: PatternId, color: string): ReactNode => {
     switch (id) {
         case 'dots':
             return <circle cx={T / 2} cy={T / 2} r={0.65} fill={color} />;
@@ -94,9 +94,9 @@ function tile(id: PatternId, color: string): ReactNode {
                 </>
             );
     }
-}
+};
 
-export interface PatternFillProps {
+export type PatternFillProps = {
     id: PatternId;
     /** Size of the area in mm. */
     w: number;
@@ -105,17 +105,17 @@ export interface PatternFillProps {
     /** Offset of the tiling in mm, so a pattern lines up across pieces of one artwork. */
     originX?: number;
     originY?: number;
-}
+};
 
 /** A pattern repeated over an area, as vector shapes (it stays sharp at any print size). */
-export function PatternFill({
+export const PatternFill = ({
     id,
     w,
     h,
     color,
     originX = 0,
     originY = 0,
-}: PatternFillProps) {
+}: PatternFillProps) => {
     const uid = `pt${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
 
     return (
@@ -146,4 +146,4 @@ export function PatternFill({
             <rect width={w} height={h} fill={`url(#${uid})`} />
         </svg>
     );
-}
+};

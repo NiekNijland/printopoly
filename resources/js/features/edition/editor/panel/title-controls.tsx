@@ -7,7 +7,7 @@ import {
 import { TitleStyleField } from '@/features/edition/editor/panel/title-style-field';
 import type { EditionSession } from '@/features/edition/session';
 import { useTranslation } from '@/hooks/use-translation';
-import { MIN_TITLE_SCALE } from '@/lib/render/edition-schema';
+import { MIN_TITLE_SCALE } from '@/lib/render/edition-schema-limits';
 import type { Edition, TitleStyle } from '@/lib/render/edition-types';
 import { THEMES } from '@/lib/render/themes';
 

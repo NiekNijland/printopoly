@@ -25,6 +25,7 @@ import { NavColumn } from '@/features/edition/editor/workspace/workspace-nav';
 import { WorkspaceStage } from '@/features/edition/editor/workspace/workspace-stage';
 import type { EditionSession } from '@/features/edition/session';
 import EditorLayout from '@/layouts/editor-layout';
+import { listenToDocument } from '@/lib/dom-events';
 import { spaceKey } from '@/lib/render/edition-keys';
 import { isCustomized } from '@/lib/render/editor-catalogue';
 import { deedsFor } from '@/lib/render/standard-edition';
@@ -72,9 +73,7 @@ const useUndoKeys = (session: EditionSession): void => {
                 session.redo();
             }
         };
-        document.addEventListener('keydown', onKeyDown);
-
-        return () => document.removeEventListener('keydown', onKeyDown);
+        return listenToDocument('keydown', onKeyDown);
     }, [session]);
 };
 

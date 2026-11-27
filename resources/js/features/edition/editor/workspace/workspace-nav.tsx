@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 
-import { ChevronDownIcon, ZoomIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { ChevronDownIcon, ZoomIcon } from '@/components/ui/icons';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BoardNavigator } from '@/features/edition/editor/board-navigator';
 import { EditionRow, FriendsRow } from '@/features/edition/editor/edition-row';

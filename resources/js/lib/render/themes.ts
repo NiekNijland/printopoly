@@ -12,7 +12,7 @@ export const THEME_IDS: readonly ThemeId[] = [
 /** How an element uses its photo. */
 export type Layout = 'framed' | 'text';
 
-export interface Theme {
+export type Theme = {
     id: ThemeId;
     /** Name shown in the interface per language. */
     name: { nl: string; en: string };
@@ -57,7 +57,7 @@ export interface Theme {
      * frame, in its own colour. Themes without it draw a single frame.
      */
     ornament?: { color: string; strokeMm: number; gapMm: number };
-}
+};
 
 export const SPARTAN = "'League Spartan', 'Instrument Sans', sans-serif";
 const INSTRUMENT = "'Instrument Sans', sans-serif";

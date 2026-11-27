@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
-import { CloseIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import { CloseIcon } from '@/components/ui/icons';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import type { PhotoInfos } from '@/lib/render/editor-photo-cache';
 import { cn } from '@/lib/utils';

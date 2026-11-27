@@ -24,7 +24,7 @@ const payCard = standardEdition.decks.chest.find(
 const street = deedsFor()[0];
 const station = deedsFor().find((space) => space.type === 'station');
 
-function styleProp(cards?: CardStyle, deeds?: DeedStyle) {
+const styleProp = (cards?: CardStyle, deeds?: DeedStyle) => {
     return cards === undefined && deeds === undefined
         ? {}
         : {
@@ -35,14 +35,14 @@ function styleProp(cards?: CardStyle, deeds?: DeedStyle) {
                   },
               },
           };
-}
+};
 
-function card(
+const card = (
     style: CardStyle | undefined,
     side: 'front' | 'back',
     extra: Record<string, unknown> = {},
     theme: ThemeId = 'classic',
-) {
+) => {
     return render(
         <GameCard
             theme={theme}
@@ -55,14 +55,14 @@ function card(
             {...extra}
         />,
     ).container;
-}
+};
 
-function deed(
+const deed = (
     style: DeedStyle | undefined,
     side: 'front' | 'back',
     extra: Record<string, unknown> = {},
     theme: ThemeId = 'classic',
-) {
+) => {
     if (street === undefined) {
         throw new Error('no deeds');
     }
@@ -77,7 +77,7 @@ function deed(
             {...extra}
         />,
     ).container;
-}
+};
 
 const slot = (container: HTMLElement, name: string) =>
     container.querySelector(`[data-slot="${name}"]`);

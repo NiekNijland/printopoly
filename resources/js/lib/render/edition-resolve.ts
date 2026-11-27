@@ -69,16 +69,16 @@ import {
     type ResolvedWords,
 } from './edition-words';
 
-interface ResolvedBase {
+type ResolvedBase = {
     key: string;
     /** True when the element has an override. */
     customized: boolean;
     photo: PhotoPlacement | undefined;
     /** Framed or over the whole space; only meaningful with a photo. */
     photoStyle: PhotoStyle | undefined;
-}
+};
 
-interface ResolvedSpace extends ResolvedBase {
+type ResolvedSpace = {
     position: number;
     base: Space;
     name: string;
@@ -88,10 +88,10 @@ interface ResolvedSpace extends ResolvedBase {
     text: string | undefined;
     /** The chosen icon or uploaded image of a special space (B136); `undefined` keeps the standard icon. */
     icon: SpaceIcon | undefined;
-}
+} & ResolvedBase;
 
 /** A colour group of the streets, with its optional town (shown above the street names). */
-interface ResolvedGroup {
+type ResolvedGroup = {
     id: GroupId;
     key: string;
     color: string;
@@ -99,9 +99,9 @@ interface ResolvedGroup {
     name: string;
     customized: boolean;
     town: string | undefined;
-}
+};
 
-interface ResolvedDeed extends ResolvedBase {
+type ResolvedDeed = {
     /** 1 to 28, in board order. */
     index: number;
     space: OwnableSpace;
@@ -111,9 +111,9 @@ interface ResolvedDeed extends ResolvedBase {
     photoFrom: 'deed' | 'space' | undefined;
     /** The short story on the back of the deed (B169); `undefined` when it is empty. */
     story: string | undefined;
-}
+} & ResolvedBase;
 
-export interface ResolvedCard extends ResolvedBase {
+export type ResolvedCard = {
     id: string;
     deck: DeckId;
     /** The standard card, or an empty one for an extra card (B135). */
@@ -138,25 +138,25 @@ export interface ResolvedCard extends ResolvedBase {
     lineAmount: number | undefined;
     /** What the amount is for, trimmed; `undefined` when it is empty. */
     purpose: string | undefined;
-}
+} & ResolvedBase;
 
-interface ResolvedNote extends ResolvedBase {
+type ResolvedNote = {
     value: number;
     count: number;
     /** Paper colour: the override, or the standard colour of this value. */
     color: string;
     /** Notes keep the standard amounts (B29). */
     note: Note;
-}
+} & ResolvedBase;
 
-interface ResolvedPawn extends ResolvedBase {
+type ResolvedPawn = {
     /** 1 to 8. Pawns taken out of the set are not in the list, so this is not the list position. */
     index: number;
     name: string;
-}
+} & ResolvedBase;
 
 /** Board centre, box lid, house rules and card backs: free text and photos (B42, B43). */
-interface ResolvedFree extends ResolvedBase {
+type ResolvedFree = {
     /** Built-in pattern of a card back. */
     pattern: PatternId | undefined;
     name: string | undefined;
@@ -173,16 +173,16 @@ interface ResolvedFree extends ResolvedBase {
     /** Board centre and box lid: the look of the name; `undefined` is the name plate of the theme. */
     titleStyle: TitleStyle | undefined;
     layers: readonly FreeLayer[];
-}
+} & ResolvedBase;
 
 /** The box lid: free text and a photo, or the logo of the board centre in the place of the board picture (B241). */
-interface ResolvedLid extends ResolvedFree {
+type ResolvedLid = {
     /** The lid shows the logo of the board centre, whole and straight where the board picture goes (B241, B256). */
     logo: boolean;
-}
+} & ResolvedFree;
 
 /** The board centre: free layers plus the edition title (B125). */
-export interface ResolvedCenter extends ResolvedFree {
+export type ResolvedCenter = {
     mode: CenterMode;
     /** Size of the title ribbon, from 0.5 to 1 (B170). */
     titleScale: number;
@@ -198,9 +198,9 @@ export interface ResolvedCenter extends ResolvedFree {
     place: CenterPlace;
     /** The logo lies on the diagonal (B187); straight by default. */
     logoTilt: boolean;
-}
+} & ResolvedFree;
 
-export interface ResolvedEdition {
+export type ResolvedEdition = {
     id: string;
     name: string;
     language: Locale;
@@ -237,9 +237,9 @@ export interface ResolvedEdition {
     partStyles: PartStyles;
     /** Total number of overrides in parts that are on. */
     customizedCount: number;
-}
+};
 
-function base(edition: Edition, key: string): ResolvedBase {
+const base = (edition: Edition, key: string): ResolvedBase => {
     const override = edition.elements[key];
 
     return {
@@ -248,13 +248,13 @@ function base(edition: Edition, key: string): ResolvedBase {
         photo: override?.photo,
         photoStyle: override?.photoStyle,
     };
-}
+};
 
-function textOrUndefined(value: string | undefined): string | undefined {
+const textOrUndefined = (value: string | undefined): string | undefined => {
     return value === undefined || value.trim() === '' ? undefined : value;
-}
+};
 
-function free(edition: Edition, key: string): ResolvedFree {
+const free = (edition: Edition, key: string): ResolvedFree => {
     const override = edition.elements[key];
 
     return {
@@ -268,13 +268,13 @@ function free(edition: Edition, key: string): ResolvedFree {
         titleStyle: override?.titleStyle,
         layers: override?.layers ?? [],
     };
-}
+};
 
 /**
  * The box lid: without a subtitle of its own it takes the board's own subtitle (B254, Kees: "Ons dorp in de jaren
  * vijftig" on the board, "Een spel voor 2 tot 8 spelers" on the box). An empty one stays empty: that hides it.
  */
-function boxLid(edition: Edition): ResolvedLid {
+const boxLid = (edition: Edition): ResolvedLid => {
     const own = free(edition, BOX_LID_KEY);
     const board = textOrUndefined(edition.elements[BOARD_CENTER_KEY]?.subtitle);
     const logo = lidShowsLogo(edition);
@@ -282,13 +282,13 @@ function boxLid(edition: Edition): ResolvedLid {
     return own.subtitle === undefined && board !== undefined
         ? { ...own, subtitle: board, logo }
         : { ...own, logo };
-}
+};
 
 /**
  * Whether the box lid shows the logo of the board centre (B241): the centre is on Logo and the lid has the same
  * photo. The lid then draws it in the place of the board picture (B256), whole and straight.
  */
-export function lidShowsLogo(edition: Edition): boolean {
+export const lidShowsLogo = (edition: Edition): boolean => {
     const center = edition.elements[BOARD_CENTER_KEY];
     const lid = edition.elements[BOX_LID_KEY];
 
@@ -298,22 +298,22 @@ export function lidShowsLogo(edition: Edition): boolean {
         lid?.photo !== undefined &&
         lid.photo.photoId === center.photo.photoId
     );
-}
+};
 
 /** The back of a deck: a photo or a pattern; free layers stored before B203 are left out. */
-function cardBack(
+const cardBack = (
     edition: Edition,
     deck: 'chance' | 'chest' | 'deed',
-): ResolvedFree {
+): ResolvedFree => {
     return { ...free(edition, cardBackKey(deck)), layers: [] };
-}
+};
 
 /**
  * The invitation: a headline and kicker its owner did not write come from the template, so a wedding says
  * "Bruiloft" above the headline and a kids' party asks "Kom je op mijn feestje?" (B193). Without them the card
  * has its general words.
  */
-function invitation(edition: Edition): ResolvedFree {
+const invitation = (edition: Edition): ResolvedFree => {
     const own = free(edition, INVITATION_KEY);
     const fromTemplate = templateInvitation(
         templateOf(edition),
@@ -325,10 +325,10 @@ function invitation(edition: Edition): ResolvedFree {
         name: own.name ?? fromTemplate.headline,
         subtitle: own.subtitle ?? fromTemplate.kicker,
     };
-}
+};
 
 /** The house rules with their tokens filled in: a rule that names Start follows a renamed Start (B152). */
-function houseRules(edition: Edition, words: ResolvedWords): ResolvedFree {
+const houseRules = (edition: Edition, words: ResolvedWords): ResolvedFree => {
     const rules = free(edition, HOUSE_RULES_KEY);
 
     return rules.text === undefined
@@ -345,16 +345,16 @@ function houseRules(edition: Edition, words: ResolvedWords): ResolvedFree {
                   ),
               ),
           };
-}
+};
 
 /** The town of a colour group: trimmed, and `undefined` when it is empty. */
-function townOf(edition: Edition, group: GroupId): string | undefined {
+const townOf = (edition: Edition, group: GroupId): string | undefined => {
     const town = edition.elements[groupKey(group)]?.town?.trim();
 
     return town === undefined || town === '' ? undefined : town;
-}
+};
 
-function center(edition: Edition): ResolvedCenter {
+const center = (edition: Edition): ResolvedCenter => {
     const override = edition.elements[BOARD_CENTER_KEY];
 
     return {
@@ -368,13 +368,13 @@ function center(edition: Edition): ResolvedCenter {
         place: override?.centerPlace ?? 'topRight',
         logoTilt: override?.logoTilt === true,
     };
-}
+};
 
 /** The salary for passing Start: the standard one and the one of the edition (B132). */
-function salaryOf(
+const salaryOf = (
     edition: Edition,
     standard: StandardEdition,
-): { standard: number; own: number } {
+): { standard: number; own: number } => {
     const start = standard.spaces[0];
     const fallback = 200;
     if (start?.type !== 'corner' || start.salary === undefined) {
@@ -387,9 +387,9 @@ function salaryOf(
         own:
             own.type === 'corner' ? (own.salary ?? start.salary) : start.salary,
     };
-}
+};
 
-function resolveCard(
+const resolveCard = (
     edition: Edition,
     standard: StandardEdition,
     deck: DeckId,
@@ -397,7 +397,7 @@ function resolveCard(
     index: number,
     words: ResolvedWords,
     standardWords: ResolvedWords,
-): ResolvedCard {
+): ResolvedCard => {
     const key = cardKey(deck, index + 1);
     const override = edition.elements[key];
     const language = edition.language;
@@ -470,10 +470,10 @@ function resolveCard(
         lineAmount: amountInText ? undefined : amount,
         purpose: purpose === undefined || purpose === '' ? undefined : purpose,
     };
-}
+};
 
 /** An extra card (B135) starts empty: no text, no effect, no standard amount. */
-function emptyCard(deck: DeckId, number: number): Card {
+const emptyCard = (deck: DeckId, number: number): Card => {
     const empty = { nl: '', en: '' };
 
     return {
@@ -481,16 +481,16 @@ function emptyCard(deck: DeckId, number: number): Card {
         effect: empty,
         text: empty,
     };
-}
+};
 
 /** The standard cards of a deck, then the extra ones the edition added (B135). */
-function deckCards(
+const deckCards = (
     edition: Edition,
     standard: StandardEdition,
     deck: DeckId,
     words: ResolvedWords,
     standardWords: ResolvedWords,
-): ResolvedCard[] {
+): ResolvedCard[] => {
     const cards = standard.decks[deck];
     const extra = extraCardKeys(edition.elements, deck).map((key) =>
         Number(key.split('.')[2]),
@@ -512,26 +512,26 @@ function deckCards(
             ),
         ),
     ];
-}
+};
 
 /** The icon of the first Chance or Community Chest space that has one: it goes on the standard back of that deck (B136). */
-export function deckIcon(
+export const deckIcon = (
     resolved: Pick<ResolvedEdition, 'spaces'>,
     deck: DeckId,
-): SpaceIcon | undefined {
+): SpaceIcon | undefined => {
     return resolved.spaces.find(
         (space) => space.base.type === deck && space.icon !== undefined,
     )?.icon;
-}
+};
 
 /**
  * Merges the overrides of an edition onto the standard data, in the language of the edition. Parts that are off
  * resolve to `null` but keep their overrides in the edition, so they come back when the part is switched on (B99).
  */
-export function resolveEdition(
+export const resolveEdition = (
     edition: Edition,
     standard: StandardEdition = defaultStandardEdition,
-): ResolvedEdition {
+): ResolvedEdition => {
     const { language, parts } = edition;
     const words = resolveWords(edition, standard);
     const standardWords = defaultWords(edition, standard);
@@ -708,26 +708,26 @@ export function resolveEdition(
     resolved.customizedCount = countCustomized(edition);
 
     return resolved;
-}
+};
 
 /** Overrides in parts that are switched on. */
-export function countCustomized(edition: Edition): number {
+export const countCustomized = (edition: Edition): number => {
     return Object.keys(edition.elements).filter((key) =>
         isKeyActive(edition, key),
     ).length;
-}
+};
 
-function isKeyActive(edition: Edition, key: string): boolean {
+const isKeyActive = (edition: Edition, key: string): boolean => {
     const part = partOfKey(key);
 
     return part !== null && edition.parts[part];
-}
+};
 
 /** The resolved card of a key like `card.chance.07`, standard or extra (B135); `undefined` when there is none. */
-export function resolvedCardOf(
+export const resolvedCardOf = (
     resolved: Pick<ResolvedEdition, 'decks'>,
     key: string,
-): ResolvedCard | undefined {
+): ResolvedCard | undefined => {
     const deck = key.split('.')[1];
     if (deck !== 'chance' && deck !== 'chest') {
         return undefined;
@@ -736,4 +736,4 @@ export function resolvedCardOf(
     return resolved.decks?.[deck].find(
         (candidate) => `card.${candidate.id}` === key,
     );
-}
+};

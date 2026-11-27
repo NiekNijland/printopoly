@@ -6,7 +6,7 @@ import {
     type ReactNode,
 } from 'react';
 
-import { HandIcon } from '@/components/icons';
+import { HandIcon } from '@/components/ui/icons';
 import { StageFrame } from '@/features/edition/editor/stage-frame';
 import {
     FIT,
@@ -24,6 +24,8 @@ import {
     useRelative,
     useViewWheel,
 } from '@/features/edition/editor/use-view-wheel';
+import { readStored, writeStored } from '@/lib/browser-storage';
+import { listenToWindow } from '@/lib/dom-events';
 
 const PX_PER_MM = 96 / 25.4;
 
@@ -31,19 +33,12 @@ const PX_PER_MM = 96 / 25.4;
 const HINT_SEEN_KEY = 'printopoly.photo-drag-hint';
 
 const hintSeen = (): boolean => {
-    try {
-        return window.localStorage.getItem(HINT_SEEN_KEY) === '1';
-    } catch {
-        return false;
-    }
+    return readStored(HINT_SEEN_KEY) === '1';
 };
 
 const rememberHint = (): void => {
-    try {
-        window.localStorage.setItem(HINT_SEEN_KEY, '1');
-    } catch {
-        // Private mode or storage blocked: the hint shows again next time, which is fine.
-    }
+    // Private mode or storage blocked: the hint shows again next time, which is fine.
+    writeStored(HINT_SEEN_KEY, '1');
 };
 
 const useHintSeen = () => {
@@ -234,13 +229,13 @@ const useStageView = (
                 return;
             }
             pointers.current.delete(id);
-            window.removeEventListener('pointermove', onMove);
-            window.removeEventListener('pointerup', onUp);
-            window.removeEventListener('pointercancel', onUp);
+            stopListening.forEach((stop) => stop());
         };
-        window.addEventListener('pointermove', onMove);
-        window.addEventListener('pointerup', onUp);
-        window.addEventListener('pointercancel', onUp);
+        const stopListening = [
+            listenToWindow('pointermove', onMove),
+            listenToWindow('pointerup', onUp),
+            listenToWindow('pointercancel', onUp),
+        ];
     };
 
     // A drag that ends on a space is no click on it.

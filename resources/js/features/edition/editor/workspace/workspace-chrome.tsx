@@ -1,14 +1,14 @@
 import { Link } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 
+import { Button } from '@/components/ui/button';
 import {
     CheckIcon,
     ChevronLeftIcon,
     MoreIcon,
     RedoIcon,
     UndoIcon,
-} from '@/components/icons';
-import { Button } from '@/components/ui/button';
+} from '@/components/ui/icons';
 import {
     NameMenu,
     WaitingDot,

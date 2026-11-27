@@ -7,6 +7,7 @@ import {
     leaveField,
     type ShortcutAction,
 } from '@/features/edition/editor/shortcuts';
+import { listenToDocument } from '@/lib/dom-events';
 
 export type ShortcutHandlers = Partial<{
     [Type in ShortcutAction['type']]: Type extends 'tab'
@@ -107,14 +108,12 @@ export const useEditorShortcuts = (
                 current[action.type]?.();
             }
         };
-        document.addEventListener('keydown', onKeyDown);
-        document.addEventListener('focusin', onFocusIn);
-        document.addEventListener('pointerdown', onPointerDown, true);
+        const stops = [
+            listenToDocument('keydown', onKeyDown),
+            listenToDocument('focusin', onFocusIn),
+            listenToDocument('pointerdown', onPointerDown, { capture: true }),
+        ];
 
-        return () => {
-            document.removeEventListener('keydown', onKeyDown);
-            document.removeEventListener('focusin', onFocusIn);
-            document.removeEventListener('pointerdown', onPointerDown, true);
-        };
+        return () => stops.forEach((stop) => stop());
     }, []);
 };

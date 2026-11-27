@@ -1,9 +1,9 @@
 import { usePage } from '@inertiajs/react';
 import { useId, useRef, useState } from 'react';
 
-import { WarningIcon } from '@/components/icons';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Field, FieldLabel } from '@/components/ui/field';
+import { WarningIcon } from '@/components/ui/icons';
 import { editElement } from '@/features/edition/editor/edit';
 import { CenterImage } from '@/features/edition/editor/panel/center-image';
 import { DeedImage } from '@/features/edition/editor/panel/deed-image';

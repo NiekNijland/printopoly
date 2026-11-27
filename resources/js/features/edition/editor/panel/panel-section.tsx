@@ -1,12 +1,12 @@
 import { usePage } from '@inertiajs/react';
 import { useId, useState, type ReactNode } from 'react';
 
-import { WarningIcon } from '@/components/icons';
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { WarningIcon } from '@/components/ui/icons';
 import { useWideScreen } from '@/hooks/use-media-query';
 import type { CheckIssue } from '@/lib/render/checks-types';
 import { cn } from '@/lib/utils';

@@ -1,13 +1,13 @@
 import { cn } from '@/lib/utils';
 
-interface ProseProps {
+type ProseProps = {
     /** HTML rendered on the server from our own content files. */
     html: string;
     className?: string;
-}
+};
 
 /** Long-form text from a markdown content file, styled in app.css. */
-export function Prose({ html, className }: ProseProps) {
+export const Prose = ({ html, className }: ProseProps) => {
     if (html === '') {
         return null;
     }
@@ -18,4 +18,4 @@ export function Prose({ html, className }: ProseProps) {
             dangerouslySetInnerHTML={{ __html: html }}
         />
     );
-}
+};

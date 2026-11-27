@@ -1,6 +1,7 @@
 import type { MouseEvent } from 'react';
 
-import { Board, boardPropsOf } from '@/components/render';
+import { Board } from '@/components/render/board';
+import { boardPropsOf } from '@/components/render/board-props';
 import {
     ElementPreview,
     editorSources,
