@@ -1,12 +1,13 @@
 {
     "$schema": "https://unpkg.com/knip@6/schema.json",
     "entry": [
-        "resources/js/ssr.tsx",
-        "resources/js/pages/**/*.tsx!",
+        "resources/js/{app,print,ssr}.tsx!",
+        "resources/js/pages/**/!(*.test).tsx!",
         "scripts/*.mjs"
     ],
     "project": [
-        "resources/js/**/*.{ts,tsx}",
+        "resources/js/**/*.{ts,tsx}!",
+        "!resources/js/**/testing/**!",
         "resources/css/**/*.css",
         "!resources/js/types/generated.ts",
         "!resources/js/{actions,routes,wayfinder}/**",
