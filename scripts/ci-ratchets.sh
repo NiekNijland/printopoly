@@ -25,7 +25,7 @@ REFACTOR_CONFIG="rector.php?"
 # prepared sets, the ten framework sets, the language sets, the framework version read from the manifest, and unused imports
 # removed (templates/tool-configs.md). The row refactor-sets counts the matches and only goes up. No double quote, backslash
 # or dollar sign in the value: the merge base is read as text. A set after // or # at the line start is not counted.
-REFACTOR_SETS="(^[[:space:]]*|,[[:space:]]*|(^[[:space:]]*|[]A-Za-z0-9_)])->withPreparedSets[(][[:space:]]*)(deadCode|codeQuality|codingStyle|typeDeclarations|privatization|earlyReturn):[[:space:]]*true|(^[[:space:]]*|[,([][[:space:]]*)LaravelSetList::LARAVEL_(ARRAYACCESS_TO_METHOD_CALL|ARRAY_STR_FUNCTION_TO_STATIC_CALL|CODE_QUALITY|COLLECTION|CONTAINER_STRING_TO_FULLY_QUALIFIED_NAME|ELOQUENT_MAGIC_METHOD_TO_QUERY_BUILDER|FACADE_ALIASES_TO_FULL_NAMES|FACTORIES|IF_HELPERS|LEGACY_FACTORIES_TO_CLASSES)|(^[[:space:]]*|[]A-Za-z0-9_)])->withPhpSets[(][)]|(^[[:space:]]*|[]A-Za-z0-9_)])->withComposerBased[(]laravel:[[:space:]]*true[)]|(^[[:space:]]*|,[[:space:]]*|(^[[:space:]]*|[]A-Za-z0-9_)])->withImportNames[(][[:space:]]*)removeUnusedImports:[[:space:]]*true"
+REFACTOR_SETS="(^[[:space:]]*|,[[:space:]]*|(^[[:space:]]*|[]A-Za-z0-9_)])->withPreparedSets[(][[:space:]]*)(deadCode|codeQuality|codingStyle|typeDeclarations|privatization|earlyReturn):[[:space:]]*true|(^[[:space:]]*|[,([][[:space:]]*)LaravelSetList::LARAVEL_(ARRAYACCESS_TO_METHOD_CALL|ARRAY_STR_FUNCTION_TO_STATIC_CALL|CODE_QUALITY|COLLECTION|CONTAINER_STRING_TO_FULLY_QUALIFIED_NAME|ELOQUENT_MAGIC_METHOD_TO_QUERY_BUILDER|FACADE_ALIASES_TO_FULL_NAMES|FACTORIES|IF_HELPERS|LEGACY_FACTORIES_TO_CLASSES)|(^[[:space:]]*|[]A-Za-z0-9_)])->withPhpSets[(][)]|(^[[:space:]]*|[]A-Za-z0-9_)])->withComposerBased[(]laravel:[[:space:]]*true[)]|(^[[:space:]]*|,[[:space:]]*|(^[[:space:]]*|[]A-Za-z0-9_)])->withImportNames[(][[:space:]]*)removeUnusedImports:[[:space:]]*true"  # the project's rector.php also uses earlyReturn: true, which the row counts
 # The formatter's config, and one extended regular expression that matches a rule of the kit's strictness list that is on in it
 # (true, or an object of options). The row formatter-rules counts the matches and only goes up: a rule that is switched off
 # for its own pull request (templates/tool-configs.md, "Rules that can change behavior") is not counted until it is on.
@@ -36,8 +36,6 @@ AUDIT_MANIFEST="composer.json?"
 # The time-boxed audit exceptions that audit-gate.sh reads (one entry per line, at most 7 days each).
 AUDIT_EXCEPTIONS="scripts/audit-exceptions.json?"
 LINT_CONFIG="eslint.config.js?"
-# The backend coverage floor that checks.sh and the coverage-floor row read.
-COVERAGE_FLOOR_FILE="scripts/coverage-floor.txt"
 LINT_BASELINE="eslint-suppressions.json?"
 # The folder with the keyed baselines that keyed-baseline.sh writes, one file per check.
 KEYED_BASELINES="baselines?"
@@ -50,6 +48,8 @@ GUARDED_FILES=".gitattributes?,CODEOWNERS?,.github/CODEOWNERS?,docs/CODEOWNERS?,
 # the cap from 0 to the measured value carries [ratchet: cap-<key>] first measurement <n>). A comma list of row names; every other
 # max row at 0 takes none.
 OVERRIDE_AT_ZERO="comments,cap-dependencies-majors-behind,cap-dependencies-abandoned,audit-exceptions"
+# Carried from the project by doctor.sh: keys the kit's script does not define.
+COVERAGE_FLOOR_FILE="scripts/coverage-floor.txt"
 # <<< config
 
 SHARED_CONFIG="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/kit-config.sh"
@@ -700,30 +700,6 @@ analyser-ignore 1     reportUnmatchedIgnoredErrors: false
 analyser-ignore 1     treatPhpDocTypesAsCertain: false
 analyser-ignore 0     reportUnmatchedIgnoredErrors: true
 analyser-ignore 0 $x = 1;
-analyser-allow-paths 2             allowIn:~NL~                - tests/*~NL~                - app/Providers/*
-analyser-allow-paths 3             allowExceptIn:~NL~                - app/*~NL~~NL~                # the boot files~NL~                - bootstrap/*~NL~                - config/*~NL~            message: 'x'
-analyser-allow-paths 1             disallowIn:~NL~                - app/Http/*
-analyser-allow-paths 2             allowIn: [tests/*, app/Providers/*]
-analyser-allow-paths 1     allowIn:~NL~    - tests/*~NL~allowInFunctions:~NL~    - foo()
-analyser-allow-paths 0             allowInFunctions:~NL~                - 'App\\foo()'
-analyser-allow-paths 0             # allowIn:~NL~            #    - tests/*
-analyser-allow-paths 0             allowIn: []
-analyser-switches-off 1         dynamicCallOnStaticMethod: false
-analyser-switches-off 1             deadEnumCases: False
-analyser-switches-off 1                 neverRead: FALSE
-analyser-switches-off 1     checkUninitializedProperties: no
-analyser-switches-off 1     checkUninitializedProperties: No
-analyser-switches-off 1     checkUninitializedProperties: NO
-analyser-switches-off 1     checkUninitializedProperties: off
-analyser-switches-off 1     checkUninitializedProperties: Off
-analyser-switches-off 1     checkUninitializedProperties: OFF
-analyser-switches-off 1     checkUninitializedProperties: no # measured with the rule on
-analyser-switches-off 2     deadProperties: {neverRead: false, neverWritten: false}
-analyser-switches-off 1     reportUnmatchedIgnoredErrors: false # the baseline is gone
-analyser-switches-off 0     # dynamicCallOnStaticMethod: false
-analyser-switches-off 0     deadEnumCases: true
-analyser-switches-off 0     message: 'a call that returns false: check it'
-analyser-switches-off 0     checkUninitializedProperties: nothing
 analyser-switches 1     checkOctaneCompatibility: true
 analyser-switches 1     noEnvCallsOutsideOfConfig : true
 analyser-switches 1         "strict": true,
@@ -825,18 +801,6 @@ lint-config-off 0     "no-console": "error",
 lint-config-ignores 2 ignores: ['dist', 'build/**'],
 lint-config-ignores 1 globalIgnores(['a'])
 lint-config-ignores 0 ignores: [],
-lint-doors 1     'lib/http.ts': ['fetch', 'XMLHttpRequest'],
-lint-doors 1     "features/edition/remote/*.ts" : [ "fetch" ],
-lint-doors 1 'lib/dom-events.ts':['events'],
-lint-doors 2     'lib/a.ts': ['console'],~NL~    'lib/b.ts': [~NL~        'fetch',~NL~    ],
-lint-doors 0     localStorage: 'lib/browser-storage',
-lint-doors 0     fetch: 'lib/http (or the typed doors lib/render/print-api.ts)',
-lint-doors 0 export const doorFiles = {
-lint-doors 0     'lib/a.ts', ['console'],
-lint-max-file-lines 400 export const MAX_FILE_LINES = 400;
-lint-max-file-lines 350 export const MAX_FUNCTION_LINES = 80;~NL~export const MAX_FILE_LINES = 350;
-lint-max-function-lines 80 export const MAX_FILE_LINES = 400;~NL~export const MAX_FUNCTION_LINES = 80;
-lint-max-function-lines 79 export const MAX_FUNCTION_LINES = 79;
 lint-baseline 3 {"a.ts": {"rule": {"count": 3}}}
 type-baseline 1 one finding per line
 ts-suppressions 1 // @ts-expect-error
@@ -926,30 +890,6 @@ strict-types-missing@x.php 1 <?php~NL~final class A {}
 strict-types-missing@x.php 0 <?php~NL~declare(strict_types=1);~NL~final class A {}
 strict-types-missing@page.blade.php 0 <div></div>
 strict-types-missing@\303\234ni.php 1 <?php
-mixed-outside-json-entry 1     public function parse(mixed $value): ?array
-mixed-outside-json-entry 1     public function amount(string $key, mixed &$value): int
-mixed-outside-json-entry 1     public static function migrate(): mixed
-mixed-outside-json-entry 1     private readonly mixed $value;
-mixed-outside-json-entry 1     public mixed $value;
-mixed-outside-json-entry 1     private mixed $value;
-mixed-outside-json-entry 1     protected mixed $value;
-mixed-outside-json-entry 1     static mixed $value;
-mixed-outside-json-entry 2     $read = static fn (mixed $value): mixed => $value;
-mixed-outside-json-entry 0     /** @param array<string, mixed> $data */
-mixed-outside-json-entry 0     public function mixedUp(): mixedValue
-mixed-outside-json-entry 0     $mixed = $value;
-json-entry-mixed 1     public function parse(mixed $value): ?array
-json-entry-mixed 1     public function amount(string $key, mixed &$value): int
-json-entry-mixed 1     public static function migrate(): mixed
-json-entry-mixed 1     private readonly mixed $value;
-json-entry-mixed 1     public mixed $value;
-json-entry-mixed 1     private mixed $value;
-json-entry-mixed 1     protected mixed $value;
-json-entry-mixed 1     static mixed $value;
-json-entry-mixed 2     $read = static fn (mixed $value): mixed => $value;
-json-entry-mixed 0     /** @param array<string, mixed> $data */
-json-entry-mixed 0     public function mixedUp(): mixedValue
-json-entry-mixed 0     $mixed = $value;
 loose-comparisons 1 if ($a == $b) {
 loose-comparisons 1 $x = $a != $b;
 loose-comparisons 1 $x = $a <> $b;
@@ -958,6 +898,8 @@ loose-comparisons 0 $x = $a !== $b;
 loose-comparisons 0 $x = $a <= $b;
 loose-comparisons 0 $x = $a <=> $b;
 loose-comparisons 0 $f = fn () => 1;
+loose-comparisons 1 == $b;
+loose-comparisons 1     && $a ==
 mutable-dates 1 $d = new DateTime();
 mutable-dates 1 $d = new DateTime;
 mutable-dates 1 $d = new Carbon;
@@ -977,6 +919,15 @@ byte-string-functions 0 $n = mb_strlen($s, '8bit');
 guide-future-tense 1 This will change.
 guide-future-tense 1 Until then.
 guide-future-tense 0 A willing reader.
+guide-future-tense 1 For now this holds.
+guide-future-tense 1 We wait until
+guide-future-tense 1 Dat is voorlopig zo.
+guide-future-tense 1 Dat zal veranderen.
+guide-future-tense 1 Ze zullen komen.
+guide-future-tense 1 Straks klaar.
+guide-future-tense 1 Wacht totdat het klaar is.
+guide-future-tense 1 Dat is nog niet af.
+guide-future-tense 1 Tot stap 5 blijft dit.
 analyser-switches 1     checkTooWideReturnTypesInProtectedAndPublicMethods: true
 analyser-switches 1     checkMissingOverrideMethodAttribute: true
 analyser-switches 1     reportAnyTypeWideningInVarTag: true
@@ -1070,21 +1021,8 @@ ci-skipped-steps 1 set ~PL~e
 ci-skipped-steps 0 set -e
 ci-skipped-steps 0 [ -n "$x" ] ~OR~ return 0
 ci-skipped-steps 0 npm test~SC~ true_value
-loose-comparisons 1 == $b;
-loose-comparisons 1     && $a ==
 mutable-dates 1 DateTime::createFromFormat('Y', $y);
-guide-future-tense 1 For now this holds.
-guide-future-tense 1 We wait until
-guide-future-tense 1 Dat is voorlopig zo.
-guide-future-tense 1 Dat zal veranderen.
-guide-future-tense 1 Ze zullen komen.
-guide-future-tense 1 Straks klaar.
-guide-future-tense 1 Wacht totdat het klaar is.
-guide-future-tense 1 Dat is nog niet af.
-guide-future-tense 1 Tot stap 5 blijft dit.
 queue-bus-fake-all 1 Queue::fake();
-queue-bus-fake-all 1 Bus::fake( );
-queue-bus-fake-all 0 Queue::fake([SendMail::class]);
 queue-bus-fake-all 1 Bus::fake([]);
 queue-bus-fake-all 1 Queue::fakeFor(
 queue-bus-fake-all 1 Queue::fake(
@@ -1123,6 +1061,66 @@ ci-skipped-steps 1 npm test ~OR~ :;
 ci-skipped-steps 1 npm test ~OR~ /bin/true;
 ci-skipped-steps 1 npm test ~OR~ ( exit 0 )
 ci-skipped-steps 1     allow_failur~E~:
+analyser-allow-paths 2             allowIn:~NL~                - tests/*~NL~                - app/Providers/*
+analyser-allow-paths 3             allowExceptIn:~NL~                - app/*~NL~~NL~                # the boot files~NL~                - bootstrap/*~NL~                - config/*~NL~            message: 'x'
+analyser-allow-paths 1             disallowIn:~NL~                - app/Http/*
+analyser-allow-paths 2             allowIn: [tests/*, app/Providers/*]
+analyser-allow-paths 1     allowIn:~NL~    - tests/*~NL~allowInFunctions:~NL~    - foo()
+analyser-allow-paths 0             allowInFunctions:~NL~                - 'App\\foo()'
+analyser-allow-paths 0             # allowIn:~NL~            #    - tests/*
+analyser-allow-paths 0             allowIn: []
+analyser-switches-off 1         dynamicCallOnStaticMethod: false
+analyser-switches-off 1             deadEnumCases: False
+analyser-switches-off 1                 neverRead: FALSE
+analyser-switches-off 1     checkUninitializedProperties: no
+analyser-switches-off 1     checkUninitializedProperties: No
+analyser-switches-off 1     checkUninitializedProperties: NO
+analyser-switches-off 1     checkUninitializedProperties: off
+analyser-switches-off 1     checkUninitializedProperties: Off
+analyser-switches-off 1     checkUninitializedProperties: OFF
+analyser-switches-off 1     checkUninitializedProperties: no # measured with the rule on
+analyser-switches-off 2     deadProperties: {neverRead: false, neverWritten: false}
+analyser-switches-off 1     reportUnmatchedIgnoredErrors: false # the baseline is gone
+analyser-switches-off 0     # dynamicCallOnStaticMethod: false
+analyser-switches-off 0     deadEnumCases: true
+analyser-switches-off 0     message: 'a call that returns false: check it'
+analyser-switches-off 0     checkUninitializedProperties: nothing
+lint-doors 1     'lib/http.ts': ['fetch', 'XMLHttpRequest'],
+lint-doors 1     "features/edition/remote/*.ts" : [ "fetch" ],
+lint-doors 1 'lib/dom-events.ts':['events'],
+lint-doors 2     'lib/a.ts': ['console'],~NL~    'lib/b.ts': [~NL~        'fetch',~NL~    ],
+lint-doors 0     localStorage: 'lib/browser-storage',
+lint-doors 0     fetch: 'lib/http (or the typed doors lib/render/print-api.ts)',
+lint-doors 0 export const doorFiles = {
+lint-doors 0     'lib/a.ts', ['console'],
+lint-max-file-lines 400 export const MAX_FILE_LINES = 400;
+lint-max-file-lines 350 export const MAX_FUNCTION_LINES = 80;~NL~export const MAX_FILE_LINES = 350;
+lint-max-function-lines 80 export const MAX_FILE_LINES = 400;~NL~export const MAX_FUNCTION_LINES = 80;
+lint-max-function-lines 79 export const MAX_FUNCTION_LINES = 79;
+mixed-outside-json-entry 1     public function parse(mixed $value): ?array
+mixed-outside-json-entry 1     public function amount(string $key, mixed &$value): int
+mixed-outside-json-entry 1     public static function migrate(): mixed
+mixed-outside-json-entry 1     private readonly mixed $value;
+mixed-outside-json-entry 1     public mixed $value;
+mixed-outside-json-entry 1     private mixed $value;
+mixed-outside-json-entry 1     protected mixed $value;
+mixed-outside-json-entry 1     static mixed $value;
+mixed-outside-json-entry 2     $read = static fn (mixed $value): mixed => $value;
+mixed-outside-json-entry 0     /** @param array<string, mixed> $data */
+mixed-outside-json-entry 0     public function mixedUp(): mixedValue
+mixed-outside-json-entry 0     $mixed = $value;
+json-entry-mixed 1     public function parse(mixed $value): ?array
+json-entry-mixed 1     public function amount(string $key, mixed &$value): int
+json-entry-mixed 1     public static function migrate(): mixed
+json-entry-mixed 1     private readonly mixed $value;
+json-entry-mixed 1     public mixed $value;
+json-entry-mixed 1     private mixed $value;
+json-entry-mixed 1     protected mixed $value;
+json-entry-mixed 1     static mixed $value;
+json-entry-mixed 2     $read = static fn (mixed $value): mixed => $value;
+json-entry-mixed 0     /** @param array<string, mixed> $data */
+json-entry-mixed 0     public function mixedUp(): mixedValue
+json-entry-mixed 0     $mixed = $value;
 CASES
 }
 
@@ -1775,6 +1773,17 @@ fi
 if [ "$FAILED" -ne 0 ]; then
     echo "A ratchet moved the wrong way, or a row was redefined or removed. A row that is at 0 takes no override unless it is in OVERRIDE_AT_ZERO: fix the entries. Other rows can be explained in a commit that touches that row's files, or this script for a redefined or removed row:"
     echo "  [ratchet: <name>] <reason>"
+fi
+if [ "$FAILED" -ne 0 ] || [ "$CHECKS_FAILED" -ne 0 ]; then
+    echo "A tag counts only at the START OF A LINE of a commit message: the subject line counts, the middle of a line does not. A squash keeps only the tags written in the squash message: list every [ratchet: ...] line again."
+    # A tag inside a line is the usual reason an override does not apply: name the commits that hold one.
+    MISPLACED=$(for commit in $(git log --no-merges --format=%h "$BASE..$HEAD_SHA"); do
+        git log -1 --format=%B "$commit" | { grep -E '\[ratchet: [^]]+\]' || [ $? -eq 1 ]; } | { grep -v -E '^\[ratchet: ' || [ $? -eq 1 ]; } | awk -v c="$commit" 'NR == 1 { print "  " c ": " substr($0, 1, 100) }'
+    done | awk 'NR <= 5')
+    if [ -n "$MISPLACED" ]; then
+        echo "These commits hold a [ratchet: ...] tag inside a line, which is no override (move it to the start of its own line):"
+        printf '%s\n' "$MISPLACED"
+    fi
 fi
 
 [ "$FAILED" -eq 0 ] && [ "$CHECKS_FAILED" -eq 0 ]
