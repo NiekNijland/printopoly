@@ -29,6 +29,7 @@ final class CodeCloneArchitectureTest extends TestCase
         yield 'a component and a class' => [['resources/js/a.ts' => self::body(9), 'app/B.php' => self::body(9)], 'app/B.php:1-9, resources/js/a.ts:1-9'];
         yield 'the same lines with other indentation and spacing' => [['resources/js/a.tsx' => self::body(8), 'resources/js/b.tsx' => (string) preg_replace('/^/m', '        ', str_replace(' = ', '   =   ', self::body(8)))], 'move them into one function or component'];
         yield 'the same lines with braces, blank lines and comments between' => [['resources/js/a.tsx' => self::body(8), 'resources/js/b.tsx' => str_replace("\n", "\n}\n\n// note\n", self::body(8))], 'resources/js/b.tsx:1-29'];
+        yield 'the same lines after a multi-line import' => [['resources/js/a.tsx' => "import {\n    a,\n    b,\n} from 'x';\n" . self::body(8), 'resources/js/b.tsx' => self::body(8)], 'resources/js/a.tsx:5-12'];
         yield 'the same lines with other imports above' => [['resources/js/a.tsx' => "import a from 'a';\n" . self::body(8), 'resources/js/b.tsx' => "import b from 'b';\nimport c from 'c';\n" . self::body(8)], 'resources/js/a.tsx:2-9, resources/js/b.tsx:3-10'];
         yield 'a repeat inside a longer file' => [['resources/js/a.tsx' => "const head = 1;\n" . self::body(12) . "const tail = 2;\n", 'resources/js/b.tsx' => self::body(12)], 'resources/js/a.tsx:2-13'];
         yield 'three files' => [['resources/js/a.tsx' => self::body(8), 'resources/js/b.tsx' => self::body(8), 'resources/js/c/d.tsx' => self::body(8)], 'resources/js/c/d.tsx:1-8'];
@@ -56,6 +57,8 @@ final class CodeCloneArchitectureTest extends TestCase
         yield 'eight lines with one line changed' => [['resources/js/a.tsx' => self::body(8), 'resources/js/b.tsx' => str_replace('line4 = 4', 'line4 = 5', self::body(8))]];
         yield 'a repeat inside one file' => [['resources/js/a.tsx' => self::body(8) . "const gap = 0;\n" . self::body(8)]];
         yield 'eight equal imports' => [['resources/js/a.tsx' => self::imports(), 'resources/js/b.tsx' => self::imports()]];
+        yield 'eight equal lines inside multi-line imports' => [['resources/js/a.tsx' => "import {\n" . self::names() . "} from './a';\nconst a = 1;\n", 'resources/js/b.tsx' => "import type {\n" . self::names() . "} from './b';\nconst b = 2;\n"]];
+        yield 'a grouped use in PHP' => [['app/A.php' => "<?php\nuse App\\{\n" . self::names() . "};\n", 'app/B.php' => "<?php\nuse App\\{\n" . self::names() . "};\n"]];
         yield 'eight equal comment lines' => [['app/A.php' => str_repeat("// the same words\n", 8), 'app/B.php' => str_repeat("// the same words\n", 8)]];
         yield 'braces only' => [['resources/js/a.tsx' => str_repeat("});\n", 20), 'resources/js/b.tsx' => str_repeat("});\n", 20)]];
         yield 'a test file and its component' => [['resources/js/a.tsx' => self::body(8), 'resources/js/a.test.tsx' => self::body(8)]];
@@ -126,6 +129,17 @@ final class CodeCloneArchitectureTest extends TestCase
         }
 
         return $body;
+    }
+
+    private static function names(): string
+    {
+        $names = '';
+
+        for ($line = 1; $line <= 9; $line++) {
+            $names .= "    Part{$line},\n";
+        }
+
+        return $names;
     }
 
     private static function imports(): string

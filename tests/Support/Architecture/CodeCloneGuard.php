@@ -60,11 +60,19 @@ final readonly class CodeCloneGuard
     public static function normalizedLines(string $source): array
     {
         $lines = [];
+        $inImport = false;
 
         foreach (explode("\n", $source) as $index => $line) {
             $text = (string) preg_replace('/\s+/', ' ', mb_trim($line));
+            $starts = preg_match('~^(import |use |export (type )?\{)~', $text) === 1;
 
-            if (preg_match('/[A-Za-z0-9]/', $text) === 1 && preg_match('~^(\/\/|/\*|\*|#(?!\[)|<\?php|import |use |namespace |declare\(|export (type )?\{|</[\w.]*>$)~', $text) !== 1) {
+            if ($inImport || $starts) {
+                $inImport = ! str_ends_with($text, ';');
+
+                continue;
+            }
+
+            if (preg_match('/[A-Za-z0-9]/', $text) === 1 && preg_match('~^(\/\/|/\*|\*|#(?!\[)|<\?php|namespace |declare\(|</[\w.]*>$)~', $text) !== 1) {
                 $lines[] = [$index + 1, $text];
             }
         }
