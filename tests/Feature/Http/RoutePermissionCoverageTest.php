@@ -6,7 +6,6 @@ namespace Tests\Feature\Http;
 
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
-use Tests\Support\CountedList;
 use Tests\Support\Feature\AppRoutes;
 use Tests\TestCase;
 
@@ -28,7 +27,7 @@ final class RoutePermissionCoverageTest extends TestCase
             }
         }
 
-        self::assertSame([], new CountedList(base_path('tests/Support/Architecture/lists/route-permissions.txt'))->differences($uncovered));
+        self::assertSame([], $uncovered);
     }
 
         public function test_it_counts_the_sign_in_and_the_check_from_the_route_and_its_groups(): void

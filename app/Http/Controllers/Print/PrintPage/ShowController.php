@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print\PrintPage;
 
-use App\Http\Controllers\Controller;
 use App\Models\PrintJob;
 use App\Modules\Print\Data\PrintJobData;
 use App\Modules\Print\Enums\PrintPart;
@@ -12,7 +11,6 @@ use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Modules\Print\Services\PrintStatusService;
 use App\Modules\Print\Support\PrintChannel;
 use App\Modules\Print\Support\PrintJobContext;
-use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,14 +18,12 @@ use Inertia\Response;
  * The print page (B95) for a job that exists. Rendered client-side only: it
  * is private and its state arrives live.
  */
-final class ShowController extends Controller
+final readonly class ShowController
 {
     public function __invoke(string $locale, PrintJob $printJob, PrintStatusService $status, PrintJobContext $context): Response
     {
         // The {locale} segment is positional; SetLocale has already applied it.
         unset($locale);
-
-        Gate::authorize('view', $printJob);
 
         try {
             $edition = $context->edition($printJob);

@@ -39,7 +39,7 @@ final readonly class StoreEdition
         $existing = Edition::query()->where('user_id', $userId)->where('edition_id', $input['id'])->first();
 
         if ($existing instanceof Edition) {
-            throw new EditionConflictException($this->payload->from($existing));
+            throw new EditionConflictException($this->payload->data($existing));
         }
 
         $limit = self::limit();

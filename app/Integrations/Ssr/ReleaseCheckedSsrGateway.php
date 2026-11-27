@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Integrations\Ssr;
 
+use Exception;
+use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\StrayRequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Vite;
 use Inertia\Ssr\HttpGateway;
 use Inertia\Ssr\Response;
+use Inertia\Ssr\SsrException;
 use JsonException;
 use Override;
 
@@ -22,6 +26,7 @@ use Override;
  * the ones this release serves, so such an answer is dropped and the page
  * falls back to a client-only root.
  */
+#[Singleton]
 final class ReleaseCheckedSsrGateway extends HttpGateway
 {
     private const string RELEASE_PATTERN = '/\A[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\z/';
@@ -83,6 +88,16 @@ final class ReleaseCheckedSsrGateway extends HttpGateway
         } catch (ConnectionException $connectionException) {
             $this->handleSsrFailure($page, [
                 'error' => $connectionException->getMessage(),
+                'type' => 'connection',
+            ]);
+
+            return null;
+        } catch (Exception $exception) {
+            throw_if($exception instanceof StrayRequestException || $exception instanceof SsrException, $exception);
+
+            report($exception);
+            $this->handleSsrFailure($page, [
+                'error' => $exception->getMessage(),
                 'type' => 'connection',
             ]);
 

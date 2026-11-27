@@ -32,7 +32,7 @@ final readonly class SaveEditionChanges
     public function handle(Edition $edition, int $baseRevision, array $attributes, ?int $newRevision = null): Edition
     {
         if ($edition->revision !== $baseRevision) {
-            throw new EditionConflictException($this->payload->from($edition));
+            throw new EditionConflictException($this->payload->data($edition));
         }
 
         if (isset($attributes['elements']) && is_array($attributes['elements'])) {
@@ -48,7 +48,7 @@ final readonly class SaveEditionChanges
             ->update($attributes);
 
         if ($matched === 0) {
-            throw new EditionConflictException($this->payload->from($edition->fresh() ?? $edition));
+            throw new EditionConflictException($this->payload->data($edition->fresh() ?? $edition));
         }
 
         return $edition->fresh() ?? $edition;

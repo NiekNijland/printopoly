@@ -10,6 +10,7 @@ use App\Modules\Content\Enums\Locale;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Support\InstructionPdfBuilder;
 use App\Modules\Print\Support\PrintProgress;
+use App\Support\Queue;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -36,7 +37,7 @@ final class RefreshPrintTextsJob implements ShouldBeUnique, ShouldQueue
         public readonly string $printJobId,
         public readonly string $set,
     ) {
-        $this->onQueue('pdf');
+        $this->onQueue(Queue::PDF);
     }
 
     public function uniqueId(): string

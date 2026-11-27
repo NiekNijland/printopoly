@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Modules\Editions\Support;
 
 use App\Models\Edition;
+use App\Modules\Editions\Data\EditionData;
 use Illuminate\Support\Facades\Log;
+use Spatie\LaravelData\Optional;
 use stdClass;
 
 /**
@@ -20,43 +22,36 @@ final readonly class EditionPayload
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<mixed>
      */
     public function from(Edition $edition): array
     {
-        $payload = [
-            'schemaVersion' => $edition->schema_version,
-            'id' => $edition->edition_id,
-            'name' => $edition->name,
-            'language' => $edition->language,
-            'currency' => $edition->currency,
-            'theme' => $edition->theme,
-            'boardProfile' => $edition->board_profile,
-            'parts' => $edition->parts,
-            'elements' => self::asObject($this->repaired($edition)),
-            'revision' => $edition->revision,
-            'createdAt' => $edition->created_at_ms,
-            'updatedAt' => $edition->updated_at_ms,
-        ];
+        return $this->data($edition)->toArray();
+    }
 
-        // The template the edition started from (B152), only when there is one.
-        if (is_string($edition->template) && $edition->template !== '') {
-            $payload['template'] = $edition->template;
-        }
-
-        // How much play money to print (B156), only when the edition chose.
-        if (is_string($edition->money_amount) && $edition->money_amount !== '') {
-            $payload['moneyAmount'] = $edition->money_amount;
-        }
-
-        // What goes in the print set (B198), only when the print page chose.
-        $selection = PrintSelection::parse($edition->print_selection);
-
-        if ($selection !== null) {
-            $payload['printSelection'] = $selection;
-        }
-
-        return $payload;
+    /**
+     * The same edition as a Data object, for a JSON answer (B81).
+     */
+    public function data(Edition $edition): EditionData
+    {
+        return new EditionData(
+            schemaVersion: $edition->schema_version,
+            id: $edition->edition_id,
+            name: $edition->name,
+            language: $edition->language,
+            currency: $edition->currency,
+            theme: $edition->theme,
+            boardProfile: $edition->board_profile,
+            parts: $edition->parts,
+            elements: self::asObject($this->repaired($edition)),
+            revision: $edition->revision,
+            createdAt: $edition->created_at_ms,
+            updatedAt: $edition->updated_at_ms,
+            // The template (B152), the play money (B156) and the print set (B198) leave only when the edition chose one.
+            template: is_string($edition->template) && $edition->template !== '' ? $edition->template : new Optional(),
+            moneyAmount: is_string($edition->money_amount) && $edition->money_amount !== '' ? $edition->money_amount : new Optional(),
+            printSelection: PrintSelection::parse($edition->print_selection) ?? new Optional(),
+        );
     }
 
     /**

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Support\Queue;
 use Illuminate\Support\Str;
 
 return [
@@ -207,7 +208,7 @@ return [
     'defaults' => [
         'supervisor-default' => [
             'connection' => 'redis',
-            'queue' => ['default'],
+            'queue' => [Queue::DEFAULT->value],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 1,
@@ -223,7 +224,7 @@ return [
         // with few processes and a long timeout (B70).
         'supervisor-pdf' => [
             'connection' => 'redis',
-            'queue' => ['pdf'],
+            'queue' => [Queue::PDF->value],
             'balance' => 'simple',
             'maxProcesses' => (int) env('HORIZON_PDF_MAX_PROCESSES', 2),
             'maxTime' => 0,

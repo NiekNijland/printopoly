@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth\Google;
 
-use App\Http\Controllers\Controller;
-use App\Integrations\Google\GoogleLogin;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-final class RedirectController extends Controller
+final readonly class RedirectController
 {
     public function __invoke(Request $request): RedirectResponse
     {
-        abort_unless(GoogleLogin::isConfigured(), 404);
-
         $previous = url()->previous();
 
         if (str_starts_with($previous, url('/')) && ! str_contains($previous, '/auth/google')) {

@@ -4,34 +4,32 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Boxes\Box;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\Boxes\ListBoxesRequest;
 use App\Models\CollectionBox;
 use App\Models\User;
+use App\Modules\Boxes\Data\AccountBoxData;
 use App\Modules\Boxes\Support\BoxPresenter;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Container\Attributes\CurrentUser;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * The live box of an edition of the logged-in account (B128), so a second device finds the link and the
  * contributions without the owner secret from the first browser. Only the user's own boxes.
  */
-final class ListController extends Controller
+final readonly class ListController
 {
-    public function __invoke(Request $request, BoxPresenter $presenter): JsonResponse
+    public function __invoke(#[CurrentUser] User $user, ListBoxesRequest $request, BoxPresenter $presenter): Response
     {
-        $request->validate(['edition' => ['required', 'string', 'regex:/^[A-Za-z0-9_-]{8,64}$/']]);
-        $editionId = $request->string('edition')->toString();
-        $user = $request->user();
-
-        abort_unless($user instanceof User, 401);
-
+        $editionId = $request->editionId();
         $box = CollectionBox::query()
             ->where('user_id', $user->publicId())
             ->where('edition_id', $editionId)
             ->where('expires_at', '>', now()->toDateTime())
             ->first();
 
-        return response()->json(['box' => $box instanceof CollectionBox ? $presenter->owner($box) : null])
-            ->header('Cache-Control', 'private, no-store');
+        $response = new AccountBoxData($box instanceof CollectionBox ? $presenter->owner($box) : null)->toResponse($request);
+        $response->headers->set('Cache-Control', 'private, no-store');
+
+        return $response;
     }
 }

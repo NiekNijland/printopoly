@@ -31,7 +31,7 @@ final readonly class PatchEdition
     {
         // Check first, so a stale patch is turned away before any merging.
         if ($edition->revision !== $patch['baseRevision']) {
-            throw new EditionConflictException($this->payload->from($edition));
+            throw new EditionConflictException($this->payload->data($edition));
         }
 
         $attributes = [];

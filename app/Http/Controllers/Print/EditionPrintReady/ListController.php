@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print\EditionPrintReady;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Modules\Print\Data\EditionPrintReadyListData;
 use App\Modules\Print\Services\EditionPrintReadinessService;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * What is ready to download per edition of the logged-in account, for Mijn edities (B95). Only the user's
  * own print jobs are read, so nobody sees the files of another account.
  */
-final class ListController extends Controller
+final readonly class ListController
 {
-    public function __invoke(Request $request, EditionPrintReadinessService $readiness): JsonResponse
+    public function __invoke(#[CurrentUser] User $user, Request $request, EditionPrintReadinessService $readiness): Response
     {
-        $user = $request->user();
-        abort_unless($user instanceof User, 401);
+        $response = new EditionPrintReadyListData($readiness->forUser($user))->toResponse($request);
+        $response->headers->set('Cache-Control', 'private, no-store');
 
-        return response()->json(['editions' => $readiness->forUser($user)])
-            ->header('Cache-Control', 'private, no-store');
+        return $response;
     }
 }

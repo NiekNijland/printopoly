@@ -1,1 +1,0 @@
-app/Http/Controllers/Editions/Edition/ImportController.php: an inline @var narrows a type the analyser never checks: narrow it with a typed helper, a typed return or an assertion the code runs, and keep @var for a property or a constant

@@ -7,6 +7,7 @@ use App\Http\Middleware\RedirectTrailingSlash;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetSecurityHeaders;
 use App\Http\Middleware\SetSeoHeaders;
+use App\Http\Middleware\TokenCapability;
 use App\Http\Middleware\TrackActivity;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -33,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        $middleware->alias(['capability' => TokenCapability::class]);
         // One URL per page (B66): /nl/vragen/ redirects to /nl/vragen, and every response carries the security headers.
         $middleware->prepend(RedirectTrailingSlash::class);
         $middleware->append(SetSecurityHeaders::class);

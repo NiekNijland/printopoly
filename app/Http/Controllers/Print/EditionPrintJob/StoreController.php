@@ -4,34 +4,33 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print\EditionPrintJob;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\Print\StoreEditionPrintJobRequest;
 use App\Models\Edition;
+use App\Models\User;
 use App\Modules\Content\Enums\Locale;
+use App\Modules\Print\Data\PrintJobLinkData;
 use App\Modules\Print\Support\EditionPrintJobs;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Container\Attributes\CurrentUser;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * The print page of an edition of a logged-in user (B95). There is one job per
  * edition, so the PDFs that are made stay together under Mijn edities. It
  * creates the job only; nothing is generated until the user clicks.
  */
-final class StoreController extends Controller
+final readonly class StoreController
 {
-    public function __invoke(Request $request, Edition $edition, EditionPrintJobs $jobs): JsonResponse
+    public function __invoke(#[CurrentUser] User $user, StoreEditionPrintJobRequest $request, Edition $edition, EditionPrintJobs $jobs): Response
     {
-        Gate::authorize('print', $edition);
-        $request->validate(['locale' => ['nullable', 'in:' . implode(',', Locale::values())]]);
+        $site = $request->locale() ?? Locale::tryFrom(app()->getLocale()) ?? Locale::default();
+        $job = $jobs->forEdition($user, $edition, $site);
 
-        // The language of the site the user prints from (B184); the edition can be in another one.
-        $site = Locale::tryFrom($request->string('locale')->toString()) ?? Locale::tryFrom(app()->getLocale()) ?? Locale::default();
-        $job = $jobs->forEdition($this->user($request), $edition, $site);
+        $link = new PrintJobLinkData(
+            token: $job->token,
+            url: route('print.show', ['locale' => $job->locale, 'printJob' => $job]),
+            statusUrl: route('print.status', ['printJob' => $job]),
+        );
 
-        return response()->json([
-            'token' => $job->token,
-            'url' => route('print.show', ['locale' => $job->locale, 'printJob' => $job]),
-            'statusUrl' => route('print.status', ['printJob' => $job]),
-        ], $job->wasRecentlyCreated ? 201 : 200);
+        return $link->toResponse($request)->setStatusCode($job->wasRecentlyCreated ? Response::HTTP_CREATED : Response::HTTP_OK);
     }
 }

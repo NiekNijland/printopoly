@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\InertiaPageGuard;
-use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
 
 final class InertiaPageArchitectureTest extends TestCase
@@ -67,7 +66,7 @@ final class InertiaPageArchitectureTest extends TestCase
         {
         $root = dirname(__DIR__, 2);
 
-        self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/inertia-page-names.txt')->differences($this->guard($root)->violations()));
+        self::assertSame([], $this->guard($root)->violations());
     }
 
     private function guard(string $root): InertiaPageGuard

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\Editions\Exceptions;
 
+use App\Modules\Editions\Data\EditionConflictData;
+use App\Modules\Editions\Data\EditionData;
 use Exception;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * The server has another revision than the client expected, or an edition
@@ -15,19 +18,17 @@ use Illuminate\Http\JsonResponse;
 final class EditionConflictException extends Exception
 {
     /**
-     * @param array<string, mixed> $current the server's edition, as EditionPayload gives it
+     * The server's edition, as EditionPayload::data() gives it.
      */
-    public function __construct(public readonly array $current)
+    public function __construct(public readonly EditionData $current)
     {
         parent::__construct('The edition has another revision on the server.');
     }
 
-    public function render(): JsonResponse
+    public function render(Request $request): Response
     {
-        return response()->json([
-            'code' => 'conflict',
-            'message' => $this->getMessage(),
-            'current' => $this->current,
-        ], 409);
+        return new EditionConflictData(code: 'conflict', message: $this->getMessage(), current: $this->current)
+            ->toResponse($request)
+            ->setStatusCode(Response::HTTP_CONFLICT);
     }
 }

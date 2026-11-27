@@ -13,38 +13,39 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 
 | Regel | Bewaker | Lijst |
 | --- | --- | --- |
-| validatie in een form request | `RequestValidationGuard` | `inline-validation` |
-| invoer via `$request->validated()` | `ValidatedInputGuard` | `raw-request-input` |
-| geen weigering in een actie (`abort*`, `Gate::`, `authorize()`, `can()`); geen HTTP-weigering buiten `app/Http` | `ControllerAuthorizationGuard`, `HttpRefusalGuard` | `controller-authorization` |
-| JSON-antwoord is een Data-object | `JsonEndpointGuard` | `json-endpoints` |
-| Inertia-pagina bij letterlijke naam met een bestand in `resources/js/pages` | `InertiaPageGuard` | `inertia-page-names` |
+| validatie in een form request | `RequestValidationGuard` | geen |
+| invoer via `$request->validated()` | `ValidatedInputGuard` | geen |
+| geen weigering in een actie (`abort*`, `Gate::`, `authorize()`, `can()`); geen HTTP-weigering buiten `app/Http` | `ControllerAuthorizationGuard`, `HttpRefusalGuard` | geen |
+| JSON-antwoord is een Data-object | `JsonEndpointGuard` | geen |
+| Inertia-pagina bij letterlijke naam met een bestand in `resources/js/pages` | `InertiaPageGuard` | geen |
 | redirect met `to_route()` of `back()` | `RedirectGuard` | geen |
 | flash: één vertaalde regel onder `success`, `error` of `info` | `FlashMessageGuard` | `flash-messages` |
-| routeparameter in camelCase, geen closure als route | `RouteParameterGuard` | `route-declarations` |
-| limiter in `AppServiceProvider`, getal uit config, `throttle:<naam>` | `RateLimiterGuard` | `rate-limits` |
+| routeparameter in camelCase, geen closure als route | `RouteParameterGuard` | geen |
+| limiter in `AppServiceProvider`, getal uit config, `throttle:<naam>` | `RateLimiterGuard` | geen |
 | form request: regels als array, geen `authorize()` die alleen `true` geeft | `FormRequestGuard` | geen |
 
 ## Routelijst (feature-tests, booten de app)
 
 | Regel | Test | Lijst |
 | --- | --- | --- |
-| elke route achter `auth` heeft `can:` | `tests/Feature/Http/RoutePermissionCoverageTest.php` | `route-permissions` |
-| elke route heeft één `throttle:<naam>` van een geregistreerde limiter | `tests/Feature/Http/RouteRateLimitCoverageTest.php` | `route-rate-limits` |
-| elke route met een record weigert andermans record (403/404) | `tests/Feature/Http/ObjectLevelAccessCoverageTest.php` | `object-level-access` |
+| elke route achter `auth` heeft `can:` | `tests/Feature/Http/RoutePermissionCoverageTest.php` | geen |
+| elke route heeft één `throttle:<naam>` van een geregistreerde limiter | `tests/Feature/Http/RouteRateLimitCoverageTest.php` | geen |
+| elke route met een record weigert andermans record (403/404) | `tests/Feature/Http/ObjectLevelAccessCoverageTest.php` | geen |
+| elke route met een geheime link draagt `capability:<soort>` en weigert een geheim dat niets opent (404) | `tests/Feature/Http/Middleware/TokenCapabilityTest.php` | geen |
 
 ## Container, modellen, fouten, wachtrijen, types
 
 | Regel | Bewaker | Lijst |
 | --- | --- | --- |
-| een eigen klasse bindt zichzelf met een attribuut | `ContainerBindingGuard` | `provider-bindings` |
+| een eigen klasse bindt zichzelf met een attribuut | `ContainerBindingGuard` | geen |
 | model: `casts()`, onveranderlijke datums, `#[Fillable]`, `#[Table]`, `#[Connection]`, `#[Hidden]`, `booted()`, nooit unguarded | `ModelConventionGuard` | geen |
 | brede catch meldt, redt of gooit opnieuw | `EmptyCatchGuard` | geen |
 | logregel vast, de fout als context | `LogMessageGuard` | geen |
 | geen `Event::dispatch(new X)` | `EventDispatchGuard` | geen |
-| wachtrij via de enum | `QueueNameGuard` | `queue-names` |
+| wachtrij via de enum | `QueueNameGuard` | geen |
 | wachtrijklasse met timeout en tries, unieke job met eigen sleutel | `QueuedClassLimitsGuard`, `UniqueJobGuard` | geen |
-| geplande taak met `withoutOverlapping(<minuten>)` | `ScheduledTaskGuard` | `scheduled-task-locks` |
-| migratie noemt geen applicatieklasse | `MigrationClassGuard` | `migration-classes` |
+| geplande taak met `withoutOverlapping(<minuten>)` | `ScheduledTaskGuard` | geen |
+| migratie noemt geen applicatieklasse | `MigrationClassGuard` | geen |
 | geen inline `@var` | `InlineVarCastGuard` | `inline-var-casts` |
 
 Blinde vlekken: een waarde of sleutel die eerst in een variabele staat, een ongetypeerde ontvanger, een parameter die het patroon van de route weigert (de router antwoordt dan 404 vóór de controle).

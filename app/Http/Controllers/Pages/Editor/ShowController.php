@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Pages\Editor;
 
-use App\Http\Controllers\Controller;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,7 +12,7 @@ use Inertia\Response;
  * browser's storage by the page; the server only knows its id. Rendered
  * client-side only (B66).
  */
-final class ShowController extends Controller
+final readonly class ShowController
 {
     public function __invoke(string $locale, string $edition): Response
     {

@@ -4,25 +4,16 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Boxes\Box;
 
-use App\Http\Controllers\Controller;
-use App\Models\CollectionBox;
+use App\Modules\Boxes\Actions\CloseBox;
 use App\Modules\Boxes\Support\BoxAccess;
 use App\Modules\Boxes\Support\BoxPresenter;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-/**
- * The owner closes the box (B128): the link stays, but friends can no longer add anything. What is already
- * inside can still be accepted or rejected.
- */
-final class CloseController extends Controller
+final readonly class CloseController
 {
-    public function __invoke(Request $request, string $boxId, BoxAccess $access, BoxPresenter $presenter): JsonResponse
+    public function __invoke(Request $request, string $boxId, BoxAccess $access, CloseBox $close, BoxPresenter $presenter): Response
     {
-        $box = $access->owned($request, $boxId);
-        $box->status = CollectionBox::CLOSED;
-        $box->save();
-
-        return response()->json($presenter->owner($box));
+        return $presenter->owner($close->handle($access->owned($request, $boxId)))->toResponse($request)->setStatusCode(Response::HTTP_OK);
     }
 }
