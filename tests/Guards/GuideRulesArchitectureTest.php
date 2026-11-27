@@ -20,6 +20,7 @@ final class GuideRulesArchitectureTest extends TestCase
         'banned-test-calls' => ['config-set', 'clock-set', 'wall-clock', 'container-binding', 'wait', 'stray-switch', 'network', 'fake-all', 'real-path', 'named-status', 'project-double'],
         'class-shape' => ['final-readonly', 'action-name', 'action-entry', 'enum-backing', 'enum-cases', 'enum-folder', 'data-name'],
         'closed-classes' => ['closed-concrete-parent', 'closed-stale-tag'],
+        'code-clones' => ['code-clones'],
         'controller-names' => ['controller-verb', 'controller-verb-used'],
         'file-size' => ['file-size'],
         'frontend' => ['settled-rules', 'type-escapes', 'size', 'one-way', 'file-names', 'page-props', 'doors', 'navigation', 'tests'],

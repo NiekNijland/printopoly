@@ -27,6 +27,7 @@ Werkwijze
 - Alles draait in Sail (`./vendor/bin/sail ...`). De lokale stack draait de versies van CI (guard `project-files`). `.env.example` noemt elke instelling die een eigen config leest. `bash scripts/checks.sh` draait wat de stap `checks` van CI draait; de README noemt de losse commando's.
 - Een commit begint met `NOTICKET <type>: onderwerp`, met het type uit `scripts/ci-commit-messages.sh`. Dat script faalt op een commit zonder ticket of type.
 - Geen commentaar in code, behalve wat een lezer later anders laat handelen. De ratchetrij `comments` in `scripts/ci-ratchets.sh` faalt op een nieuw commentaar zonder `[ratchet: comments] <reden>` in de commit.
+- Logica staat op één plek. Staan dezelfde acht of meer regels in twee bestanden van `app` of `resources/js`, dan worden ze één functie of component die elk bestand importeert (guard `code-clones`).
 - `bash scripts/debt-dashboard.sh --offline` draait in CI en faalt zodra een teller boven zijn plafond in `scripts/debt-caps.json` komt.
 
 ## Guards
@@ -41,6 +42,7 @@ Elke regel van de gidsen noemt zijn guard bij een naam van deze lijst. Elke guar
 | `banned-test-calls` | `docs/guards/banned-test-calls.md` | welke aanroepen een test niet doet |
 | `class-shape` | `docs/guards/class-shape.md` | de vorm van een klasse naar haar map |
 | `closed-classes` | `docs/guards/closed-classes.md` | dat een concrete klasse dicht is |
+| `code-clones` | `docs/guards/code-clones.md` | dat logica op één plek staat |
 | `controller-names` | `docs/guards/controller-names.md` | de naam van een controller en de werkwoordentabel |
 | `file-size` | `docs/guards/file-size.md` | de lengte van een PHP-bestand |
 | `frontend` | `docs/guards/frontend.md` | de lintregels en lagen van de frontend |
