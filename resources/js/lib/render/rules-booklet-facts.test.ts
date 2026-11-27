@@ -5,12 +5,10 @@ import {
     JAIL_FINE,
     bookletFacts,
     capitalize,
-    list,
     plain,
     startSplit,
     stations,
     streets,
-    taxes,
     utilities,
 } from './rules-booklet-facts';
 
@@ -27,8 +25,8 @@ describe('the facts of the rules booklet', () => {
     it('writes plain numbers and lists in the language', () => {
         expect(plain(1500, 'nl')).toBe('1.500');
         expect(plain(1500, 'en')).toBe('1,500');
-        expect(list(['a', 'b', 'c'], 'nl')).toBe('a, b en c');
-        expect(list(['a'], 'en')).toBe('a');
+        expect(startSplit(ctx('nl'))).toMatch(/^[^,]+(, [^,]+)* en [^,]+$/);
+        expect(startSplit(ctx('en'))).toMatch(/^[^,]+(, [^,]+)* and [^,]+$/);
         expect(capitalize('station')).toBe('Station');
         expect(JAIL_FINE).toBe(50);
     });
@@ -37,7 +35,8 @@ describe('the facts of the rules booklet', () => {
         expect(streets()).toHaveLength(22);
         expect(stations()).toHaveLength(4);
         expect(utilities()).toHaveLength(2);
-        expect(taxes()).toHaveLength(2);
+        const facts = bookletFacts(ctx('nl'));
+        expect([facts.tax1?.type, facts.tax2?.type]).toEqual(['tax', 'tax']);
     });
 
     it('splits the start money in the order of the standard data', () => {
