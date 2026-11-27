@@ -1,6 +1,6 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, render, renderHook } from '@testing-library/react';
 
-import { useStageBox } from './use-stage-box';
+import { useMeasuredWidth, useStageBox } from './use-stage-box';
 
 describe('useStageBox', () => {
     it('follows the size of the stage and stops when it goes', () => {
@@ -56,5 +56,29 @@ describe('useStageBox', () => {
             w: 0,
             h: 0,
         });
+    });
+});
+
+const Measured = () => {
+    const [box, width] = useMeasuredWidth<HTMLSpanElement>();
+
+    return <span ref={box}>{width}</span>;
+};
+
+describe('useMeasuredWidth', () => {
+    it('measures the width of its element once it is there', () => {
+        Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+            configurable: true,
+            get: () => 120,
+        });
+
+        try {
+            const { container, unmount } = render(<Measured />);
+
+            expect(container.textContent).toBe('120');
+            unmount();
+        } finally {
+            Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
+        }
     });
 });

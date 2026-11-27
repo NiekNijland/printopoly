@@ -20,5 +20,4 @@ c8298263256a resources/js/components/render/game-card-styles-vintage-back.tsx re
 ceacb01e8501 resources/js/features/edition/editor/panel/amount-section.tsx resources/js/features/edition/editor/panel/text-section.tsx
 d6013525401e resources/js/features/edition/editor/panel/panel-parts.tsx resources/js/features/edition/editor/photo-style-choice.tsx
 dbadfc0a9f91 resources/js/components/render/edition-title-plain.tsx resources/js/components/render/edition-title-script.tsx
-e28d86196090 resources/js/features/edition/editor/big-board.tsx resources/js/features/edition/editor/mini-center.tsx
 f4bd037437f6 resources/js/components/render/board-look-vintage.tsx resources/js/components/render/board-space-parts.tsx resources/js/components/render/card-look-engraving.tsx
