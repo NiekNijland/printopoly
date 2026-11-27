@@ -6,20 +6,15 @@ import { PLAYFAIR, SPARTAN, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
 import { Hatch } from './board-look';
+import { Svg, creamed, diamondPath, engraving } from './card-look';
+import { EngravedBorder, ovalItems, rosetteItem } from './card-look-engraving';
+import { Ornament } from './card-look-ornament';
 import {
     Awning,
-    EngravedBorder,
-    Ornament,
-    ovalItems,
-    rosetteItem,
     Squiggle,
-    Svg,
     WobblyTile,
-    creamed,
-    diamondPath,
-    engraving,
     scallopDepth,
-} from './card-look';
+} from './card-look-playful';
 import { FitText } from './fit-text';
 import { Abs, useRender } from './sheet';
 

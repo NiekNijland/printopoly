@@ -1,4 +1,3 @@
-import { mix, withAlpha } from '@/lib/render/color';
 import {
     cardTextContext,
     mapCardTextSegments,
@@ -7,24 +6,16 @@ import {
 import type { PatternId } from '@/lib/render/patterns';
 import type { PhotoSource } from '@/lib/render/photo';
 import { standardEdition, withCurrency } from '@/lib/render/standard-edition';
-import { STRINGS } from '@/lib/render/strings';
 import { partStyleOf } from '@/lib/render/style';
 import { THEMES } from '@/lib/render/themes';
 import type { Card, CurrencyId, DeckId, Locale } from '@/types/game';
 
-import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
-import {
-    StyledArtPlate,
-    StyledCardBack,
-    StyledCardFront,
-    cardPaper,
-} from './game-card-styles';
-import { Icon } from './icons';
-import { PatternFill } from './pattern-fill';
-import { BAND_OPACITY, PhotoSlot, isFullPhoto } from './photo-slot';
-import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
-import { SpaceIconArt, type SpaceIconSource } from './space-icon';
+import { CardBack } from './game-card-back';
+import { CardFront } from './game-card-front';
+import { cardPaper } from './game-card-styles';
+import { Sheet, useRender, type ElementProps } from './sheet';
+import type { SpaceIconSource } from './space-icon';
 
 export const CARD_SIZE_MM = standardEdition.components.cardSizeMm;
 
@@ -170,9 +161,6 @@ type FaceProps = {
     bleed: number;
 };
 
-/** Margin between the trim edge and the content, in mm. */
-const M = 4.5;
-
 const CardFace = ({
     deck,
     side,
@@ -189,8 +177,7 @@ const CardFace = ({
     icon,
     bleed,
 }: FaceProps) => {
-    const { theme, locale, money, words, currency, style } = useRender();
-    const cardStyle = partStyleOf(style, 'cards');
+    const { locale, words, currency } = useRender();
     const name = title ?? words.decks?.[deck] ?? deckName(deck, locale);
     const body =
         text ??
@@ -211,445 +198,30 @@ const CardFace = ({
                 ? undefined
                 : card.amount
             : undefined);
-    const accent = theme.deckAccent[deck];
-    const iconName = deck === 'chance' ? 'dice' : 'chest';
-    const hasMedia = photo !== undefined;
-    const layout = hasMedia ? 'framed' : 'text';
 
-    if (side === 'back' && (photo !== undefined || pattern !== undefined)) {
-        return (
-            <ArtBack
-                deck={deck}
-                name={name}
-                edition={edition}
-                photo={photo}
-                pattern={pattern}
-                w={w}
-                h={h}
-                bleed={bleed}
-            />
-        );
-    }
-
-    if (side === 'back' && cardStyle !== undefined) {
-        return (
-            <StyledCardBack
-                style={cardStyle}
-                deck={deck}
-                w={w}
-                h={h}
-                name={name}
-                edition={edition}
-                icon={icon}
-            />
-        );
-    }
-
-    if (side === 'back') {
-        // Without a photo the back is a centred stack: symbol, deck name, edition name.
-        // With a photo the name moves up and the photo takes the space below it.
-        const stacked = !hasMedia;
-        const nameTop = stacked ? h / 2 - 9 : 9;
-        const nameHeight = stacked ? 16 : 14;
-
-        return (
-            <>
-                <Frame
-                    ornate
-                    x={3}
-                    y={3}
-                    w={w - 6}
-                    h={h - 6}
-                    color={theme.ink}
-                    strokeMm={theme.frameMm}
-                    radiusMm={Math.max(0, theme.cardRadiusMm - 2)}
-                />
-                {stacked && (
-                    <SpaceIconArt
-                        icon={icon}
-                        fallback={iconName}
-                        x={w / 2 - 8}
-                        y={h / 2 - 28}
-                        size={16}
-                        color={accent}
-                        strokeWidth={1.4}
-                    />
-                )}
-                <FitText
-                    text={name}
-                    x={6}
-                    y={nameTop}
-                    w={w - 12}
-                    h={nameHeight}
-                    maxFontMm={11}
-                    minFontMm={3}
-                    wrap="words"
-                    font="heading"
-                    align="center"
-                    valign="middle"
-                    slot="title"
-                />
-                {stacked && edition !== undefined && edition !== '' && (
-                    <FitText
-                        text={edition}
-                        x={6}
-                        y={h / 2 + 9}
-                        w={w - 12}
-                        h={6}
-                        maxFontMm={3.6}
-                        minFontMm={2}
-                        font="body"
-                        align="center"
-                        slot="edition"
-                    />
-                )}
-                {hasMedia && (
-                    <PhotoSlot
-                        x={8}
-                        y={26}
-                        w={w - 16}
-                        h={h - 26 - 12}
-                        photo={photo}
-                    />
-                )}
-            </>
-        );
-    }
-
-    // "Full": the photo is the whole card, the title sits on a light band and the text on a light panel (B124).
-    const full = hasMedia && isFullPhoto(photo);
-    const panelTop = 50;
-    const artTop = 16;
-    const artHeight = 28;
-    const bodyTop = full
-        ? panelTop + 3
-        : layout === 'framed'
-          ? artTop + artHeight + 3.5
-          : 21;
-    const hasAmount = amount !== undefined && amount !== 0;
-    const trimmedPurpose = purpose?.trim();
-    const hasPurpose =
-        hasAmount && trimmedPurpose !== undefined && trimmedPurpose !== '';
-    // With a purpose the line may wrap onto a second line.
-    const lineHeight = hasPurpose ? 12 : 8;
-    const amountHeight = hasAmount ? lineHeight + 2 : 0;
-    const bodyHeight =
-        (layout === 'framed' ? h - bodyTop - M : 49) - amountHeight;
-    const panel = withAlpha(theme.paper, 0.92);
-    const amountText = hasAmount
-        ? (amount > 0 ? STRINGS[locale].receive : STRINGS[locale].pay)(
-              money(Math.abs(amount)),
-              hasPurpose ? trimmedPurpose : undefined,
-          )
-        : '';
-
-    if (cardStyle !== undefined) {
-        return (
-            <StyledCardFront
-                style={cardStyle}
-                deck={deck}
-                w={w}
-                h={h}
-                name={name}
-                body={body}
-                amountText={amountText}
-                lineHeight={lineHeight}
-                photo={photo}
-                full={full}
-                bleed={bleed}
-            />
-        );
-    }
-
-    return (
-        <>
-            {full && (
-                <>
-                    <PhotoSlot
-                        x={-bleed}
-                        y={-bleed}
-                        w={w + 2 * bleed}
-                        h={h + 2 * bleed}
-                        photo={photo}
-                    />
-                    <Abs
-                        x={-bleed}
-                        y={3.5}
-                        w={w + 2 * bleed}
-                        h={12}
-                        style={{
-                            background: withAlpha(theme.paper, BAND_OPACITY),
-                        }}
-                        slot="title-band"
-                    />
-                    <Abs
-                        x={3}
-                        y={panelTop}
-                        w={w - 6}
-                        h={h - panelTop - 3}
-                        style={{
-                            background: panel,
-                            borderRadius: '1.5mm',
-                            boxSizing: 'border-box',
-                            border: `0.3mm solid ${theme.ink}`,
-                        }}
-                        slot="text-panel"
-                    />
-                </>
-            )}
-            {layout === 'text' && (
-                <Icon
-                    name={iconName}
-                    x={w / 2 - 3.5}
-                    y={4.5}
-                    size={7}
-                    color={accent}
-                    strokeWidth={1.6}
-                />
-            )}
-            <FitText
-                text={name}
-                x={M}
-                y={layout === 'text' ? 12 : 4.5}
-                w={w - 2 * M}
-                h={layout === 'text' ? 8 : 10}
-                maxFontMm={layout === 'text' ? 6.5 : 8}
-                minFontMm={2.5}
-                font="heading"
-                align="center"
-                slot="title"
-            />
-            {layout === 'framed' && !full && (
-                <>
-                    <Abs
-                        x={M}
-                        y={artTop}
-                        w={w - 2 * M}
-                        h={artHeight}
-                        style={{
-                            background: mix(theme.deck[deck], accent, 0.35),
-                            boxSizing: 'border-box',
-                            border: `0.3mm solid ${theme.ink}`,
-                        }}
-                        slot="art"
-                    />
-                    {hasMedia ? (
-                        <PhotoSlot
-                            x={M}
-                            y={artTop}
-                            w={w - 2 * M}
-                            h={artHeight}
-                            photo={photo}
-                        />
-                    ) : (
-                        <Icon
-                            name={iconName}
-                            x={w / 2 - 9}
-                            y={artTop + artHeight / 2 - 9}
-                            size={18}
-                            color={theme.ink}
-                            strokeWidth={1.3}
-                        />
-                    )}
-                </>
-            )}
-            <FitText
-                text={body}
-                x={M}
-                y={bodyTop}
-                w={w - 2 * M}
-                // Without an amount line the text also gets the bottom of the card, centred like the original (B133).
-                h={bodyHeight + (layout === 'text' && !hasAmount ? 10 : 0)}
-                maxFontMm={layout === 'text' ? 5 : 4}
-                minFontMm={2.2}
-                wrap="words"
-                font="body"
-                align="center"
-                valign={layout === 'text' ? 'middle' : 'top'}
-                lineHeight={1.3}
-                slot="text"
-            />
-            {hasAmount && (
-                <>
-                    <Abs
-                        x={M}
-                        y={h - M - lineHeight - 1}
-                        w={w - 2 * M}
-                        h={0}
-                        style={{ borderTop: `0.3mm solid ${theme.ink}` }}
-                    />
-                    <FitText
-                        text={amountText}
-                        x={M}
-                        y={h - M - lineHeight}
-                        w={w - 2 * M}
-                        h={lineHeight}
-                        maxFontMm={5.5}
-                        minFontMm={3}
-                        wrap={hasPurpose ? 'words' : 'none'}
-                        font="heading"
-                        align="center"
-                        slot="amount"
-                    />
-                </>
-            )}
-        </>
-    );
-};
-
-type ArtBackProps = {
-    deck: DeckId;
-    name: string;
-    edition?: string;
-    photo?: PhotoSource;
-    pattern?: PatternId;
-    w: number;
-    h: number;
-    bleed: number;
-};
-
-/**
- * A back made of a photo or a pattern, over the whole card including the bleed (B56, B130), with a
- * small plate in the middle that names the deck so the two backs stay apart.
- */
-const ArtBack = ({
-    deck,
-    name,
-    edition,
-    photo,
-    pattern,
-    w,
-    h,
-    bleed,
-}: ArtBackProps) => {
-    const { theme, style } = useRender();
-    const cardStyle = partStyleOf(style, 'cards');
-    const accent = theme.deckAccent[deck];
-
-    return (
-        <>
-            <Abs
-                x={-bleed}
-                y={-bleed}
-                w={w + 2 * bleed}
-                h={h + 2 * bleed}
-                slot="back-art"
-            >
-                {photo !== undefined ? (
-                    <PhotoSlot
-                        x={0}
-                        y={0}
-                        w={w + 2 * bleed}
-                        h={h + 2 * bleed}
-                        photo={photo}
-                    />
-                ) : pattern !== undefined ? (
-                    <div style={{ opacity: 0.55 }}>
-                        <PatternFill
-                            id={pattern}
-                            w={w + 2 * bleed}
-                            h={h + 2 * bleed}
-                            color={accent}
-                            originX={-bleed}
-                            originY={-bleed}
-                        />
-                    </div>
-                ) : null}
-            </Abs>
-            {cardStyle !== undefined ? (
-                <StyledArtPlate
-                    style={cardStyle}
-                    deck={deck}
-                    w={w}
-                    h={h}
-                    name={name}
-                    edition={edition}
-                    bleed={bleed}
-                />
-            ) : (
-                <ThemePlate
-                    deck={deck}
-                    name={name}
-                    edition={edition}
-                    w={w}
-                    h={h}
-                />
-            )}
-        </>
-    );
-};
-
-/** The plate of an art back in the theme's own look: a framed box with the symbol, the name and the edition. */
-const ThemePlate = ({
-    deck,
-    name,
-    edition,
-    w,
-    h,
-}: {
-    deck: DeckId;
-    name: string;
-    edition?: string;
-    w: number;
-    h: number;
-}) => {
-    const { theme } = useRender();
-    const accent = theme.deckAccent[deck];
-    const iconName = deck === 'chance' ? 'dice' : 'chest';
-    const plateW = w - 16;
-    const plateH = 30;
-    const plateX = 8;
-    const plateY = h / 2 - plateH / 2;
-
-    return (
-        <>
-            <Frame
-                ornate
-                x={plateX}
-                y={plateY}
-                w={plateW}
-                h={plateH}
-                color={theme.ink}
-                strokeMm={theme.frameMm}
-                radiusMm={Math.max(0, theme.cardRadiusMm - 1)}
-                fill={theme.paper}
-            />
-            <Icon
-                name={iconName}
-                x={w / 2 - 5}
-                y={plateY + 3}
-                size={10}
-                color={accent}
-                strokeWidth={1.4}
-            />
-            <FitText
-                text={name}
-                x={plateX + 3}
-                y={plateY + 13.5}
-                w={plateW - 6}
-                h={9}
-                maxFontMm={8}
-                minFontMm={3}
-                wrap="words"
-                font="heading"
-                align="center"
-                valign="middle"
-                slot="title"
-            />
-            {edition !== undefined && edition !== '' && (
-                <FitText
-                    text={edition}
-                    x={plateX + 3}
-                    y={plateY + 23}
-                    w={plateW - 6}
-                    h={4.5}
-                    maxFontMm={3.2}
-                    minFontMm={2}
-                    font="body"
-                    align="center"
-                    slot="edition"
-                />
-            )}
-        </>
+    return side === 'back' ? (
+        <CardBack
+            deck={deck}
+            w={w}
+            h={h}
+            name={name}
+            edition={edition}
+            photo={photo}
+            pattern={pattern}
+            icon={icon}
+            bleed={bleed}
+        />
+    ) : (
+        <CardFront
+            deck={deck}
+            w={w}
+            h={h}
+            name={name}
+            body={body}
+            amount={amount}
+            purpose={purpose}
+            photo={photo}
+            bleed={bleed}
+        />
     );
 };
