@@ -1,5 +1,5 @@
 import { isOwnable } from '@/lib/render/standard-edition';
-import type { OwnableSpace, StandardEdition } from '@/types/game';
+import type { StandardEdition } from '@/types/game';
 import { applyAmounts } from './edition-amounts';
 import { deedPhotoOf } from './edition-deed-photos';
 import { groupColor, groupTitle } from './edition-group-names';
@@ -91,7 +91,7 @@ export const resolvedDeeds = (
 ): ResolvedDeed[] => {
     const { language } = edition;
     const ownables = standard.spaces.filter(
-        (space): space is OwnableSpace =>
+        (space) =>
             space.type === 'street' ||
             space.type === 'station' ||
             space.type === 'utility',
