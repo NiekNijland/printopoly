@@ -42,6 +42,7 @@ it('reads a backend enum from the generated types', () => {
 });
 
 const runner = ['it', 'test', 'describe'];
+const inertia = '@inertiajs/react';
 
 run(
     'no-restricted-syntax (source)',
@@ -116,16 +117,13 @@ run(
         'setTimeout(done, 50);',
     ],
     [
+        [`vi.mock('${inertia}');`, 'Use the shared fake of @inertiajs/react'],
         [
-            "vi.mock('@inertiajs/react');",
+            `vi.doMock('${inertia}', () => ({}));`,
             'Use the shared fake of @inertiajs/react',
         ],
         [
-            "vi.doMock('@inertiajs/react', () => ({}));",
-            'Use the shared fake of @inertiajs/react',
-        ],
-        [
-            "vi.mock(import('@inertiajs/react'));",
+            `vi.mock(import('${inertia}'));`,
             'Use the shared fake of @inertiajs/react',
         ],
         ['const page = { useForm: () => ({}) };', 'Fake useForm with the one'],
