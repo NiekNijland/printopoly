@@ -93,7 +93,7 @@ final class CiContractArchitectureTest extends TestCase
         yield 'a database with the health check of another engine' => [CiExamples::inJob($kit, 'smoke', "mongosh --quiet --eval 'db.runCommand({ping: 1})'", 'pg_isready -U postgres'), 'no health check of its engine (mongosh)'];
         yield 'a service on the runner without a port' => [CiExamples::inJob($kit, 'scheduled', "        ports:\n          - 27017:27017\n", ''), 'publishes no port'];
         yield 'a database the job does not reach' => [CiExamples::inJob($kit, 'backend-tests', 'MONGODB_URI: mongodb://127.0.0.1:27017', 'MONGODB_URI: mongodb://database:27017'), 'is not reached by its job'];
-        yield 'a service on a moving image' => [CiExamples::inJob($kit, 'smoke', 'image: redis:alpine', 'image: redis'), 'has no tag or the moving tag'];
+        yield 'a service on a moving image' => [CiExamples::inJob($kit, 'smoke', 'image: redis:8-alpine', 'image: redis'), 'has no tag or the moving tag'];
         yield 'a test run without its database service' => [CiExamples::inJob($kit, 'backend-tests', 'image: mongo:8', 'image: redis:alpine'), 'job `backend-tests` has no database service with the image `mongo:8`'];
         yield 'a smoke run without its browser case' => [CiExamples::inJob($kit, 'smoke', 'ChromeRenderTest', 'PrintPipelineTest'), '(the browser case)'];
         yield 'a smoke run that installs no browser' => [CiExamples::change($kit, 'chrome-headless-shell@131.0.6778.33', 'chrome@stable'), '(the browser install)'];

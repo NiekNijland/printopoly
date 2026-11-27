@@ -11,7 +11,7 @@ namespace Tests\Support\Architecture;
  * reached on 127.0.0.1 through the port it publishes, not by its name as DB_HOST. The guard asserts that form instead:
  *   - every service publishes a port when its job runs on the runner, and has a `--health-cmd`, so the job waits for it;
  *   - every service image has a tag and none is `latest` (the kit's digest rule has the service image as its one exception:
- *     the database image is compared with DATABASE_IMAGE as written, and `mongo:8` and `redis:alpine` are the project's choice);
+ *     the database image is compared with DATABASE_IMAGE as written, and `mongo:8` and `redis:8-alpine` are the project's choice);
  *   - the database service (the image of a database engine) is DATABASE_IMAGE, carries the password variable of its engine
  *     where the engine needs one and the health tool of its engine, and the job's environment points at it
  *     (`127.0.0.1:<published port>` on the runner, DB_HOST = the service name in a container job).
