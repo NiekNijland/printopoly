@@ -99,7 +99,7 @@ final class EditionAssetTest extends TestCase
 
         $this->actingAs($user)->postJson('/api/editions/' . $original->edition_id . '/duplicate')->assertCreated();
 
-        $copyId = (string) Asset::query()->where('edition_id', '!=', 'e-original')->firstOrFail()->edition_id;
+        $copyId = (string) Asset::query()->whereNotIn('edition_id', ['e-original'])->firstOrFail()->edition_id;
         $assets = Asset::query()->where('user_id', $user->publicId())->orderBy('edition_id')->get();
 
         self::assertCount(2, $assets);

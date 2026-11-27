@@ -84,7 +84,7 @@ final class PrintPipelineTest extends TestCase
             'photos' => [PrintScenario::PHOTO_REF => PrintScenario::photoUpload()],
             'previous' => 'no-such-token',
         ], ['Accept' => 'application/json'])->assertCreated();
-        self::assertNull(PrintJob::query()->where('token', '!=', $first->token)->where('token', '!=', $second->token)->firstOrFail()->previous_job_id);
+        self::assertNull(PrintJob::query()->whereNotIn('token', [$first->token, $second->token])->firstOrFail()->previous_job_id);
     }
 
     public function test_only_the_chosen_parts_are_made(): void
