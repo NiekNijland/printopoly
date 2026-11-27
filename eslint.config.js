@@ -1363,6 +1363,10 @@ export default [
         rules: {
             ...vitest.configs.recommended.rules,
             ...settledTestRules,
+            'vitest/expect-expect': [
+                'error',
+                { assertFunctionNames: ['expect', 'expectTypeOf'] },
+            ],
             'no-restricted-syntax': ['error', ...testSyntaxRules],
             'no-restricted-globals': [
                 'error',
