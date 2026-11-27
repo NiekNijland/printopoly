@@ -7,6 +7,7 @@ import {
 } from '@/features/edition/environment';
 import { IndexedDbEditionStorage } from '@/features/edition/indexeddb-storage';
 import { EditionRepository } from '@/features/edition/repository';
+import { now, randomId } from '@/lib/clock';
 import { countFeature } from '@/lib/feature-count';
 import {
     MemoryEditionStorage,
@@ -39,12 +40,12 @@ const createStorage = (): {
 
 const createServices = (locale: Locale): EditorServices => {
     const { storage, persistent } = createStorage();
-    const bus = new EditionBus(browserChannelFactory(), crypto.randomUUID());
+    const bus = new EditionBus(browserChannelFactory(), randomId());
     const repository = new EditionRepository({
         storage,
         bus,
-        now: () => Date.now(),
-        newId: () => crypto.randomUUID(),
+        now,
+        newId: randomId,
         interfaceLanguage: locale,
         count: countFeature,
     });
