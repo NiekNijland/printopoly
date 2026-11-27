@@ -19,6 +19,7 @@ use Illuminate\Support\Str;
 use ReflectionNamedType;
 use Tests\Concerns\RefreshesMongoDatabase;
 use Tests\Support\Feature\AppRoutes;
+use Tests\Support\UniqueValue;
 use Tests\TestCase;
 
 /**
@@ -131,13 +132,13 @@ final class ObjectLevelAccessCoverageTest extends TestCase
      */
     private function capabilities(): array
     {
-        $box = static fn (User $owner, array $attributes = []): CollectionBox => CollectionBox::factory()->createOne(['user_id' => $owner->publicId(), 'token' => Str::random(40), ...$attributes]);
+        $box = static fn (User $owner, array $attributes = []): CollectionBox => CollectionBox::factory()->createOne(['user_id' => $owner->publicId(), 'token' => UniqueValue::token(40), ...$attributes]);
 
         return [
             'boxId' => static fn (User $owner): string => $box($owner)->publicId(),
             'contributionId' => static fn (User $owner): string => BoxContribution::factory()->createOne(['box_id' => $box($owner)->publicId()])->publicId(),
             'token' => static fn (User $owner): string => $box($owner, ['expires_at' => now()->subDay()])->token,
-            'receipt' => static fn (User $owner): string => BoxContribution::factory()->createOne(['box_id' => $box($owner)->publicId(), 'receipt' => Str::random(32)])->receipt,
+            'receipt' => static fn (User $owner): string => BoxContribution::factory()->createOne(['box_id' => $box($owner)->publicId(), 'receipt' => UniqueValue::token(32)])->receipt,
             'id' => static fn (): string => Str::random(40),
         ];
     }
