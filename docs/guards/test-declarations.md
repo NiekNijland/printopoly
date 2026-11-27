@@ -12,5 +12,6 @@
 | `group-annotation` | geen annotatie `@group`; de guardtests zijn de suite `Guards` | laat de groep weg |
 
 Geen getelde lijst: de echte boom heeft geen overtreding, en de test over de echte boom verwacht er nul.
+Telling: rij `test-method-indent` in `scripts/ci-ratchets.sh` telt een methode van een testklasse op acht spaties; de formatter ziet die inspringing niet. Hij staat op 0. `tools/codemods/test-method-indent.php` zette de methodes eenmalig terug op vier spaties.
 De kit schrijft `testRefusesAnExpiredToken`; de formatterregel `php_unit_method_casing` van de Pint-config van de organisatie dwingt snake case af, dus geldt hier `test_` plus snake case.
 Review checks, and the guard does not: of de naam zegt wat de test bewijst.
