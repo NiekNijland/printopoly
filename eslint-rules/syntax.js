@@ -127,6 +127,12 @@ const realTimeWaitRule = {
     message:
         'No real-time wait in a test: wait for what you expect with waitFor, or move time with vi.useFakeTimers (docs/guards/frontend.md, Tests).',
 };
+const clockReadRule = {
+    selector:
+        ':matches(NewExpression[callee.name="Date"][arguments.length=0], CallExpression[callee.name="Date"])',
+    message:
+        'Read the time through now in lib/clock and build the date from it: new Date(now()) (docs/guards/frontend.md, Doors).',
+};
 export const sourceSyntaxRules = [
     componentDeclarationRule,
     hookDeclarationRule,
@@ -138,6 +144,7 @@ export const sourceSyntaxRules = [
     pollRule,
     fetchInEffectRule,
     handWrittenDebounceRule,
+    clockReadRule,
     ...generatedUnionRules,
     ...focusedTestRules,
 ];
