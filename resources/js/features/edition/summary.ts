@@ -12,11 +12,11 @@ import type { Edition } from '../../lib/render/edition-types';
  * Short description of what changed, for the two-windows question: "Stadspark aangepast", "2 kaarten aangepast".
  * `spaceName` gives the name of a space by position; the edition's own name wins.
  */
-export const summarizeKeys = (
+const summarizeKeys = (
     keys: readonly string[],
     settingsChanged: boolean,
     language: Locale,
-    spaceNameOf: (key: string) => string | undefined = () => undefined,
+    spaceNameOf: (key: string) => string | undefined,
 ): string => {
     const m = messages[language].summary;
     const perKind = new Map<ElementKind, string[]>();
