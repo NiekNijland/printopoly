@@ -6,6 +6,7 @@ namespace Tests\Feature\Modules\Print\Services;
 
 use App\Models\PrintFile;
 use App\Models\User;
+use App\Modules\Print\Data\EditionPrintReadyData;
 use App\Modules\Print\Data\PrintJobReadyData;
 use App\Modules\Print\Services\EditionPrintReadinessService;
 use Tests\Concerns\CreatesPrintFixtures;
@@ -106,5 +107,28 @@ final class EditionPrintReadinessServiceTest extends TestCase
         self::assertSame($expected, $tokensOfOwner);
         self::assertSame(now()->addDays(7)->getTimestampMs(), $asGuest[0]->homeReadyUntil);
         self::assertNull($asGuest[0]->printerReadyUntil);
+    }
+
+    public function test_each_edition_of_a_user_reads_the_files_of_its_own_job(): void
+    {
+        $this->travelTo(now()->startOfSecond());
+        $user = User::factory()->createOne();
+        $first = PrintScenario::createEditionFor($this, $user);
+        $second = PrintScenario::createEditionFor($this, $user);
+        $firstJob = PrintScenario::printJobFor($this, $user, $first);
+        $secondJob = PrintScenario::printJobFor($this, $user, $second);
+        PrintScenario::generate($this, $firstJob, 'printer', ['cards'])->assertOk();
+        PrintScenario::generate($this, $secondJob, 'home', ['cards'])->assertOk();
+        PrintFile::query()->where('print_job_id', $secondJob->publicId())->where('kind', PrintFile::KIND_PART)->update(['expires_at' => now()->addDays(2)->toDateTime()]);
+        PrintFile::factory()->createOne(['print_job_id' => $firstJob->publicId(), 'kind' => PrintFile::KIND_IMAGE, 'set' => 'home', 'expires_at' => now()->addDay()->toImmutable()]);
+
+        $ready = resolve(EditionPrintReadinessService::class)->forUser($user);
+        $byEdition = array_combine(array_map(static fn (EditionPrintReadyData $row): string => $row->editionId, $ready), $ready);
+
+        self::assertCount(2, $byEdition);
+        self::assertSame(now()->addDays(7)->getTimestampMs(), $byEdition[$first->edition_id]->printerReadyUntil);
+        self::assertNull($byEdition[$first->edition_id]->homeReadyUntil);
+        self::assertNull($byEdition[$second->edition_id]->printerReadyUntil);
+        self::assertSame(now()->addDays(2)->getTimestampMs(), $byEdition[$second->edition_id]->homeReadyUntil);
     }
 }
