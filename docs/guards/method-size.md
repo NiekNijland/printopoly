@@ -2,7 +2,7 @@
 
 Een methode telt hoogstens 80 regels, een controller-actie hoogstens 40.
 
-`MethodSizeGuard` leest de getallen uit de zin hierboven. Hij telt van de regel met de naam van de methode tot de sluitende accolade; het docblock en de attributen tellen niet mee, een closure in de methode wel. Een controller-actie is een publieke methode, behalve de constructor, van een klasse in een map `Controllers`.
+`MethodSizeGuard` leest de getallen uit de zin hierboven. Hij telt van de regel met de naam van de methode tot de sluitende accolade; het docblock en de attributen tellen niet mee, een closure in de methode wel. Hij leest `app` en `tests`. Een controller-actie is een publieke methode, behalve de constructor, van een klasse in een map `Controllers` onder `app`. In `tests` geldt voor elke methode de grens van een methode, ook voor een data provider; een lange provider splits je in providers per soort geval, met een tweede `#[DataProvider]` op de test.
 
 | Rule id | De gids zegt | In plaats daarvan |
 | --- | --- | --- |
