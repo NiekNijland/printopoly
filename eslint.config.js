@@ -198,10 +198,12 @@ const settledTypedRules = named('@typescript-eslint/', [
     'no-namespace',
     'no-non-null-asserted-nullish-coalescing',
     'no-non-null-asserted-optional-chain',
+    'no-non-null-assertion',
     'no-redeclare',
     'no-redundant-type-constituents',
     'no-require-imports',
     'no-this-alias',
+    'no-unnecessary-condition',
     'no-unnecessary-parameter-property-assignment',
     'no-unnecessary-qualifier',
     'no-unnecessary-type-arguments',
@@ -243,6 +245,7 @@ const settledTypedRules = named('@typescript-eslint/', [
     'restrict-plus-operands',
     'restrict-template-expressions',
     'return-await',
+    'switch-exhaustiveness-check',
     'triple-slash-reference',
     'unbound-method',
     'unified-signatures',
@@ -1175,8 +1178,6 @@ export default [
                 'error',
                 { checksVoidReturn: { attributes: false } },
             ],
-            '@typescript-eslint/no-unnecessary-condition': 'error',
-            '@typescript-eslint/switch-exhaustiveness-check': 'error',
             '@typescript-eslint/no-explicit-any': 'error',
             '@typescript-eslint/ban-ts-comment': 'error',
             // A type assertion tells TypeScript to stop checking; narrow instead (a type guard, satisfies, a parser).
@@ -1185,7 +1186,6 @@ export default [
                 'error',
                 { assertionStyle: 'never' },
             ],
-            '@typescript-eslint/no-non-null-assertion': 'error',
             // `a || b` on a string, number or boolean means "empty falls back"; `??` would keep "" and 0.
             '@typescript-eslint/prefer-nullish-coalescing': [
                 'error',
