@@ -11,7 +11,7 @@ FRONTEND_PATHS="resources/js,vite.config.ts?,vitest.setup.ts?"
 # Codemods live in tools/codemods and project scripts written in a source language (scripts/<name>.mjs) are named here: no row counts them.
 UNCOUNTED_PATHS="public?,eslint.config.js?,rector.php?,tools/codemods?,vitest.config.ts?,scripts/check-ssr-self-contained.mjs?,scripts/ssr-release.mjs?,scripts/ssr-release.d.mts?,docs/design"
 SOURCE_EXTENSIONS="php,js,jsx,mjs,cjs,ts,tsx,mts,cts,vue"
-ANALYSER_CONFIGS="phpstan.neon,phpstan-tests.neon,phpstan-banned-calls.neon"
+ANALYSER_CONFIGS="phpstan.neon,phpstan-tests.neon"
 ANALYSER_BASELINE="phpstan-baseline.neon?"
 TYPE_CHECKER_CONFIGS="tsconfig.json?"
 # One extended regular expression that matches a strictness switch that is on, in the analyser and type-checker configs.
@@ -42,7 +42,7 @@ CI_FILES="bitbucket-pipelines.yml?,.github/workflows?,.gitlab-ci.yml?,scripts"
 GUARDED_FILES=".gitattributes?,CODEOWNERS?,.github/CODEOWNERS?,docs/CODEOWNERS?,.gitlab/CODEOWNERS?,scripts/kit-config.sh?,scripts/debt-dashboard.sh?,scripts/ci-commit-messages.sh?,scripts/ci-parallel.sh?,scripts/keyed-baseline.sh?,scripts/audit-gate.sh?,scripts/mutation.sh?,scripts/checks.sh?,bitbucket-pipelines.yml?,.github/workflows?,.gitlab-ci.yml?"
 # The rows that never go below 0 but still take an override at 0 (a reason that is itself a decision: a justified comment, a pinned
 # major, a dated advisory exception whose commit names the advisory). A comma list of row names; every other max row at 0 takes none.
-OVERRIDE_AT_ZERO="comments,cap-dependencies-majors-behind,audit-exceptions"
+OVERRIDE_AT_ZERO="comments,cap-dependencies-majors-behind,cap-dependencies-abandoned,audit-exceptions"
 # <<< config
 
 SHARED_CONFIG="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/kit-config.sh"
@@ -106,10 +106,7 @@ mixed-outside-json-entry               max  grep   @SOURCE_PATHS,:(exclude)app/S
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
-guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
 model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
-list-flash-messages                    max  grep   tests/Support/Architecture/lists/flash-messages.txt  ^.
-list-phpstan-banned-calls              max  grep   tests/Support/Architecture/lists/phpstan-banned-calls.txt  ^.
 TABLE
 }
 
@@ -664,7 +661,6 @@ byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
-guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
 model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
 EXTRA
 }
@@ -778,12 +774,6 @@ queue-bus-fake-all 1 Bus::fake( );
 queue-bus-fake-all 1 Queue::fake
 queue-bus-fake-all 0 Queue::fake([SendMail::class]);
 queue-bus-fake-all 0 Bus::assertDispatched(SendMail::class);
-list-flash-messages 1 app/A.php: a finding
-list-flash-messages 2 app/A.php: a finding~NL~app/B.php: another
-list-flash-messages 0 
-list-phpstan-banned-calls 1 app/A.php: Calling config() is forbidden
-list-phpstan-banned-calls 2 app/A.php: a~NL~app/B.php: b
-list-phpstan-banned-calls 0 
 event-fake-all 1 Event::fake(
 event-fake-all 0 Event::fake([Foo::class]);
 event-fake-all 0 Event::fake(Foo::class);
@@ -954,8 +944,6 @@ guide-future-tense 0 Een zalm en een totaal.
 guide-future-tense 0 Toegang tot de box, nog een regel.
 one-pattern-list 1 example-on-list Action app/Actions/X.php lists/layout.txt
 one-pattern-list 2 one finding~NL~another finding
-guard-shape-list 1 tests/Guards/FooArchitectureTest.php no-passing
-guard-shape-list 2 one finding~NL~another finding
 model-strictness-violations 1 App\Models\Edition lazy-loading user
 model-strictness-violations 2 App\Models\Edition lazy-loading user~NL~App\Models\User discarded-attribute colour
 analyser-switches 1     checkTooWideReturnTypesInProtectedAndPublicMethods: true

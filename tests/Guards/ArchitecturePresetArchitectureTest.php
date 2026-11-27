@@ -99,7 +99,7 @@ final class ArchitecturePresetArchitectureTest extends TestCase
         $root = SourceSandbox::create(['composer.json' => '{"autoload": {"psr-4": {"App\\\\": "app/", "Database\\\\Seeders\\\\": "database/seeders/"}}, "autoload-dev": {"psr-4": {"Tests\\\\": "tests/"}}}'], '.checkout-');
 
         try {
-            self::assertSame(['App\\' => 'app', 'Database\\Seeders\\' => 'database/seeders'], ComposerNamespaces::autoloaded($root));
+            self::assertSame(['App\\' => 'app', 'Database\\Seeders\\' => 'database/seeders'], ComposerNamespaces::autoloaded($root . '/composer.json'));
         } finally {
             SourceSandbox::remove($root);
         }
@@ -108,7 +108,7 @@ final class ArchitecturePresetArchitectureTest extends TestCase
     public function test_the_real_tree_uses_nothing_the_presets_ban(): void
     {
         $root = dirname(__DIR__, 2);
-        $folders = array_values(ComposerNamespaces::autoloaded($root));
+        $folders = array_values(ComposerNamespaces::autoloaded($root . '/composer.json'));
         $found = [...new PhpPresetGuard(new DeclarationInspector(), $root, $folders)->violations(), ...new SecurityPresetGuard(new DeclarationInspector(), $root, $folders)->violations()];
         sort($found, SORT_STRING);
 

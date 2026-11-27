@@ -75,6 +75,12 @@ final class StartPrintRunRequest extends FormRequest
      */
     public function targets(): ?array
     {
-        return $this->safe()->has('targets') ? PhotoTargets::clean($this->safe()->input('targets')) : null;
+        if (! $this->safe()->has('targets')) {
+            return null;
+        }
+
+        $targets = $this->safe()->input('targets');
+
+        return PhotoTargets::clean(is_array($targets) ? $targets : []);
     }
 }

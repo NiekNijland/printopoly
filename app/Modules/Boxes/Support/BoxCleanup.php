@@ -30,7 +30,7 @@ final class BoxCleanup
         }
 
         // Contributions whose box is already gone (a crash half-way a deletion).
-        $known = CollectionBox::query()->pluck('id')->map(static fn (mixed $id): string => is_string($id) ? $id : '')->all();
+        $known = array_values(array_filter(CollectionBox::query()->pluck('id')->all(), is_string(...)));
 
         foreach (BoxContribution::query()->whereNotIn('box_id', $known)->get() as $orphan) {
             $this->deleteContribution($orphan);

@@ -97,7 +97,7 @@ final class PhotoTargetsTest extends TestCase
         self::assertSame(['printer', 'home'], array_keys($clean));
         self::assertSame(['space.01#photo' => ['w' => 45.0, 'h' => 75.0]], $clean['printer']);
         self::assertSame([], $clean['home']);
-        self::assertSame(['printer' => [], 'home' => []], PhotoTargets::clean(null));
+        self::assertSame(['printer' => [], 'home' => []], PhotoTargets::clean([]));
     }
 
     public function test_a_deed_shows_the_photo_of_its_space_unless_told_otherwise(): void

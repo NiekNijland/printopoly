@@ -13,14 +13,21 @@ use App\Modules\Content\Enums\PublicPage;
 use App\Modules\Content\Support\LocalizedUrls;
 use App\Modules\Content\Support\StructuredData;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 use Inertia\Middleware;
 use Override;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 final class HandleInertiaRequests extends Middleware
 {
+    /** Set by a logout: the next page gets the shared prop `clearLocalCopy` once and wipes the editions in the browser. */
+    public const string CLEAR_LOCAL_COPY = 'clear_local_copy';
+
     public function __construct(private readonly StructuredData $structuredData)
     {
     }
@@ -65,6 +72,7 @@ final class HandleInertiaRequests extends Middleware
             'localizedUrls' => fn (): array => LocalizedUrls::forRequest($request),
             'pageUrls' => $this->pageUrls(...),
             'seo' => fn (): ?SeoData => $this->seo($request),
+            'clearLocalCopy' => fn (): bool => $request->hasSession() && $request->session()->pull(self::CLEAR_LOCAL_COPY) === true,
             'auth' => [
                 'user' => function () use ($request): ?AuthUserData {
                     $user = $request->user();
@@ -74,6 +82,28 @@ final class HandleInertiaRequests extends Middleware
                 'googleLoginEnabled' => GoogleLogin::isConfigured(),
             ],
         ];
+    }
+
+    /**
+     * Our own page for 403, 404, 419, 500 and 503 (B66). A 404 from a route binding comes before this middleware ran,
+     * so the shared props of the header and footer are shared here (bug 43 of test round 3).
+     */
+    public function errorPage(Response $response, Throwable $exception, Request $request): Response
+    {
+        unset($exception);
+        $status = $response->getStatusCode();
+
+        if (
+            ! in_array($status, [403, 404, 419, 500, 503], true)
+            || $request->expectsJson()
+            || ! $request->route() instanceof Route
+        ) {
+            return $response;
+        }
+
+        Inertia::share($this->share($request));
+
+        return Inertia::render('error', ['status' => $status])->toResponse($request)->setStatusCode($status);
     }
 
     /**

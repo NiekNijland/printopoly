@@ -62,4 +62,4 @@ De guard `assertion-spelling` houdt deze regels vast.
 - De vloer van de frontend staat in `vitest.config.ts`: 95 voor alle regels (rij `frontend-coverage-floor`) en 95 voor de `.ts`-bestanden in `resources/js` (rij `frontend-logic-coverage-floor`).
 - De mutatiescore is 93 in `scripts/mutation-floor.txt`; de rij `mutation-floor` houdt hem vast. De volledige mutatierun draait elke zondag.
 
-De overtredingen van vandaag staan per guard in `tests/Guards/lists`. Een lijst wordt alleen korter; een lijst op nul verdwijnt met zijn ratchetrij.
+Geen guard heeft nog een getelde lijst met overtredingen: elke guard houdt de boom op nul. Een nieuwe overtreding los je op in de code.

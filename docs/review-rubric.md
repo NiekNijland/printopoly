@@ -56,7 +56,7 @@ Elke rij van de tabel One pattern in `AGENTS.md`, in dezelfde volgorde. De kolom
 | Lengte van een methode | `MethodSizeArchitectureTest` | item 9: of een splitsing een eigen verantwoordelijkheid oplevert |
 | Trait | `NoSingleUseTraitsArchitectureTest` | item 9: of een gedeelde trait beter een samenwerkende klasse is |
 | Vertaalde tekst | `TranslationKeysArchitectureTest` | item 16: de tekst in elke taal |
-| Verboden aanroep | PHPStan met `phpstan.neon` en `phpstan-banned-calls.neon`; de keyed baseline `tests/Support/Architecture/lists/phpstan-banned-calls.txt` | item 1: een nieuwe toegestane plek |
+| Verboden aanroep | PHPStan met `phpstan.neon` (`composer analyse`) | item 1: een nieuwe toegestane plek |
 | Validatie | `RequestValidationArchitectureTest`, `ValidatedInputArchitectureTest`, `FormRequestArchitectureTest` | item 9: of een `authorize()` met `#[Override]` echt een controle van de ouder uitzet |
 | Autorisatie | `ControllerAuthorizationArchitectureTest`, `RoutePermissionCoverageTest`, `ObjectLevelAccessCoverageTest` | item 3: de regel in de policy |
 | Token-capability | `TokenCapabilityTest`, `ObjectLevelAccessCoverageTest` | item 3: een token geeft alleen toegang tot zijn eigen box of printjob |

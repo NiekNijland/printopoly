@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth\Session;
 
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Modules\Accounts\Data\SignedOutData;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
  * promises it, and it matters on a shared computer (Staten, accountmenu). The
  * server cannot reach IndexedDB, so it tells the editor to do it: JSON
  * callers get `clearLocalCopy: true`, Inertia and normal requests get the
- * flash prop `clearLocalCopy` on the page they land on.
+ * shared prop `clearLocalCopy` on the page they land on.
  */
 final readonly class LogoutController
 {
@@ -34,7 +34,7 @@ final readonly class LogoutController
             return new SignedOutData(clearLocalCopy: true, redirect: $home)->toResponse($request)->setStatusCode(Response::HTTP_OK);
         }
 
-        Inertia::flash('clearLocalCopy', true);
+        $request->session()->put(HandleInertiaRequests::CLEAR_LOCAL_COPY, true);
 
         return redirect()->to($home);
     }

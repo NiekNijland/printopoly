@@ -31,7 +31,7 @@ final readonly class CreateBox
      * @param array<mixed> $snapshot
      * @return array{box: CollectionBox, secret: string|null} the secret only for a box made now
      */
-    public function handle(?User $user, string $editionId, string $editionName, mixed $language, array $snapshot, string $ip): array
+    public function handle(?User $user, string $editionId, string $editionName, ?string $language, array $snapshot, string $ip): array
     {
         $userId = $user instanceof User ? $user->publicId() : null;
         $ipHash = hash_hmac('sha256', $ip, Config::string('app.key'));

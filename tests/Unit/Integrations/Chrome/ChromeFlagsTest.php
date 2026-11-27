@@ -19,19 +19,17 @@ final class ChromeFlagsTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{mixed}>
+     * @return iterable<string, array{string|null}>
      */
     public static function noRules(): iterable
     {
         yield 'nothing set' => [null];
         yield 'an empty string' => [''];
         yield 'only spaces' => ['   '];
-        yield 'a number from the environment' => [127];
-        yield 'a list' => [['MAP printopoly.nl 127.0.0.1']];
     }
 
     #[DataProvider('noRules')]
-    public function test_without_a_usable_rule_chrome_gets_no_flag(mixed $rules): void
+    public function test_without_a_usable_rule_chrome_gets_no_flag(?string $rules): void
     {
         self::assertSame([], ChromeFlags::forHostResolverRules($rules));
     }

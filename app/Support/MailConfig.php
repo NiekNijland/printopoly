@@ -27,13 +27,8 @@ final class MailConfig
 
         $smtp = Config::array('mail.mailers.smtp');
 
-        return self::filled($smtp['host'] ?? null)
-            && self::filled($smtp['username'] ?? null)
-            && self::filled($smtp['password'] ?? null);
-    }
-
-    private static function filled(mixed $value): bool
-    {
-        return is_string($value) && $value !== '';
+        return JsonShape::filledString($smtp['host'] ?? null) !== null
+            && JsonShape::filledString($smtp['username'] ?? null) !== null
+            && JsonShape::filledString($smtp['password'] ?? null) !== null;
     }
 }

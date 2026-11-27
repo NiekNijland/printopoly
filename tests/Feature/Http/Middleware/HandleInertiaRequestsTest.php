@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Http\Middleware;
 
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\User;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -34,7 +35,17 @@ final class HandleInertiaRequestsTest extends TestCase
                     'contact' => '/en/contact',
                 ])
                 ->where('seo', null)
+                ->where('clearLocalCopy', false)
                 ->where('auth.user', null));
+    }
+
+    public function test_the_page_after_a_logout_is_told_once_to_clear_the_local_copy(): void
+    {
+        $this->withSession([HandleInertiaRequests::CLEAR_LOCAL_COPY => true])
+            ->get('/nl')
+            ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->where('clearLocalCopy', true));
+
+        $this->get('/nl')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->where('clearLocalCopy', false));
     }
 
     public function test_a_public_page_shares_its_seo_data_with_the_structured_data(): void

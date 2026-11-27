@@ -25,14 +25,14 @@ final class PublicConfig
 
         return [
             'reverb' => [
-                'key' => self::text($reverb['key'] ?? null),
-                'host' => self::text($reverb['host'] ?? null),
+                'key' => JsonShape::filledString($reverb['key'] ?? null),
+                'host' => JsonShape::filledString($reverb['host'] ?? null),
                 'port' => is_numeric($port) ? (int) $port : null,
-                'scheme' => self::text($reverb['scheme'] ?? null),
+                'scheme' => JsonShape::filledString($reverb['scheme'] ?? null),
             ],
             'bugsnag' => [
-                'apiKey' => self::text($bugsnag['apiKey'] ?? null),
-                'releaseStage' => self::text($bugsnag['releaseStage'] ?? null),
+                'apiKey' => JsonShape::filledString($bugsnag['apiKey'] ?? null),
+                'releaseStage' => JsonShape::filledString($bugsnag['releaseStage'] ?? null),
             ],
         ];
     }
@@ -40,11 +40,5 @@ final class PublicConfig
     public static function toJson(): string
     {
         return json_encode(self::toArray(), JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-    }
-
-    private static function text(mixed $value): ?string
-    {
-
-        return is_string($value) && $value !== '' ? $value : null;
     }
 }

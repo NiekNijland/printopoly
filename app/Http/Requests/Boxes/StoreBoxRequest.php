@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Boxes;
 
+use App\Support\JsonShape;
 use Illuminate\Foundation\Http\FormRequest;
 
 final class StoreBoxRequest extends FormRequest
@@ -31,9 +32,9 @@ final class StoreBoxRequest extends FormRequest
         return $this->safe()->string('editionName')->toString();
     }
 
-    public function language(): mixed
+    public function language(): ?string
     {
-        return $this->safe()->input('language');
+        return JsonShape::optionalString($this->safe()->input('language'));
     }
 
     /**

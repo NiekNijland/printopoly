@@ -44,13 +44,17 @@ final class CodeOwnersArchitectureTest extends TestCase
         self::assertStringContainsString($reason, implode("\n", new CodeOwnersGuard('', $this->guardedPaths())->inCodeOwners($codeOwners)));
     }
 
-    public function test_it_accepts_a_code_owners_file_with_a_bot_beside_a_person_and_says_when_the_file_is_missing(): void
+    public function test_it_accepts_a_code_owners_file_with_a_bot_beside_a_person_or_a_rule_that_is_commented_out(): void
     {
         $withBot = CiExamples::change(self::file('.github/CODEOWNERS'), "/scripts/ @NiekNijland\n", "/scripts/ @NiekNijland @release-bot\n");
         $commented = self::file('.github/CODEOWNERS') . "# /scripts/kit-config.sh\n";
 
         self::assertSame([], new CodeOwnersGuard('', $this->guardedPaths())->inCodeOwners($withBot));
         self::assertSame([], new CodeOwnersGuard('', $this->guardedPaths())->inCodeOwners($commented));
+    }
+
+    public function test_it_says_when_the_code_owners_file_is_missing(): void
+    {
         self::assertStringContainsString('no code-owners file', implode("\n", new CodeOwnersGuard('/no/such/CODEOWNERS', $this->guardedPaths())->violations()));
     }
 

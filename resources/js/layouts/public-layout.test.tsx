@@ -52,9 +52,9 @@ describe('PublicLayout', () => {
         );
     });
 
-    it('wipes the editions in this browser when the server flashes it after a logout', async () => {
+    it('wipes the editions in this browser when the server asks for it after a logout', async () => {
         const services = await seed();
-        setPage(fakePage({ flash: { clearLocalCopy: true } }));
+        setPage(fakePage({ clearLocalCopy: true }));
 
         renderWithI18n(<PublicLayout>Inhoud</PublicLayout>);
 
@@ -63,9 +63,9 @@ describe('PublicLayout', () => {
         );
     });
 
-    it('keeps the editions without that flash', async () => {
+    it('keeps the editions without that request', async () => {
         const services = await seed();
-        setPage(fakePage({ flash: { clearLocalCopy: false } }));
+        setPage(fakePage());
 
         renderWithI18n(<PublicLayout>Inhoud</PublicLayout>);
 

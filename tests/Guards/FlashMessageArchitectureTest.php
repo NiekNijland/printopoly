@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\FlashMessageGuard;
-use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
 
 final class FlashMessageArchitectureTest extends TestCase
@@ -86,11 +85,9 @@ final class FlashMessageArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Http/Controllers/StoreController.php: line 8:', $violations[0]);
     }
 
-        public function test_it_holds_the_real_tree_to_its_counted_list(): void
-        {
-        $root = dirname(__DIR__, 2);
-
-        self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/flash-messages.txt')->differences($this->guard($root)->violations()));
+    public function test_it_holds_the_real_tree(): void
+    {
+        self::assertSame([], $this->guard(dirname(__DIR__, 2))->violations());
     }
 
     private function guard(string $root): FlashMessageGuard
