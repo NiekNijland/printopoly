@@ -78,10 +78,8 @@ final readonly class EditionPrintReadinessService
     }
 
     /**
-     * The part files of all the jobs in one query, by the id of their job.
-     *
      * @param Collection<int, PrintJob> $jobs
-     * @return array<string, list<PrintFile>>
+     * @return array<string, list<PrintFile>> the part files of all the jobs, read in one query, by the id of their job
      */
     private function partFiles(Collection $jobs): array
     {
