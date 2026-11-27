@@ -4,7 +4,7 @@ import { reportError } from '@/lib/bugsnag';
 import { mm } from '@/lib/render/units';
 
 import { RasterNotePattern } from './banknote-parts';
-import { Svg } from './card-look';
+import { Svg } from './sheet';
 
 /** One shape of an ornament, in mm: a stroke, a fill, or both. */
 export type OrnamentItem = {

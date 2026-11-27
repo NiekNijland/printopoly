@@ -1,7 +1,8 @@
 import { ellipsePath } from '@/lib/render/banknote-guilloche';
 
-import { Svg, diamondPath } from './card-look';
+import { diamondPath } from './card-look';
 import { Ornament, type OrnamentItem } from './card-look-ornament';
+import { Svg } from './sheet';
 
 /**
  * A wave along a straight line from (x1, y1) to (x2, y2): half waves of about `half` mm, `amplitude` to either side,

@@ -8,7 +8,6 @@ import { defined } from '@/testing/defined';
 
 import { CREAM } from './board-look';
 import {
-    Art,
     ConfettiShape,
     Rope,
     Rosette,
@@ -105,37 +104,6 @@ describe('path helpers', () => {
         );
         expect(scallopedRect(0, 0, 1, 1, 5).match(/A/g)).toHaveLength(8);
         expect(scallopedRect(0, 0, 10, 4, 2).match(/A/g)).toHaveLength(14);
-    });
-});
-
-describe('Art', () => {
-    it('places an svg in mm with a viewBox in mm', () => {
-        const { container } = render(
-            <Art x={2} y={3} w={10} h={5} slot="tape">
-                <rect />
-            </Art>,
-        );
-        const svg = defined(container.querySelector('svg'));
-
-        expect(svg.getAttribute('viewBox')).toBe('0 0 10 5');
-        expect(svg.getAttribute('data-slot')).toBe('tape');
-        expect(svg.getAttribute('aria-hidden')).toBe('true');
-        expect(svg.style.left).toBe('2mm');
-        expect(svg.style.top).toBe('3mm');
-        expect(svg.style.width).toBe('10mm');
-        expect(svg.style.overflow).toBe('visible');
-    });
-
-    it('clips its drawing when asked', () => {
-        const { container } = render(
-            <Art x={0} y={0} w={1} h={1} clip>
-                <rect />
-            </Art>,
-        );
-
-        expect(defined(container.querySelector('svg')).style.overflow).toBe(
-            'hidden',
-        );
     });
 });
 

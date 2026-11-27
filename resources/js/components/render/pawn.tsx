@@ -2,13 +2,12 @@ import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { partStyleOf } from '@/lib/render/style';
 import { THEMES } from '@/lib/render/themes';
-import { mm } from '@/lib/render/units';
 
 import { FitText } from './fit-text';
 import { PawnFace } from './pawn-face';
 import { PANEL_HEIGHT, PAWN_WIDTH } from './pawn-layout';
 import { pieceText } from './piece-styles';
-import { Abs, Sheet, useRender, type ElementProps } from './sheet';
+import { Abs, Sheet, useRender, type ElementProps, BoxSvg } from './sheet';
 
 /** Unfolded pawn: front, back (upside down, so it stands when folded) and an insertion foot. */
 export const PAWN_SIZE_MM = { w: PAWN_WIDTH, h: 55 } as const;
@@ -61,18 +60,7 @@ const FoldLines = () => {
 
     return (
         <>
-            <svg
-                style={{
-                    position: 'absolute',
-                    left: 0,
-                    top: 0,
-                    width: mm(w),
-                    height: mm(h),
-                }}
-                viewBox={`0 0 ${w} ${h}`}
-                aria-hidden="true"
-                data-fold-lines=""
-            >
+            <BoxSvg w={w} h={h} data-fold-lines="">
                 {[PANEL_HEIGHT, 2 * PANEL_HEIGHT].map((y) => (
                     <line
                         key={y}
@@ -85,7 +73,7 @@ const FoldLines = () => {
                         strokeDasharray="1.5 1"
                     />
                 ))}
-            </svg>
+            </BoxSvg>
             <FitText
                 text={t.pawn}
                 x={2}

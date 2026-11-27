@@ -7,8 +7,8 @@ import { ruleColor } from './board-look';
 import { wobblyRect } from './board-look-playful';
 import { NAME_BOX, PANEL_HEIGHT, PAWN_WIDTH, PORTRAIT } from './pawn-layout';
 import { PhotoSlot } from './photo-slot';
-import { Art, diamond, vintagePaper } from './piece-styles';
-import { Abs, useRender } from './sheet';
+import { diamond, vintagePaper } from './piece-styles';
+import { Abs, useRender, Svg } from './sheet';
 
 /** The photo in the portrait, with the edge of the style around it. */
 export const Portrait = ({
@@ -37,7 +37,7 @@ export const Portrait = ({
                         photo={photo}
                     />
                 </Abs>
-                <Art {...PORTRAIT} slot="photo-edge">
+                <Svg {...PORTRAIT} slot="photo-edge">
                     <rect
                         x={0.15}
                         y={0.15}
@@ -48,7 +48,7 @@ export const Portrait = ({
                         stroke={theme.ink}
                         strokeWidth={0.35}
                     />
-                </Art>
+                </Svg>
                 <Tape x={PORTRAIT.x + 1.4} y={PORTRAIT.y + 1.1} turn={-38} />
             </>
         );
@@ -58,7 +58,7 @@ export const Portrait = ({
         <>
             <PhotoSlot {...PORTRAIT} photo={photo} />
             {look === 'vintage' && (
-                <Art {...PORTRAIT} slot="photo-edge">
+                <Svg {...PORTRAIT} slot="photo-edge">
                     <rect
                         x={0.15}
                         y={0.15}
@@ -77,7 +77,7 @@ export const Portrait = ({
                         stroke={theme.paper}
                         strokeWidth={0.14}
                     />
-                </Art>
+                </Svg>
             )}
         </>
     );
@@ -144,7 +144,7 @@ export const PanelBackdrop = ({
                     h={h}
                     style={{ background: theme.boardBackground }}
                 />
-                <Art x={0} y={0} w={w} h={h} slot="tile">
+                <Svg x={0} y={0} w={w} h={h} slot="tile">
                     <path
                         d={wobblyRect(
                             0.55,
@@ -160,7 +160,7 @@ export const PanelBackdrop = ({
                         strokeWidth={0.4}
                         strokeLinejoin="round"
                     />
-                </Art>
+                </Svg>
             </>
         );
     }
@@ -184,7 +184,7 @@ export const VintagePanelRules = ({
     const middle = NAME_BOX.x - 0.75;
 
     return (
-        <Art x={0} y={0} w={w} h={h} slot="vintage-rules">
+        <Svg x={0} y={0} w={w} h={h} slot="vintage-rules">
             <rect
                 x={outer}
                 y={outer}
@@ -222,6 +222,6 @@ export const VintagePanelRules = ({
                     strokeWidth={0.1}
                 />
             )}
-        </Art>
+        </Svg>
     );
 };

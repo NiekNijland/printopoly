@@ -4,13 +4,12 @@ import { type Theme } from '@/lib/render/themes';
 import { ruleColor } from './board-look';
 import { NAME_BOX, PANEL_HEIGHT, PAWN_WIDTH } from './pawn-layout';
 import {
-    Art,
     ConfettiShape,
     blockColor,
     diamond,
     type ConfettiPiece,
 } from './piece-styles';
-import { Abs, useRender } from './sheet';
+import { Abs, useRender, Svg } from './sheet';
 
 /** What a style draws around the name: the flourishes of Vintage, the bar of Modern, the confetti of Speels. */
 export const NameDecor = ({
@@ -31,7 +30,7 @@ export const NameDecor = ({
             `M${String(cx - 6.5)} ${String(y)}L${String(cx - 1.3)} ${String(y)}M${String(cx + 1.3)} ${String(y)}L${String(cx + 6.5)} ${String(y)}`;
 
         return (
-            <Art x={0} y={0} w={w} h={h} slot="flourish">
+            <Svg x={0} y={0} w={w} h={h} slot="flourish">
                 {[3.1, h - 3.1].map((y) => (
                     <g key={y}>
                         <path
@@ -44,7 +43,7 @@ export const NameDecor = ({
                         <circle cx={cx + 6.9} cy={y} r={0.22} fill={color} />
                     </g>
                 ))}
-            </Art>
+            </Svg>
         );
     }
 
@@ -73,7 +72,7 @@ export const NameDecor = ({
         ];
 
         return (
-            <Art x={0} y={0} w={w} h={h} slot="confetti">
+            <Svg x={0} y={0} w={w} h={h} slot="confetti">
                 {spots.map(([x, y, kind], index) => (
                     <ConfettiShape
                         key={index}
@@ -89,7 +88,7 @@ export const NameDecor = ({
                         }}
                     />
                 ))}
-            </Art>
+            </Svg>
         );
     }
 

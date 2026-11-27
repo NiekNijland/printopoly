@@ -5,11 +5,11 @@ import type { DeedStyle } from '@/lib/render/edition-part-styles';
 import { PLAYFAIR, SPARTAN, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
-import { Svg, creamed, diamondPath, engraving } from './card-look';
+import { creamed, diamondPath, engraving } from './card-look';
 import { EngravedBorder, ovalItems, rosetteItem } from './card-look-engraving';
 import { Ornament } from './card-look-ornament';
 import { Squiggle, WobblyTile } from './card-look-playful';
-import { Abs, useRender } from './sheet';
+import { Abs, useRender, Svg } from './sheet';
 
 /**
  * Title deeds in a style of their own (B269), the same family as the board styles (B268), front and mortgage back:

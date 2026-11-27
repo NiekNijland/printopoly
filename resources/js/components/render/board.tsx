@@ -22,7 +22,7 @@ import { CenterContent } from './board-center-content';
 import { BoardSpace, type SpaceSide } from './board-space';
 import { FRAME_INSET, type EditionTitleProps } from './edition-title';
 import type { RenderLayer } from './free-layers';
-import { Abs, Sheet, type ElementProps } from './sheet';
+import { Abs, Sheet, useRender, type ElementProps } from './sheet';
 import type { SpaceIconSource } from './space-icon';
 
 export type CardSpot = {
@@ -309,5 +309,46 @@ const edgeSides = (
 
     return onBoard.map(
         (side) => SIDES[(((SIDES.indexOf(side) - turns) % 4) + 4) % 4] ?? side,
+    );
+};
+
+export const ScaledBoard = ({
+    size,
+    profile,
+    board,
+    editionName,
+}: {
+    size: number;
+    profile: BoardProfile;
+    board: BoardProps | undefined;
+    editionName: string;
+}) => {
+    const { theme, locale, currency, words, style } = useRender();
+    const scale = size / profile.outer;
+
+    return (
+        <div
+            style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: mm(profile.outer),
+                height: mm(profile.outer),
+                transform: `scale(${String(scale)})`,
+                transformOrigin: 'top left',
+            }}
+        >
+            <Board
+                theme={theme.id}
+                locale={locale}
+                currency={currency}
+                words={words}
+                {...(style === undefined ? {} : { style })}
+                editionName={editionName}
+                {...board}
+                profile={profile}
+                bleedMm={0}
+            />
+        </div>
     );
 };

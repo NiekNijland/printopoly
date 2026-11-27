@@ -14,7 +14,7 @@ import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
 import { Icon } from './icons';
 import { PhotoSlot } from './photo-slot';
-import { Abs, Frame, useRender } from './sheet';
+import { Abs, Frame, useRender, BoxSvg } from './sheet';
 
 /** A turned box of the centre layout, as an absolutely placed element. */
 const Placed = ({
@@ -73,19 +73,7 @@ const SpotOutline = ({
                 }}
                 data-slot="spot-plate"
             />
-            <svg
-                style={{
-                    position: 'absolute',
-                    left: 0,
-                    top: 0,
-                    width: mm(w),
-                    height: mm(h),
-                    overflow: 'visible',
-                }}
-                viewBox={`0 0 ${w} ${h}`}
-                aria-hidden="true"
-                data-frame=""
-            >
+            <BoxSvg w={w} h={h} overflow="visible" data-frame="">
                 <rect
                     x={0.6}
                     y={0.6}
@@ -98,7 +86,7 @@ const SpotOutline = ({
                     strokeDasharray="0.1 2.6"
                     strokeLinecap="round"
                 />
-            </svg>
+            </BoxSvg>
         </>
     );
 };

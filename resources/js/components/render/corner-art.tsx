@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { mm } from '@/lib/render/units';
-
-import { useRender } from './sheet';
+import { useRender, BoxSvg } from './sheet';
 
 const Drawing = ({
     x,
@@ -22,21 +20,17 @@ const Drawing = ({
     children: ReactNode;
 }) => {
     return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: mm(x),
-                top: mm(y),
-                width: mm(w),
-                height: mm(h),
-                overflow: 'visible',
-            }}
+        <BoxSvg
+            x={x}
+            y={y}
+            w={w}
+            h={h}
+            overflow="visible"
             viewBox={viewBox}
-            aria-hidden="true"
             data-slot={slot}
         >
             {children}
-        </svg>
+        </BoxSvg>
     );
 };
 

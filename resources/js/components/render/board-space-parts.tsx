@@ -1,10 +1,9 @@
 import { readableOn } from '@/lib/render/color';
 import { standardEdition } from '@/lib/render/standard-edition';
 import type { Theme } from '@/lib/render/themes';
-import { mm } from '@/lib/render/units';
 
 import { FitText } from './fit-text';
-import { Abs, useRender } from './sheet';
+import { Abs, useRender, BoxSvg } from './sheet';
 
 export const groupColor = (group: string, theme: Theme): string => {
     return (
@@ -142,19 +141,7 @@ export const EngravedOval = ({
     fill: string;
 }) => {
     return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: mm(x),
-                top: mm(y),
-                width: mm(w),
-                height: mm(h),
-                overflow: 'visible',
-            }}
-            viewBox={`0 0 ${String(w)} ${String(h)}`}
-            aria-hidden="true"
-            data-slot="oval"
-        >
+        <BoxSvg x={x} y={y} w={w} h={h} overflow="visible" data-slot="oval">
             <ellipse
                 cx={w / 2}
                 cy={h / 2}
@@ -173,6 +160,6 @@ export const EngravedOval = ({
                 stroke={color}
                 strokeWidth={0.15}
             />
-        </svg>
+        </BoxSvg>
     );
 };

@@ -1,4 +1,5 @@
-import { RULE_INSET, Svg } from './board-look';
+import { RULE_INSET } from './board-look';
+import { Svg } from './sheet';
 
 /**
  * The double rule of Vintage: a line and a hairline inside it, like the frame of an engraved banknote, with a
