@@ -6,7 +6,6 @@ import {
 } from '@/lib/render/photos-resolution';
 import {
     clampTransform,
-    coverTransform,
     nudge,
     panBy,
     rotateQuarter,
@@ -96,17 +95,6 @@ export const startingPlacement = (
     };
 };
 
-/** A photo that covers the frame, centred, at 100%. */
-export const newPlacement = (
-    photoId: string,
-    context: PlacementContext,
-): PhotoPlacement => {
-    return toPlacement(
-        photoId,
-        coverTransform(context.source, target(context)),
-    );
-};
-
 export type PlacementAction =
     | { type: 'pan'; dxMm: number; dyMm: number }
     | { type: 'nudge'; direction: Direction }
@@ -152,14 +140,6 @@ export const actOnPlacement = (
     }
 
     return toPlacement(placement.photoId, next);
-};
-
-/** The dpi this placement has on paper (B94), as it prints (kept on its frame). */
-export const placementDpi = (
-    placement: PhotoPlacement,
-    context: PlacementContext,
-): number => {
-    return placementQuality(placement, context).dpi;
 };
 
 /** How this placement prints (B251): the same measure the check uses, so the editor never says otherwise. */

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { coverTransform } from '@/testing/photo-transform';
 import {
     MAX_ZOOM,
     MIN_ZOOM,
@@ -6,7 +7,6 @@ import {
     clampTransform,
     containMmPerPx,
     coverMmPerPx,
-    coverTransform,
     coversTarget,
     defaultTransform,
     mmPerPx,

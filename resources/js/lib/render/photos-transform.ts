@@ -206,20 +206,6 @@ export const rotateQuarter = (
     return clampTransform(source, { ...t, rotation, x, y }, target);
 };
 
-/** A fresh transform that covers the target, centred, at 100%. */
-export const coverTransform = (
-    source: Size,
-    target: Size,
-    rotation: Rotation = 0,
-    grayscale = false,
-): PhotoTransform => {
-    return clampTransform(
-        source,
-        { ...defaultTransform(), rotation, grayscale },
-        target,
-    );
-};
-
 /**
  * Switches between fill and fit (B168). Either way the photo starts again at 100%: whole in the frame when it fits,
  * covering the frame when it fills, and the point that was in the middle stays as close to the middle as it can.

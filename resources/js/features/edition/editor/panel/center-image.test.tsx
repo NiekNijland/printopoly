@@ -5,7 +5,7 @@ import {
     context,
     setup,
 } from '@/features/edition/editor/testing/element-panel-setup';
-import { newPlacement } from '@/lib/render/editor-placements';
+import { startingPlacement } from '@/lib/render/editor-placements';
 import { photo } from '@/testing/edition-test-utils';
 import { renderWithI18n } from '@/testing/render';
 
@@ -95,7 +95,10 @@ describe('CenterImage', () => {
             elements: {
                 board_center: {
                     centerMode: 'photo',
-                    photo: newPlacement('p1', context),
+                    photo: startingPlacement('p1', {
+                        width: context.source.w,
+                        height: context.source.h,
+                    }),
                 },
             },
         });

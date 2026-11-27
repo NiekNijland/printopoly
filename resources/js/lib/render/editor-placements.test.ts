@@ -5,9 +5,7 @@ import { photo } from '@/testing/edition-test-utils';
 import {
     actOnPlacement,
     lidLogoPlacement,
-    newPlacement,
     normalizeRotation,
-    placementDpi,
     placementQuality,
     startingPlacement,
     type PlacementContext,
@@ -64,19 +62,6 @@ describe('startingPlacement', () => {
         );
         expect(startingPlacement('p1', size, target).cx).toBe(0.5);
         expect(startingPlacement('p1', size, undefined, true).cx).toBe(0.5);
-    });
-});
-
-describe('newPlacement', () => {
-    it('covers the frame, centred, at 100%', () => {
-        expect(newPlacement('p2', context)).toEqual({
-            photoId: 'p2',
-            cx: 0.5,
-            cy: 0.5,
-            scale: 1,
-            rotation: 0,
-            grayscale: false,
-        });
     });
 });
 
@@ -158,13 +143,12 @@ describe('actOnPlacement', () => {
     });
 });
 
-describe('placementDpi and placementQuality', () => {
+describe('placementQuality', () => {
     it('measures the dpi as the photo prints', () => {
-        expect(placementDpi(photo('p1'), context)).toBeCloseTo(1270, 6);
-        expect(placementDpi({ ...photo('p1'), scale: 2 }, context)).toBeCloseTo(
-            635,
-            6,
-        );
+        expect(placementQuality(photo('p1'), context).dpi).toBeCloseTo(1270, 6);
+        expect(
+            placementQuality({ ...photo('p1'), scale: 2 }, context).dpi,
+        ).toBeCloseTo(635, 6);
     });
 
     it('calls a small photo on a large frame not sharp and says what it needs', () => {

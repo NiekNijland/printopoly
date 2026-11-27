@@ -8,7 +8,7 @@ import { resolveEdition } from '@/lib/render/edition-resolve';
 import { MemoryEditionStorage } from '@/lib/render/edition-storage';
 import type { ElementOverride } from '@/lib/render/edition-types';
 import { PhotoCache } from '@/lib/render/editor-photo-cache';
-import { newPlacement } from '@/lib/render/editor-placements';
+import { startingPlacement } from '@/lib/render/editor-placements';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
 
 export const context = {
@@ -44,7 +44,14 @@ export const setup = async (
     const edition = options.withPhoto
         ? {
               ...base,
-              elements: { [key]: { photo: newPlacement('p1', context) } },
+              elements: {
+                  [key]: {
+                      photo: startingPlacement('p1', {
+                          width: context.source.w,
+                          height: context.source.h,
+                      }),
+                  },
+              },
           }
         : options.named === true
           ? { ...base, elements: { [key]: { name: 'Jans Bierkelder' } } }

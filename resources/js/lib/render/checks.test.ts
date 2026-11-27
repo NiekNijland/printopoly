@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { coverTransform } from '@/testing/photo-transform';
 import { runChecks } from './checks';
 import type { CheckInput, CheckPhoto, PartSelection } from './checks-types';
-import { coverTransform, setZoom } from './photos-transform';
+import { setZoom } from './photos-transform';
 import { DEFAULT_BOARD_PROFILE } from './print-board';
 
 const parts: PartSelection = {

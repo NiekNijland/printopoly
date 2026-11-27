@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { coverTransform } from '@/testing/photo-transform';
 import {
     cropSpec,
     effectiveDpi,
@@ -8,12 +9,7 @@ import {
     placementTarget,
     resolutionLabel,
 } from './photos-resolution';
-import {
-    coverTransform,
-    nudge,
-    rotateQuarter,
-    setZoom,
-} from './photos-transform';
+import { nudge, rotateQuarter, setZoom } from './photos-transform';
 
 describe('effectiveDpi', () => {
     it('is pixels per inch of the photo on the target', () => {
