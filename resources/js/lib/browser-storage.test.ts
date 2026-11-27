@@ -1,16 +1,9 @@
-import {
-    clearStored,
-    readStored,
-    removeStored,
-    writeStored,
-} from './browser-storage';
+import { readStored, writeStored } from './browser-storage';
 
 describe('browser storage', () => {
-    it('writes, reads and removes a value in local storage', () => {
+    it('writes and reads a value in local storage', () => {
         expect(writeStored('k', 'v')).toBe(true);
         expect(readStored('k')).toBe('v');
-        expect(removeStored('k')).toBe(true);
-        expect(readStored('k')).toBeNull();
     });
 
     it('keeps session storage apart from local storage', () => {
@@ -18,8 +11,6 @@ describe('browser storage', () => {
 
         expect(readStored('k')).toBeNull();
         expect(readStored('k', 'session')).toBe('session');
-        expect(clearStored('session')).toBe(true);
-        expect(readStored('k', 'session')).toBeNull();
     });
 
     it('reads nothing and writes nothing when the storage throws', () => {
@@ -29,17 +20,9 @@ describe('browser storage', () => {
         vi.spyOn(window.localStorage, 'setItem').mockImplementation(() => {
             throw new DOMException('full', 'QuotaExceededError');
         });
-        vi.spyOn(window.localStorage, 'removeItem').mockImplementation(() => {
-            throw new DOMException('blocked', 'SecurityError');
-        });
-        vi.spyOn(window.localStorage, 'clear').mockImplementation(() => {
-            throw new DOMException('blocked', 'SecurityError');
-        });
 
         expect(readStored('k')).toBeNull();
         expect(writeStored('k', 'v')).toBe(false);
-        expect(removeStored('k')).toBe(false);
-        expect(clearStored()).toBe(false);
         vi.restoreAllMocks();
     });
 
@@ -48,7 +31,5 @@ describe('browser storage', () => {
 
         expect(readStored('k')).toBeNull();
         expect(writeStored('k', 'v')).toBe(false);
-        expect(removeStored('k')).toBe(false);
-        expect(clearStored()).toBe(false);
     });
 });

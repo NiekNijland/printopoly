@@ -24,7 +24,7 @@ const useMediaQuery = (query: string, fallback = false): boolean => {
 const WIDE_SCREEN_MIN_PX = 768;
 
 /** The media query for {@link WIDE_SCREEN_MIN_PX}, for code outside React (`window.matchMedia`). */
-export const WIDE_SCREEN_QUERY = `(min-width: ${WIDE_SCREEN_MIN_PX}px)`;
+const WIDE_SCREEN_QUERY = `(min-width: ${WIDE_SCREEN_MIN_PX}px)`;
 
 export const useWideScreen = (): boolean => {
     return useMediaQuery(WIDE_SCREEN_QUERY, true);

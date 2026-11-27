@@ -1,8 +1,11 @@
 import { act, renderHook } from '@testing-library/react';
 
-import { friendAmountRule, useFriendAmount } from './friend-amount';
+import { useFriendAmount } from './friend-amount';
 
-describe('friendAmountRule', () => {
+const friendAmountRule = (key: string) =>
+    renderHook(() => useFriendAmount(key)).result.current.rule;
+
+describe('the amount rule of a card', () => {
     it('keeps a card amount within its range and direction', () => {
         expect(friendAmountRule('card.chance.12')).toEqual({
             min: 12,

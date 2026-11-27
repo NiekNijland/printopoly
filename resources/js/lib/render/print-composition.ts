@@ -109,7 +109,7 @@ export type PageSpec = {
  * cards the edition added (B135). The cards part always holds all of them: whether it is in the set is chosen on
  * the print page (B198).
  */
-export const cardKeys = (edition: PrintEdition): string[] => {
+const cardKeys = (edition: PrintEdition): string[] => {
     const keys: string[] = [];
 
     for (let i = 1; i <= standardEdition.components.titleDeeds; i++) {

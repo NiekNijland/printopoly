@@ -12,7 +12,7 @@ import { partSource, type PreviewPart } from './editor-preview-part';
 export const SPREAD_GAP = 6;
 
 /** A deed alone, or with a story its front and back side by side, so the story shows where it prints (B169). */
-export const DeedSpread = ({
+const DeedSpread = ({
     story,
     children,
 }: {

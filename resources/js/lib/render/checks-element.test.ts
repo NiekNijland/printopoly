@@ -1,9 +1,16 @@
 import { describe, expect, it } from 'vitest';
+import { coverTransform } from '@/testing/photo-transform';
 import { runChecks } from './checks';
-import { checkPhoto, checkText } from './checks-element';
-import type { CheckPhoto, PartSelection } from './checks-types';
-import { coverTransform, defaultTransform, setZoom } from './photos-transform';
+import { checkElement } from './checks-element';
+import type { CheckPhoto, CheckText, PartSelection } from './checks-types';
+import { defaultTransform, setZoom } from './photos-transform';
 import { DEFAULT_BOARD_PROFILE } from './print-board';
+
+const checkPhoto = (key: string, photo: CheckPhoto) =>
+    checkElement({ key, photos: [photo] });
+
+const checkText = (key: string, text: CheckText) =>
+    checkElement({ key, texts: [text] });
 
 const parts: PartSelection = {
     board: true,

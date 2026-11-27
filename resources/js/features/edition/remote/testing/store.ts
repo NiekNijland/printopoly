@@ -3,8 +3,10 @@ import { vi } from 'vitest';
 import type { Edition, PhotoRecord } from '@/lib/render/edition-types';
 import { makeEdition } from '@/testing/edition-test-utils';
 
-import { createApiClient, type FetchLike } from '../client';
+import { createApiClient, type ApiClientOptions } from '../client';
 import { createRemoteEditionStore } from '../store';
+
+type FetchLike = NonNullable<ApiClientOptions['fetch']>;
 
 export const json = (body: unknown, status = 200) => {
     return new Response(JSON.stringify(body), {

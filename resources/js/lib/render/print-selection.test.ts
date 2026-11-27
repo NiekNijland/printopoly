@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parsePrintSelection } from '@/lib/render/edition-schema';
+import { parseEdition } from '@/lib/render/edition-schema';
 import { DEFAULT_PARTS, type PrintSelection } from '@/lib/render/edition-types';
 import { sampleEdition } from '@/lib/render/sample-edition';
 
@@ -8,9 +8,8 @@ import {
     defaultPrintSelection,
     editionInSet,
     inPrintSelection,
-    printSelectionOf,
     selectionFromSkipped,
-    setPartsOf,
+    SET_PARTS,
     skippedOf,
     toggleSelectionPart,
 } from './print-selection';
@@ -23,27 +22,25 @@ describe('print selection (B198, B199)', () => {
             set: 'home',
             parts: ['board', 'deeds', 'cards', 'houseRules'],
         });
-        expect(
-            setPartsOf(
-                defaultPrintSelection({
-                    ...base,
-                    parts: {
-                        ...base.parts,
-                        money: true,
-                        pawns: true,
-                        invitation: true,
-                    },
-                }),
-            ),
-        ).toEqual(['board', 'cards', 'money', 'tokens', 'invitation']);
-    });
-
-    it('keeps what the print page chose', () => {
-        const chosen: PrintSelection = { set: 'printer', parts: ['board'] };
-
-        expect(printSelectionOf({ ...base, printSelection: chosen })).toBe(
-            chosen,
+        const skipped = skippedOf(
+            defaultPrintSelection({
+                ...base,
+                parts: {
+                    ...base.parts,
+                    money: true,
+                    pawns: true,
+                    invitation: true,
+                },
+            }),
         );
+
+        expect(SET_PARTS.filter((part) => !skipped.includes(part))).toEqual([
+            'board',
+            'cards',
+            'money',
+            'tokens',
+            'invitation',
+        ]);
     });
 
     it('never takes the board out, and switches every edition part of a row', () => {
@@ -120,6 +117,15 @@ describe('print selection (B198, B199)', () => {
     });
 
     it('reads a stored choice leniently: unknown parts and shapes are dropped', () => {
+        const parsePrintSelection = (printSelection: unknown) => {
+            const parsed = parseEdition({
+                ...sampleEdition('nl'),
+                printSelection,
+            });
+
+            return parsed.ok ? parsed.value.printSelection : null;
+        };
+
         expect(
             parsePrintSelection({
                 set: 'home',

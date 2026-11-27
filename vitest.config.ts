@@ -10,7 +10,10 @@ export default defineConfig({
     },
     test: {
         environment: 'happy-dom',
-        include: ['resources/js/**/*.test.{ts,tsx}'],
+        include: [
+            'resources/js/**/*.test.{ts,tsx}',
+            'eslint-rules/**/*.test.js',
+        ],
         globals: true,
         setupFiles: ['resources/js/testing/setup.ts'],
         css: false,

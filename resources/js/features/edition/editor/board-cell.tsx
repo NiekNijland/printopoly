@@ -25,7 +25,7 @@ import type { Space } from '@/types/game';
  * The chosen space over the real board: a thick ink line inside the space with a paper line within it, so it
  * shows on a light and on a dark board.
  */
-export const OVERLAY_SELECTED =
+const OVERLAY_SELECTED =
     'z-10 outline-4 -outline-offset-4 outline-ink shadow-[inset_0_0_0_7px_var(--color-paper)]';
 
 type CellState = {
@@ -37,7 +37,7 @@ type CellState = {
     drag: BoardDrag | null;
 };
 
-export const spaceCellClass = (overlay: boolean, cell: CellState): string => {
+const spaceCellClass = (overlay: boolean, cell: CellState): string => {
     const { key, selected, blocked, swapFrom, swapTarget, drag } = cell;
 
     return overlay
@@ -93,7 +93,7 @@ type BoardCellProps = {
     onPress: (event: PointerEvent) => void;
 };
 
-export const BoardCell = ({
+const BoardCell = ({
     cellKey,
     className,
     style,
@@ -167,7 +167,7 @@ const SpacePhoto = ({
     );
 };
 
-export const SpaceCellContent = ({
+const SpaceCellContent = ({
     position,
     color,
     edition,

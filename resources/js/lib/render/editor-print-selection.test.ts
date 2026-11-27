@@ -1,17 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { templateEdition, TEMPLATE_IDS } from '@/lib/render/edition-templates';
+import { TEMPLATE_IDS } from '@/lib/render/edition-template-ids';
+import { templateEdition } from '@/lib/render/edition-templates';
 import { DEFAULT_PARTS, type Edition } from '@/lib/render/edition-types';
 import { defined } from '@/testing/defined';
 import { makeEdition } from '@/testing/edition-test-utils';
 
-import {
-    EDITOR_PARTS,
-    checkView,
-    editorView,
-    inSet,
-    partsInSet,
-} from './editor-print-selection';
+import { checkView, editorView, partsInSet } from './editor-print-selection';
 
 const withSelection = (parts: unknown): Edition => {
     return Object.assign(makeEdition(), {
@@ -30,7 +25,7 @@ describe('the editor shows every part (B198)', () => {
         expect(view.parts.pawns).toBe(true);
         expect(view.parts.invitation).toBe(true);
         expect(view.parts.rulesBooklet).toBe(false);
-        expect(EDITOR_PARTS.board).toBe(true);
+        expect(view.parts.board).toBe(true);
     });
 });
 
@@ -41,10 +36,10 @@ describe('the last chosen set', () => {
         expect([...partsInSet(edition)].sort()).toEqual(
             ['board', 'cards', 'deeds', 'houseRules'].sort(),
         );
-        expect(inSet(edition, 'money')).toBe(false);
-        expect(inSet(edition, 'boxLid')).toBe(false);
-        expect(inSet(edition, 'invitation')).toBe(false);
-        expect(inSet(edition, 'pawns')).toBe(false);
+        expect(partsInSet(edition).has('money')).toBe(false);
+        expect(partsInSet(edition).has('boxLid')).toBe(false);
+        expect(partsInSet(edition).has('invitation')).toBe(false);
+        expect(partsInSet(edition).has('pawns')).toBe(false);
     });
 
     it('agrees with the print page for an older edition that switched parts on itself', () => {
@@ -53,9 +48,9 @@ describe('the last chosen set', () => {
             parts: { ...DEFAULT_PARTS, money: true, pawns: true },
         };
 
-        expect(inSet(edition, 'money')).toBe(true);
-        expect(inSet(edition, 'pawns')).toBe(true);
-        expect(inSet(edition, 'boxLid')).toBe(false);
+        expect(partsInSet(edition).has('money')).toBe(true);
+        expect(partsInSet(edition).has('pawns')).toBe(true);
+        expect(partsInSet(edition).has('boxLid')).toBe(false);
     });
 
     it('gives a template edition the same set as a blank one (R5-20, B225)', () => {
@@ -72,9 +67,9 @@ describe('the last chosen set', () => {
     it('reads the parts the print page chose, and always the board', () => {
         const edition = withSelection(['deeds', 'cards']);
 
-        expect(inSet(edition, 'cards')).toBe(true);
-        expect(inSet(edition, 'money')).toBe(false);
-        expect(inSet(edition, 'board')).toBe(true);
+        expect(partsInSet(edition).has('cards')).toBe(true);
+        expect(partsInSet(edition).has('money')).toBe(false);
+        expect(checkView(edition).parts.board).toBe(true);
     });
 
     it('ignores what it cannot read instead of crashing', () => {

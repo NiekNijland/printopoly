@@ -1,19 +1,27 @@
 import { describe, expect, it } from 'vitest';
+import { coverTransform } from '@/testing/photo-transform';
+import type { PhotoTransform } from '@/types/photos';
+import type { Size } from '@/types/print';
 import {
-    cropSpec,
-    effectiveDpi,
-    isSharpEnough,
-    minSharpDpi,
     photoQuality,
     placementTarget,
     resolutionLabel,
 } from './photos-resolution';
-import {
-    coverTransform,
-    nudge,
-    rotateQuarter,
-    setZoom,
-} from './photos-transform';
+import { rotateQuarter, setZoom } from './photos-transform';
+
+const effectiveDpi = (source: Size, t: PhotoTransform, target: Size): number =>
+    photoQuality(source, t, target, 0).dpi;
+
+const isSharpEnough = (
+    dpi: number,
+    target: Size = { w: 25.4, h: 25.4 },
+): boolean =>
+    photoQuality(
+        { w: (dpi * target.w) / 25.4, h: (dpi * target.h) / 25.4 },
+        { x: 0.5, y: 0.5, scale: 1, rotation: 0, grayscale: false },
+        target,
+        0,
+    ).sharp;
 
 describe('effectiveDpi', () => {
     it('is pixels per inch of the photo on the target', () => {
@@ -84,7 +92,8 @@ describe('thresholds and labels', () => {
     it('asks less of a large print, looked at from further away (B251)', () => {
         expect(isSharpEnough(120, { w: 40, h: 60 })).toBe(false);
         expect(isSharpEnough(120, { w: 243, h: 120 })).toBe(true);
-        expect(minSharpDpi({ w: 336, h: 336 })).toBe(100);
+        expect(isSharpEnough(100, { w: 336, h: 336 })).toBe(true);
+        expect(isSharpEnough(99, { w: 336, h: 336 })).toBe(false);
     });
 
     it('measures the photo on its real target and names the pixels it needs', () => {
@@ -109,129 +118,5 @@ describe('thresholds and labels', () => {
             0,
         );
         expect(centre.sharp).toBe(true);
-    });
-});
-
-describe('cropSpec', () => {
-    it('crops the whole photo at 100% when its aspect ratio matches', () => {
-        const source = { w: 1800, h: 1200 };
-        const target = { w: 90, h: 60 };
-        const c = cropSpec(source, coverTransform(source, target), target);
-        expect(c.rect).toEqual({ x: 0, y: 0, w: 1800, h: 1200 });
-        expect(c.sourceDpi).toBeCloseTo(508, 0);
-        expect(c.outputDpi).toBe(300);
-        expect(c.output).toEqual({ w: 1063, h: 709 });
-    });
-
-    it('never upsamples: output dpi equals source dpi below 300', () => {
-        const source = { w: 900, h: 600 };
-        const target = { w: 90, h: 60 };
-        const c = cropSpec(source, coverTransform(source, target), target);
-        expect(c.outputDpi).toBeCloseTo(254, 6);
-        expect(c.output.w).toBeCloseTo(900, 0);
-    });
-
-    it('crops a centred window at 200% zoom', () => {
-        const source = { w: 4000, h: 3000 };
-        const target = { w: 80, h: 60 };
-        const c = cropSpec(
-            source,
-            setZoom(source, coverTransform(source, target), target, 2),
-            target,
-        );
-        expect(c.rect).toEqual({ x: 1000, y: 750, w: 2000, h: 1500 });
-    });
-
-    it('crops a panned window and keeps it inside the photo', () => {
-        const source = { w: 4000, h: 3000 };
-        const target = { w: 80, h: 60 };
-        let t = setZoom(source, coverTransform(source, target), target, 2);
-        t = nudge(source, t, target, 'left', 1000); // far past the edge
-        const c = cropSpec(source, t, target);
-        expect(c.rect.x + c.rect.w).toBe(4000);
-        expect(c.rect.x).toBe(2000);
-    });
-
-    it('maps the rectangle back to the original orientation for quarter turns', () => {
-        const source = { w: 4000, h: 3000 };
-        const target = { w: 60, h: 80 };
-        const base = coverTransform(source, target, 90);
-        const c90 = cropSpec(source, base, target);
-        // Rotated photo is 3000 x 4000, exactly the target's shape: the whole photo is used.
-        expect(c90.rect).toEqual({ x: 0, y: 0, w: 4000, h: 3000 });
-        expect(c90.rotation).toBe(90);
-
-        // Zoom 2 and move to the top of the rotated photo: after a clockwise turn the top is the original's left.
-        let t = setZoom(source, base, target, 2);
-        t = { ...t, y: 0 };
-        t = setZoom(source, t, target, 2); // reclamp
-        const c = cropSpec(source, t, target);
-        expect(c.rect.x).toBe(0);
-        expect(c.rect.w).toBe(2000);
-        expect(c.rect.h).toBe(1500);
-    });
-
-    it('handles 180 and 270 degrees', () => {
-        const source = { w: 4000, h: 3000 };
-        const target = { w: 80, h: 60 };
-        for (const rot of [180, 270] as const) {
-            const t = setZoom(
-                source,
-                coverTransform(
-                    source,
-                    rot === 270 ? { w: 60, h: 80 } : target,
-                    rot,
-                ),
-                rot === 270 ? { w: 60, h: 80 } : target,
-                2,
-            );
-            const c = cropSpec(
-                source,
-                t,
-                rot === 270 ? { w: 60, h: 80 } : target,
-            );
-            expect(c.rect.x + c.rect.w).toBeLessThanOrEqual(4000);
-            expect(c.rect.y + c.rect.h).toBeLessThanOrEqual(3000);
-            expect(c.rect).toMatchObject({ w: 2000, h: 1500 });
-        }
-    });
-
-    it('anchors the top-left of the rotated photo at the right corner of the original', () => {
-        const source = { w: 4000, h: 3000 };
-        const target = { w: 80, h: 60 };
-        const topLeft = (rot: 180 | 270, box: { w: number; h: number }) =>
-            cropSpec(
-                source,
-                setZoom(
-                    source,
-                    { ...coverTransform(source, box, rot), x: 0, y: 0 },
-                    box,
-                    2,
-                ),
-                box,
-            ).rect;
-        // 180: top-left of the turned photo is the bottom-right of the original.
-        expect(topLeft(180, target)).toEqual({
-            x: 2000,
-            y: 1500,
-            w: 2000,
-            h: 1500,
-        });
-        // 270 (anticlockwise quarter): top-left of the turned photo is the top-right of the original.
-        expect(topLeft(270, { w: 60, h: 80 })).toEqual({
-            x: 2000,
-            y: 0,
-            w: 2000,
-            h: 1500,
-        });
-    });
-
-    it('carries grayscale into the spec', () => {
-        const source = { w: 1000, h: 1000 };
-        const target = { w: 50, h: 50 };
-        expect(
-            cropSpec(source, coverTransform(source, target, 0, true), target)
-                .grayscale,
-        ).toBe(true);
     });
 });

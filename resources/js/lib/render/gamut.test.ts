@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import { standardEdition } from '@/lib/render/standard-edition';
 
+import { THEME_IDS } from './edition-types';
 import { contrastRatio, isOutOfGamut, bestTextOn, toPrintSafe } from './gamut';
 import { PALETTES } from './palettes';
-import { THEME_IDS } from './themes';
 
 describe('print range of a colour (B75)', () => {
     it('lets every standard group colour and every palette colour through', () => {

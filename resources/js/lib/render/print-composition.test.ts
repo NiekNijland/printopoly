@@ -3,14 +3,19 @@ import { defined } from '@/testing/defined';
 import { DEFAULT_BOARD_PROFILE } from './print-board';
 import {
     alignmentTargets,
-    cardKeys,
     composePages,
     type PrintEdition,
 } from './print-composition';
-import { BLEED, MARKS } from './print-page-frame';
+import { BLEED } from './print-page-frame';
 
 /** Only the overrides are stored (B59), so an edition without elements still has 60 cards. */
 const edition: PrintEdition = { elements: {} };
+
+const cardKeys = (printed: PrintEdition): (string | null)[] =>
+    composePages('cards', 'printer', printed)
+        .flatMap((page) => page.items)
+        .filter((item) => item.side === 'front')
+        .map((item) => item.elementKey);
 
 /**
  * The page plan the PHP check (App\Print\PrintLayout) expects. The same table sits in
@@ -51,8 +56,8 @@ describe('composePages', () => {
                 const item = defined(page.items[0]);
 
                 expect(page.cropMarks).toHaveLength(8);
-                expect(item.trim.x).toBe(MARKS + BLEED);
-                expect(item.bleed.x).toBe(MARKS);
+                expect(item.trim.x).toBe(6 + BLEED);
+                expect(item.bleed.x).toBe(6);
 
                 for (const mark of page.cropMarks) {
                     const outside = (v: number, lo: number, hi: number) =>

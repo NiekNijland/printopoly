@@ -2,13 +2,7 @@ import { render } from '@testing-library/react';
 
 import { THEMES } from '@/lib/render/themes';
 
-import {
-    Body,
-    ChapterPage,
-    Folio,
-    Lines,
-    brandColor,
-} from './rules-booklet-parts';
+import { Body, ChapterPage, Lines, brandColor } from './rules-booklet-parts';
 
 const theme = THEMES.classic;
 
@@ -62,9 +56,17 @@ describe('the parts of a rules booklet page', () => {
 
     it('draws write-on lines and the page number', () => {
         const lines = render(<Lines count={4} top={10} theme={theme} />);
-        const folio = render(<Folio page={7} name="Dorp" theme={theme} />);
+        const chapter = render(
+            <ChapterPage kicker="Hoofdstuk 2" title="Bord" page={7} name="Dorp">
+                <span />
+            </ChapterPage>,
+        );
 
         expect(lines.container.children).toHaveLength(4);
-        expect(folio.container.textContent).toBe('Dorp7');
+        expect(
+            [...chapter.container.querySelectorAll('span')]
+                .slice(-2)
+                .map((node) => node.textContent),
+        ).toEqual(['Dorp', '7']);
     });
 });

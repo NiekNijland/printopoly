@@ -1,16 +1,10 @@
 import { formatNumber } from '@/lib/number-format';
 import type {
-    CornerSpace,
     CurrencyId,
-    GroupId,
     Locale,
     OwnableSpace,
     Space,
-    SpacesBySide,
     StandardEdition,
-    StationRent,
-    StreetRent,
-    StreetSpace,
 } from '../../types/game';
 
 const [data] = Object.values(
@@ -41,69 +35,6 @@ export const isOwnable = (space: Space): space is OwnableSpace => {
         space.type === 'street' ||
         space.type === 'station' ||
         space.type === 'utility'
-    );
-};
-
-/** Rent table of a street (6 values) or a station (4 values). Throws for other spaces. */
-export const rentTable = (position: number): StreetRent | StationRent => {
-    const space = spaceAt(position);
-
-    if (space.type === 'street' || space.type === 'station') {
-        return space.rent;
-    }
-
-    throw new TypeError(`Space ${position} has no rent table`);
-};
-
-/** Rent of an unimproved street when the owner has the whole colour group: twice the base rent. */
-export const setRent = (position: number): number => {
-    const space = spaceAt(position);
-
-    if (space.type !== 'street') {
-        throw new TypeError(`Space ${position} is not a street`);
-    }
-
-    return space.rent[0] * 2;
-};
-
-const ownableAt = (position: number): OwnableSpace => {
-    const space = spaceAt(position);
-
-    if (!isOwnable(space)) {
-        throw new TypeError(`Space ${position} cannot be mortgaged`);
-    }
-
-    return space;
-};
-
-export const mortgage = (position: number): number => {
-    return ownableAt(position).mortgage;
-};
-
-/** Mortgage plus 10%, rounded to a whole amount. */
-export const unmortgage = (position: number): number => {
-    return Math.round((mortgage(position) * 11) / 10);
-};
-
-/** The 36 non-corner spaces per side of the board, plus the four corners. */
-export const spacesBySide = (): SpacesBySide => {
-    const spaces = standardEdition.spaces;
-
-    return {
-        corners: spaces.filter(
-            (space): space is CornerSpace => space.type === 'corner',
-        ),
-        bottom: spaces.slice(1, 10),
-        left: spaces.slice(11, 20),
-        top: spaces.slice(21, 30),
-        right: spaces.slice(31, 40),
-    };
-};
-
-export const groupMembers = (group: GroupId): StreetSpace[] => {
-    return standardEdition.spaces.filter(
-        (space): space is StreetSpace =>
-            space.type === 'street' && space.group === group,
     );
 };
 

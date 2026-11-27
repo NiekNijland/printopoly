@@ -37,7 +37,7 @@ export const plain = (amount: number, locale: Locale): string => {
     });
 };
 
-export const list = (items: readonly string[], locale: Locale): string => {
+const list = (items: readonly string[], locale: Locale): string => {
     const and = locale === 'nl' ? 'en' : 'and';
     const head = items.slice(0, -1);
     const last = items[items.length - 1] ?? '';
@@ -69,7 +69,7 @@ export const utilities = (
     );
 };
 
-export const taxes = (
+const taxes = (
     spaces: readonly Space[] = standardEdition.spaces,
 ): TaxSpace[] => {
     return spaces.filter((space): space is TaxSpace => space.type === 'tax');

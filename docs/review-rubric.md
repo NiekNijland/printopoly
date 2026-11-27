@@ -87,7 +87,7 @@ Elke rij van de tabel One pattern in `AGENTS.md`, in dezelfde volgorde. De kolom
 | Frontendlaag | ESLint `no-restricted-imports`, `layers/no-sibling-import`, `layers/final-folder` | item 17: of een hook geen domein kent |
 | Component en hook | ESLint `react/function-component-definition` en de groep `settledReactRules` | item 17: of een component met veel logica een hook had moeten zijn |
 | Bestandsnaam (frontend) | ESLint `names/kebab-case` | item 9: of de naam zegt wat het bestand doet |
-| Browser-API | ESLint `no-restricted-globals` en `no-restricted-properties` met de lijst `doors` | item 9: een API zonder deur in de lijst |
+| Browser-API | ESLint `no-restricted-globals` en `no-restricted-properties` met de lijsten `doors` en `doorFiles` in `eslint-rules/doors.js`; de ratchetrij `lint-doors` | item 9: een API zonder deur in de lijst |
 | Verzoek naar de server | ESLint `no-restricted-globals` voor `fetch` buiten de twee deuren | item 9: of de getypte `fetch` alleen de offline sync en de print-API dient |
 | Navigatie en melding | ESLint `navigation/no-location-write`, `downloads/no-download-link`, `toasts/no-success-toast`, `visits/no-visit-state` | item 16: de tekst van de melding |
 | Frontendtest | ESLint met de groep `settledTestRules`; de ratchetrijen `frontend-test-skip` en `frontend-inertia-mocks` | item 18: of een test het gedrag vaststelt dat hij noemt |

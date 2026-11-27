@@ -181,7 +181,7 @@ const ownSections = (key: string): PanelSection[] => {
  * Whether an element differs from its baseline (the template or the standard game, B152), so "Terug naar
  * standaard" has something to do.
  */
-export const canReset = (key: string, edition: Edition): boolean => {
+const canReset = (key: string, edition: Edition): boolean => {
     if (
         parseKey(key)?.kind === 'themeAccent' ||
         !differsFromBaseline(edition, key)

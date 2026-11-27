@@ -1,13 +1,10 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
+import { bumpyCircle } from '@/lib/render/banknote-guilloche';
 import { noteIcons } from '@/lib/render/banknote-pattern';
 
-import {
-    PLAYFUL,
-    PlayfulArt,
-    playfulBadge,
-} from './banknote-styles-playful-art';
+import { PLAYFUL, PlayfulArt } from './banknote-styles-playful-art';
 
 const art = (full: boolean) =>
     render(
@@ -43,7 +40,15 @@ describe('the drawing of a Speels note', () => {
             container
                 .querySelector('[data-slot="badge"] [data-oval]')
                 ?.getAttribute('d'),
-        ).toBe(playfulBadge());
+        ).toBe(
+            bumpyCircle(
+                PLAYFUL.badge.cx,
+                PLAYFUL.badge.cy,
+                PLAYFUL.badge.r,
+                18,
+                0.75,
+            ),
+        );
         expect(container.querySelectorAll('[data-corner]')).toHaveLength(4);
         expect(
             [...container.querySelectorAll('[data-note-icon]')].map((icon) =>

@@ -1,7 +1,7 @@
 // The one door to Intl.NumberFormat: one formatter per locale and options, kept.
 const formatters = new Map<string, Intl.NumberFormat>();
 
-export const numberFormatter = (
+const numberFormatter = (
     locale: string,
     options: Intl.NumberFormatOptions = {},
 ): Intl.NumberFormat => {

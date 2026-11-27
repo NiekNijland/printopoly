@@ -1,4 +1,5 @@
 import { EditionBus, browserChannelFactory } from '@/features/edition/bus';
+import { servicesCache } from '@/features/edition/editor/services-cache';
 import {
     browserEnvironmentDeps,
     detectEnvironment,
@@ -51,30 +52,16 @@ const createServices = (locale: Locale): EditorServices => {
     return { repository, bus, storage, persistent };
 };
 
-let shared: EditorServices | null = null;
-
 /** One set of services per window. The interface language is fixed per page load (a switch reloads). */
 export const getServices = (locale: Locale): EditorServices => {
-    shared ??= createServices(locale);
+    servicesCache.services ??= createServices(locale);
 
-    return shared;
+    return servicesCache.services;
 };
-
-/** For tests. */
-export const setServices = (services: EditorServices | null): void => {
-    shared = services;
-};
-
-let environment: Promise<EnvironmentInfo> | null = null;
 
 /** What the browser says about storage: private window, Safari clean-up, free space (B92). */
 export const getEnvironment = (): Promise<EnvironmentInfo> => {
-    environment ??= detectEnvironment(browserEnvironmentDeps());
+    servicesCache.environment ??= detectEnvironment(browserEnvironmentDeps());
 
-    return environment;
-};
-
-/** For tests: what the browser says, or `null` to ask it again. */
-export const setEnvironment = (info: EnvironmentInfo | null): void => {
-    environment = info === null ? null : Promise.resolve(info);
+    return servicesCache.environment;
 };

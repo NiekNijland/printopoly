@@ -5,18 +5,17 @@ import { makeEdition } from '@/testing/edition-test-utils';
 import {
     firstStreetKey,
     friendCanAddToSpace,
-    groupOf,
     targetLabel,
 } from './boxes-labels';
 
-describe('groupOf', () => {
+describe('the colour group of a key', () => {
     it('finds the colour group of a group key', () => {
-        expect(groupOf('group.lightblue')?.id).toBe('lightblue');
+        expect(firstStreetKey('group.lightblue')).toBe('space.06');
     });
 
-    it('returns undefined for other keys and unknown groups', () => {
-        expect(groupOf('space.01')).toBeUndefined();
-        expect(groupOf('group.purple')).toBeUndefined();
+    it('finds no group for other keys and unknown groups', () => {
+        expect(firstStreetKey('space.01')).toBeUndefined();
+        expect(firstStreetKey('group.purple')).toBeUndefined();
     });
 });
 

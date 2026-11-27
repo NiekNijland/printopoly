@@ -1,6 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 
 import type { BoxContributionData } from '@/features/edition/boxes/types';
+import { settle } from '@/testing/edition-test-utils';
 import { requestOf, stubFetch } from '@/testing/fetch';
 
 import { useContributionPhoto } from './collect-contribution';
@@ -81,7 +82,7 @@ describe('useContributionPhoto', () => {
 
         unmount();
         answer(new Response(new Blob(['img'])));
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await settle();
 
         expect(create).not.toHaveBeenCalled();
     });

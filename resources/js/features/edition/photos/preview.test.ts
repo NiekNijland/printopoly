@@ -5,25 +5,9 @@ import {
     jpegHeader,
     pngHeader,
 } from '../../../testing/photos-test-fixtures';
-import {
-    preparePhoto,
-    previewSize,
-    type DecodedBitmap,
-    type PhotoInput,
-    type PreviewDeps,
-} from './preview';
+import { preparePhoto, type PhotoInput, type PreviewDeps } from './preview';
 
-describe('previewSize', () => {
-    it('scales the long side to 1600 px and keeps the aspect ratio', () => {
-        expect(previewSize({ w: 4000, h: 3000 })).toEqual({ w: 1600, h: 1200 });
-        expect(previewSize({ w: 3000, h: 6000 })).toEqual({ w: 800, h: 1600 });
-    });
-
-    it('never enlarges', () => {
-        expect(previewSize({ w: 800, h: 600 })).toEqual({ w: 800, h: 600 });
-        expect(previewSize({ w: 1600, h: 900 })).toEqual({ w: 1600, h: 900 });
-    });
-});
+type DecodedBitmap = Awaited<ReturnType<PreviewDeps['decodeBitmap']>>;
 
 const input = (bytes: Uint8Array, name: string): PhotoInput => {
     return Object.assign(new Blob([new Uint8Array(bytes)]), { name });
@@ -50,6 +34,39 @@ const fakeDeps = (
         closed: () => closed,
     };
 };
+
+const previewSize = async ({ w, h }: { w: number; h: number }) => {
+    const result = await preparePhoto(
+        input(pngHeader(w, h), 'a.png'),
+        fakeDeps(w, h),
+    );
+
+    return result.ok ? result.previewSize : null;
+};
+
+describe('the size of the preview', () => {
+    it('scales the long side to 1600 px and keeps the aspect ratio', async () => {
+        expect(await previewSize({ w: 4000, h: 3000 })).toEqual({
+            w: 1600,
+            h: 1200,
+        });
+        expect(await previewSize({ w: 3000, h: 6000 })).toEqual({
+            w: 800,
+            h: 1600,
+        });
+    });
+
+    it('never enlarges', async () => {
+        expect(await previewSize({ w: 800, h: 600 })).toEqual({
+            w: 800,
+            h: 600,
+        });
+        expect(await previewSize({ w: 1600, h: 900 })).toEqual({
+            w: 1600,
+            h: 900,
+        });
+    });
+});
 
 describe('preparePhoto', () => {
     it('validates, makes a 1600 px WebP preview and closes the bitmap', async () => {

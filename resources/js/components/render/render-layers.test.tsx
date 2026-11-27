@@ -8,7 +8,7 @@ import { BoardCenter } from './board';
 import { BoardSpace } from './board-space';
 import { BoxLid } from './box-lid';
 import { GameCard } from './game-card';
-import { HouseRulesCard, houseRuleLines } from './house-rules';
+import { HouseRulesCard } from './house-rules';
 import { TitleDeed } from './title-deed';
 
 const base = { theme: 'classic', locale: 'nl' } as const;
@@ -150,7 +150,6 @@ describe('free layers, amounts and house rules', () => {
         expect(
             container.querySelector('[data-slot="title"]')?.textContent,
         ).toBe('Huisregels');
-        expect(houseRuleLines('a\n\n b ')).toEqual(['a', 'b']);
     });
 
     it('prints the bank name and the colour of a note', () => {

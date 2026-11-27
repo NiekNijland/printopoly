@@ -5,7 +5,6 @@ import { parseKey, wordKey, WORD_IDS } from './edition-keys';
 import { parseEdition, parseOverride } from './edition-schema';
 import type { Edition } from './edition-types';
 import {
-    cornerKey,
     defaultWords,
     fillWords,
     renderWords,
@@ -192,7 +191,7 @@ describe('keys and validation of the words', () => {
     it('keeps the words when an edition is read back', () => {
         const edition = withWords(makeEdition(), {
             [wordKey('house')]: { name: 'Schuurtje' },
-            [cornerKey('start')]: { text: 'Pak je salaris' },
+            'space.00': { text: 'Pak je salaris' },
         });
         const parsed = parseEdition(JSON.parse(JSON.stringify(edition)));
 

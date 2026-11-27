@@ -1,11 +1,5 @@
 import type { PageSpec } from './print-composition';
-import {
-    BLEED,
-    MARKS,
-    perSet,
-    setsOf,
-    withCropMarks,
-} from './print-page-frame';
+import { BLEED, perSet, setsOf, withCropMarks } from './print-page-frame';
 
 const page = (): PageSpec => ({
     size: { w: 69, h: 94 },
@@ -46,10 +40,10 @@ describe('print-page-frame', () => {
     it('grows a print-shop page by the room for crop marks outside the bleed (B160)', () => {
         const marked = withCropMarks(page());
 
-        expect(marked.size).toEqual({ w: 69 + 2 * MARKS, h: 94 + 2 * MARKS });
+        expect(marked.size).toEqual({ w: 69 + 2 * 6, h: 94 + 2 * 6 });
         expect(marked.items[0]?.trim).toEqual({
-            x: BLEED + MARKS,
-            y: BLEED + MARKS,
+            x: BLEED + 6,
+            y: BLEED + 6,
             w: 63,
             h: 88,
         });

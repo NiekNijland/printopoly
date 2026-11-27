@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Tabs as TabsPrimitive } from 'radix-ui';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
     Tabs,
-    TabsContent,
     TabsList,
     TabsTrigger,
     tabsListVariants,
@@ -28,8 +28,8 @@ const Example = ({
                 Uit
             </TabsTrigger>
         </TabsList>
-        <TabsContent value="space">Het vak</TabsContent>
-        <TabsContent value="deed">Het bewijs</TabsContent>
+        <TabsPrimitive.Content value="space">Het vak</TabsPrimitive.Content>
+        <TabsPrimitive.Content value="deed">Het bewijs</TabsPrimitive.Content>
     </Tabs>
 );
 

@@ -8,7 +8,6 @@ import {
     chooseCurrency,
     contributionElement,
     currencyChoice,
-    firstContributionElement,
     resetSection,
     sectionDiffers,
     sectionOfKey,
@@ -117,12 +116,5 @@ describe('Van vrienden (B146)', () => {
         expect(contributionElement('card.chance.03')).toBe('card.chance.03');
         expect(contributionElement('group.brown')).toBe('space.01');
         expect(contributionElement('group.darkblue')).toBe('space.37');
-        expect(
-            firstContributionElement([
-                { elementKey: 'pawn.02' },
-                { elementKey: 'space.05' },
-            ]),
-        ).toBe('pawn.02');
-        expect(firstContributionElement([])).toBeUndefined();
     });
 });

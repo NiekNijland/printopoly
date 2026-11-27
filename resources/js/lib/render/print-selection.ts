@@ -82,13 +82,6 @@ export const defaultPrintSelection = (
     );
 };
 
-/** The choice of the print page, or the default when it never chose. */
-export const printSelectionOf = (
-    edition: Pick<Edition, 'parts' | 'elements' | 'printSelection'>,
-): PrintSelection => {
-    return edition.printSelection ?? defaultPrintSelection(edition);
-};
-
 /** Whether a row is in the set: the board always is. */
 export const inPrintSelection = (
     selection: PrintSelection,
@@ -101,7 +94,7 @@ export const inPrintSelection = (
 };
 
 /** The rows of the set, in page order. */
-export const setPartsOf = (selection: PrintSelection): SetPart[] => {
+const setPartsOf = (selection: PrintSelection): SetPart[] => {
     return SET_PARTS.filter((part) => inPrintSelection(selection, part));
 };
 

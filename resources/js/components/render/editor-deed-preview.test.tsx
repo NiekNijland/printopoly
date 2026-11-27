@@ -1,14 +1,10 @@
 import { render } from '@testing-library/react';
 
+import { deedKey } from '@/lib/render/edition-keys';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import { sampleEdition } from '@/lib/render/sample-edition';
 
-import {
-    DeedPreview,
-    DeedSpread,
-    SPREAD_GAP,
-    SpacePreview,
-} from './editor-deed-preview';
+import { DeedPreview, SPREAD_GAP, SpacePreview } from './editor-deed-preview';
 import type { ElementProps } from './sheet';
 
 const resolved = resolveEdition(sampleEdition('nl'));
@@ -20,18 +16,29 @@ const part = { resolved, photos: new Map(), common };
 
 describe('the deed and space previews of the editor', () => {
     it('shows a deed with a story front and back side by side', () => {
+        const edition = sampleEdition('nl');
+        const told = resolveEdition({
+            ...edition,
+            elements: {
+                ...edition.elements,
+                [deedKey(1)]: { text: 'Een verhaal' },
+            },
+        });
         const { container } = render(
-            <DeedSpread story="Een verhaal">
-                {(side) => <span data-side={side} />}
-            </DeedSpread>,
+            <DeedPreview
+                {...part}
+                resolved={told}
+                target={{ key: 'deed.1' }}
+            />,
         );
 
         expect(SPREAD_GAP).toBe(6);
+        expect(container.querySelector('[data-deed-spread]')).not.toBeNull();
         expect(
-            [...container.querySelectorAll('[data-side]')].map((node) =>
-                node.getAttribute('data-side'),
+            [...container.querySelectorAll('[data-element^="deed-"]')].map(
+                (node) => node.getAttribute('data-element'),
             ),
-        ).toEqual(['front', 'back']);
+        ).toEqual(['deed-street-front', 'deed-street-back']);
     });
 
     it('draws a space, or its deed when asked', () => {

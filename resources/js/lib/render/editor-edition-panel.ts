@@ -244,14 +244,3 @@ export const changedWords = (edition: Edition): number => {
 export const contributionElement = (key: string): string => {
     return key.startsWith('group.') ? (firstStreetKey(key) ?? key) : key;
 };
-
-/** The first element with a contribution waiting, in the order they came in. */
-export const firstContributionElement = (
-    contributions: readonly { elementKey: string }[],
-): string | undefined => {
-    const first = contributions[0];
-
-    return first === undefined
-        ? undefined
-        : contributionElement(first.elementKey);
-};

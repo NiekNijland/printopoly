@@ -4,18 +4,13 @@ import { parseCardText } from '@/lib/render/edition-card-text';
 import { updateElement } from '@/lib/render/edition-changes';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import { parseEdition } from '@/lib/render/edition-schema';
-import { HIDDEN_TEMPLATE_IDS } from '@/lib/render/edition-template-ids';
+import { TEMPLATE_IDS } from '@/lib/render/edition-template-ids';
 import { DEFAULT_PARTS } from '@/lib/render/edition-types';
 import { standardEdition } from '@/lib/render/standard-edition';
 import { defined } from '@/testing/defined';
+import { HIDDEN_TEMPLATE_IDS, withSpaceTokens } from '@/testing/templates';
 import type { Locale } from '@/types/game';
-import {
-    TEMPLATE_IDS,
-    spaceTokens,
-    template,
-    templateEdition,
-    templates,
-} from './edition-templates';
+import { template, templateEdition, templates } from './edition-templates';
 
 const LOCALES: readonly Locale[] = ['nl', 'en'];
 
@@ -146,9 +141,6 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
             expect(
                 texts.filter((text) => text.includes('{space:0}')).length,
             ).toBeGreaterThan(0);
-            expect(spaceTokens('naar {24} en {0}, niet {99}')).toBe(
-                'naar {space:24} en {space:0}, niet {99}',
-            );
         });
 
         it('shows the current names on the cards, also of a renamed Start', () => {
@@ -182,7 +174,7 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
                 houseRules: true,
             });
             expect(edition?.elements.house_rules?.text?.split('\n')).toEqual(
-                data?.houseRules.map(spaceTokens),
+                data?.houseRules.map(withSpaceTokens),
             );
         });
 

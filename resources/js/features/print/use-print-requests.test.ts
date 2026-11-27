@@ -5,8 +5,10 @@ import { fakePrintServices, partRow, printJob } from '@/testing/print-job';
 import { I18nWrapper } from '@/testing/render';
 import type { PrintJobData } from '@/types/generated';
 
-import { NO_CHOICE } from './print-page-setup';
+import { initialChoices } from './print-page-setup';
 import { choiceToSendOf, usePrintRequests } from './use-print-requests';
+
+const NO_CHOICE = initialChoices(null).home;
 
 const setup = (job: PrintJobData) =>
     renderHook(

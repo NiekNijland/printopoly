@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, renderHook, waitFor } from '@testing-library/react';
 
 import { PAWN_SIZE_MM } from '@/components/render/pawn';
 
@@ -6,8 +6,8 @@ import type { PrintEdition } from '@/lib/render/print-composition';
 import { TOKEN_SIZE } from '@/lib/render/print-page-frame';
 import { defined } from '@/testing/defined';
 import {
-    cullOutsidePages,
     PrintDocument,
+    useReadySignal,
     type PrintPayload,
 } from './print-document';
 
@@ -302,7 +302,7 @@ describe('PrintDocument', () => {
         expect(TOKEN_SIZE).toEqual({ w: PAWN_SIZE_MM.w, h: PAWN_SIZE_MM.h });
     });
 
-    it('hides what lies completely outside its page, because Chrome would shrink every page for it', () => {
+    it('hides what lies completely outside its page, because Chrome would shrink every page for it', async () => {
         const root = document.createElement('div');
 
         root.innerHTML =
@@ -333,7 +333,16 @@ describe('PrintDocument', () => {
         place('#outside', 120, 200);
         place('#child', 130, 150);
 
-        expect(cullOutsidePages(root)).toBe(1);
+        renderHook(() => useReadySignal());
+        await waitFor(() => {
+            expect(window.printReady).toBe(true);
+        });
+
+        expect(
+            [...root.querySelectorAll<HTMLElement>('*')].filter(
+                (element) => element.style.display === 'none',
+            ),
+        ).toHaveLength(1);
         expect(
             defined(root.querySelector<HTMLElement>('#outside')).style.display,
         ).toBe('none');

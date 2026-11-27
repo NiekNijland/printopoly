@@ -20,7 +20,7 @@ export type BanknoteProps = {
 } & ElementProps;
 
 /** The standard colour of a note value, from the game data. */
-export const noteColor = (value: number): string => {
+const noteColor = (value: number): string => {
     return (
         standardEdition.money.notes.find((note) => note.value === value)
             ?.color ?? '#FFFDF7'

@@ -12,7 +12,7 @@ import type {
     StandardEdition,
 } from '@/types/game';
 
-import { spaceKey, wordKey, type WordId } from './edition-keys';
+import { wordKey, type WordId } from './edition-keys';
 import type { Edition } from './edition-types';
 
 /** Longest word or name (house, hotel, deck, currency) and longest symbol, so they fit where they are printed. */
@@ -253,7 +253,3 @@ export const fillWords = (
         }
     });
 };
-
-/** Key of the space a corner is, for its name, short text and photo. */
-export const cornerKey = (corner: CornerKind): string =>
-    spaceKey(CORNER_POSITIONS[corner]);

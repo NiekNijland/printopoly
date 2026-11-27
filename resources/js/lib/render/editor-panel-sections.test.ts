@@ -4,7 +4,6 @@ import { defined } from '@/testing/defined';
 import { sampleEdition } from '@/testing/editions';
 
 import {
-    canReset,
     panelActions,
     panelSections,
     resetLosesPhoto,
@@ -188,7 +187,7 @@ describe('panelActions', () => {
             ...sampleEdition(),
             elements: { theme_accent: { color: '#123456' } },
         };
-        expect(canReset('theme_accent', edition)).toBe(false);
+        expect(panelActions('theme_accent', edition)).not.toContain('reset');
     });
 
     it('measures a template edition against its template (B152)', () => {
@@ -202,11 +201,10 @@ describe('panelActions', () => {
             undefined,
         ).edition;
 
-        expect(canReset('space.01', edition)).toBe(false);
         expect(panelActions('space.01', edition)).not.toContain('reset');
-        expect(canReset('space.01', renamed)).toBe(true);
+        expect(panelActions('space.01', renamed)).toContain('reset');
         // A card that lost its template text goes back to it.
-        expect(canReset('card.chance.01', cleared)).toBe(true);
+        expect(panelActions('card.chance.01', cleared)).toContain('reset');
     });
 });
 

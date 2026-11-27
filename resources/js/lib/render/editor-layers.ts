@@ -95,7 +95,7 @@ export const newPhotoLayer = (
 };
 
 /** Keeps the middle of a layer inside the area, so it can always be grabbed again. */
-export const clampLayer = (layer: FreeLayer, area: LayerArea): FreeLayer => {
+const clampLayer = (layer: FreeLayer, area: LayerArea): FreeLayer => {
     const w = Math.min(Math.max(layer.w, MIN_LAYER_MM), area.w);
     const h = Math.min(Math.max(layer.h, MIN_LAYER_MM), area.h);
     const cx = Math.min(Math.max(layer.x + layer.w / 2, 0), area.w);

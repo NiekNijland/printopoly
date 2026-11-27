@@ -198,8 +198,7 @@ describe('the sets of the print page', () => {
         ).toHaveAttribute('href', '/zip/printer');
     });
 
-    it('shares the picture of the invitation, from its row and with Alles delen (R6 Sara)', async () => {
-        const user = userEvent.setup();
+    const renderWithInvitation = () => {
         const share = vi.fn<(data: ShareData) => Promise<void>>(() =>
             Promise.resolve(),
         );
@@ -246,7 +245,13 @@ describe('the sets of the print page', () => {
             />,
         );
 
-        // The row shares the picture, not a link to the PDF.
+        return share;
+    };
+
+    it('shares the picture of the invitation from its row, not a link to the PDF (R6 Sara)', async () => {
+        const user = userEvent.setup();
+        const share = renderWithInvitation();
+
         expect(
             screen.queryByRole('button', { name: 'PDF delen: Uitnodiging' }),
         ).toBeNull();
@@ -262,23 +267,27 @@ describe('the sets of the print page', () => {
         expect(one?.files?.map((file) => [file.name, file.type])).toEqual([
             ['zaterdagclub-uitnodiging.png', 'image/png'],
         ]);
+    });
 
-        // Alles delen has the picture next to the PDFs.
-        const all = screen
-            .getAllByRole('button', { name: 'Alles delen' })
-            .at(0);
+    it('shares the picture of the invitation next to the PDFs with Alles delen (R6 Sara)', async () => {
+        const user = userEvent.setup();
+        const share = renderWithInvitation();
+
+        const [all] = await screen.findAllByRole('button', {
+            name: 'Alles delen',
+        });
         if (all === undefined) {
             throw new Error('no share button');
         }
         await user.click(all);
         await waitFor(() => {
-            expect(share).toHaveBeenCalledTimes(2);
+            expect(share).toHaveBeenCalledTimes(1);
         });
-        const both = share.mock.calls[1]?.[0];
-        expect(both?.files?.map((file) => file.name)).toContain(
+        const shared = share.mock.calls[0]?.[0];
+        expect(shared?.files?.map((file) => file.name)).toContain(
             'zaterdagclub-uitnodiging.png',
         );
-        expect(both?.files?.map((file) => file.name)).toContain(
+        expect(shared?.files?.map((file) => file.name)).toContain(
             'invitation.pdf',
         );
     });

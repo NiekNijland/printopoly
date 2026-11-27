@@ -1,22 +1,38 @@
 import { describe, expect, it } from 'vitest';
 import type { GroupId, StreetSpace } from '../../types/game';
+import { deedContent } from './deed-rows';
 import {
     deedsFor,
     formatMoney,
-    groupMembers,
-    mortgage,
-    rentTable,
-    setRent,
+    isOwnable,
     spaceAt,
-    spacesBySide,
     standardEdition,
-    unmortgage,
 } from './standard-edition';
 
 const locales = ['nl', 'en'] as const;
 const streets = standardEdition.spaces.filter(
     (space): space is StreetSpace => space.type === 'street',
 );
+
+const groupMembers = (group: GroupId): StreetSpace[] =>
+    streets.filter((street) => street.group === group);
+
+const deedOf = (position: number) => {
+    const space = spaceAt(position);
+    if (!isOwnable(space)) {
+        throw new Error(`Space ${String(position)} has no deed`);
+    }
+
+    return deedContent(space, 'en', 'eur');
+};
+
+const rentOf = (position: number) => {
+    const space = spaceAt(position);
+
+    return space.type === 'street' || space.type === 'station'
+        ? space.rent
+        : undefined;
+};
 
 describe('standard edition', () => {
     it('has 40 spaces at their own position', () => {
@@ -215,7 +231,7 @@ describe('rents and costs', () => {
 
     it('has strictly increasing station rents of 25, 50, 100 and 200', () => {
         for (const position of [5, 15, 25, 35]) {
-            expect(rentTable(position)).toEqual([25, 50, 100, 200]);
+            expect(rentOf(position)).toEqual([25, 50, 100, 200]);
         }
     });
 
@@ -231,15 +247,13 @@ describe('rents and costs', () => {
     it('doubles the base rent for a full set, which stays below the one-house rent', () => {
         for (const street of streets) {
             expect(
-                setRent(street.position),
+                street.rent[0] * 2,
                 `position ${street.position}`,
-            ).toBe(street.rent[0] * 2);
-            expect(setRent(street.position)).toBeLessThan(street.rent[1]);
+            ).toBeLessThan(street.rent[1]);
         }
 
-        expect(setRent(1)).toBe(4);
-        expect(setRent(39)).toBe(100);
-        expect(() => setRent(5)).toThrow();
+        expect(deedOf(1).rows[1]?.value).toBe('€4');
+        expect(deedOf(39).rows[1]?.value).toBe('€100');
     });
 
     it('prices streets in increasing order around the board', () => {
@@ -252,44 +266,43 @@ describe('rents and costs', () => {
 
     it('has a mortgage of half the price, and unmortgaging costs 10% more', () => {
         for (const deed of deedsFor()) {
-            expect(mortgage(deed.position)).toBe(deed.price / 2);
+            expect(deed.mortgage).toBe(deed.price / 2);
         }
 
-        expect(unmortgage(1)).toBe(33);
-        expect(unmortgage(5)).toBe(110);
-        expect(unmortgage(12)).toBe(83);
-        expect(unmortgage(39)).toBe(220);
+        expect(deedOf(1).unmortgage).toBe('€33');
+        expect(deedOf(5).unmortgage).toBe('€110');
+        expect(deedOf(12).unmortgage).toBe('€83');
+        expect(deedOf(39).unmortgage).toBe('€220');
     });
 
-    it('throws when asking for rent or mortgage on a space that has none', () => {
-        expect(() => rentTable(4)).toThrow();
-        expect(() => mortgage(0)).toThrow();
-        expect(() => rentTable(40)).toThrow();
+    it('has no rent on a space that has none', () => {
+        expect(rentOf(4)).toBeUndefined();
+        expect(isOwnable(spaceAt(0))).toBe(false);
     });
 
     it('has a house cost of 50, 100, 150 and 200 per side of the board', () => {
-        const { bottom, left, top, right } = spacesBySide();
-        const costs = (side: readonly (typeof bottom)[number][]) =>
+        const costs = (corner: number) =>
             new Set(
-                side
+                streets
                     .filter(
-                        (space): space is StreetSpace =>
-                            space.type === 'street',
+                        (street) =>
+                            street.position > corner &&
+                            street.position < corner + 10,
                     )
-                    .map((space) => space.houseCost),
+                    .map((street) => street.houseCost),
             );
 
-        expect(costs(bottom)).toEqual(new Set([50]));
-        expect(costs(left)).toEqual(new Set([100]));
-        expect(costs(top)).toEqual(new Set([150]));
-        expect(costs(right)).toEqual(new Set([200]));
+        expect(costs(0)).toEqual(new Set([50]));
+        expect(costs(10)).toEqual(new Set([100]));
+        expect(costs(20)).toEqual(new Set([150]));
+        expect(costs(30)).toEqual(new Set([200]));
     });
 
     it('matches the verified rent table for a few reference streets', () => {
-        expect(rentTable(1)).toEqual([2, 10, 30, 90, 160, 250]);
-        expect(rentTable(19)).toEqual([16, 80, 220, 600, 800, 1000]);
-        expect(rentTable(34)).toEqual([28, 150, 450, 1000, 1200, 1400]);
-        expect(rentTable(39)).toEqual([50, 200, 600, 1400, 1700, 2000]);
+        expect(rentOf(1)).toEqual([2, 10, 30, 90, 160, 250]);
+        expect(rentOf(19)).toEqual([16, 80, 220, 600, 800, 1000]);
+        expect(rentOf(34)).toEqual([28, 150, 450, 1000, 1200, 1400]);
+        expect(rentOf(39)).toEqual([50, 200, 600, 1400, 1700, 2000]);
     });
 
     it('has the tax amounts and the salary', () => {
@@ -306,21 +319,6 @@ describe('rents and costs', () => {
 });
 
 describe('helpers', () => {
-    it('splits the board into 4 sides of 9 plus 4 corners', () => {
-        const sides = spacesBySide();
-
-        expect(sides.corners.map((corner) => corner.position)).toEqual([
-            0, 10, 20, 30,
-        ]);
-        expect(
-            [sides.bottom, sides.left, sides.top, sides.right].map(
-                (side) => side.length,
-            ),
-        ).toEqual([9, 9, 9, 9]);
-        expect(sides.bottom[0]?.position).toBe(1);
-        expect(sides.right[8]?.position).toBe(39);
-    });
-
     it('lists group members in board order', () => {
         expect(groupMembers('brown').map((street) => street.position)).toEqual([
             1, 3,

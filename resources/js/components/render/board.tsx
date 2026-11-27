@@ -292,7 +292,7 @@ const SIDES: readonly SpaceSide[] = ['top', 'right', 'bottom', 'left'];
  * The sides of a space, upright, that lie on the outer edge of the board. A space turned by 90° shows its upright
  * top on the right of the board, so a side of the board maps back by the turn.
  */
-export const edgeSides = (
+const edgeSides = (
     rect: { x: number; y: number; w: number; h: number; rotation: number },
     profile: BoardProfile,
 ): SpaceSide[] => {

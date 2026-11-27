@@ -13,7 +13,7 @@ import type {
 import { STANDARD_DECK_SIZE } from './edition-keys';
 
 /** B99: only the board is required. */
-export const checkParts = (parts: PartSelection): CheckIssue[] => {
+const checkParts = (parts: PartSelection): CheckIssue[] => {
     if (parts.board) return [];
     return [
         issue('parts.board-missing', 'parts', 'board', 'error', {
@@ -24,7 +24,7 @@ export const checkParts = (parts: PartSelection): CheckIssue[] => {
 };
 
 /** Pawns switched on without a photo print as empty stands with only a name: say so (ronde 2). */
-export const checkPawns = (
+const checkPawns = (
     parts: PartSelection,
     pawnsWithoutPhoto: readonly string[],
 ): CheckIssue[] => {
@@ -56,7 +56,7 @@ export const checkPawns = (
  * B135: an extra card without a text prints as an empty card. So does a standard card after "Kaarten leegmaken"
  * (B194); that one cannot be taken out, but it can go back to its standard text.
  */
-export const checkEmptyCards = (keys: readonly string[]): CheckIssue[] => {
+const checkEmptyCards = (keys: readonly string[]): CheckIssue[] => {
     return keys.map((key) =>
         issue(
             'card.empty',
@@ -77,7 +77,7 @@ export const checkEmptyCards = (keys: readonly string[]): CheckIssue[] => {
 };
 
 /** A street, station or utility after "Namen leegmaken" (B201) prints without a name on the board and its deed. */
-export const checkEmptyNames = (keys: readonly string[]): CheckIssue[] => {
+const checkEmptyNames = (keys: readonly string[]): CheckIssue[] => {
     return keys.map((key) =>
         issue('space.no-name', key, 'name', 'warning', {
             nl: 'Dit vak heeft nog geen naam. Schrijf er een op of zet het terug naar standaard.',

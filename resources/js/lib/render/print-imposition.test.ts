@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { defined } from '@/testing/defined';
-import { rectsOverlap, at } from '../../types/print';
+import { rectsOverlap } from '@/testing/rects';
+import { at } from '../../types/print';
 import {
     SHEET_PRESETS,
     duplexCardSheets,
     impose,
-    mirrorX,
     moneySheets,
     printShopCardPages,
-    sheetLabel,
     type Imposition,
 } from './print-imposition';
 
@@ -56,11 +55,15 @@ describe('presets', () => {
     });
 });
 
-describe('sheetLabel', () => {
+describe('sheet labels', () => {
     it('formats ranges', () => {
-        expect(sheetLabel('Kans', 1, 4)).toBe('Kans 1 t/m 4');
-        expect(sheetLabel('Kans', 5, 5)).toBe('Kans 5');
-        expect(sheetLabel(undefined, 1, 2)).toBe('1 t/m 2');
+        const label = (count: number, sheet: number, prefix?: string) =>
+            at(duplexCardSheets(count, undefined, prefix).pages, sheet).front
+                .label;
+
+        expect(label(4, 0, 'Kans')).toBe('Kans 1 t/m 4');
+        expect(label(10, 1, 'Kans')).toBe('Kans 10');
+        expect(label(2, 0)).toBe('1 t/m 2');
     });
 });
 
@@ -238,11 +241,12 @@ describe('duplexCardSheets', () => {
     });
 
     it('mirrors a box over the width of the page', () => {
-        expect(mirrorX({ x: 10, y: 5, w: 63, h: 88 }, 210)).toEqual({
-            x: 137,
-            y: 5,
-            w: 63,
-            h: 88,
+        const { front, back } = at(duplexCardSheets(1).pages, 0);
+        const card = at(front.items, 0).trim;
+
+        expect(at(back.items, 0).trim).toEqual({
+            ...card,
+            x: 210 - card.x - card.w,
         });
     });
 });

@@ -9,7 +9,6 @@ import {
     createEdition,
     diffEditions,
     invertChanges,
-    isEmptyOverride,
     sameOverride,
     setElement,
     updateElement,
@@ -145,9 +144,9 @@ describe('setElement and updateElement', () => {
     });
 
     it('tells empty overrides', () => {
-        expect(isEmptyOverride(undefined)).toBe(true);
-        expect(isEmptyOverride({ name: undefined })).toBe(true);
-        expect(isEmptyOverride({ name: '' })).toBe(false);
+        expect(sameOverride(undefined, undefined)).toBe(true);
+        expect(sameOverride({ name: undefined }, undefined)).toBe(true);
+        expect(sameOverride({ name: '' }, undefined)).toBe(false);
         expect(
             sameOverride(
                 { name: 'A', photo: photo() },

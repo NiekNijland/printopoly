@@ -37,9 +37,7 @@ export const createEdition = (
     };
 };
 
-export const isEmptyOverride = (
-    override: ElementOverride | undefined,
-): boolean => {
+const isEmptyOverride = (override: ElementOverride | undefined): boolean => {
     return (
         override === undefined ||
         Object.values(override).every((value: unknown) => value === undefined)

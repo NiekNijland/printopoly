@@ -5,7 +5,7 @@ import { standardEdition } from '@/lib/render/standard-edition';
 import type { Locale } from '@/types/game';
 
 /** The colour group a `group.<colour>` key stands for. */
-export const groupOf = (key: string) => {
+const groupOf = (key: string) => {
     const id = /^group\.([a-z_]+)$/.exec(key)?.[1];
 
     return standardEdition.groups.find((group) => group.id === id);

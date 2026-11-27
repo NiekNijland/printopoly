@@ -3,16 +3,16 @@ import { runChecks } from '@/lib/render/checks';
 import { updateElement } from '@/lib/render/edition-changes';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import {
-    HIDDEN_TEMPLATE_IDS,
     isOfferedTemplate,
+    TEMPLATE_IDS,
 } from '@/lib/render/edition-template-ids';
 import { DEFAULT_PARTS } from '@/lib/render/edition-types';
 import { buildCheckInput } from '@/lib/render/editor-checks-input';
 import { editorView } from '@/lib/render/editor-print-selection';
 import { defined } from '@/testing/defined';
+import { HIDDEN_TEMPLATE_IDS } from '@/testing/templates';
 import type { Locale } from '@/types/game';
 import {
-    TEMPLATE_IDS,
     lidExample,
     template,
     templateEdition,

@@ -1,11 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createFakeNetwork, settle } from '../../testing/edition-test-utils';
-import {
-    CHANNEL_NAME,
-    EditionBus,
-    browserChannelFactory,
-    type ChannelLike,
-} from './bus';
+import { EditionBus, browserChannelFactory, type ChannelLike } from './bus';
 
 describe('EditionBus', () => {
     it('delivers to other windows and not to itself', async () => {
@@ -31,7 +26,7 @@ describe('EditionBus', () => {
     it('ignores its own echo and garbage', () => {
         let channel: ChannelLike | undefined;
         const bus = new EditionBus((name) => {
-            expect(name).toBe(CHANNEL_NAME);
+            expect(name).toBe('printopoly-editions');
             channel = {
                 postMessage: () => undefined,
                 close: () => undefined,

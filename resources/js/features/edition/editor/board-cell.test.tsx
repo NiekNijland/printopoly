@@ -1,85 +1,108 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 
+import { spaceAt } from '@/lib/render/standard-edition';
 import { sampleEdition } from '@/testing/editions';
 
-import {
-    BoardCell,
-    OVERLAY_SELECTED,
-    SpaceCellContent,
-    spaceCellClass,
-} from './board-cell';
+import { SpaceCell, type CellContext } from './board-cell';
 
-const state = {
-    key: 'space.03',
-    selected: false,
-    blocked: false,
-    swapFrom: null,
-    swapTarget: null,
-    drag: null,
-};
+const OVERLAY_SELECTED =
+    'z-10 outline-4 -outline-offset-4 outline-ink shadow-[inset_0_0_0_7px_var(--color-paper)]';
 
-describe('spaceCellClass', () => {
+type Swap = CellContext['swap'];
+
+const contextWith = (
+    extra: Partial<Omit<CellContext, 'swap'>> & {
+        swap?: Partial<Swap>;
+    } = {},
+): CellContext => ({
+    selected: '',
+    overlay: false,
+    edition: sampleEdition(),
+    photos: undefined,
+    warned: new Set(),
+    blocked: () => false,
+    describe: () => 'Veldweg',
+    onSelect: vi.fn<CellContext['onSelect']>(),
+    ...extra,
+    swap: {
+        swapFrom: null,
+        swapTarget: null,
+        drag: null,
+        consumeDrag: vi.fn<Swap['consumeDrag']>(() => false),
+        pressCell: vi.fn<Swap['pressCell']>(),
+        ...extra.swap,
+    },
+});
+
+const cell = (position: number, context: CellContext) =>
+    render(<SpaceCell space={spaceAt(position)} context={context} />);
+
+const classOf = (
+    position: number,
+    extra: Parameters<typeof contextWith>[0] = {},
+) =>
+    cell(position, contextWith(extra)).container.querySelector(
+        '[role="option"]',
+    )?.className;
+
+describe('the class of a space cell', () => {
     it('marks the chosen space, on the mini board and over the real board', () => {
-        expect(spaceCellClass(false, { ...state, selected: true })).toContain(
-            'outline-ink',
-        );
-        expect(spaceCellClass(true, { ...state, selected: true })).toContain(
+        expect(classOf(3, { selected: 'space.03' })).toContain('outline-ink');
+        expect(classOf(3, { selected: 'space.03', overlay: true })).toContain(
             OVERLAY_SELECTED,
         );
     });
 
     it('shows a drag: a target of the same kind dashed, another kind refused', () => {
         const drag = { from: 'space.01', over: 'space.05' };
+        const classes = [
+            classOf(3, { swap: { drag } }),
+            classOf(5, { swap: { drag } }),
+            classOf(1, { overlay: true, swap: { drag } }),
+            classOf(5, { overlay: true, swap: { drag } }),
+        ];
 
-        expect(spaceCellClass(false, { ...state, drag })).toContain(
-            'outline-dashed',
-        );
-        expect(
-            spaceCellClass(false, { ...state, key: 'space.05', drag }),
-        ).toContain('outline-solid');
-        expect(
-            spaceCellClass(true, { ...state, key: 'space.01', drag }),
-        ).toContain('bg-paper/50');
-        expect(
-            spaceCellClass(true, { ...state, key: 'space.05', drag }),
-        ).toContain('bg-ink/40');
+        expect(classes[0]).toContain('outline-dashed');
+        expect(classes[1]).toContain('outline-solid');
+        expect(classes[2]).toContain('bg-paper/50');
+        expect(classes[3]).toContain('bg-ink/40');
     });
 
     it('shows the keyboard swap and a space that cannot be chosen', () => {
-        expect(
-            spaceCellClass(false, { ...state, swapTarget: 'space.03' }),
-        ).toContain('outline-press');
-        expect(
-            spaceCellClass(false, { ...state, swapFrom: 'space.03' }),
-        ).toContain('opacity-60');
-        expect(spaceCellClass(true, { ...state, blocked: true })).toContain(
+        expect(classOf(3, { swap: { swapTarget: 'space.03' } })).toContain(
+            'outline-press',
+        );
+        expect(classOf(3, { swap: { swapFrom: 'space.03' } })).toContain(
+            'opacity-60',
+        );
+        expect(classOf(3, { overlay: true, blocked: () => true })).toContain(
             'cursor-not-allowed',
         );
     });
 });
 
-describe('BoardCell', () => {
+describe('the option of a space cell', () => {
     const show = (extra: { blocked?: boolean; swapping?: boolean } = {}) => {
-        const onClick = vi.fn<() => void>();
-        const onChoose = vi.fn<() => void>();
-        render(
-            <BoardCell
-                cellKey="space.03"
-                className="cell"
-                style={{}}
-                selected
-                blocked={extra.blocked ?? false}
-                label="Veldweg"
-                swapping={extra.swapping ?? false}
-                onClick={onClick}
-                onChoose={onChoose}
-                onPress={() => undefined}
-            >
-                x
-            </BoardCell>,
+        const onSelect = vi.fn<CellContext['onSelect']>();
+        const consumeDrag = vi.fn<Swap['consumeDrag']>(() => true);
+        cell(
+            3,
+            contextWith({
+                selected: 'space.03',
+                blocked: () => extra.blocked ?? false,
+                onSelect,
+                swap: {
+                    consumeDrag,
+                    swapFrom: extra.swapping === true ? 'space.01' : null,
+                },
+            }),
         );
 
-        return { onClick, onChoose, option: screen.getByRole('option') };
+        return {
+            onClick: consumeDrag,
+            onChoose: onSelect,
+            option: screen.getByRole('option', { name: 'Veldweg' }),
+        };
     };
 
     it('is an option that Enter and Space choose', () => {
@@ -108,14 +131,13 @@ describe('BoardCell', () => {
     });
 });
 
-describe('SpaceCellContent', () => {
+describe('the content of a space cell', () => {
     it('draws the band, the photo, the changed dot and the warning on the mini board', () => {
         const edition = sampleEdition();
-        const { container } = render(
-            <SpaceCellContent
-                position={1}
-                color="#f00"
-                edition={{
+        const { container } = cell(
+            1,
+            contextWith({
+                edition: {
                     ...edition,
                     elements: {
                         'space.01': {
@@ -129,24 +151,20 @@ describe('SpaceCellContent', () => {
                             },
                         },
                     },
-                }}
-                photos={
-                    new Map([
-                        [
-                            'p1',
-                            {
-                                id: 'p1',
-                                url: 'blob:p1',
-                                width: 8,
-                                height: 6,
-                            },
-                        ],
-                    ])
-                }
-                overlay={false}
-                customized
-                warned
-            />,
+                },
+                photos: new Map([
+                    [
+                        'p1',
+                        {
+                            id: 'p1',
+                            url: 'blob:p1',
+                            width: 8,
+                            height: 6,
+                        },
+                    ],
+                ]),
+                warned: new Set(['space.01']),
+            }),
         );
 
         expect(screen.getByTestId('mini-space-photo')).toHaveStyle({
@@ -157,16 +175,16 @@ describe('SpaceCellContent', () => {
     });
 
     it('draws only the marks over the real board', () => {
-        const { container } = render(
-            <SpaceCellContent
-                position={1}
-                color={null}
-                edition={sampleEdition()}
-                photos={undefined}
-                overlay
-                customized
-                warned={false}
-            />,
+        const edition = sampleEdition();
+        const { container } = cell(
+            1,
+            contextWith({
+                overlay: true,
+                edition: {
+                    ...edition,
+                    elements: { 'space.01': { name: 'Dorpsstraat' } },
+                },
+            }),
         );
 
         expect(screen.queryByTestId('mini-space-photo')).toBeNull();

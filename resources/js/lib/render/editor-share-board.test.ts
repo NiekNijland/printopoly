@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { Edition, PhotoRecord } from '@/lib/render/edition-types';
 import { makeEdition, photo } from '@/testing/edition-test-utils';
 
-import { shareBoardRequest, sharePhotoSizes } from './editor-share-board';
+import { shareBoardRequest } from './editor-share-board';
 
 const withPhotos = (): Edition => {
     return {
@@ -34,9 +34,26 @@ const record = (id: string, type = 'image/jpeg'): PhotoRecord => {
     };
 };
 
+const sharePhotoSizes = async (
+    edition: Edition,
+): Promise<Map<string, number>> => {
+    const sizes = new Map<string, number>();
+    await shareBoardRequest(
+        edition,
+        (id) => Promise.resolve(record(id)),
+        (given, longSide) => {
+            sizes.set(given.id, longSide);
+
+            return Promise.resolve(null);
+        },
+    );
+
+    return sizes;
+};
+
 describe('the photos of "Deel je bord" (R5-24)', () => {
-    it('takes the photos on the board, larger in the centre, and none from cards or pawns', () => {
-        const sizes = sharePhotoSizes(withPhotos());
+    it('takes the photos on the board, larger in the centre, and none from cards or pawns', async () => {
+        const sizes = await sharePhotoSizes(withPhotos());
 
         expect([...sizes.keys()].sort()).toEqual(
             ['achter', 'molen', 'stel', 'zoom'].sort(),

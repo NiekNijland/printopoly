@@ -1,17 +1,30 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { HouseRulesCard, houseRuleLines } from './house-rules';
+import { HouseRulesCard } from './house-rules';
 
 const slot = (container: HTMLElement, name: string) =>
     container.querySelector<HTMLElement>(`[data-slot="${name}"]`);
 
-describe('houseRuleLines', () => {
+const rulesOf = (text: string) =>
+    slot(
+        render(
+            <HouseRulesCard
+                text={text}
+                editionName="Club"
+                theme="classic"
+                locale="nl"
+            />,
+        ).container,
+        'text',
+    )?.textContent;
+
+describe('the rules on the card', () => {
     it('keeps one trimmed rule per line and drops empty lines', () => {
-        expect(
-            houseRuleLines('  Vrij parkeren pakt de pot \n\n\nGeen lenen  '),
-        ).toEqual(['Vrij parkeren pakt de pot', 'Geen lenen']);
-        expect(houseRuleLines('')).toEqual([]);
+        expect(rulesOf('  Vrij parkeren pakt de pot \n\n\nGeen lenen  ')).toBe(
+            '1. Vrij parkeren pakt de pot\n2. Geen lenen',
+        );
+        expect(rulesOf('')).toBe('');
     });
 });
 

@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { Banknote, noteColor } from './banknote';
+import { Banknote } from './banknote';
 
 const note = (container: HTMLElement) =>
     container.querySelector<HTMLElement>('[data-element="banknote"]');
@@ -11,14 +11,20 @@ const slotText = (container: HTMLElement, name: string) =>
         (node) => node.textContent,
     );
 
-describe('noteColor', () => {
+const paperOf = (value: number) =>
+    note(
+        render(<Banknote value={value} theme="classic" locale="nl" />)
+            .container,
+    )?.style.background;
+
+describe('the paper colour of a value', () => {
     it('gives the colour of a value from the game data', () => {
-        expect(noteColor(500)).toBe('#F3F0A8');
-        expect(noteColor(1)).toBe('#F5EBCB');
+        expect(paperOf(500)).toBe('#F3F0A8');
+        expect(paperOf(1)).toBe('#F5EBCB');
     });
 
     it('gives plain paper for an unknown value', () => {
-        expect(noteColor(3)).toBe('#FFFDF7');
+        expect(paperOf(3)).toBe('#FFFDF7');
     });
 });
 

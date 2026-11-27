@@ -16,7 +16,7 @@ export const TEMPLATE_IDS = [
  * their untouched texts stay as they are and count as no change. The first six were on offer until round 5; `club1`
  * and `birthday1` are the versions of Club of vereniging and Verjaardag from before they were rewritten (B193).
  */
-export const HIDDEN_TEMPLATE_IDS = [
+const HIDDEN_TEMPLATE_IDS = [
     'company',
     'school',
     'club',

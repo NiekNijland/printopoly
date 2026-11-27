@@ -21,17 +21,10 @@ export type CurrencyId = 'eur' | 'usd' | 'gbp' | 'play';
 export type DeckId = 'chance' | 'chest';
 
 /** Base rent, then 1, 2, 3, 4 houses, then hotel. */
-export type StreetRent = readonly [
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-];
+type StreetRent = readonly [number, number, number, number, number, number];
 
 /** Rent with 1, 2, 3 and 4 stations owned. */
-export type StationRent = readonly [number, number, number, number];
+type StationRent = readonly [number, number, number, number];
 
 export type CornerSpace = {
     position: number;
@@ -160,16 +153,4 @@ export type StandardEdition = {
     money: Money;
     components: Components;
     currencies: readonly Currency[];
-};
-
-export type SpacesBySide = {
-    corners: readonly CornerSpace[];
-    /** Positions 1 to 9, right to left. */
-    bottom: readonly Space[];
-    /** Positions 11 to 19, bottom to top. */
-    left: readonly Space[];
-    /** Positions 21 to 29, left to right. */
-    top: readonly Space[];
-    /** Positions 31 to 39, top to bottom. */
-    right: readonly Space[];
 };

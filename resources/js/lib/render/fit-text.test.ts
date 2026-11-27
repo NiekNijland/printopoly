@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { FIT_MARGIN, fitText, wrapLines, type MeasureText } from './fit-text';
+import { fitText, type MeasureText } from './fit-text';
 
 /** Every character is half an em wide, so widths are easy to calculate by hand. */
 const measure: MeasureText = (text, size) => text.length * size * 0.5;
@@ -29,7 +29,6 @@ describe('fitText', () => {
     it('leaves a 3% margin on width and height', () => {
         const result = fitText({ ...base, text: 'x' });
 
-        expect(FIT_MARGIN).toBe(0.03);
         expect(result.availableWidthMm).toBeCloseTo(97);
         expect(result.availableHeightMm).toBeCloseTo(19.4);
     });
@@ -131,9 +130,20 @@ describe('fitText', () => {
     });
 });
 
-describe('wrapLines', () => {
+const wrapLines = (text: string, availableWidthMm: number): string[] =>
+    fitText({
+        text,
+        widthMm: availableWidthMm / 0.97,
+        heightMm: 100,
+        maxFontMm: 1,
+        minFontMm: 1,
+        wrap: 'words',
+        measure,
+    }).lines;
+
+describe('wrapping at words', () => {
     it('puts a word that is too wide on its own line without breaking it', () => {
-        expect(wrapLines('a bbbbbbbbbbbb c', 4, 1, measure, 'words')).toEqual([
+        expect(wrapLines('a bbbbbbbbbbbb c', 4)).toEqual([
             'a',
             'bbbbbbbbbbbb',
             'c',
@@ -141,9 +151,6 @@ describe('wrapLines', () => {
     });
 
     it('keeps explicit line breaks in words mode', () => {
-        expect(wrapLines('een\ntwee drie', 100, 1, measure, 'words')).toEqual([
-            'een',
-            'twee drie',
-        ]);
+        expect(wrapLines('een\ntwee drie', 100)).toEqual(['een', 'twee drie']);
     });
 });

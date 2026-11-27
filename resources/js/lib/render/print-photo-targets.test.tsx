@@ -7,7 +7,7 @@ import { makeEdition, photo } from '@/testing/edition-test-utils';
 
 import { composePages } from './print-composition';
 import { allPartsOn, toEdition } from './print-edition';
-import { photoTargets, PRINT_SETS } from './print-photo-targets';
+import { photoTargets } from './print-photo-targets';
 
 const FILLED = /data-photo="filled" data-w="([\d.]+)" data-h="([\d.]+)"/;
 
@@ -117,7 +117,7 @@ describe('photo targets', () => {
         };
         let checked = 0;
 
-        for (const set of PRINT_SETS) {
+        for (const set of ['printer', 'home'] as const) {
             const ctx: ArtContext = {
                 edition: full,
                 resolved: resolveEdition(full),

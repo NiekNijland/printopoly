@@ -3,7 +3,7 @@ import { spaceRects, type BoardProfile } from './print-board';
 import { SHEET_PRESETS } from './print-imposition';
 
 /** ISO/IEC 7810 ID-1 bank card (B74). */
-export const BANK_CARD: Size = { w: 85.6, h: 53.98 };
+const BANK_CARD: Size = { w: 85.6, h: 53.98 };
 export const BANK_CARD_CORNER_RADIUS = 3.18;
 const RULER_LENGTH = 100;
 

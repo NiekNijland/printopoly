@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { luminance, readableOn } from './color';
-import { THEME_IDS, THEMES } from './themes';
+import { THEME_IDS } from './edition-types';
+import { THEMES } from './themes';
 
 describe('themes', () => {
     it('has Klassiek, Riso, Strak and Gala (B247)', () => {

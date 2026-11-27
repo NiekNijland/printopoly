@@ -3,15 +3,14 @@ import { describe, expect, it } from 'vitest';
 import { BoardCenter } from '@/components/render/board';
 import { BoardSpace } from '@/components/render/board-space';
 import type { EditionTitle } from '@/components/render/edition-title';
-import { cropSpec } from '@/lib/render/photos-resolution';
 import {
     clampTransform,
-    coversTarget,
     setFit,
     startingPoint,
 } from '@/lib/render/photos-transform';
 import { spaceAt } from '@/lib/render/standard-edition';
 import { defined } from '@/testing/defined';
+import { coversTarget } from '@/testing/photo-transform';
 import { photoLayout } from './photo';
 
 const base = { theme: 'classic', locale: 'nl' } as const;
@@ -37,24 +36,6 @@ describe('photo that fits instead of fills (B168)', () => {
             clampTransform(logo, { ...fit, fit: false, scale: 0.2 }, square)
                 .scale,
         ).toBe(1);
-    });
-
-    it('cuts only the visible part, at its own shape, like the server', () => {
-        const spec = cropSpec(
-            logo,
-            {
-                x: 0.5,
-                y: 0.5,
-                scale: 1,
-                rotation: 0,
-                grayscale: false,
-                fit: true,
-            },
-            square,
-        );
-
-        expect(spec.rect).toEqual({ x: 0, y: 0, w: 4000, h: 1000 });
-        expect(spec.output).toEqual({ w: 709, h: 177 });
     });
 
     it('draws a print crop that fits whole and centred in its slot', () => {

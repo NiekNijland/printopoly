@@ -7,7 +7,6 @@ import { renderWithI18n } from '@/testing/render';
 import {
     ListHeading,
     ListRow,
-    OutTag,
     outClass,
     type ListBase,
 } from './element-list-parts';
@@ -53,7 +52,7 @@ describe('element list parts', () => {
         renderWithI18n(
             <>
                 <ListHeading base={out} text="Pionnen" part="pawns" />
-                <OutTag base={base()} part="pawns" />
+                <ListHeading base={base()} text="Alle pionnen" part="pawns" />
             </>,
         );
 

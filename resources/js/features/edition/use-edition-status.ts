@@ -30,12 +30,14 @@ export type EditionStatus = {
     home: SetStatus;
 };
 
-export type SetStatus = {
+type SetStatus = {
     /** The set is made and current: when the first file goes away, in ms. */
     readyUntil: number | null;
     /** The edition changed after files were made. */
     outdated: boolean;
 };
+
+const MAX_TOKENS_PER_REQUEST = 50;
 
 const NONE: SetStatus = { readyUntil: null, outdated: false };
 
@@ -91,10 +93,20 @@ const readLocalJobs = async (
         if (jobs.length === 0) {
             return { jobs, ready: new Map() };
         }
-        const answers = await fetchPrintJobsReady(
-            printJobsReady().url,
-            jobs.map((job) => job.token),
-        );
+        const tokens = jobs.map((job) => job.token);
+        const answers: PrintJobReadyData[] = [];
+        for (
+            let start = 0;
+            start < tokens.length;
+            start += MAX_TOKENS_PER_REQUEST
+        ) {
+            answers.push(
+                ...(await fetchPrintJobsReady(
+                    printJobsReady().url,
+                    tokens.slice(start, start + MAX_TOKENS_PER_REQUEST),
+                )),
+            );
+        }
 
         return {
             jobs,
@@ -111,7 +123,7 @@ const readLocalJobs = async (
  * The state of one set from the jobs of one edition, newest first: the newest job with the set ready counts. A
  * job made before the edition changed is outdated, as the server says for an edition in an account.
  */
-export const localSetStatus = (
+const localSetStatus = (
     set: PrintSet,
     revision: number,
     jobs: readonly PrintJobRecord[],

@@ -122,7 +122,7 @@ export const diamond = (cx: number, cy: number, d: number): string => {
  * One wave of the rope of a banknote border along x, from `from` to `to`, around the line `y`: arcs of `period / 2`
  * that swing `amplitude` up and down, shifted by `phase` (0 to 1) of a period.
  */
-export const wavePath = (
+const wavePath = (
     from: number,
     to: number,
     y: number,

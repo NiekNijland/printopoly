@@ -34,7 +34,7 @@ type ReviewListProps = {
  * (`?element=card.chance.03&field=photo`; the editor opens a key of the edition panel in its section), or, for a
  * message without an element, at the list of open messages (`?check=1`).
  */
-export const reviewQuery = (
+const reviewQuery = (
     issue: Pick<CheckIssue, 'elementKey' | 'field'>,
 ): Record<string, string> => {
     return parseKey(issue.elementKey) === null

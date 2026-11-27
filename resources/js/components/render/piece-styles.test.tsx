@@ -19,7 +19,6 @@ import {
     scatter,
     seedOf,
     vintagePaper,
-    wavePath,
     type ConfettiPiece,
 } from './piece-styles';
 
@@ -84,10 +83,16 @@ describe('path helpers', () => {
     });
 
     it('starts a wave two half periods early and runs past the end', () => {
-        expect(wavePath(0, 4, 1, 0.5, 4, 0)).toBe(
-            'M-4.000 1.000Q-3.000 0.000 -2.000 1.000T0.000 1.000T2.000 1.000T4.000 1.000T6.000 1.000',
+        const waves = [
+            ...inSvg(
+                <Rope length={4} band={2} color="#000000" />,
+            ).querySelectorAll('path'),
+        ].map((path) => path.getAttribute('d') ?? '');
+
+        expect(waves[0]).toBe(
+            'M-4.000 1.000Q-3.000 -0.274 -2.000 1.000T0.000 1.000T2.000 1.000T4.000 1.000T6.000 1.000',
         );
-        expect(wavePath(0, 4, 1, 0.5, 4, 0.5).startsWith('M-2.000')).toBe(true);
+        expect(waves[1]?.startsWith('M-2.667')).toBe(true);
     });
 
     it('scallops each side with a whole number of bumps, at least two', () => {

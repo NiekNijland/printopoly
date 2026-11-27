@@ -156,7 +156,7 @@ const FACE_REACH = 0.08;
  * B261), like the warning for a logo on the fold. A face is not detected: the middle a third from the top is where
  * it usually is (B217).
  */
-export const faceOnFold = (
+const faceOnFold = (
     profile: BoardProfile,
     placement: PhotoPlacement,
     size: Size,

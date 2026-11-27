@@ -26,7 +26,7 @@ import type { Locale } from '@/types/game';
  * `resources/lib/render/edition-templates/{locale}/{id}.json`, one file per template and language.
  */
 
-export { isTemplateId, TEMPLATE_IDS, type TemplateId };
+export { isTemplateId, type TemplateId };
 
 type TemplateCard = {
     /**
@@ -103,7 +103,7 @@ const POSITIONS = new Set(
 );
 
 /** Turns `{24}` into the token `{space:24}`, which shows the current name of that space. */
-export const spaceTokens = (text: string): string => {
+const spaceTokens = (text: string): string => {
     return text.replace(/\{(\d+)\}/g, (whole, position: string) =>
         POSITIONS.has(position) ? spaceToken(Number(position)) : whole,
     );

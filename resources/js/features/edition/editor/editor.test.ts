@@ -24,8 +24,8 @@ import {
 import type { PhotoInfos } from '../../../lib/render/editor-photo-cache';
 import {
     actOnPlacement,
-    newPlacement,
-    placementDpi,
+    placementQuality,
+    startingPlacement,
 } from '../../../lib/render/editor-placements';
 
 const edition = (overrides: Partial<Edition> = {}): Edition => {
@@ -132,7 +132,12 @@ describe('placements', () => {
     };
 
     it('starts centred at 100%', () => {
-        expect(newPlacement('p1', context)).toMatchObject({
+        expect(
+            startingPlacement('p1', {
+                width: context.source.w,
+                height: context.source.h,
+            }),
+        ).toMatchObject({
             cx: 0.5,
             cy: 0.5,
             scale: 1,
@@ -141,7 +146,10 @@ describe('placements', () => {
     });
 
     it('zooms within 100 to 300% and pans only inside the photo', () => {
-        const start = newPlacement('p1', context);
+        const start = startingPlacement('p1', {
+            width: context.source.w,
+            height: context.source.h,
+        });
         const zoomed = actOnPlacement(start, context, {
             type: 'zoom-to',
             scale: 9,
@@ -158,10 +166,17 @@ describe('placements', () => {
     });
 
     it('moves 0.5 mm per arrow key', () => {
-        const zoomed = actOnPlacement(newPlacement('p1', context), context, {
-            type: 'zoom-to',
-            scale: 2,
-        });
+        const zoomed = actOnPlacement(
+            startingPlacement('p1', {
+                width: context.source.w,
+                height: context.source.h,
+            }),
+            context,
+            {
+                type: 'zoom-to',
+                scale: 2,
+            },
+        );
         const moved = actOnPlacement(zoomed, context, {
             type: 'nudge',
             direction: 'right',
@@ -172,7 +187,10 @@ describe('placements', () => {
     });
 
     it('turns a quarter and switches black and white', () => {
-        const start = newPlacement('p1', context);
+        const start = startingPlacement('p1', {
+            width: context.source.w,
+            height: context.source.h,
+        });
 
         expect(
             actOnPlacement(start, context, { type: 'rotate', turns: 1 })
@@ -185,12 +203,15 @@ describe('placements', () => {
     });
 
     it('measures the dpi against the frame plus bleed', () => {
-        const start = newPlacement('p1', context);
+        const start = startingPlacement('p1', {
+            width: context.source.w,
+            height: context.source.h,
+        });
 
-        expect(placementDpi(start, context)).toBeCloseTo(2540, 0);
-        expect(placementDpi(start, { ...context, bleed: 3 })).toBeLessThan(
-            2540,
-        );
+        expect(placementQuality(start, context).dpi).toBeCloseTo(2540, 0);
+        expect(
+            placementQuality(start, { ...context, bleed: 3 }).dpi,
+        ).toBeLessThan(2540);
     });
 });
 

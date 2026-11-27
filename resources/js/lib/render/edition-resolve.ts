@@ -323,7 +323,7 @@ export const resolveEdition = (
 };
 
 /** Overrides in parts that are switched on. */
-export const countCustomized = (edition: Edition): number => {
+const countCustomized = (edition: Edition): number => {
     return Object.keys(edition.elements).filter((key) =>
         isKeyActive(edition, key),
     ).length;

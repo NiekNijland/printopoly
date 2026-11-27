@@ -9,7 +9,7 @@ const loaders = import.meta.glob<TranslationCatalog>('/lang/*.json', {
     import: 'default',
 });
 
-export const catalogPath = (locale: string): string => {
+const catalogPath = (locale: string): string => {
     return `/lang/${locale}.json`;
 };
 

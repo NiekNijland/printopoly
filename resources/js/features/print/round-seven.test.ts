@@ -1,16 +1,37 @@
+import { render } from '@testing-library/react';
+import { createElement } from 'react';
 import { describe, expect, it } from 'vitest';
 
-import { carriesSetMark } from '@/components/render/print-item-art';
+import { ItemArt, type ArtContext } from '@/components/render/print-item-art';
+import { resolveEdition } from '@/lib/render/edition-resolve';
+import type { PageItem } from '@/lib/render/print-composition';
+import { makeEdition } from '@/testing/edition-test-utils';
 
 import {
     composePages,
     type PrintEdition,
 } from '../../lib/render/print-composition';
-import { BLEED, MARKS } from '../../lib/render/print-page-frame';
+import { BLEED } from '../../lib/render/print-page-frame';
 import { describeEstimate, partQuantity, setEstimate } from './estimate';
 import { pageLabel } from './labels';
 
 const edition: PrintEdition = { elements: {} };
+
+const art: ArtContext = {
+    edition: makeEdition(),
+    resolved: resolveEdition(makeEdition()),
+    set: 'printer',
+};
+
+const carriesSetMark = (item: PageItem): boolean => {
+    const { container, unmount } = render(
+        createElement(ItemArt, { ctx: art, item }),
+    );
+    const marked = container.querySelector('[data-set-mark]') !== null;
+    unmount();
+
+    return marked;
+};
 
 /** Set marks (B242), the whole board (B243) and invitations by number (B244). */
 describe('more sets in one PDF', () => {
@@ -85,7 +106,7 @@ describe('the whole board', () => {
         });
 
         expect(pages).toHaveLength(1);
-        expect(pages[0]?.size.w).toBe(500 + 2 * (BLEED + MARKS));
+        expect(pages[0]?.size.w).toBe(500 + 2 * (BLEED + 6));
         expect(pages[0]?.cropMarks.length).toBeGreaterThan(0);
         expect(
             partQuantity('board', 'printer', {

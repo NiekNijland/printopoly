@@ -41,7 +41,7 @@ const CENTRE_PX = 1000;
 const MAX_PX = 1400;
 
 /** The board's photo ids, with the long side each needs in the picture. */
-export const sharePhotoSizes = (edition: Edition): Map<string, number> => {
+const sharePhotoSizes = (edition: Edition): Map<string, number> => {
     const sizes = new Map<string, number>();
     const need = (placement: PhotoPlacement | undefined, px: number) => {
         if (placement === undefined) {

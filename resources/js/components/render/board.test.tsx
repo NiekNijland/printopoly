@@ -10,14 +10,13 @@ import {
 import { spaceAt, standardEdition } from '@/lib/render/standard-edition';
 import { THEMES } from '@/lib/render/themes';
 import { makeEdition, photo } from '@/testing/edition-test-utils';
-import { css, root } from '@/testing/render-dom';
+import { css, openSides, root } from '@/testing/render-dom';
 
 import {
     Board,
     BoardCenter,
     cardSpots,
     centerTitleOf,
-    edgeSides,
     layoutOfTitle,
 } from './board';
 import { FRAME_INSET } from './edition-title';
@@ -176,24 +175,40 @@ describe('layoutOfTitle', () => {
     });
 });
 
-describe('edgeSides', () => {
+describe('the open sides of a space on the board', () => {
+    const sidesOn = (of: BoardProfile, positions: number[]) => {
+        const { container } = render(
+            <Board
+                theme="classic"
+                locale="nl"
+                editionName="Zaterdagclub"
+                profile={of}
+            />,
+        );
+
+        return positions.map((position) =>
+            openSides(placed(container, position)),
+        );
+    };
+
     it('opens the outer two sides of a corner, turned with the corner', () => {
-        expect(edgeSides(rectAt(0), profile)).toEqual(['right', 'bottom']);
-        expect(edgeSides({ ...rectAt(20), rotation: 180 }, profile)).toEqual([
-            'bottom',
-            'right',
+        expect(sidesOn(profile, [0, 20])).toEqual([
+            ['right', 'bottom'],
+            ['right', 'bottom'],
         ]);
     });
 
     it('maps the outer side of every row back to the upright bottom of its space', () => {
-        for (const position of [1, 11, 21, 31]) {
-            expect(edgeSides(rectAt(position), profile)).toEqual(['bottom']);
-        }
+        expect(sidesOn(profile, [1, 11, 21, 31])).toEqual([
+            ['bottom'],
+            ['bottom'],
+            ['bottom'],
+            ['bottom'],
+        ]);
     });
 
     it('opens nothing when the board has a border around the spaces', () => {
-        expect(edgeSides(rectAt(0, bordered), bordered)).toEqual([]);
-        expect(edgeSides(rectAt(5, bordered), bordered)).toEqual([]);
+        expect(sidesOn(bordered, [0, 5])).toEqual([[], []]);
     });
 });
 

@@ -363,9 +363,7 @@ export const parseEdition = (input: unknown): ParseResult<Edition> => {
  * not print are dropped (B200), the board is always in, and the parts come in print-page order. The same as
  * `PrintSelection::parse` on the server.
  */
-export const parsePrintSelection = (
-    value: unknown,
-): PrintSelection | undefined => {
+const parsePrintSelection = (value: unknown): PrintSelection | undefined => {
     if (typeof value !== 'object' || value === null) {
         return undefined;
     }
