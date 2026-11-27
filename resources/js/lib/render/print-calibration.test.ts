@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { defined } from '@/testing/defined';
 import { at } from '../../types/print';
 import { DEFAULT_BOARD_PROFILE, spaceRects } from './print-board';
-import { BANK_CARD, calibrationSheet, rulerTicks } from './print-calibration';
+import { calibrationSheet, rulerTicks } from './print-calibration';
 
 describe('calibrationSheet', () => {
     const sheet = calibrationSheet(DEFAULT_BOARD_PROFILE);
@@ -17,7 +17,6 @@ describe('calibrationSheet', () => {
     });
 
     it('uses the ISO ID-1 bank card size', () => {
-        expect(BANK_CARD).toEqual({ w: 85.6, h: 53.98 });
         expect(sheet.bankCard).toMatchObject({ w: 85.6, h: 53.98 });
     });
 
