@@ -143,7 +143,11 @@ export const previewSize = (
         }
         case 'themeAccent':
             return { w: profile.outer, h: profile.outer };
-        default:
+        case 'group':
+        case 'partStyle':
+        case 'rulesBooklet':
+        case 'words':
+        case undefined:
             return { w: 50, h: 50 };
     }
 };
@@ -477,7 +481,11 @@ export const ElementPreview = ({
                     layers={toRenderLayers(resolved.boardCenter.layers, photos)}
                 />
             );
-        default:
+        case 'group':
+        case 'partStyle':
+        case 'rulesBooklet':
+        case 'words':
+        case undefined:
             return null;
     }
 };

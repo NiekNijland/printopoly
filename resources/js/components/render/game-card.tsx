@@ -86,7 +86,7 @@ const standardCardText = (
     );
 };
 
-const deckName = (deck: DeckId, locale: 'nl' | 'en'): string => {
+const deckName = (deck: DeckId, locale: Locale): string => {
     return (
         standardEdition.spaces.find((space) => space.type === deck)?.name[
             locale

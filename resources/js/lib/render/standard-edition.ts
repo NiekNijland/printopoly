@@ -1,5 +1,4 @@
 import { formatNumber } from '@/lib/number-format';
-import data from '../../../data/standard-edition.json';
 import type {
     CornerSpace,
     CurrencyId,
@@ -14,7 +13,18 @@ import type {
     StreetSpace,
 } from '../../types/game';
 
-export const standardEdition = data as unknown as StandardEdition;
+const [data] = Object.values(
+    import.meta.glob<StandardEdition>('../../../data/standard-edition.json', {
+        eager: true,
+        import: 'default',
+    }),
+);
+
+if (data === undefined) {
+    throw new Error('The standard edition is missing');
+}
+
+export const standardEdition: StandardEdition = data;
 
 export const spaceAt = (position: number): Space => {
     const space = standardEdition.spaces[position];

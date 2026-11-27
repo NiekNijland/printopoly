@@ -14,6 +14,7 @@ import {
     parseKey,
     pawnKey,
     spaceKey,
+    WORD_IDS,
     type WordId,
 } from '@/lib/render/edition-keys';
 import { messages } from '@/lib/render/edition-strings';
@@ -51,7 +52,15 @@ export const tabOfKey = (key: string): EditorTab => {
         case 'houseRules':
         case 'invitation':
             return 'box';
-        default:
+        case 'space':
+        case 'deed':
+        case 'boardCenter':
+        case 'rulesBooklet':
+        case 'group':
+        case 'words':
+        case 'partStyle':
+        case 'themeAccent':
+        case undefined:
             return 'board';
     }
 };
@@ -243,8 +252,13 @@ export const elementLabel = (
             return word.rulesBooklet;
         case 'invitation':
             return word.invitation;
-        case 'words':
-            return `${word.words}: ${WORD_NAME[interfaceLanguage][key.split('.')[1] as WordId] ?? ''}`;
+        case 'words': {
+            const id = WORD_IDS.find(
+                (candidate) => candidate === key.split('.')[1],
+            );
+
+            return `${word.words}: ${id === undefined ? '' : WORD_NAME[interfaceLanguage][id]}`;
+        }
         case 'themeAccent':
             return word.colors;
         case 'partStyle':
@@ -259,7 +273,7 @@ export const elementLabel = (
                       groupColorName(edition, id, interfaceLanguage).name,
                   );
         }
-        default:
+        case undefined:
             return key;
     }
 };
