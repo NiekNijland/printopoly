@@ -44,6 +44,7 @@ use Override;
  * @property int $revision
  * @property int $created_at_ms
  * @property int $updated_at_ms
+ * @property int|null $slot Its place below the limit of the account (QuotaSlots).
  */
 #[Connection('mongodb')]
 #[Fillable([
@@ -63,6 +64,7 @@ use Override;
     'revision',
     'created_at_ms',
     'updated_at_ms',
+    'slot',
 ])]
 #[RouteKey('edition_id')]
 #[Table(name: 'editions')]
@@ -105,6 +107,7 @@ final class Edition extends Model
             'revision' => 'integer',
             'created_at_ms' => 'integer',
             'updated_at_ms' => 'integer',
+            'slot' => 'integer',
         ];
     }
 }
