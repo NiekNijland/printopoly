@@ -1,5 +1,7 @@
 import type { IconName } from '@/components/render/icons';
+import { array, is, keyOf, oneOf, union } from '@/lib/parse';
 import type { CornerKind, Locale, Space } from '@/types/game';
+
 
 import lucideCatalogue from './lucide-space-icons.json';
 
@@ -98,47 +100,40 @@ export type LucideCatalogueEntry = {
     en: string;
 };
 
-const hasLucidePrefix = (value: string): value is LucideSpaceIcon => {
-    return value.startsWith('lucide:');
-};
+const LUCIDE_PREFIX = 'lucide:';
 
-const isIconCategory = (value: string): value is IconCategory => {
-    return ICON_CATEGORIES.some((category) => category === value);
-};
+const iconCategories = array(oneOf(ICON_CATEGORIES));
 
 const toCatalogueEntry = (
     entry: (typeof lucideCatalogue)[number],
 ): LucideCatalogueEntry => {
     const { id, categories, nl, en } = entry;
-    if (!hasLucidePrefix(id) || !categories.every(isIconCategory)) {
+    const known = iconCategories(categories);
+    if (!id.startsWith(LUCIDE_PREFIX) || !known.ok) {
         throw new TypeError(`Broken lucide icon ${id}`);
     }
 
-    return { id, categories, nl, en };
+    return {
+        id: `${LUCIDE_PREFIX}${id.slice(LUCIDE_PREFIX.length)}`,
+        categories: known.value,
+        nl,
+        en,
+    };
 };
 
 /** The curated lucide set (B196). The server validates against the same file. */
 export const LUCIDE_CATALOGUE: readonly LucideCatalogueEntry[] =
     lucideCatalogue.map(toCatalogueEntry);
 
-const LUCIDE_IDS: ReadonlySet<string> = new Set(
-    LUCIDE_CATALOGUE.map((entry) => entry.id),
+const LUCIDE_IDS: Readonly<Record<LucideSpaceIcon, true>> = Object.fromEntries(
+    LUCIDE_CATALOGUE.map((entry) => [entry.id, true]),
 );
 
-const isLucideSpaceIcon = (value: string): value is LucideSpaceIcon => {
-    return LUCIDE_IDS.has(value);
-};
+const ownSpaceIcon = oneOf(SPACE_ICON_PRESETS);
 
-const isOwnSpaceIcon = (value: string): value is OwnSpaceIcon => {
-    return SPACE_ICON_PRESETS.some((id) => id === value);
-};
+const spaceIconPreset = union<SpaceIconPreset>(ownSpaceIcon, keyOf(LUCIDE_IDS));
 
-export const isSpaceIconPreset = (value: unknown): value is SpaceIconPreset => {
-    return (
-        typeof value === 'string' &&
-        (isOwnSpaceIcon(value) || isLucideSpaceIcon(value))
-    );
-};
+export const isSpaceIconPreset = (value: unknown) => is(spaceIconPreset, value);
 
 /** The icons offered per kind of space, the standard one first. Any preset is valid on any special space. */
 export const ICONS_BY_KIND: Readonly<
@@ -339,7 +334,7 @@ const LUCIDE_NAMES: ReadonlyMap<string, LucideCatalogueEntry> = new Map(
 
 /** The name of any icon in the language of the site, for its label and for the search (B196). */
 export const spaceIconName = (id: SpaceIconPreset, locale: Locale): string => {
-    const own = isOwnSpaceIcon(id) ? SPACE_ICON_NAMES[id][locale] : undefined;
+    const own = is(ownSpaceIcon, id) ? SPACE_ICON_NAMES[id][locale] : undefined;
 
     return own ?? LUCIDE_NAMES.get(id)?.[locale] ?? id;
 };
