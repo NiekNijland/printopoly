@@ -152,7 +152,7 @@ describe('CardFan', () => {
     it('fans out Chance, a deed and Community Chest, each half the width', () => {
         const container = render(<CardFan width={200} />).container;
         const holders = [...root(container).children].filter(
-            (child): child is HTMLElement => child instanceof HTMLElement,
+            (child) => child instanceof HTMLElement,
         );
 
         expect(holders.map((holder) => holder.style.transform)).toEqual([
