@@ -252,13 +252,8 @@ export const elementLabel = (
             return word.rulesBooklet;
         case 'invitation':
             return word.invitation;
-        case 'words': {
-            const id = WORD_IDS.find(
-                (candidate) => candidate === key.split('.')[1],
-            );
-
-            return `${word.words}: ${id === undefined ? '' : WORD_NAME[interfaceLanguage][id]}`;
-        }
+        case 'words':
+            return `${word.words}: ${wordName(key, interfaceLanguage)}`;
         case 'themeAccent':
             return word.colors;
         case 'partStyle':
@@ -301,6 +296,12 @@ const WORD_NAME: Record<Locale, Record<WordId, string>> = {
         station: 'station',
         utility: 'utility',
     },
+};
+
+const wordName = (key: string, language: Locale): string => {
+    const id = WORD_IDS.find((candidate) => candidate === key.split('.')[1]);
+
+    return id === undefined ? '' : WORD_NAME[language][id];
 };
 
 const LABELS: Record<

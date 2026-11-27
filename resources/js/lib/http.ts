@@ -1,6 +1,6 @@
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
-export type HttpRequest = {
+type HttpRequest = {
     method?: HttpMethod;
     headers?: Record<string, string>;
     body?: string | FormData;
