@@ -843,6 +843,7 @@ const SideLines = ({
         bottom: [0, h - half, w, h - half],
         left: [half, 0, half, h],
     };
+    const order: readonly SpaceSide[] = ['top', 'right', 'bottom', 'left'];
 
     return (
         <svg
@@ -858,7 +859,7 @@ const SideLines = ({
             aria-hidden="true"
             data-frame=""
         >
-            {(Object.keys(sides) as SpaceSide[])
+            {order
                 .filter((side) => !open.includes(side))
                 .map((side) => {
                     const [x1, y1, x2, y2] = sides[side];

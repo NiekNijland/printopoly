@@ -1,4 +1,8 @@
 import { isJsonObject } from '@/features/edition/remote/client';
+import { reportAndReturn } from '@/lib/bugsnag';
+import { sendRequest } from '@/lib/http';
+import type { HttpMethod } from '@/lib/http';
+import { parseJson } from '@/lib/json';
 
 import {
     readAccountBox,
@@ -36,19 +40,16 @@ const csrfToken = (): string => {
 };
 
 const failure = async (response: Response): Promise<BoxApiError> => {
-    let message = response.statusText;
-    try {
-        const body: unknown = await response.json();
-        message = readFailureMessage(body, message);
-    } catch {
-        // Not JSON: the status text stays.
-    }
+    const text = await response.text().catch(reportAndReturn(''));
 
-    return new BoxApiError(response.status, message);
+    return new BoxApiError(
+        response.status,
+        readFailureMessage(parseJson(text), response.statusText),
+    );
 };
 
 type RequestOptions = {
-    method?: string;
+    method?: HttpMethod;
     secret?: string | null;
     json?: unknown;
     body?: FormData;
@@ -68,10 +69,9 @@ const send = async (
     if (options.json !== undefined) {
         headers['Content-Type'] = 'application/json';
     }
-    const response = await fetch(url, {
-        method: options.method ?? 'GET',
+    const response = await sendRequest(url, {
+        method: options.method,
         headers,
-        credentials: 'same-origin',
         body:
             options.body ??
             (options.json === undefined

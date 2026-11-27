@@ -1,3 +1,4 @@
+import { defined } from '@/testing/defined';
 import {
     composePages,
     type PrintEdition,
@@ -28,18 +29,22 @@ describe('sheet labels', () => {
         const pages = composePages('money', 'home', edition);
 
         // The notes are dealt out by value, so the first sheet has six values (R5-29).
-        expect(pageLabel(pages[0]!, 'nl', 'eur')).toBe(
+        expect(pageLabel(defined(pages[0]), 'nl', 'eur')).toBe(
             'Speelgeld: €\u00A01, €\u00A05, €\u00A010, €\u00A020, €\u00A050, €\u00A0100',
         );
-        expect(pageLabel(pages[0]!, 'en', 'play')).toMatch(/^Play money: /);
+        expect(pageLabel(defined(pages[0]), 'en', 'play')).toMatch(
+            /^Play money: /,
+        );
     });
 
     it('uses the label of the plan for other sheets', () => {
         const pages = composePages('cards', 'home', edition);
 
-        expect(pageLabel(pages[2]!, 'nl', 'eur')).toBe(
+        expect(pageLabel(defined(pages[2]), 'nl', 'eur')).toBe(
             'Kaarten 1 t/m 9, voorkant',
         );
-        expect(pageLabel(pages[3]!, 'en', 'eur')).toBe('Cards 1 to 9, backs');
+        expect(pageLabel(defined(pages[3]), 'en', 'eur')).toBe(
+            'Cards 1 to 9, backs',
+        );
     });
 });

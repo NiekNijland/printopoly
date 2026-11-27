@@ -1,3 +1,5 @@
+import { logWarning } from '@/lib/bugsnag';
+
 import type {
     Edition,
     EditionPatch,
@@ -79,7 +81,7 @@ const readEdition = (value: unknown): Edition => {
         throw new Error('The server sent an edition that cannot be read.');
     }
     if (read.repaired.length > 0) {
-        console.warn(
+        logWarning(
             `Edition ${read.edition.id} from the account was repaired: ${read.repaired.join('; ')}`,
         );
     }

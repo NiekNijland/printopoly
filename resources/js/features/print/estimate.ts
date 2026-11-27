@@ -119,7 +119,9 @@ export const partQuantity = (
             return { count: 1, unit: 'piece', paper: null };
         case 'rules_booklet':
             return { count: 1, unit: 'booklet', paper: null };
-        default:
+        case 'calibration':
+        case 'money':
+        case 'tokens':
             return sheets(pages, false);
     }
 };

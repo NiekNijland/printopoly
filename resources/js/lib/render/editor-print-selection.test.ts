@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { templateEdition, TEMPLATE_IDS } from '@/lib/render/edition-templates';
 import { DEFAULT_PARTS, type Edition } from '@/lib/render/edition-types';
+import { defined } from '@/testing/defined';
 import { makeEdition } from '@/testing/edition-test-utils';
 
 import {
@@ -13,10 +14,9 @@ import {
 } from './editor-print-selection';
 
 const withSelection = (parts: unknown): Edition => {
-    return {
-        ...makeEdition(),
+    return Object.assign(makeEdition(), {
         printSelection: { set: 'home', parts },
-    } as Edition;
+    });
 };
 
 describe('the editor shows every part (B198)', () => {
@@ -63,7 +63,7 @@ describe('the last chosen set', () => {
             const edition = templateEdition(id, 'nl');
 
             expect(edition).toBeDefined();
-            expect([...partsInSet(edition!)].sort()).toEqual(
+            expect([...partsInSet(defined(edition))].sort()).toEqual(
                 [...partsInSet(makeEdition())].sort(),
             );
         }

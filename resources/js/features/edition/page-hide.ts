@@ -1,3 +1,5 @@
+import { reportError } from '@/lib/bugsnag';
+
 /** What `saveOnPageHide` needs of a session: only the save that does not wait for the pause. */
 type Flushable = {
     flush(): Promise<void>;
@@ -18,7 +20,7 @@ export const saveOnPageHide = (
     > = document,
 ): (() => void) => {
     const save = (): void => {
-        void session.flush().catch(() => undefined);
+        void session.flush().catch(reportError);
     };
     const onVisibility = (): void => {
         if (page.visibilityState === 'hidden') {

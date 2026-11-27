@@ -10,6 +10,6 @@ Elke sleutel staat in elke taal, met dezelfde placeholders en meervoudsvormen; e
 | translation-defined | een sleutel in `t()`, `tChoice()`, `__()`, `trans()`, `trans_choice()` of `@lang` bestaat | voeg hem toe aan elke taal, of noem een bestaande sleutel |
 | translation-unused | een sleutel staat als hele string in een bron, of past bij het vaste begin of eind van een template | verwijder de sleutel uit elke taal |
 
-De ongebruikte sleutels van vandaag staan in `baselines/translation-unused-keys.txt`, geteld door de ratchet-rij `keyed-baselines`.
+Een sleutel die alleen een sjabloon van Laravel gebruikt telt als gebruikt: de voettekst van de markdownmails vertaalt `All rights reserved.`.
 
 Review controleert, de guard niet: of een tekst goed vertaald is.

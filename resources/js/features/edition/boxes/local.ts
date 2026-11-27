@@ -7,6 +7,7 @@
 
 import { isJsonObject } from '@/features/edition/remote/client';
 import { readStored, writeStored } from '@/lib/browser-storage';
+import { parseJson } from '@/lib/json';
 
 const OWNER_KEY = 'printopoly.boxes.owner';
 const FRIEND_KEY = 'printopoly.boxes.friend';
@@ -30,13 +31,9 @@ const readObject = (key: string): Record<string, unknown> => {
     if (raw === null) {
         return {};
     }
-    try {
-        const parsed: unknown = JSON.parse(raw);
+    const parsed = parseJson(raw);
 
-        return isJsonObject(parsed) ? parsed : {};
-    } catch {
-        return {};
-    }
+    return isJsonObject(parsed) ? parsed : {};
 };
 
 const writeObject = (key: string, value: Record<string, unknown>): void => {

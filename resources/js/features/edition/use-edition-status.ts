@@ -4,6 +4,8 @@ import { fetchBox, findAccountBox } from '@/features/edition/boxes/api';
 import { readOwnerRecord } from '@/features/edition/boxes/local';
 import type { OwnerBox } from '@/features/edition/boxes/types';
 import { isJsonObject } from '@/features/edition/remote/client';
+import { reportAndReturn, reportUnlessOffline } from '@/lib/bugsnag';
+import { sendRequest } from '@/lib/http';
 import type { EditionStorage } from '@/lib/render/edition-storage';
 import type {
     EditionSummary,
@@ -57,9 +59,8 @@ const isPrintReady = (value: unknown): value is EditionPrintReadyData =>
 const readPrintReady = async (): Promise<
     Map<string, EditionPrintReadyData>
 > => {
-    const response = await fetch(printReady().url, {
+    const response = await sendRequest(printReady().url, {
         headers: { Accept: 'application/json' },
-        credentials: 'same-origin',
     });
 
     if (!response.ok) {
@@ -99,7 +100,9 @@ const readLocalJobs = async (
             jobs,
             ready: new Map(answers.map((answer) => [answer.token, answer])),
         };
-    } catch {
+    } catch (error) {
+        reportUnlessOffline(error);
+
         return { jobs: [], ready: new Map() };
     }
 };
@@ -153,7 +156,9 @@ const readBox = async (
         }
 
         return inAccount ? await findAccountBox(id) : null;
-    } catch {
+    } catch (error) {
+        reportUnlessOffline(error);
+
         return null;
     }
 };
@@ -225,7 +230,9 @@ export const useEditionStatus = (
             const [ready, local] = await Promise.all([
                 loggedIn
                     ? readPrintReady().catch(
-                          (): Map<string, EditionPrintReadyData> => new Map(),
+                          reportAndReturn(
+                              new Map<string, EditionPrintReadyData>(),
+                          ),
                       )
                     : new Map<string, EditionPrintReadyData>(),
                 readLocalJobs(storage),
