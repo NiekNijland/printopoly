@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 
 import { BoardSpace } from '@/components/render/board-space';
 import { GameCard } from '@/components/render/game-card';
-import { PATH_NAMES } from '@/components/render/icons';
+import { isIconName } from '@/components/render/icons';
 import { LUCIDE_SPACE_ICONS } from '@/components/render/lucide-space-icons';
 import { TitleDeed } from '@/components/render/title-deed';
 import { parseOverride } from '@/lib/render/edition-schema';
@@ -46,7 +46,7 @@ describe('space icons (B136)', () => {
         expect(standards.length).toBeGreaterThan(0);
         expect(standards.every(Boolean)).toBe(true);
         for (const id of SPACE_ICON_PRESETS) {
-            expect(PATH_NAMES).toContain(id);
+            expect(isIconName(id)).toBe(true);
             expect(SPACE_ICON_NAMES[id].nl).not.toBe('');
         }
     });
