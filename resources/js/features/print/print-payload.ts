@@ -89,7 +89,6 @@ const printPayload: Parser<PrintPayload> = record({
     edition: printEdition,
 });
 
-/** What the server put in `window.__PRINT__`: a part of a print set, or the share picture. */
 export const pagePayload = union<PrintPayload | SharePayload>(
     sharePayload,
     printPayload,
