@@ -63,18 +63,18 @@ final class GeneratePrintJob implements ShouldQueue
                     continue;
                 }
 
-                $progress->record($job, $set, $part, PartStatus::Running);
+                $progress->record($job, $set, $part, PartStatus::RUNNING);
 
                 try {
                     $file = $parts->build($job, $set, $part);
                     $instructions->ensure($job, $part, $locale, $set);
-                    $progress->record($job, $set, $part, PartStatus::Done, cacheKey: $file->cache_key);
+                    $progress->record($job, $set, $part, PartStatus::DONE, cacheKey: $file->cache_key);
                     // Anonymous: only that a part was made today (B206).
                     $counter->count(FeatureEvent::printed($part));
                 } catch (Throwable $exception) {
                     // The log has the cause. The page shows the short reason.
                     report($exception);
-                    $progress->record($job, $set, $part, PartStatus::Failed, error: FailureReason::fromThrowable($exception)->value);
+                    $progress->record($job, $set, $part, PartStatus::FAILED, error: FailureReason::fromThrowable($exception)->value);
                 }
             }
 
@@ -118,7 +118,7 @@ final class GeneratePrintJob implements ShouldQueue
             $part = PrintPart::tryFrom($partValue);
 
             if ($part instanceof PrintPart && $job->recordedState($set, $part)['status']->isActive()) {
-                $progress->record($job, $set, $part, PartStatus::Failed, error: FailureReason::Timeout->value);
+                $progress->record($job, $set, $part, PartStatus::FAILED, error: FailureReason::TIMEOUT->value);
             }
         }
 

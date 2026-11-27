@@ -24,12 +24,12 @@ final class CiExamples
      */
     public static function changeAfter(string $source, string $marker, string $from, string $to): string
     {
-        $at = strpos($source, $marker);
-        $in = $at === false ? false : strpos($source, $from, $at);
+        $at = mb_strpos($source, $marker, encoding: '8bit');
+        $in = $at === false ? false : mb_strpos($source, $from, $at, encoding: '8bit');
 
         throw_if($in === false, LogicException::class, 'The example does not hold the text it should change after ' . $marker . ': ' . $from);
 
-        return substr($source, 0, $in) . $to . substr($source, $in + strlen($from));
+        return mb_substr($source, 0, $in, encoding: '8bit') . $to . mb_substr($source, $in + mb_strlen($from, encoding: '8bit'), encoding: '8bit');
     }
 
     /**
@@ -42,13 +42,13 @@ final class CiExamples
 
     public static function withoutJob(string $workflow, string $job): string
     {
-        $at = strpos($workflow, "\n  " . $job . ":\n");
+        $at = mb_strpos($workflow, "\n  " . $job . ":\n", encoding: '8bit');
 
         throw_if($at === false, LogicException::class, 'The workflow has no job ' . $job);
 
-        $next = preg_match('/\n  [a-z-]+:\n/', $workflow, $match, PREG_OFFSET_CAPTURE, $at + 3) === 1 ? $match[0][1] : strlen($workflow);
+        $next = preg_match('/\n  [a-z-]+:\n/', $workflow, $match, PREG_OFFSET_CAPTURE, $at + 3) === 1 ? $match[0][1] : mb_strlen($workflow, encoding: '8bit');
 
-        return substr($workflow, 0, $at) . substr($workflow, $next);
+        return mb_substr($workflow, 0, $at, encoding: '8bit') . mb_substr($workflow, $next, encoding: '8bit');
     }
 
     /**

@@ -30,8 +30,8 @@ final class PrintPipelineTest extends TestCase
         $response = PrintScenario::generate($this, $job, 'printer', ['board', 'cards', 'money', 'tokens', 'box_lid']);
         $response->assertOk()->assertJsonPath('busy', false);
 
-        foreach ([PrintPart::Board, PrintPart::Cards, PrintPart::Money, PrintPart::Tokens, PrintPart::BoxLid] as $part) {
-            self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Printer, $part), $part->value);
+        foreach ([PrintPart::BOARD, PrintPart::CARDS, PrintPart::MONEY, PrintPart::TOKENS, PrintPart::BOX_LID] as $part) {
+            self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, $part), $part->value);
         }
 
         self::assertTrue($response->json('printerZipReady'));
@@ -75,7 +75,7 @@ final class PrintPipelineTest extends TestCase
         PrintScenario::generate($this, $second, 'printer', ['board', 'money'])->assertOk();
 
         self::assertSame($before, $parts(), 'no PDF of a part was rendered again');
-        self::assertSame('done', PrintScenario::partStatus($this, $second, PrintSet::Printer, PrintPart::Money));
+        self::assertSame('done', PrintScenario::partStatus($this, $second, PrintSet::PRINTER, PrintPart::MONEY));
         $this->get('/api/print/' . $second->token . '/files/printer/money')->assertOk();
 
         // A token of a job of an account never counts.
@@ -84,7 +84,7 @@ final class PrintPipelineTest extends TestCase
             'photos' => [PrintScenario::PHOTO_REF => PrintScenario::photoUpload()],
             'previous' => 'no-such-token',
         ], ['Accept' => 'application/json'])->assertCreated();
-        self::assertNull(PrintJob::query()->where('token', '!=', $first->token)->where('token', '!=', $second->token)->firstOrFail()->previous_job_id);
+        self::assertNull(PrintJob::query()->whereNotIn('token', [$first->token, $second->token])->firstOrFail()->previous_job_id);
     }
 
     public function test_only_the_chosen_parts_are_made(): void
@@ -93,9 +93,9 @@ final class PrintPipelineTest extends TestCase
 
         PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
 
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
-        self::assertSame('idle', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Board));
-        self::assertSame('idle', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Money));
+        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::CARDS));
+        self::assertSame('idle', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::BOARD));
+        self::assertSame('idle', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::MONEY));
     }
 
     public function test_the_html_has_the_vite_entry_the_edition_as_json_and_a_signed_crop_per_photo(): void
@@ -125,8 +125,8 @@ final class PrintPipelineTest extends TestCase
         PrintScenario::renderer()->mode = 'wrong_size';
         PrintScenario::generate($this, $job, 'printer', ['board', 'cards'])->assertOk();
 
-        self::assertSame('failed', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Board));
-        self::assertSame('failed', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
+        self::assertSame('failed', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::BOARD));
+        self::assertSame('failed', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::CARDS));
         self::assertSame(0, PrintFile::query()->where('kind', 'part')->count(), 'a failed PDF is never stored');
 
         $this->get('/api/print/' . $job->token . '/files/printer/board')->assertNotFound();
@@ -138,11 +138,11 @@ final class PrintPipelineTest extends TestCase
 
         PrintScenario::renderer()->mode = 'wrong_count';
         PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
-        self::assertSame('failed', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
+        self::assertSame('failed', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::CARDS));
 
         PrintScenario::renderer()->mode = 'ok';
         PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
-        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Cards));
+        self::assertSame('done', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::CARDS));
     }
 
     public function test_a_crashing_renderer_fails_only_its_part(): void
@@ -152,7 +152,7 @@ final class PrintPipelineTest extends TestCase
         PrintScenario::renderer()->mode = 'crash';
         PrintScenario::generate($this, $job, 'printer', ['board'])->assertOk();
 
-        self::assertSame('failed', PrintScenario::partStatus($this, $job, PrintSet::Printer, PrintPart::Board));
+        self::assertSame('failed', PrintScenario::partStatus($this, $job, PrintSet::PRINTER, PrintPart::BOARD));
         self::assertFalse($job->fresh()?->isBusy(), 'a crash does not leave the job busy');
     }
 
@@ -172,7 +172,7 @@ final class PrintPipelineTest extends TestCase
         self::assertStringContainsString('Drukkerij-set', $printer);
         self::assertStringNotContainsString('Thuisprint-set', $printer);
 
-        $url = PrintScenario::partRow($this, $job, PrintSet::Home, PrintPart::Board)['instructionsUrl'];
+        $url = PrintScenario::partRow($this, $job, PrintSet::HOME, PrintPart::BOARD)['instructionsUrl'];
         self::assertIsString($url);
         $this->get($url)->assertOk();
     }

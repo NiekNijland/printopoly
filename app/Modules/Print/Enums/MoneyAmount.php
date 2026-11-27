@@ -13,24 +13,24 @@ enum MoneyAmount: string
     /**
      * Enough for the starting split of 2 to 4 players, with a small bank.
      */
-    case Four = 'four';
+    case FOUR = 'four';
 
     /**
      * Enough for the starting split of 8 players.
      */
-    case Eight = 'eight';
+    case EIGHT = 'eight';
 
     /**
      * At least the 30 of each value of the original game, on top of the split of 8.
      */
-    case Full = 'full';
+    case FULL = 'full';
 
     /**
      * Without a choice: 2 to 4 players at home, the full bank at the print shop.
      */
     public static function defaultFor(PrintSet $set): self
     {
-        return $set === PrintSet::Home ? self::Four : self::Full;
+        return $set === PrintSet::HOME ? self::FOUR : self::FULL;
     }
 
     /**
@@ -41,9 +41,9 @@ enum MoneyAmount: string
     public function counts(): array
     {
         return match ($this) {
-            self::Four => [1 => 24, 5 => 24, 10 => 24, 20 => 30, 50 => 12, 100 => 18, 500 => 12],
-            self::Eight => [1 => 42, 5 => 42, 10 => 42, 20 => 54, 50 => 24, 100 => 30, 500 => 24],
-            self::Full => [1 => 48, 5 => 48, 10 => 48, 20 => 60, 50 => 30, 100 => 42, 500 => 30],
+            self::FOUR => [1 => 24, 5 => 24, 10 => 24, 20 => 30, 50 => 12, 100 => 18, 500 => 12],
+            self::EIGHT => [1 => 42, 5 => 42, 10 => 42, 20 => 54, 50 => 24, 100 => 30, 500 => 24],
+            self::FULL => [1 => 48, 5 => 48, 10 => 48, 20 => 60, 50 => 30, 100 => 42, 500 => 30],
         };
     }
 
@@ -57,6 +57,6 @@ enum MoneyAmount: string
      */
     public function maxPlayers(): int
     {
-        return $this === self::Four ? 4 : 8;
+        return $this === self::FOUR ? 4 : 8;
     }
 }

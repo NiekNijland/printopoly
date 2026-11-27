@@ -78,7 +78,7 @@ final readonly class PrintFileNames
      */
     public function orderSheet(): string
     {
-        return $this->slug . '-00-' . ($this->locale === Locale::English ? 'order-sheet' : 'bestelblad') . '.pdf';
+        return $this->slug . '-00-' . ($this->locale === Locale::ENGLISH ? 'order-sheet' : 'bestelblad') . '.pdf';
     }
 
     public function image(PrintPart $part, int $width): string
@@ -94,13 +94,13 @@ final readonly class PrintFileNames
     private function setWord(PrintSet $set): string
     {
         return match ($this->locale) {
-            Locale::Dutch => $set === PrintSet::Printer ? 'drukkerij' : 'thuis',
-            Locale::English => $set === PrintSet::Printer ? 'print-shop' : 'home',
+            Locale::DUTCH => $set === PrintSet::PRINTER ? 'drukkerij' : 'thuis',
+            Locale::ENGLISH => $set === PrintSet::PRINTER ? 'print-shop' : 'home',
         };
     }
 
     private function instructionFolder(): string
     {
-        return $this->locale === Locale::English ? 'instructions' : 'instructies';
+        return $this->locale === Locale::ENGLISH ? 'instructions' : 'instructies';
     }
 }

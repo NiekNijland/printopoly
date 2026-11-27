@@ -92,7 +92,7 @@ Een voorbeeld dat vandaag op een getelde lijst staat, staat ook op `tests/Guards
 | Container | constructorinjectie; een eigen klasse bindt zichzelf met een attribuut | `backend-patterns` | `app/Providers/TypeScriptTransformerServiceProvider.php` |
 | Model | `casts()`, onveranderlijke datums, de attributen van het model, `booted()` | `backend-patterns` | `app/Models/Edition.php` |
 | Fout afvangen en loggen | een brede catch meldt, redt of gooit opnieuw; een logregel is vast met de fout als context | `backend-patterns` | `app/Http/Middleware/TrackActivity.php` |
-| Event | `XEvent::dispatch(...)` | `backend-patterns` | `app/Modules/Editions/Events/EditionDeletedEvent.php` |
+| Event | `Event::dispatch(new XEvent(...))`, zonder de trait `Dispatchable` | `backend-patterns` | `app/Modules/Editions/Actions/DeleteEdition.php` |
 | Wachtrij | de queue via de enum, een timeout en tries op elke klasse | `backend-patterns` | `app/Modules/Boxes/Jobs/RenderShareImageJob.php` |
 | Geplande taak | een command met `withoutOverlapping(<minuten>)` in `routes/console.php` | `backend-patterns` | `routes/console.php` |
 | Migratie en index | geen applicatieklasse in een migratie; een index in zijn documentvorm | `backend-patterns` | `database/migrations/2026_11_22_120000_create_feature_counts_index.php` |

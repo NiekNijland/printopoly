@@ -42,7 +42,7 @@ final readonly class StoreEdition
             throw new EditionConflictException($this->payload->data($existing));
         }
 
-        $limit = self::limit();
+        $limit = $this->limit();
 
         throw_if(Edition::query()->where('user_id', $userId)->count() >= $limit, EditionLimitReachedException::class, $limit);
 
@@ -70,8 +70,8 @@ final readonly class StoreEdition
         return $edition->fresh() ?? $edition;
     }
 
-    public static function limit(): int
+    private function limit(): int
     {
-        return Config::integer('printopoly.limits.editions_per_account', 20);
+        return Config::integer('printopoly.limits.editions_per_account');
     }
 }

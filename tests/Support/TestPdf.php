@@ -36,11 +36,11 @@ final class TestPdf
         $offsets = [];
 
         foreach ($objects as $number => $body) {
-            $offsets[$number] = strlen($pdf);
+            $offsets[$number] = mb_strlen($pdf, encoding: '8bit');
             $pdf .= sprintf("%d 0 obj\n%s\nendobj\n", $number, $body);
         }
 
-        $xref = strlen($pdf);
+        $xref = mb_strlen($pdf, encoding: '8bit');
         $pdf .= sprintf("xref\n0 %d\n0000000000 65535 f \n", count($objects) + 1);
 
         foreach ($offsets as $offset) {

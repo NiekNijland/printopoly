@@ -32,7 +32,7 @@ final readonly class StructuredData
         $modified = $this->modified($page);
 
         $webPage = [
-            '@type' => $page === PublicPage::Contact ? 'ContactPage' : 'WebPage',
+            '@type' => $page === PublicPage::CONTACT ? 'ContactPage' : 'WebPage',
             '@id' => $url . '#webpage',
             'url' => $url,
             'name' => $title,
@@ -45,7 +45,7 @@ final readonly class StructuredData
 
         $graph = [$this->organization($origin), $this->website($origin)];
 
-        if ($page !== PublicPage::Home) {
+        if ($page !== PublicPage::HOME) {
             $webPage['breadcrumb'] = ['@id' => $url . '#breadcrumb'];
             $graph[] = $webPage;
             $graph[] = $this->breadcrumb($page, $locale, $title);
@@ -118,7 +118,7 @@ final readonly class StructuredData
                     '@type' => 'ListItem',
                     'position' => 1,
                     'name' => 'Printopoly',
-                    'item' => PublicPage::Home->absoluteUrl($locale),
+                    'item' => PublicPage::HOME->absoluteUrl($locale),
                 ],
                 [
                     '@type' => 'ListItem',
@@ -138,12 +138,12 @@ final readonly class StructuredData
         $origin = PublicPage::origin();
 
         return match ($page) {
-            PublicPage::Home => [
+            PublicPage::HOME => [
                 [
                     '@type' => 'WebApplication',
                     '@id' => $origin . '/#app',
                     'name' => 'Printopoly',
-                    'url' => PublicPage::Home->absoluteUrl($locale),
+                    'url' => PublicPage::HOME->absoluteUrl($locale),
                     'description' => $description,
                     'applicationCategory' => 'DesignApplication',
                     'operatingSystem' => 'Any',
@@ -155,8 +155,8 @@ final readonly class StructuredData
                 ],
                 $this->faqPage($page, $locale, $this->content->homeFaq($locale)),
             ],
-            PublicPage::Faq => [$this->faqPage($page, $locale, $this->content->faq($locale))],
-            PublicPage::PrintGuide => [
+            PublicPage::FAQ => [$this->faqPage($page, $locale, $this->content->faq($locale))],
+            PublicPage::PRINT_GUIDE => [
                 [
                     '@type' => 'Article',
                     '@id' => $page->absoluteUrl($locale) . '#article',
@@ -204,10 +204,10 @@ final readonly class StructuredData
     private function titleAndDescription(PublicPage $page, Locale $locale): array
     {
         $file = match ($page) {
-            PublicPage::PrintGuide => 'printgids',
-            PublicPage::Faq => 'faq',
-            PublicPage::Privacy => 'privacy',
-            PublicPage::Terms => 'voorwaarden',
+            PublicPage::PRINT_GUIDE => 'printgids',
+            PublicPage::FAQ => 'faq',
+            PublicPage::PRIVACY => 'privacy',
+            PublicPage::TERMS => 'voorwaarden',
             default => null,
         };
 
@@ -217,7 +217,7 @@ final readonly class StructuredData
             return [$content->seoTitle, $content->description];
         }
 
-        if ($page === PublicPage::Home) {
+        if ($page === PublicPage::HOME) {
             $landing = $this->content->landing($locale);
 
             return [$landing['meta.title'] ?? 'Printopoly', $landing['meta.description'] ?? ''];

@@ -46,7 +46,7 @@ final class PrintChoiceInput
             foreach ($input['skipped'] as $value) {
                 $part = PrintPart::tryFrom(is_string($value) ? $value : '');
 
-                if ($part instanceof PrintPart && $part !== PrintPart::Board && ! in_array($part, $skipped, true)) {
+                if ($part instanceof PrintPart && $part !== PrintPart::BOARD && ! in_array($part, $skipped, true)) {
                     $skipped[] = $part;
                 }
             }

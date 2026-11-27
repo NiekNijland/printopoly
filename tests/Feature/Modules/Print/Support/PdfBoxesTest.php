@@ -60,7 +60,7 @@ final class PdfBoxesTest extends TestCase
 
         // The original bytes stay in front: this is an incremental update.
         $original = TestPdf::make(TestPdf::pages(2, 81, 106));
-        self::assertSame($original, substr($pdf, 0, strlen($original)));
+        self::assertSame($original, mb_substr($pdf, 0, mb_strlen($original, encoding: '8bit'), encoding: '8bit'));
     }
 
     /**

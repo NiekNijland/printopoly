@@ -50,7 +50,7 @@ final class PdfInspector
         $pages = $this->pages($path);
 
         if (($expected->pages === null && $pages === []) || ($expected->pages !== null && count($pages) !== $expected->pages)) {
-            throw new PrintFailedException(sprintf('The PDF has %d pages, %s expected.', count($pages), $expected->pages ?? 'at least one'), reason: FailureReason::Layout);
+            throw new PrintFailedException(sprintf('The PDF has %d pages, %s expected.', count($pages), $expected->pages ?? 'at least one'), reason: FailureReason::LAYOUT);
         }
 
         $tolerance = Config::float('printopoly.print.size_tolerance_mm');
