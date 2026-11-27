@@ -17,7 +17,6 @@ export const consoleRule = {
 };
 const clockMessage =
     'Read the time and chance through now and randomId in lib/clock; a test moves the clock with vi.useFakeTimers (docs/guards/frontend.md, Doors).';
-// Date.now, Math.random, performance.now and crypto.randomUUID; new Date() without a value is a rule in syntax.js.
 const clockCalls = [
     ['Date', 'now'],
     ['Math', 'random'],
