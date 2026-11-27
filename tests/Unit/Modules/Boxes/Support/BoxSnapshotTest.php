@@ -102,7 +102,7 @@ final class BoxSnapshotTest extends TestCase
 
     public function test_only_whole_word_keys_count_and_long_texts_are_cut_by_character(): void
     {
-        $spaceLength = (new BoxTargets(StandardEdition::load()))->maxLength('space.01');
+        $spaceLength = new BoxTargets(StandardEdition::load())->maxLength('space.01');
 
         $clean = $this->snapshot()->clean(['elements' => [
             0 => ['name' => 'Nul'],

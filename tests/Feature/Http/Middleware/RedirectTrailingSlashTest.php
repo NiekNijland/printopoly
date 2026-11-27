@@ -32,7 +32,7 @@ final class RedirectTrailingSlashTest extends TestCase
             'SCRIPT_NAME' => '/spel/index.php',
         ]);
 
-        $response = (new RedirectTrailingSlash())->handle($request, static fn (): Response => new Response('niet verder'));
+        $response = new RedirectTrailingSlash()->handle($request, static fn (): Response => new Response('niet verder'));
 
         self::assertSame('http://printopoly.test/spel/nl/vragen', $response->headers->get('Location'));
     }
