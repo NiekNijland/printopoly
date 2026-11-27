@@ -77,7 +77,7 @@ const confettiShape = (shape: 'dot' | 'tri' | 'wave' | 'plus'): string => {
     }
 };
 
-export const playfulBadge = () => {
+const playfulBadge = () => {
     const { badge } = PLAYFUL;
 
     return cached('playful:badge', () =>
