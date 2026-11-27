@@ -49,7 +49,7 @@ Een job, mail of listener in de wachtrij draagt zijn klassenaam in de payload va
 - Afhankelijkheden komen via de constructor. Een eigen klasse bindt zichzelf met `#[Scoped]`, `#[Singleton]` of `#[Bind]` (`ContainerBindingGuard`).
 - Een model gebruikt `casts()` met onveranderlijke datums, de attributen `#[Fillable]`, `#[Table]`, `#[Connection]` en `#[Hidden]`, en `booted()` voor modelevents (`ModelConventionGuard`).
 - Een brede catch meldt de fout, redt hem of gooit hem opnieuw (`EmptyCatchGuard`). Een logregel is een vaste tekst met de fout als context (`LogMessageGuard`).
-- Een event gaat via `XEvent::dispatch(...)` (`EventDispatchGuard` en de analyser).
+- Een event gaat via `Event::dispatch(new XEvent(...))`. Een event gebruikt de trait `Dispatchable` niet: Rector maakt van `XEvent::dispatch()` de helper `event()`, en die verbiedt de analyser (`EventDispatchGuard` en de analyser).
 - Een job noemt zijn queue met een case van de enum, en elke klasse in de wachtrij heeft een timeout en tries (`QueueNameGuard`, `QueuedClassLimitsGuard`). Review controleert of de timeout onder die van de worker blijft, de guard niet (rubric item 19).
 - Een geplande taak heeft `withoutOverlapping(<minuten>)` (`ScheduledTaskGuard`).
 - Een migratie noemt geen applicatieklasse (`MigrationClassGuard`). Een index staat in een migratie in zijn documentvorm voor MongoDB.

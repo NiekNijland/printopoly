@@ -9,6 +9,7 @@ use App\Modules\Content\Enums\PublicPage;
 use App\Modules\Content\Support\ContentLibrary;
 use App\Modules\Content\Support\PrintGuide;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -24,7 +25,7 @@ final readonly class ShowController
         $page = $request->route('page');
         $page = is_string($page) ? PublicPage::from($page) : PublicPage::Home;
 
-        $locale = Locale::from(app()->getLocale());
+        $locale = Locale::from(App::getLocale());
 
         return match ($page) {
             // The print guide puts its parts together from the texts per part (B205).

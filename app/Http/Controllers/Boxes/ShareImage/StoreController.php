@@ -22,14 +22,14 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final readonly class StoreController
 {
-    public function __invoke(StoreShareImageRequest $request, ShareImageRenderer $renderer, ShareImages $images): Response
+    public function __invoke(StoreShareImageRequest $request, ShareImageRenderer $renderer, ShareImages $images, FeatureCounter $counter): Response
     {
         $input = $renderer->clean($request->edition(), $request->photos());
         $id = Str::random(40);
         $images->waiting($id, $input);
         dispatch(new RenderShareImageJob($id));
         // Anonymous: only that a share image was asked for today (B206).
-        resolve(FeatureCounter::class)->count(FeatureEvent::ShareImageMade);
+        $counter->count(FeatureEvent::ShareImageMade);
 
         $response = new ShareImageRequestData(id: $id, status: 'waiting')->toResponse($request)->setStatusCode(Response::HTTP_ACCEPTED);
         $response->headers->set('Cache-Control', 'private, no-store');
