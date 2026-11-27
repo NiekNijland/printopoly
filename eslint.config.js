@@ -44,6 +44,7 @@ import {
     testingSyntaxRules,
     testSyntaxRules,
 } from './eslint-rules/syntax.js';
+import { testsPlugin } from './eslint-rules/tests.js';
 import { toastsPlugin } from './eslint-rules/toasts.js';
 import { visitsPlugin } from './eslint-rules/visits.js';
 
@@ -70,6 +71,7 @@ const localPlugins = {
     visits: visitsPlugin,
     downloads: downloadsPlugin,
     navigation: navigationPlugin,
+    tests: testsPlugin,
 };
 
 // eslint-plugin-react reads the installed React, so no rule depends on its version detection.
@@ -355,6 +357,7 @@ export default [
         rules: {
             ...vitest.configs.recommended.rules,
             ...settledTestRules,
+            'tests/max-test-lines': ['error', { max: MAX_FUNCTION_LINES }],
             'vitest/expect-expect': [
                 'error',
                 { assertFunctionNames: ['expect', 'expectTypeOf'] },
