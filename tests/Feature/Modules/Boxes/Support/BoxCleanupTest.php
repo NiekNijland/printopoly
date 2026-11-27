@@ -102,6 +102,37 @@ final class BoxCleanupTest extends TestCase
         self::assertSame([$kept->publicId()], CollectionBox::query()->pluck('id')->all());
     }
 
+    public function test_a_run_removes_every_expired_box_and_orphan_past_one_page_and_keeps_the_rest(): void
+    {
+        $live = CollectionBox::factory()->createOne();
+        $kept = BoxContribution::factory()->createOne(['box_id' => $live->publicId()]);
+
+        foreach (range(1, 120) as $index) {
+            $box = CollectionBox::factory()->createOne(['expires_at' => now()->subMinutes($index)->toImmutable()]);
+            BoxContribution::factory()->createOne(['box_id' => $box->publicId()]);
+            BoxContribution::factory()->createOne(['box_id' => str_pad(dechex($index), 24, 'b', STR_PAD_LEFT)]);
+        }
+
+        self::assertSame(['boxes' => 120, 'contributions' => 240], resolve(BoxCleanup::class)->run());
+        self::assertSame([$live->publicId()], CollectionBox::query()->pluck('id')->all());
+        self::assertSame([$kept->publicId()], BoxContribution::query()->pluck('id')->all());
+    }
+
+    public function test_an_account_takes_the_contributions_and_photos_of_all_its_boxes(): void
+    {
+        $first = CollectionBox::factory()->createOne(['user_id' => 'user-sanne', 'edition_id' => 'e1']);
+        $second = CollectionBox::factory()->createOne(['user_id' => 'user-sanne', 'edition_id' => 'e2']);
+        $other = CollectionBox::factory()->createOne(['user_id' => 'user-thomas']);
+        $this->photoContribution($first, 'box-photos/eerste');
+        BoxContribution::factory()->createOne(['box_id' => $second->publicId()]);
+        $kept = BoxContribution::factory()->createOne(['box_id' => $other->publicId()]);
+
+        resolve(BoxCleanup::class)->deleteForUser('user-sanne');
+
+        self::assertSame([$kept->publicId()], BoxContribution::query()->pluck('id')->all());
+        Storage::disk('local')->assertMissing(['box-photos/eerste/preview.webp', 'box-photos/eerste/print.jpg']);
+    }
+
     private function photoContribution(CollectionBox $box, string $folder): BoxContribution
     {
         Storage::disk('local')->put($folder . '/preview.webp', 'voorbeeld');
