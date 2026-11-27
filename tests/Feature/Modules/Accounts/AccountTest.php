@@ -31,18 +31,20 @@ final class AccountTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_logging_out_flashes_clear_local_copy_to_the_page_it_lands_on(): void
+    public function test_logging_out_tells_the_page_it_lands_on_to_clear_the_local_copy_once(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)
             ->post('/logout')
-            ->assertRedirect('/nl')
-            ->assertInertiaFlash('clearLocalCopy', true);
+            ->assertRedirect('/nl');
 
         $this->assertGuest();
         $this->get('/nl')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
-            ->where('auth.user', null));
+            ->where('auth.user', null)
+            ->where('clearLocalCopy', true));
+        $this->get('/nl')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+            ->where('clearLocalCopy', false));
     }
 
     public function test_logging_out_keeps_the_editions_in_the_account(): void

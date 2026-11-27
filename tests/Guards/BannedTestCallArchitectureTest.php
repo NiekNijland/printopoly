@@ -150,7 +150,7 @@ final class BannedTestCallArchitectureTest extends TestCase
 
     private function guard(string $root): BannedTestCallGuard
     {
-        return new BannedTestCallGuard(new DeclarationInspector(), $root, 'tests', ['tests/Unit'], self::BASE, array_keys(ComposerNamespaces::autoloaded(dirname(__DIR__, 2))));
+        return new BannedTestCallGuard(new DeclarationInspector(), $root, 'tests', ['tests/Unit'], self::BASE, array_keys(ComposerNamespaces::autoloaded(dirname(__DIR__, 2) . '/composer.json')));
     }
 
     /**

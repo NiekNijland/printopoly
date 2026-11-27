@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Integrations\Chrome\PatientChromeDriver;
 use App\Integrations\Google\GoogleLogin;
 use App\Integrations\Ssr\ReleaseCheckedSsrGateway;
@@ -15,9 +16,11 @@ use Carbon\CarbonImmutable;
 use Closure;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\LazyLoadingViolationException;
+use Illuminate\Foundation\Exceptions\Handler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Date;
@@ -28,6 +31,8 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Ssr\Gateway;
 use Override;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
+use Throwable;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -66,8 +71,21 @@ final class AppServiceProvider extends ServiceProvider
         }
 
         // No Vite::prefetch(): it loads every page chunk (heic-to, the editor) on every page.
+        $this->configureErrorPages();
         $this->configureRateLimiting();
         $this->configurePermissions();
+    }
+
+    /**
+     * Our own page for 403, 404, 419, 500 and 503 (B66), built by HandleInertiaRequests with the shared props.
+     */
+    private function configureErrorPages(): void
+    {
+        $this->callAfterResolving(ExceptionHandler::class, function (ExceptionHandler $handler): void {
+            if ($handler instanceof Handler) {
+                $handler->respondUsing(fn (HttpResponse $response, Throwable $exception, Request $request): HttpResponse => $this->app->make(HandleInertiaRequests::class)->errorPage($response, $exception, $request));
+            }
+        });
     }
 
     private function configurePermissions(): void

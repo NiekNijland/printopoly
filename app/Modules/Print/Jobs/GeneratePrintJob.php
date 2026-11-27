@@ -12,6 +12,7 @@ use App\Modules\Print\Enums\FailureReason;
 use App\Modules\Print\Enums\PartStatus;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
+use App\Modules\Print\Events\PrintRunFailedEvent;
 use App\Modules\Print\Support\InstructionPdfBuilder;
 use App\Modules\Print\Support\PrintPartBuilder;
 use App\Modules\Print\Support\PrintProgress;
@@ -20,6 +21,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Attributes\Timeout;
 use Illuminate\Queue\Attributes\Tries;
+use Illuminate\Support\Facades\Event;
 use Throwable;
 
 /**
@@ -101,27 +103,11 @@ final class GeneratePrintJob implements ShouldQueue
     }
 
     /**
-     * The worker died or timed out: nothing may stay "waiting" or "running".
+     * The worker died or timed out: nothing may stay "waiting" or "running" (MarkFailedPrintRun does the marking).
      */
     public function failed(Throwable $exception): void
     {
-        $job = PrintJob::query()->find($this->printJobId);
-
-        if (! $job instanceof PrintJob) {
-            return;
-        }
-
-        $progress = resolve(PrintProgress::class);
-
-        foreach ($this->targets as [$setValue, $partValue]) {
-            $set = PrintSet::from($setValue);
-            $part = PrintPart::tryFrom($partValue);
-
-            if ($part instanceof PrintPart && $job->recordedState($set, $part)['status']->isActive()) {
-                $progress->record($job, $set, $part, PartStatus::FAILED, error: FailureReason::TIMEOUT->value);
-            }
-        }
-
-        $progress->setActive($job, false);
+        unset($exception);
+        Event::dispatch(new PrintRunFailedEvent($this->printJobId, $this->targets));
     }
 }

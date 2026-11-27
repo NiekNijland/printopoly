@@ -10,5 +10,5 @@
 
 `PhpUnitExampleReader` leest de drie delen. Een test is een publieke methode `test...` of een methode met het attribuut `Test`; zijn body telt met de private helpers die hij aanroept. De echte boom is een test zonder dataprovider die een root bouwt uit `dirname(__DIR__, n)`, een methode `violations` of `findings` aanroept en een leeg resultaat vaststelt. Een falend voorbeeld stelt de woorden van een melding of een niet-leeg resultaat vast; een slagend voorbeeld stelt een leeg resultaat vast en is niet de echte boom.
 
-Telling: `tests/Guards/lists/guard-shape.txt`, rij `guard-shape-list` (2 regels: een test waarvan het slagende voorbeeld in de echte boom zit, en een letterlijk pad in `ComposerNamespaces`).
+Geen lijst: de boom staat op nul.
 Review controleert, de guard niet: of elke andere schrijfwijze van de constructie een falend voorbeeld heeft (rubric item 13).

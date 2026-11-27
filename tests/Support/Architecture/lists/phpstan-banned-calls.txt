@@ -1,2 +1,0 @@
-app/Modules/Print/Jobs/GeneratePrintJob.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-bootstrap/app.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().

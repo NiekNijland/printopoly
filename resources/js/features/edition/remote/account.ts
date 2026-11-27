@@ -28,7 +28,7 @@ const redirectOf = (body: unknown, fallback: string): string => {
 
 /**
  * Logs out through JSON. The caller then clears IndexedDB when `clearLocalCopy` is true and goes to `redirect`. A
- * logout through an Inertia link instead lands on a page with the flash prop `clearLocalCopy`.
+ * logout through an Inertia link instead lands on a page with the shared prop `clearLocalCopy`.
  */
 export const logout = async (
     client: ApiClient = createApiClient(),

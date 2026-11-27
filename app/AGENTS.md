@@ -55,7 +55,7 @@ Een job, mail of listener in de wachtrij draagt zijn klassenaam in de payload va
 - Een migratie noemt geen applicatieklasse (`MigrationClassGuard`). Een index staat in een migratie in zijn documentvorm voor MongoDB.
 - Een type vernauw je met een controle die de analyser kent en die bij runtime faalt, nooit met een inline `@var` (`InlineVarCastGuard`).
 - `mixed` als type staat alleen in de JSON-ingangen: `app/Support/JsonShape.php`, `app/Modules/Editions/Support` en `app/Http/Requests` (`docs/decisions/0003-mixed-bij-de-json-ingang.md`, ratchetrij `mixed-outside-json-entry`).
-- De verboden aanroepen staan in `phpstan.neon` en `phpstan-banned-calls.neon`, elk met een melding die de vervanger noemt. De tijd komt uit `now()`, config uit de getypte accessors van `Config`.
+- De verboden aanroepen staan in `phpstan.neon`, elk met een melding die de vervanger noemt. De tijd komt uit `now()`, config uit de getypte accessors van `Config`.
 
 ### Teksten
 

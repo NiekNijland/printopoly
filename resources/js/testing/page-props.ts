@@ -7,6 +7,7 @@ type FakePageOptions = {
     locale?: Locale;
     auth?: Partial<SharedAuth>;
     flash?: FlashData;
+    clearLocalCopy?: boolean;
 };
 
 export type FakePage = {
@@ -20,6 +21,7 @@ export const fakePage = ({
     locale = 'nl',
     auth = {},
     flash = {},
+    clearLocalCopy = false,
 }: FakePageOptions = {}): FakePage => ({
     url: `/${locale}`,
     props: {
@@ -43,6 +45,7 @@ export const fakePage = ({
             googleLoginEnabled: false,
             ...auth,
         },
+        clearLocalCopy,
     },
     flash,
 });

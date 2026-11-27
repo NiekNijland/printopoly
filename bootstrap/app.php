@@ -14,9 +14,6 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Routing\Route;
-use Inertia\Inertia;
-use Symfony\Component\HttpFoundation\Response;
 
 $moduleCommands = glob(__DIR__ . '/../app/Modules/*/Commands', GLOB_ONLYDIR);
 
@@ -74,25 +71,7 @@ return Application::configure(basePath: dirname(__DIR__))
             static fn (Request $request): bool => $request->expectsJson(),
         );
 
-        // A page of our own for 403, 404, 419, 500 and 503, with the right status (B66).
-        // The 404 of an unknown URL arrives through the fallback route in routes/web.php,
-        // so the language and the shared props are there.
-        $exceptions->respond(static function (Response $response, Throwable $exception, Request $request): Response {
-            $status = $response->getStatusCode();
-
-            if (
-                ! in_array($status, [403, 404, 419, 500, 503], true)
-                || $request->expectsJson()
-                || ! $request->route() instanceof Route
-            ) {
-                return $response;
-            }
-
-            // A 404 from a route binding (an expired print link) comes before HandleInertiaRequests ran, so the page
-            // would miss the shared props the header and footer read (bug 43 of test round 3). Share them here.
-            Inertia::share(resolve(HandleInertiaRequests::class)->share($request));
-
-            return Inertia::render('error', ['status' => $status])->toResponse($request)->setStatusCode($status);
-        });
+        // A page of our own for 403, 404, 419, 500 and 503 (B66): AppServiceProvider hands the handler
+        // HandleInertiaRequests::errorPage(), so the page has the shared props of every page.
     })
     ->create();

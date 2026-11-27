@@ -65,7 +65,7 @@ Elke regel van de gidsen noemt zijn guard bij een naam van deze lijst. Elke guar
 
 Elke taak heeft één manier. Nieuwe code kopieert het voorbeeldbestand, niet het bestand ernaast. Review gebruikt `docs/review-rubric.md`. `bash scripts/checks.sh` draait wat de stap `checks` van CI draait.
 
-Een voorbeeld dat op een getelde lijst staat, en een rij zonder guard, komt op de lijst one-pattern.txt in `tests/Guards/lists`. Die lijst is leeg en daarom weg; de rij `one-pattern-list` houdt hem op 0. Een rij zonder voorbeeld noemt de PR van stap 8 die het voorbeeld brengt.
+Een voorbeeld dat op een getelde lijst staat, en een rij zonder guard, komt op de lijst one-pattern.txt van de rij `one-pattern-list`. Die lijst is leeg en daarom weg; de rij houdt hem op 0. Een rij zonder voorbeeld noemt de PR van stap 8 die het voorbeeld brengt.
 
 | Taak | De ene manier | Guard | Kopieer |
 | --- | --- | --- | --- |
@@ -80,7 +80,7 @@ Een voorbeeld dat op een getelde lijst staat, en een rij zonder guard, komt op d
 | Lengte van een methode | hoogstens 80 regels, een controller-actie hoogstens 40 | `method-size` | `app/Models/PrintFile.php` |
 | Trait | alleen voor code die meerdere klassen delen | `single-use-traits` | `tests/Concerns/RefreshesMongoDatabase.php` |
 | Vertaalde tekst | een sleutel in elke taal, door de code gelezen | `translations` | `lang/nl.json` |
-| Verboden aanroep | een regel van de analyser met een melding die de vervanger noemt | `backend-patterns` | `phpstan-banned-calls.neon` |
+| Verboden aanroep | een regel van de analyser met een melding die de vervanger noemt | `backend-patterns` | `phpstan.neon` |
 | Validatie | een form request met regels als array, gelezen met `$request->validated()` | `backend-patterns` | `app/Http/Requests/Editions/RenameEditionRequest.php` |
 | Autorisatie | `can:` op de route, de regel over een record in de policy | `backend-patterns` | `app/Policies/EditionPolicy.php` |
 | Token-capability | een geheime link wordt gecontroleerd door de middleware `TokenCapability` met `capability:<soort>` | `backend-patterns` | `app/Http/Middleware/TokenCapability.php` |

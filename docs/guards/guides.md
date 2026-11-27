@@ -15,7 +15,7 @@ De gidsen zijn de root-`AGENTS.md`, `app/AGENTS.md`, `tests/AGENTS.md`, `resourc
 
 `DocumentedPathGuard` leest elk pad in backticks, in een `<code>`-element en in een linkdoel, ook met een `:regel`-achtervoegsel. Een pad onder een bekende map bestaat; een relatief pad met een extensie is het einde van een bestand in de boom. Blinde vlek: een relatief pad zonder extensie (`hooks/use-x`).
 
-`OnePatternTableGuard` leest de tabel One pattern en de lijst Guards van de root-`AGENTS.md`. Een rij noemt een guard van de lijst; haar voorbeeld bestaat en staat in geen lijst, baseline of suppressie (`lists`, `baselines`, `tests/Guards/lists`, `tests/Support/Architecture/lists`, `eslint-suppressions.json`); "lands with" staat alleen in de kolom Kopieer.
+`OnePatternTableGuard` leest de tabel One pattern en de lijst Guards van de root-`AGENTS.md`. Een rij noemt een guard van de lijst; haar voorbeeld bestaat en staat in geen lijst, baseline of suppressie (de mappen lists en baselines in de root, de map lists in `tests/Guards` en in `tests/Support/Architecture`, en `eslint-suppressions.json`); "lands with" staat alleen in de kolom Kopieer.
 
 `RubricTableGuard` vergelijkt de eerste kolom van de tabel One pattern met de tabel van de rubric, in dezelfde volgorde, en eist per rij een guard of een genummerd item dat de rubric heeft.
 
@@ -23,5 +23,5 @@ De gidsen zijn de root-`AGENTS.md`, `app/AGENTS.md`, `tests/AGENTS.md`, `resourc
 
 `GuideRulesGuard` leest per bestand in `docs/guards` de tabel Rule id en eist dat de gidsen de woorden houden. De test pint per bestand de ids.
 
-Telling: rij `one-pattern-list`, de lijst one-pattern.txt in `tests/Guards/lists`: de rijen zonder guard en de voorbeelden die op een lijst staan. Hij staat op 0 en het bestand is weg.
+Telling: rij `one-pattern-list`, de lijst one-pattern.txt in de map lists van `tests/Guards`: de rijen zonder guard en de voorbeelden die op een lijst staan. Hij staat op 0 en het bestand is weg.
 Review controleert, de guard niet: of een zin alleen beweert wat de falende voorbeelden van de guard tonen (rubric item 14).
