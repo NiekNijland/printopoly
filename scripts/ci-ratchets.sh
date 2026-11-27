@@ -720,7 +720,7 @@ refactor-skip 1 ->withSkipPath(__DIR__ . '/x')
 refactor-skip 0 ->withSkip([])
 refactor-sets 2     ->withPreparedSets(deadCode: true, codeQuality: true)
 refactor-sets 1     deadCode: true,
-refactor-sets 0 $config->withPreparedSets(earlyReturn: true)
+refactor-sets 1 $config->withPreparedSets(earlyReturn: true)
 refactor-sets 1     ->withPhpSets()
 refactor-sets 1     ->withComposerBased(laravel: true)
 refactor-sets 1     ->withImportNames(removeUnusedImports: true)
