@@ -23,7 +23,10 @@ import type { Size } from '@/types/print';
 export const normalizeRotation = (degrees: number): Rotation => {
     const turns = Math.round(degrees / 90);
 
-    return ((((turns * 90) % 360) + 360) % 360) as Rotation;
+    const degreesInTurn = (((turns * 90) % 360) + 360) % 360;
+    const rotations: readonly Rotation[] = [0, 90, 180, 270];
+
+    return rotations.find((rotation) => rotation === degreesInTurn) ?? 0;
 };
 
 const toPlacement = (

@@ -527,7 +527,7 @@ const PrintShow = ({
                 : selectionOfRows(
                       set,
                       SET_PARTS.filter((part) =>
-                          (serverParts as readonly string[]).includes(part),
+                          serverParts.some((server) => server === part),
                       ),
                   );
 
@@ -596,7 +596,7 @@ const PrintShow = ({
     };
     const anyMade = status.parts.some(
         (row) =>
-            (parts as readonly PrintPart[]).includes(row.part) &&
+            parts.some((part) => part === row.part) &&
             row.set === set &&
             row.status !== 'idle',
     );
@@ -1039,7 +1039,9 @@ const PrintShow = ({
                           sheets: quantity.count,
                       });
             }
-            default:
+            case 'calibration':
+            case 'rules_booklet':
+            case 'tokens':
                 return undefined;
         }
     };

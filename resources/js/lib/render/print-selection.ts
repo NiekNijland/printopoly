@@ -1,4 +1,5 @@
 import {
+    PART_IDS,
     PRINT_SELECTION_PART_IDS,
     type Edition,
     type PartId,
@@ -147,12 +148,10 @@ export const editionInSet = (
     edition: Edition,
     selection: PrintSelection,
 ): Edition => {
-    const parts = Object.fromEntries(
-        Object.keys(edition.parts).map((id) => [
-            id,
-            id === 'board' || selection.parts.includes(id as PartId),
-        ]),
-    ) as Parts;
+    const parts: Parts = { ...edition.parts };
+    for (const id of PART_IDS) {
+        parts[id] = id === 'board' || selection.parts.includes(id);
+    }
     // The house rules card goes with the cards; the check itself only speaks up about a card someone started and
     // emptied again, the same as in the editor (B210).
 

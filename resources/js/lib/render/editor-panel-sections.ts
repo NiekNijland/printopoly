@@ -105,7 +105,15 @@ export const styledPartOfKey = (key: string): StyledPart | null => {
             return 'pawns';
         case 'boxLid':
             return 'boxLid';
-        default:
+        case 'boardCenter':
+        case 'group':
+        case 'houseRules':
+        case 'invitation':
+        case 'partStyle':
+        case 'rulesBooklet':
+        case 'themeAccent':
+        case 'words':
+        case undefined:
             return null;
     }
 };
@@ -159,7 +167,12 @@ const ownSections = (key: string): PanelSection[] => {
             return ['text', 'image'];
         case 'boxLid':
             return ['text', 'image', 'style'];
-        default:
+        case 'group':
+        case 'partStyle':
+        case 'rulesBooklet':
+        case 'themeAccent':
+        case 'words':
+        case undefined:
             return [];
     }
 };
