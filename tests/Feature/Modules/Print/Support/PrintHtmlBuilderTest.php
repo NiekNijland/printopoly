@@ -105,7 +105,6 @@ final class PrintHtmlBuilderTest extends TestCase
             )),
         ];
 
-        // resources/js/features/print/print-payload.test.ts reads the same file.
         self::assertSame(
             (string) file_get_contents(base_path('resources/js/testing/print-payloads.json')),
             json_encode($payloads, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR) . "\n",
