@@ -4,9 +4,10 @@ import {
     RemoteAuthError,
     RemoteRateLimitError,
     createApiClient,
-    readXsrfCookie,
-    type FetchLike,
+    type ApiClientOptions,
 } from './client';
+
+type FetchLike = NonNullable<ApiClientOptions['fetch']>;
 
 const json = (body: unknown, status = 200, headers: HeadersInit = {}) => {
     return new Response(JSON.stringify(body), {
@@ -147,11 +148,16 @@ describe('createApiClient', () => {
     });
 });
 
-describe('readXsrfCookie', () => {
-    it('reads and decodes the Laravel cookie', () => {
+describe('the CSRF token from the cookie', () => {
+    it('reads and decodes the Laravel cookie', async () => {
         document.cookie = 'other=1';
         document.cookie = `XSRF-TOKEN=${encodeURIComponent('a=b/c')}`;
+        const fetch = mockFetch(json({}));
 
-        expect(readXsrfCookie()).toBe('a=b/c');
+        await createApiClient({ fetch }).request('GET', '/x');
+
+        expect(fetch.mock.calls[0]?.[1]?.headers).toMatchObject({
+            'X-XSRF-TOKEN': 'a=b/c',
+        });
     });
 });
