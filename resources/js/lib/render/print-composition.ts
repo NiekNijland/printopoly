@@ -7,6 +7,7 @@ import type { Elements } from '@/lib/render/edition-types';
 import { standardEdition } from '@/lib/render/standard-edition';
 import type {
     BoardForm,
+    PrintPart as GeneratedPrintPart,
     PrintSet as GeneratedPrintSet,
 } from '@/types/generated';
 import type { Rect, Segment, Size } from '../../types/print';
@@ -23,15 +24,7 @@ import { moneyAmountOf, money, tokens } from './print-compose-pieces';
 import { duplexCardSheets, printShopCardPages } from './print-imposition';
 import { BLEED, CARD, perSet, setsOf, withCropMarks } from './print-page-frame';
 
-export type PrintPart =
-    | 'board'
-    | 'cards'
-    | 'money'
-    | 'tokens'
-    | 'box_lid'
-    | 'rules_booklet'
-    | 'invitation'
-    | 'calibration';
+export type PrintPart = GeneratedPrintPart;
 
 export type PrintSet = GeneratedPrintSet;
 
