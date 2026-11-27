@@ -10,8 +10,13 @@ import { lidLayout } from '@/lib/render/box-lid-layout';
 import { mix } from '@/lib/render/color';
 import { DEFAULT_BOARD_PROFILE, spaceWidth } from '@/lib/render/print-board';
 import { DEFAULT_WORDS, bookletPages } from '@/lib/render/rules-booklet';
-import { spaceAt, standardEdition } from '@/lib/render/standard-edition';
+import {
+    isOwnable,
+    spaceAt,
+    standardEdition,
+} from '@/lib/render/standard-edition';
 import { THEMES, type ThemeId } from '@/lib/render/themes';
+import { defined } from '@/testing/defined';
 import type { Card, OwnableSpace } from '@/types/game';
 
 import { Banknote, noteColor } from './banknote';
@@ -29,6 +34,19 @@ import { Sheet } from './sheet';
 import { TitleDeed } from './title-deed';
 
 const base = { theme: 'classic', locale: 'nl' } as const;
+
+const isContext2d = (value: object): value is CanvasRenderingContext2D =>
+    'stroke' in value && 'clip' in value && 'scale' in value;
+
+const ownableAt = (position: number): OwnableSpace => {
+    const space = spaceAt(position);
+
+    if (!isOwnable(space)) {
+        throw new Error(`Space ${String(position)} has no deed`);
+    }
+
+    return space;
+};
 
 /** The outer element of what was just rendered. */
 const root = (container: HTMLElement): HTMLElement => {
@@ -85,11 +103,7 @@ describe('sizes in mm', () => {
             />,
         );
         const deed = render(
-            <TitleDeed
-                {...base}
-                space={spaceAt(1) as OwnableSpace}
-                side="front"
-            />,
+            <TitleDeed {...base} space={ownableAt(1)} side="front" />,
         );
 
         expect(mmSize(root(card.container))).toEqual(['63mm', '88mm']);
@@ -97,7 +111,7 @@ describe('sizes in mm', () => {
     });
 
     it('puts the currency sign before the amounts in a standard card text', () => {
-        const card = standardEdition.decks.chance[0] as Card;
+        const card = defined(standardEdition.decks.chance[0]);
         const euro = render(
             <GameCard {...base} deck="chance" side="front" card={card} />,
         );
@@ -312,7 +326,7 @@ describe('bleed', () => {
         expect(outer.dataset.bleedMm).toBe('3');
         expect(trim?.style.left).toBe('3mm');
         expect(trim?.style.top).toBe('3mm');
-        expect(mmSize(trim as HTMLElement)).toEqual(['63mm', '88mm']);
+        expect(mmSize(defined(trim))).toEqual(['63mm', '88mm']);
         expect(root(flat.container).dataset.bleedMm).toBe('0');
     });
 
@@ -456,7 +470,7 @@ describe('town of a colour group', () => {
     });
 
     it('is on the front and the back of a deed, and only on streets', () => {
-        const street = spaceAt(1) as OwnableSpace;
+        const street = ownableAt(1);
         const front = render(
             <TitleDeed {...base} space={street} side="front" town="Zwolle" />,
         );
@@ -469,7 +483,7 @@ describe('town of a colour group', () => {
         const station = render(
             <TitleDeed
                 {...base}
-                space={spaceAt(5) as OwnableSpace}
+                space={ownableAt(5)}
                 side="front"
                 town="Zwolle"
             />,
@@ -483,7 +497,7 @@ describe('town of a colour group', () => {
 });
 
 describe('title deeds in the themes', () => {
-    const street = spaceAt(1) as OwnableSpace;
+    const street = ownableAt(1);
 
     it('takes the colours of the theme: no black frame and the inks of Riso on both sides', () => {
         for (const side of ['front', 'back'] as const) {
@@ -535,12 +549,7 @@ describe('elements without a photo', () => {
             <BoardSpace key="s" {...base} space={spaceAt(1)} />,
             <BoardSpace key="st" {...base} space={spaceAt(5)} />,
             <BoardSpace key="c" {...base} space={spaceAt(20)} />,
-            <TitleDeed
-                key="d"
-                {...base}
-                space={spaceAt(1) as OwnableSpace}
-                side="front"
-            />,
+            <TitleDeed key="d" {...base} space={ownableAt(1)} side="front" />,
             <GameCard
                 key="g"
                 {...base}
@@ -688,7 +697,7 @@ describe('board spaces', () => {
 });
 
 describe('cards', () => {
-    const card: Card = standardEdition.decks.chance[0] as Card;
+    const card: Card = defined(standardEdition.decks.chance[0]);
 
     it('shows the text of the card on the front and the deck name on the back', () => {
         render(<GameCard {...base} deck="chance" side="front" card={card} />);
@@ -704,11 +713,13 @@ describe('cards', () => {
     });
 
     it('puts the currency sign before the amounts of a bare standard card (thumbnails, B132)', () => {
-        const withAmount = standardEdition.decks.chance.find((candidate) =>
-            /(?<![\w.,])\d+(?!\w)/.test(
-                candidate.text.nl.replace(/\{[^}]*\}/g, ''),
+        const withAmount = defined(
+            standardEdition.decks.chance.find((candidate) =>
+                /(?<![\w.,])\d+(?!\w)/.test(
+                    candidate.text.nl.replace(/\{[^}]*\}/g, ''),
+                ),
             ),
-        ) as Card;
+        );
         const amounts = (text: string) =>
             [...text.replace(/\{[^}]*\}/g, '').matchAll(/\d+/g)].map(
                 (match) => match[0],
@@ -756,18 +767,14 @@ describe('cards', () => {
 describe('title deed', () => {
     it('follows the original (B133): label and name in capitals in the block, no price and no copyright', () => {
         const { container } = render(
-            <TitleDeed
-                {...base}
-                space={spaceAt(1) as OwnableSpace}
-                side="front"
-            />,
+            <TitleDeed {...base} space={ownableAt(1)} side="front" />,
         );
 
         expect(
             container.querySelector('[data-slot="label"]'),
         ).toHaveTextContent('EIGENDOMSBEWIJS');
         expect(container.querySelector('[data-slot="name"]')?.textContent).toBe(
-            (spaceAt(1) as OwnableSpace).name.nl.toUpperCase(),
+            ownableAt(1).name.nl.toUpperCase(),
         );
         expect(
             container.querySelector<HTMLElement>('[data-slot="band"]')?.style
@@ -782,7 +789,7 @@ describe('title deed', () => {
             <TitleDeed
                 theme="classic"
                 locale="en"
-                space={spaceAt(1) as OwnableSpace}
+                space={ownableAt(1)}
                 side="front"
             />,
         );
@@ -804,7 +811,7 @@ describe('title deed', () => {
             const { container } = render(
                 <TitleDeed
                     {...base}
-                    space={spaceAt(1) as OwnableSpace}
+                    space={ownableAt(1)}
                     side="front"
                     photo={withPhoto ? { src: 'a.jpg' } : undefined}
                 />,
@@ -822,11 +829,7 @@ describe('title deed', () => {
 
     it('shows the rent table of the game data', () => {
         const { container } = render(
-            <TitleDeed
-                {...base}
-                space={spaceAt(1) as OwnableSpace}
-                side="front"
-            />,
+            <TitleDeed {...base} space={ownableAt(1)} side="front" />,
         );
         const table = container.querySelector<HTMLElement>(
             '[data-slot="rent-table"]',
@@ -857,18 +860,10 @@ describe('title deed', () => {
 
     it('shows four rows for a station and none for a utility', () => {
         const station = render(
-            <TitleDeed
-                {...base}
-                space={spaceAt(5) as OwnableSpace}
-                side="front"
-            />,
+            <TitleDeed {...base} space={ownableAt(5)} side="front" />,
         );
         const utility = render(
-            <TitleDeed
-                {...base}
-                space={spaceAt(12) as OwnableSpace}
-                side="front"
-            />,
+            <TitleDeed {...base} space={ownableAt(12)} side="front" />,
         );
 
         expect(station.container.querySelectorAll('[data-row]')).toHaveLength(
@@ -881,11 +876,7 @@ describe('title deed', () => {
 
     it('shows the mortgage on the back', () => {
         const { container } = render(
-            <TitleDeed
-                {...base}
-                space={spaceAt(1) as OwnableSpace}
-                side="back"
-            />,
+            <TitleDeed {...base} space={ownableAt(1)} side="back" />,
         );
 
         expect(
@@ -896,11 +887,7 @@ describe('title deed', () => {
 
     it('uses the group colour for the band', () => {
         const { container } = render(
-            <TitleDeed
-                {...base}
-                space={spaceAt(39) as OwnableSpace}
-                side="front"
-            />,
+            <TitleDeed {...base} space={ownableAt(39)} side="front" />,
         );
 
         expect(
@@ -942,9 +929,9 @@ describe('banknote', () => {
                     />,
                 );
 
-                expect(
-                    container.textContent?.match(/speelgeld/gi),
-                ).toHaveLength(1);
+                expect(container.textContent.match(/speelgeld/gi)).toHaveLength(
+                    1,
+                );
                 expect(
                     container.querySelector('[data-slot="bank-name"]'),
                 ).toBeNull();
@@ -1038,7 +1025,7 @@ describe('banknote', () => {
         ).toBe(css(noteColor(100)));
         const slot = (name: string) =>
             [...strak.container.querySelectorAll(`[data-slot="${name}"]`)].map(
-                (node) => node.textContent?.replace(/\s/g, ' '),
+                (node) => node.textContent.replace(/\s/g, ' '),
             );
         expect(slot('value')).toEqual(['€ 100']);
         expect(slot('edition-name')).toEqual(['Zaterdagclub']);
@@ -1122,9 +1109,12 @@ describe('banknote', () => {
             },
             set lineWidth(_value: number) {},
         };
+        if (!isContext2d(context)) {
+            throw new Error('no 2d context');
+        }
         const getContext = vi
             .spyOn(HTMLCanvasElement.prototype, 'getContext')
-            .mockReturnValue(context as unknown as CanvasRenderingContext2D);
+            .mockReturnValue(context);
         const toDataURL = vi
             .spyOn(HTMLCanvasElement.prototype, 'toDataURL')
             .mockImplementation(
@@ -1231,7 +1221,7 @@ describe('PhotoSlot', () => {
         expect(image?.style.transform).toBe('rotate(90deg)');
         expect(image?.style.filter).toBe('grayscale(1)');
         // Turned, the photo is 3000 x 4000 px: cover is 40 / 3000 mm/px, zoom 2 doubles it.
-        expect(mmSize(image as HTMLElement)).toEqual(['106.667mm', '80mm']);
+        expect(mmSize(defined(image))).toEqual(['106.667mm', '80mm']);
     });
 
     it('renders nothing without a photo', () => {
@@ -1455,7 +1445,7 @@ describe('style of an edition (B130)', () => {
             <TitleDeed
                 {...base}
                 style={colors}
-                space={spaceAt(1) as OwnableSpace}
+                space={ownableAt(1)}
                 side="front"
             />,
         );
