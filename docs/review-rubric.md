@@ -72,6 +72,8 @@ Elke rij van de tabel One pattern in `AGENTS.md`, in dezelfde volgorde. De kolom
 | Wachtrij | `QueuedWorkArchitectureTest` | item 19: of de timeout onder die van de worker blijft |
 | Geplande taak | `ScheduledTaskArchitectureTest` | item 19: of het lock past bij het interval |
 | Migratie en index | `MigrationClassArchitectureTest` | item 5 en item 20: de vorm van een index op een bestaande collectie, en de `down()` |
+| Veel documenten lezen | `QueryLoadArchitectureTest`; de ratchetrij `cleanup-load-all` | item 9: een lus `for` of een callback die per document een query doet |
+| Limiet per groep | `QuotaCountArchitectureTest`; de ratchetrij `quota-count-checks` | item 9: een limiet die op een andere manier telt dan met `count()` |
 | Type vernauwen | PHPStan op level 10; `InlineVarCastArchitectureTest` | item 21: de lege waarde van een gecontroleerde helper |
 | Testtier | `TestTierArchitectureTest` | item 18: de laagste eerlijke tier |
 | Plek van een test | `TestLocationArchitectureTest` | item 18: of de test de klasse oefent die hij noemt |

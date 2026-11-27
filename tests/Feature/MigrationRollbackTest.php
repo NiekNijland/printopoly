@@ -49,6 +49,11 @@ final class MigrationRollbackTest extends TestCase
             ['feature_counts' => [['event' => 1, 'day' => 1]]],
             ['print_jobs' => [['token' => 1]]],
         ];
+        yield 'the slots of the quotas' => [
+            '2026_11_27_120000_create_quota_slot_indexes.php',
+            ['editions' => [['user_id' => 1, 'slot' => 1]], 'box_contributions' => [['box_id' => 1, 'slot' => 1], ['box_id' => 1, 'photo_slot' => 1]]],
+            ['editions' => [['user_id' => 1, 'edition_id' => 1]], 'box_contributions' => [['box_id' => 1, 'receipt' => 1]]],
+        ];
     }
 
     /**

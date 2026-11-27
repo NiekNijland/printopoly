@@ -11,14 +11,13 @@ import {
     templateEdition,
     type TemplateId,
 } from '@/lib/render/edition-templates';
-import type { ElementOverride, ThemeId } from '@/lib/render/edition-types';
+import type { ThemeId } from '@/lib/render/edition-types';
 import type { BoardProfile } from '@/lib/render/print-board';
-import { standardEdition } from '@/lib/render/standard-edition';
 import { cn } from '@/lib/utils';
 import { sample as editionsSample } from '@/routes/editions';
 import type { CurrencyId, Locale } from '@/types/game';
 
-import { EMPTY_SPACES, templateSpaces } from './template-picker';
+import { useTemplatePreview } from './template-picker';
 
 type NewEditionCardProps = {
     /** Interface language, for the link to the template. */
@@ -67,14 +66,7 @@ const NewEditionPreview = ({
             template === null ? undefined : templateEdition(template, language),
         [template, language],
     );
-    const spaces = useMemo(
-        () => (empty ? EMPTY_SPACES : templateSpaces(edition)),
-        [edition, empty],
-    );
-    const chance: ElementOverride | undefined = empty
-        ? { text: '' }
-        : edition?.elements['card.chance.07'];
-    const standard = standardEdition.decks.chance[6];
+    const { spaces, chance, standard } = useTemplatePreview(edition, empty);
 
     return (
         <div

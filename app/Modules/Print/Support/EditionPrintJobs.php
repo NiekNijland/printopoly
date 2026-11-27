@@ -8,7 +8,7 @@ use App\Models\Edition;
 use App\Models\PrintJob;
 use App\Models\User;
 use App\Modules\Content\Enums\Locale;
-use Illuminate\Support\Str;
+use App\Support\CapabilityToken;
 
 /**
  * One print job per stored edition of a user, so the PDFs that are made stay together (B95).
@@ -34,7 +34,7 @@ final class EditionPrintJobs
         }
 
         $job = new PrintJob([
-            'token' => Str::random(40),
+            'token' => CapabilityToken::make(),
             'user_id' => $user->publicId(),
             'edition_id' => $edition->edition_id,
             'edition' => null,

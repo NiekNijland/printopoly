@@ -1,25 +1,11 @@
 import { standardEdition } from '@/lib/render/standard-edition';
 import type { GroupId } from '@/types/game';
+import type { ElementKind as GeneratedElementKind } from '@/types/generated';
 import { partOfStyleKey } from './edition-part-styles';
 import type { ElementField, PartId } from './edition-types';
 
 /** Element keys are fixed strings, never array positions (B60). */
-export type ElementKind =
-    | 'space'
-    | 'deed'
-    | 'card'
-    | 'note'
-    | 'pawn'
-    | 'cardBack'
-    | 'boxLid'
-    | 'boardCenter'
-    | 'houseRules'
-    | 'rulesBooklet'
-    | 'invitation'
-    | 'group'
-    | 'words'
-    | 'themeAccent'
-    | 'partStyle';
+export type ElementKind = GeneratedElementKind;
 
 export type ParsedKey = {
     kind: ElementKind;

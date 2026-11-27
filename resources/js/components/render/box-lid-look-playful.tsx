@@ -3,13 +3,12 @@ import type { Rect } from '@/types/print';
 
 import { useStreetColors } from './box-lid-colors';
 import {
-    Art,
     ConfettiShape,
     blockColor,
     scallopedRect,
     scatter,
 } from './piece-styles';
-import { Abs, useRender } from './sheet';
+import { Abs, useRender, Svg } from './sheet';
 
 /** Speels: a paper doily with a scalloped edge and a stitched line, on the colour of the lid. */
 export const PlayfulDoily = ({ w, h }: { w: number; h: number }) => {
@@ -19,7 +18,7 @@ export const PlayfulDoily = ({ w, h }: { w: number; h: number }) => {
     const stitch = 10;
 
     return (
-        <Art x={0} y={0} w={w} h={h} slot="lid-doily">
+        <Svg x={0} y={0} w={w} h={h} slot="lid-doily">
             <path
                 d={scallopedRect(edge, edge, w - 2 * edge, h - 2 * edge, size)}
                 fill={theme.paper}
@@ -39,7 +38,7 @@ export const PlayfulDoily = ({ w, h }: { w: number; h: number }) => {
                 strokeDasharray="2.2 1.6"
                 strokeLinecap="round"
             />
-        </Art>
+        </Svg>
     );
 };
 
@@ -83,11 +82,11 @@ export const LidConfetti = ({
     ];
 
     return (
-        <Art x={0} y={0} w={w} h={h} slot="confetti">
+        <Svg x={0} y={0} w={w} h={h} slot="confetti">
             {pieces.map((piece, index) => (
                 <ConfettiShape key={index} piece={piece} />
             ))}
-        </Art>
+        </Svg>
     );
 };
 

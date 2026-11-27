@@ -1,7 +1,7 @@
 import { ruleColor } from './board-look';
 import { vintageLid } from './box-lid-colors';
-import { Art, Rope, Rosette, diamond } from './piece-styles';
-import { useRender } from './sheet';
+import { Rope, Rosette, diamond } from './piece-styles';
+import { useRender, Svg } from './sheet';
 
 /** The sizes of the banknote border, in mm from the edge of the lid. */
 const BORDER = {
@@ -39,7 +39,7 @@ export const VintageBorder = ({ w, h }: { w: number; h: number }) => {
     ];
 
     return (
-        <Art x={0} y={0} w={w} h={h} slot="lid-border">
+        <Svg x={0} y={0} w={w} h={h} slot="lid-border">
             {rect(BORDER.outer, 0.45)}
             {rect(BORDER.outerHair, 0.14)}
             <BorderRopes w={w} h={h} band={band} color={color} />
@@ -63,7 +63,7 @@ export const VintageBorder = ({ w, h }: { w: number; h: number }) => {
                     <path d={diamond(cx, cy, 0.8)} fill={color} />
                 </g>
             ))}
-        </Art>
+        </Svg>
     );
 };
 

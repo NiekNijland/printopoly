@@ -1,3 +1,4 @@
+import { is, oneOf } from '@/lib/parse';
 import { standardEdition } from '@/lib/render/standard-edition';
 import {
     STANDARD_BUILDINGS,
@@ -214,6 +215,55 @@ export const renderWords = (words: ResolvedWords): RenderWords => {
     };
 };
 
+/** The words of an edition a card text can hold as a variable (B177). */
+const CARD_TEXT_WORDS = [
+    'station',
+    'stations',
+    'utility',
+    'utilities',
+    'house',
+    'houses',
+    'hotel',
+    'hotels',
+    'jail',
+] as const;
+
+export type CardTextWord = (typeof CARD_TEXT_WORDS)[number];
+
+const cardTextWord = oneOf(CARD_TEXT_WORDS);
+
+export const isCardTextWord = (name: string) => is(cardTextWord, name);
+
+/** The words a card text can name, singular and plural (B177). */
+export type CardTextWords = Pick<
+    ResolvedWords,
+    'house' | 'hotel' | 'station' | 'utility' | 'jail'
+>;
+
+/** The word for a word variable. */
+export const wordOf = (words: CardTextWords, word: CardTextWord): string => {
+    switch (word) {
+        case 'station':
+            return words.station.singular;
+        case 'stations':
+            return words.station.plural;
+        case 'utility':
+            return words.utility.singular;
+        case 'utilities':
+            return words.utility.plural;
+        case 'house':
+            return words.house.singular;
+        case 'houses':
+            return words.house.plural;
+        case 'hotel':
+            return words.hotel.singular;
+        case 'hotels':
+            return words.hotel.plural;
+        case 'jail':
+            return words.jail;
+    }
+};
+
 const PLACEHOLDER =
     /\{(house|hotel|houses|hotels|jail|station|stations|utility|utilities)\}/g;
 
@@ -221,35 +271,8 @@ const PLACEHOLDER =
  * Fills the placeholders of a standard card text (`{house}`, `{hotel}`, `{jail}`, `{station}`, `{utility}` and
  * their plurals) with the words of an edition.
  */
-export const fillWords = (
-    text: string,
-    words: Pick<
-        ResolvedWords,
-        'house' | 'hotel' | 'jail' | 'station' | 'utility'
-    >,
-): string => {
-    const { station, utility } = words;
-
-    return text.replace(PLACEHOLDER, (_, id: string) => {
-        switch (id) {
-            case 'house':
-                return words.house.singular;
-            case 'houses':
-                return words.house.plural;
-            case 'hotel':
-                return words.hotel.singular;
-            case 'hotels':
-                return words.hotel.plural;
-            case 'station':
-                return station.singular;
-            case 'stations':
-                return station.plural;
-            case 'utility':
-                return utility.singular;
-            case 'utilities':
-                return utility.plural;
-            default:
-                return words.jail;
-        }
-    });
+export const fillWords = (text: string, words: CardTextWords): string => {
+    return text.replace(PLACEHOLDER, (_, id: string) =>
+        isCardTextWord(id) ? wordOf(words, id) : words.jail,
+    );
 };

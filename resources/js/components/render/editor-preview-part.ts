@@ -1,4 +1,8 @@
-import { layerLook, type RenderLayer } from '@/components/render/free-layers';
+import {
+    layerBox,
+    layerLook,
+    type RenderLayer,
+} from '@/components/render/free-layers';
 import type { ResolvedEdition } from '@/lib/render/edition-resolve';
 import type {
     FreeLayer,
@@ -27,16 +31,7 @@ export const toRenderLayers = (
     photos: PhotoInfos,
 ): RenderLayer[] => {
     return layers.map((layer): RenderLayer => {
-        const box = {
-            id: layer.id,
-            x: layer.x,
-            y: layer.y,
-            w: layer.w,
-            h: layer.h,
-            ...(layer.rotation === undefined
-                ? {}
-                : { rotation: layer.rotation }),
-        };
+        const box = layerBox(layer);
 
         return layer.kind === 'text'
             ? { ...box, kind: 'text', text: layer.text, ...layerLook(layer) }

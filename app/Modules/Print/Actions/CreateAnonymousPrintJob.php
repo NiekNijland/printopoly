@@ -11,9 +11,9 @@ use App\Modules\Photos\Support\PhotoStore;
 use App\Modules\Print\Support\PrintCleanup;
 use App\Modules\Print\Support\PrintProgress;
 use App\Modules\Print\ValueObjects\PrintEdition;
+use App\Support\CapabilityToken;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
@@ -48,7 +48,7 @@ final readonly class CreateAnonymousPrintJob
         $this->assertIpLimit($ipHash);
 
         $job = new PrintJob([
-            'token' => Str::random(40),
+            'token' => CapabilityToken::make(),
             'user_id' => null,
             'edition_id' => null,
             'edition' => json_decode($json, true, 64, JSON_THROW_ON_ERROR),

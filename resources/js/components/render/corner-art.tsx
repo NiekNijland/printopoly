@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
+import type { Rect } from '@/types/print';
 
-import { mm } from '@/lib/render/units';
-
-import { useRender } from './sheet';
+import { useRender, BoxSvg } from './sheet';
 
 const Drawing = ({
     x,
@@ -22,36 +21,22 @@ const Drawing = ({
     children: ReactNode;
 }) => {
     return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: mm(x),
-                top: mm(y),
-                width: mm(w),
-                height: mm(h),
-                overflow: 'visible',
-            }}
+        <BoxSvg
+            x={x}
+            y={y}
+            w={w}
+            h={h}
+            overflow="visible"
             viewBox={viewBox}
-            aria-hidden="true"
             data-slot={slot}
         >
             {children}
-        </svg>
+        </BoxSvg>
     );
 };
 
 /** Go to Jail: a peaked police cap with a coloured band and a badge, our own drawing. */
-export const CapArt = ({
-    x,
-    y,
-    w,
-    h,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-}) => {
+export const CapArt = ({ x, y, w, h }: Rect) => {
     const { theme } = useRender();
     const ink = theme.ink;
     const paper = theme.paper;
@@ -111,17 +96,7 @@ export const CapArt = ({
 };
 
 /** Free Parking: a small round car in the second colour of the theme. */
-export const CarArt = ({
-    x,
-    y,
-    w,
-    h,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-}) => {
+export const CarArt = ({ x, y, w, h }: Rect) => {
     const { theme } = useRender();
     const ink = theme.ink;
     const paper = theme.paper;

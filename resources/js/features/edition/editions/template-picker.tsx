@@ -44,12 +44,12 @@ export const EMPTY_START = 'empty';
 export type TemplateChoice = TemplateId | null | typeof EMPTY_START;
 
 /** The names of an empty start on the miniature: every street, station and utility without a name. */
-export const EMPTY_SPACES: Record<number, SpaceOverride> = Object.fromEntries(
+const EMPTY_SPACES: Record<number, SpaceOverride> = Object.fromEntries(
     NAMED_SPACE_KEYS.map((key) => [Number(key.slice(6)), { name: '' }]),
 );
 
 /** The own street names of a template, as the board draws them. */
-export const templateSpaces = (
+const templateSpaces = (
     edition: Edition | undefined,
 ): Record<number, SpaceOverride> => {
     const result: Record<number, SpaceOverride> = {};
@@ -60,6 +60,22 @@ export const templateSpaces = (
     }
 
     return result;
+};
+
+export const useTemplatePreview = (
+    edition: Edition | undefined,
+    empty: boolean,
+) => {
+    const spaces = useMemo(
+        () => (empty ? EMPTY_SPACES : templateSpaces(edition)),
+        [edition, empty],
+    );
+    const chance: ElementOverride | undefined = empty
+        ? { text: '' }
+        : edition?.elements['card.chance.07'];
+    const standard = standardEdition.decks.chance[6];
+
+    return { spaces, chance, standard };
 };
 
 type ThumbProps = {
@@ -91,14 +107,7 @@ const TemplateThumb = ({
         [choice, locale],
     );
     const theme: ThemeId = edition?.theme ?? 'classic';
-    const spaces = useMemo(
-        () => (empty ? EMPTY_SPACES : templateSpaces(edition)),
-        [edition, empty],
-    );
-    const chance: ElementOverride | undefined = empty
-        ? { text: '' }
-        : edition?.elements['card.chance.07'];
-    const standard = standardEdition.decks.chance[6];
+    const { spaces, chance, standard } = useTemplatePreview(edition, empty);
 
     return (
         <span

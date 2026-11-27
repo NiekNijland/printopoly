@@ -28,8 +28,16 @@ final class StoreAnonymousPrintPhotosRequest extends FormRequest
      */
     public function photos(): array
     {
+        return self::photosOf($this);
+    }
+
+    /**
+     * @return array<int|string, UploadedFile>
+     */
+    public static function photosOf(FormRequest $request): array
+    {
         $uploads = [];
-        $files = $this->file('photos', []);
+        $files = $request->file('photos', []);
 
         foreach (is_array($files) ? $files : [] as $ref => $file) {
             if (! $file->isValid() || preg_match('/^[A-Za-z0-9_-]{8,64}$/', (string) $ref) !== 1) {

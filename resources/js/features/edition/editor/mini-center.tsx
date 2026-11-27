@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 
 import { BoardCenter } from '@/components/render/board';
 import {
@@ -7,6 +7,7 @@ import {
     NO_PHOTOS,
 } from '@/components/render/board-props';
 import { editorSources } from '@/components/render/editor-element-preview';
+import { useMeasuredWidth } from '@/features/edition/editor/use-stage-box';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import type { Edition } from '@/lib/render/edition-types';
 import type { PhotoInfos } from '@/lib/render/editor-photo-cache';
@@ -26,26 +27,9 @@ export const MiniCenter = ({
     edition: Edition;
     photos?: PhotoInfos;
 }) => {
-    const box = useRef<HTMLSpanElement>(null);
-    const [width, setWidth] = useState(0);
+    const [box, width] = useMeasuredWidth<HTMLSpanElement>();
     const resolved = useMemo(() => resolveEdition(edition), [edition]);
     const centre = centerRect(edition.boardProfile);
-
-    useEffect(() => {
-        const node = box.current;
-        if (node === null) {
-            return;
-        }
-        const measure = (): void => setWidth(node.clientWidth);
-        measure();
-        if (typeof ResizeObserver === 'undefined') {
-            return;
-        }
-        const observer = new ResizeObserver(measure);
-        observer.observe(node);
-
-        return () => observer.disconnect();
-    }, []);
 
     const props = boardPropsOf(
         resolved,

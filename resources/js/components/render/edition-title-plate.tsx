@@ -3,9 +3,13 @@ import { mm } from '@/lib/render/units';
 import { useFitTextWidth } from '@/lib/render/use-fit-text';
 
 import type { PlateLook } from './edition-title';
-import { useShownName, type TitleProps } from './edition-title-shared';
+import {
+    TiltedPlate,
+    useShownName,
+    type TitleProps,
+} from './edition-title-shared';
 import { FitText } from './fit-text';
-import { useRender } from './sheet';
+import { useRender, BoxSvg } from './sheet';
 
 const usePlateText = ({
     name: typed,
@@ -122,18 +126,7 @@ const PlateShape = ({
     const { plateW, plateH, stroke, rx, flap, drop } = layout;
 
     return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                width: mm(plateW),
-                height: mm(plateH),
-                overflow: 'visible',
-            }}
-            viewBox={`0 0 ${plateW} ${plateH}`}
-            aria-hidden="true"
-        >
+        <BoxSvg w={plateW} h={plateH} overflow="visible">
             {look.back !== undefined && (
                 <rect
                     x={-3.2 * unit}
@@ -186,7 +179,7 @@ const PlateShape = ({
                 strokeWidth={0.5 * unit}
                 opacity={look.inner === undefined ? 0.55 : 0.9}
             />
-        </svg>
+        </BoxSvg>
     );
 };
 
@@ -295,24 +288,12 @@ export const PlateTitle = (props: TitleProps) => {
     const { theme } = useRender();
     const text = usePlateText(props);
     const layout = plateLayout(props, text);
-    const { plateX, plateY, plateW, plateH, tilt, overlap } = layout;
+    const { plateY, tilt, overlap } = layout;
     const ink = text.look.edge ?? theme.ink;
 
     return (
         <>
-            <div
-                style={{
-                    position: 'absolute',
-                    left: mm(plateX),
-                    top: mm(plateY),
-                    width: mm(plateW),
-                    height: mm(plateH),
-                    transform: `rotate(${tilt}deg)`,
-                    transformOrigin: 'center',
-                }}
-                data-slot="edition-plate"
-                data-title-style={titleStyle ?? 'theme'}
-            >
+            <TiltedPlate layout={layout} titleStyle={titleStyle ?? 'theme'}>
                 <PlateShape
                     look={text.look}
                     layout={layout}
@@ -328,7 +309,7 @@ export const PlateTitle = (props: TitleProps) => {
                         unit={unit}
                     />
                 )}
-            </div>
+            </TiltedPlate>
             {withPhoto && photoOnTitle(plateY + overlap, tilt)}
         </>
     );

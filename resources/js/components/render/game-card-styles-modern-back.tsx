@@ -2,7 +2,6 @@ import { readableOn } from '@/lib/render/color';
 import { SPARTAN } from '@/lib/render/themes';
 import type { DeckId } from '@/types/game';
 
-import { Svg } from './card-look';
 import { FitText } from './fit-text';
 import {
     deckIcon,
@@ -11,7 +10,7 @@ import {
     type StyledBackProps,
 } from './game-card-styles-shared';
 import { Icon } from './icons';
-import { Abs, useRender } from './sheet';
+import { Abs, useRender, Svg } from './sheet';
 import { SpaceIconArt, type SpaceIconSource } from './space-icon';
 
 const ModernBackDisc = ({

@@ -4,7 +4,7 @@ import { mm } from '@/lib/render/units';
 import type { Space } from '@/types/game';
 
 import { useBoardLook } from './board-look';
-import { ColorBand, groupColor } from './board-space-parts';
+import { StreetBand } from './board-space-parts';
 import { FitText } from './fit-text';
 import {
     BAND_OPACITY,
@@ -43,24 +43,18 @@ export const FullSpace = ({
     price,
     photo,
 }: FullSpaceProps) => {
-    const { theme, style } = useRender();
     const look = useBoardLook();
     const photoTop = bar === 0 ? -bleed : bar;
 
     return (
         <>
-            {space.type === 'street' && (
-                <ColorBand
-                    bleed={bleed}
-                    w={w}
-                    bar={bar}
-                    color={
-                        style?.groupColors?.[space.group] ??
-                        groupColor(space.group, theme)
-                    }
-                    town={town}
-                />
-            )}
+            <StreetBand
+                space={space}
+                bleed={bleed}
+                w={w}
+                bar={bar}
+                town={town}
+            />
             <PhotoSlot
                 x={-bleed}
                 y={photoTop}

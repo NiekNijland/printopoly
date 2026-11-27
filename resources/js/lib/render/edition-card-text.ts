@@ -1,11 +1,16 @@
 import { formatNumber } from '@/lib/number-format';
-import { is, oneOf } from '@/lib/parse';
 import { formatMoney, standardEdition } from '@/lib/render/standard-edition';
 import { STANDARD_BUILDINGS } from '@/lib/render/words';
 import type { Locale } from '@/types/game';
 import { spaceKey } from './edition-keys';
 import type { Edition } from './edition-types';
-import { STANDARD_JAIL, type ResolvedWords } from './edition-words';
+import {
+    STANDARD_JAIL,
+    isCardTextWord,
+    wordOf,
+    type CardTextWord,
+    type CardTextWords,
+} from './edition-words';
 
 /**
  * Variables in card texts (B131).
@@ -35,25 +40,6 @@ export type CardTextSegment =
     | { type: 'amount' }
     | { type: 'word'; word: CardTextWord }
     | { type: 'unknown'; raw: string };
-
-/** The words of an edition a card text can hold as a variable (B177). */
-const CARD_TEXT_WORDS = [
-    'station',
-    'stations',
-    'utility',
-    'utilities',
-    'house',
-    'houses',
-    'hotel',
-    'hotels',
-    'jail',
-] as const;
-
-export type CardTextWord = (typeof CARD_TEXT_WORDS)[number];
-
-const cardTextWord = oneOf(CARD_TEXT_WORDS);
-
-const isCardTextWord = (name: string) => is(cardTextWord, name);
 
 export const wordToken = (word: CardTextWord): string => {
     return `{${word}}`;
@@ -153,36 +139,6 @@ export type CardTextContext = {
     money?: (amount: number) => string;
     /** The word of the edition for a word variable, such as "bushalte" for `{station}`. */
     word: (word: CardTextWord) => string;
-};
-
-/** The words a card text can name, singular and plural (B177). */
-export type CardTextWords = Pick<
-    ResolvedWords,
-    'house' | 'hotel' | 'station' | 'utility' | 'jail'
->;
-
-/** The word for a word variable. */
-export const wordOf = (words: CardTextWords, word: CardTextWord): string => {
-    switch (word) {
-        case 'station':
-            return words.station.singular;
-        case 'stations':
-            return words.station.plural;
-        case 'utility':
-            return words.utility.singular;
-        case 'utilities':
-            return words.utility.plural;
-        case 'house':
-            return words.house.singular;
-        case 'houses':
-            return words.house.plural;
-        case 'hotel':
-            return words.hotel.singular;
-        case 'hotels':
-            return words.hotel.plural;
-        case 'jail':
-            return words.jail;
-    }
 };
 
 const numberLocale: Record<Locale, string> = { nl: 'nl-NL', en: 'en-GB' };

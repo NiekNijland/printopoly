@@ -18,6 +18,7 @@ import {
     cardSpots,
     centerTitleOf,
     layoutOfTitle,
+    ScaledBoard,
 } from './board';
 import { FRAME_INSET } from './edition-title';
 
@@ -319,5 +320,23 @@ describe('BoardCenter', () => {
         expect(
             container.querySelector('[data-slot="card-spot-chest"]'),
         ).not.toBeNull();
+    });
+});
+
+describe('ScaledBoard', () => {
+    it('draws the whole board at true size, scaled into a square of the given size', () => {
+        const { container } = render(
+            <ScaledBoard
+                size={profile.outer / 4}
+                profile={profile}
+                board={undefined}
+                editionName="Beukerpoly"
+            />,
+        );
+        const box = root(container);
+
+        expect(box.style.transform).toBe('scale(0.25)');
+        expect(box.style.width).toBe(`${String(profile.outer)}mm`);
+        expect(root(box).getAttribute('data-element')).toBe('board');
     });
 });

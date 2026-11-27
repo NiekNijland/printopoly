@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
-import { Svg, TILE_GAP, TILE_RADIUS } from './board-look';
+import { TILE_GAP, TILE_RADIUS } from './board-look';
+import { Svg } from './sheet';
 
 /** A small seeded random, so a hand-drawn edge is the same on screen and in every print. */
 export const seeded = (seed: number): (() => number) => {

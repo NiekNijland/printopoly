@@ -8,6 +8,7 @@ use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Editions\Support\EditionValidator;
 use App\Modules\Print\Exceptions\PrintFailedException;
+use App\Modules\Print\Support\PrintHtmlBuilder;
 use App\Support\TemporaryFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
@@ -117,14 +118,7 @@ final readonly class ShareImageRenderer
                 'base' => $base,
                 'nonce' => $nonce,
                 // The photos come along as data: URLs, so nothing is loaded from outside the app.
-                'csp' => sprintf(
-                    "default-src 'none'; script-src %s 'nonce-%s'; style-src %s 'unsafe-inline'; img-src %s data:; font-src %s data:",
-                    $base,
-                    $nonce,
-                    $base,
-                    $base,
-                    $base,
-                ),
+                'csp' => PrintHtmlBuilder::contentSecurityPolicy($base, $nonce),
                 'width' => $mm,
                 'height' => $mm,
                 'payload' => [

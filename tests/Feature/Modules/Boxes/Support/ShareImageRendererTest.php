@@ -7,6 +7,8 @@ namespace Tests\Feature\Modules\Boxes\Support;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Modules\Boxes\Support\ShareImageRenderer;
 use App\Modules\Print\Exceptions\PrintFailedException;
+use App\Modules\Print\Support\PrintHtmlBuilder;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Validation\ValidationException;
 use Tests\Support\Editions;
@@ -78,7 +80,8 @@ final class ShareImageRendererTest extends TestCase
         self::assertEqualsWithDelta(285.75, $height, 0.001);
         self::assertTrue($waits);
         self::assertStringContainsString('data-part="share"', $html);
-        self::assertStringContainsString('default-src &#039;none&#039;', $html);
+        self::assertSame(1, preg_match('/<script nonce="([A-Za-z0-9]{32})">/', $html, $match));
+        self::assertStringContainsString('content="' . e(PrintHtmlBuilder::contentSecurityPolicy(rtrim(Config::string('printopoly.print.render_base_url'), '/'), $match[1] ?? '')) . '"', $html);
     }
 
     public function test_a_failing_pdftoppm_is_a_print_failure_with_its_cause(): void

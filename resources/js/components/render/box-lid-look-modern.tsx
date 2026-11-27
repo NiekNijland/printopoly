@@ -1,8 +1,8 @@
 import type { Rect } from '@/types/print';
 
 import { useStreetColors } from './box-lid-colors';
-import { Art, blockColor } from './piece-styles';
-import { Abs, useRender } from './sheet';
+import { blockColor } from './piece-styles';
+import { Abs, useRender, Svg } from './sheet';
 
 /** Modern: a quarter disc in each top corner, bleeding off the edge. */
 export const ModernCorners = ({
@@ -18,7 +18,7 @@ export const ModernCorners = ({
     const r = Math.min(w, h) * 0.1;
 
     return (
-        <Art
+        <Svg
             x={-bleed}
             y={-bleed}
             w={w + 2 * bleed}
@@ -38,7 +38,7 @@ export const ModernCorners = ({
                 r={r * 0.62 + bleed}
                 fill={theme.deckAccent.chance}
             />
-        </Art>
+        </Svg>
     );
 };
 

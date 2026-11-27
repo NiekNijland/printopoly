@@ -3,7 +3,13 @@ import userEvent from '@testing-library/user-event';
 
 import { renderWithI18n } from '@/testing/render';
 
-import { CheckField, Field, FieldLabel, useDraft } from './panel-parts';
+import {
+    CheckField,
+    Field,
+    FieldLabel,
+    chooseFrom,
+    useDraft,
+} from './panel-parts';
 
 describe('useDraft', () => {
     it('keeps what is typed for its element until the field ends', () => {
@@ -76,5 +82,21 @@ describe('CheckField', () => {
         await user.click(screen.getByText('Titel tonen'));
 
         expect(onCheckedChange).toHaveBeenCalledWith(true);
+    });
+});
+
+describe('chooseFrom', () => {
+    it('passes on a known choice and ignores the empty value of a cleared group', () => {
+        const chosen: string[] = [];
+        const choose = chooseFrom(
+            [{ id: 'framed' }, { id: 'full' }] as const,
+            (next) => chosen.push(next),
+        );
+
+        choose('full');
+        choose('');
+        choose('other');
+
+        expect(chosen).toEqual(['full']);
     });
 });

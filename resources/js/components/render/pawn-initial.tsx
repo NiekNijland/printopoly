@@ -5,14 +5,8 @@ import { mm } from '@/lib/render/units';
 import { ruleColor } from './board-look';
 import { FitText } from './fit-text';
 import { PANEL_HEIGHT, PAWN_WIDTH, PORTRAIT } from './pawn-layout';
-import {
-    Art,
-    blockColor,
-    pieceText,
-    seedOf,
-    vintagePaper,
-} from './piece-styles';
-import { Abs, useRender } from './sheet';
+import { blockColor, pieceText, seedOf, vintagePaper } from './piece-styles';
+import { Abs, useRender, Svg } from './sheet';
 
 /**
  * The fine overlapping rings behind the medallion of a banknote: rings around the corners and the middle of a grid
@@ -175,7 +169,7 @@ const VintageInitial = ({ letter }: { letter: string }) => {
 
     return (
         <>
-            <Art {...PORTRAIT} slot="initial" clip>
+            <Svg {...PORTRAIT} slot="initial" clip>
                 <g opacity={0.55}>
                     <GuillocheRings
                         w={PORTRAIT.w}
@@ -210,7 +204,7 @@ const VintageInitial = ({ letter }: { letter: string }) => {
                     stroke={rule}
                     strokeWidth={0.12}
                 />
-            </Art>
+            </Svg>
             {letter !== '' && (
                 <FitText
                     text={letter}
@@ -244,7 +238,7 @@ const PlayfulInitial = ({ letter, seed }: { letter: string; seed: number }) => {
 
     return (
         <>
-            <Art {...PORTRAIT} slot="initial">
+            <Svg {...PORTRAIT} slot="initial">
                 <path
                     d={scallopedCircle(cx, cy, r, 14)}
                     fill={mix(theme.paper, blockColor(theme), 0.22)}
@@ -262,7 +256,7 @@ const PlayfulInitial = ({ letter, seed }: { letter: string; seed: number }) => {
                     strokeDasharray="0.9 0.7"
                     strokeLinecap="round"
                 />
-            </Art>
+            </Svg>
             {letter !== '' && (
                 <Abs
                     x={0}

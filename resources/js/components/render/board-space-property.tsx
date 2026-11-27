@@ -4,7 +4,7 @@ import type { OwnableSpace } from '@/types/game';
 
 import { useBoardLook } from './board-look';
 import { FullSpace } from './board-space-full';
-import { ColorBand, PriceLine, groupColor } from './board-space-parts';
+import { PriceLine, groupColor, StreetBand } from './board-space-parts';
 import type { StyledPropertyProps } from './board-space-styles';
 import { ModernProperty } from './board-space-styles-modern';
 import { PlayfulProperty } from './board-space-styles-playful';
@@ -151,7 +151,7 @@ const ClassicProperty = ({
     chosenIcon,
     icon,
 }: ClassicPropertyProps) => {
-    const { theme, style } = useRender();
+    const { theme } = useRender();
     const caps = useBoardLook().name.caps;
     // The name sits right under the band, as on the classic board; with a photo it takes two lines at
     // most, so the photo is as large as the space allows (UX 4, ronde 4).
@@ -164,18 +164,13 @@ const ClassicProperty = ({
 
     return (
         <>
-            {space.type === 'street' && (
-                <ColorBand
-                    bleed={bleed}
-                    w={w}
-                    bar={bar}
-                    color={
-                        style?.groupColors?.[space.group] ??
-                        groupColor(space.group, theme)
-                    }
-                    town={town}
-                />
-            )}
+            <StreetBand
+                space={space}
+                bleed={bleed}
+                w={w}
+                bar={bar}
+                town={town}
+            />
             <FitText
                 text={title}
                 x={2}

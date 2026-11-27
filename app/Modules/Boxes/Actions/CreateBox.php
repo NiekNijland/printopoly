@@ -10,6 +10,7 @@ use App\Modules\Analytics\Enums\FeatureEvent;
 use App\Modules\Analytics\Support\FeatureCounter;
 use App\Modules\Boxes\Support\BoxAccess;
 use App\Modules\Boxes\Support\BoxSnapshot;
+use App\Support\CapabilityToken;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
@@ -52,7 +53,7 @@ final readonly class CreateBox
 
         $secret = Str::random(48);
         $box = new CollectionBox([
-            'token' => Str::random(40),
+            'token' => CapabilityToken::make(),
             'owner_hash' => BoxAccess::hash($secret),
             'channel' => Str::random(32),
             'user_id' => $userId,

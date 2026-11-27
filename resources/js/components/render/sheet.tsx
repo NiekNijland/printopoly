@@ -49,6 +49,82 @@ export const useRender = (): RenderContextValue => {
     return useContext(RenderContext);
 };
 
+type DataAttributes = Record<`data-${string}`, string | undefined>;
+
+export const BoxSvg = ({
+    x,
+    y,
+    w,
+    h,
+    overflow,
+    viewBox,
+    style,
+    children,
+    ...data
+}: {
+    x?: number;
+    y?: number;
+    w: number;
+    h: number;
+    overflow?: 'visible' | 'hidden';
+    viewBox?: string;
+    style?: CSSProperties;
+    children: ReactNode;
+} & DataAttributes) => {
+    return (
+        <svg
+            style={{
+                position: 'absolute',
+                left: x === undefined ? 0 : mm(x),
+                top: y === undefined ? 0 : mm(y),
+                width: mm(w),
+                height: mm(h),
+                ...(overflow === undefined ? {} : { overflow }),
+                ...style,
+            }}
+            viewBox={viewBox ?? `0 0 ${String(w)} ${String(h)}`}
+            aria-hidden="true"
+            {...data}
+        >
+            {children}
+        </svg>
+    );
+};
+
+export const Svg = ({
+    x,
+    y,
+    w,
+    h,
+    slot,
+    clip = false,
+    style,
+    children,
+}: {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    slot?: string;
+    clip?: boolean;
+    style?: CSSProperties;
+    children: ReactNode;
+}) => {
+    return (
+        <BoxSvg
+            x={x}
+            y={y}
+            w={w}
+            h={h}
+            overflow={clip ? 'hidden' : 'visible'}
+            style={style}
+            data-slot={slot}
+        >
+            {children}
+        </BoxSvg>
+    );
+};
+
 type SheetProps = {
     /** Name of the element, exposed as `data-element` for tests and the print pages. */
     element: string;
@@ -153,6 +229,7 @@ export const Abs = ({
     style,
     slot,
     children,
+    ...data
 }: {
     x: number;
     y: number;
@@ -161,7 +238,7 @@ export const Abs = ({
     style?: CSSProperties;
     slot?: string;
     children?: ReactNode;
-}) => {
+} & DataAttributes) => {
     return (
         <div
             style={{
@@ -173,6 +250,7 @@ export const Abs = ({
                 ...style,
             }}
             data-slot={slot}
+            {...data}
         >
             {children}
         </div>
@@ -212,19 +290,7 @@ export const Frame = ({
             : strokeMm + ornament.gapMm + ornament.strokeMm / 2;
 
     return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: mm(x),
-                top: mm(y),
-                width: mm(w),
-                height: mm(h),
-                overflow: 'visible',
-            }}
-            viewBox={`0 0 ${w} ${h}`}
-            aria-hidden="true"
-            data-frame=""
-        >
+        <BoxSvg x={x} y={y} w={w} h={h} overflow="visible" data-frame="">
             <rect
                 x={strokeMm / 2}
                 y={strokeMm / 2}
@@ -248,6 +314,23 @@ export const Frame = ({
                     data-ornament=""
                 />
             )}
-        </svg>
+        </BoxSvg>
+    );
+};
+
+export const CardFrame = ({ w, h }: { w: number; h: number }) => {
+    const { theme } = useRender();
+
+    return (
+        <Frame
+            ornate
+            x={3}
+            y={3}
+            w={w - 6}
+            h={h - 6}
+            color={theme.ink}
+            strokeMm={theme.frameMm}
+            radiusMm={Math.max(0, theme.cardRadiusMm - 2)}
+        />
     );
 };

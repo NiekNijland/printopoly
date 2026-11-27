@@ -39,6 +39,24 @@ export const layerLook = (layer: {
     };
 };
 
+export const layerBox = (layer: {
+    id: string;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    rotation?: number;
+}) => {
+    return {
+        id: layer.id,
+        x: layer.x,
+        y: layer.y,
+        w: layer.w,
+        h: layer.h,
+        ...(layer.rotation === undefined ? {} : { rotation: layer.rotation }),
+    };
+};
+
 export type FreeLayersProps = {
     layers: readonly RenderLayer[];
 };

@@ -70,6 +70,22 @@ final class AnonymousPrintJobTest extends TestCase
             ->assertNotFound();
     }
 
+    public function test_a_batch_of_photos_refuses_a_photo_ref_that_could_be_a_path(): void
+    {
+        $response = $this->post('/api/print-jobs', [
+            'edition' => json_encode(PrintScenario::editionArray(), JSON_THROW_ON_ERROR),
+            'partial' => '1',
+            'photos' => [],
+        ], ['Accept' => 'application/json'])->assertCreated();
+        $token = PrintScenario::jsonString($response, 'token');
+
+        $this->post('/api/print/' . $token . '/photos', [
+            'photos' => ['../../etc' => PrintScenario::photoUpload()],
+        ], ['Accept' => 'application/json'])->assertUnprocessable()->assertJsonValidationErrors('photos');
+
+        self::assertSame(0, Asset::query()->count());
+    }
+
     public function test_it_makes_nothing_until_asked_and_broadcasts_each_change_when_asked(): void
     {
         $job = PrintScenario::createAnonymousJob($this);

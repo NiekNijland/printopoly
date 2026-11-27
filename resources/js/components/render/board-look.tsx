@@ -1,13 +1,10 @@
-import type { ReactNode } from 'react';
-
 import { mix } from '@/lib/render/color';
 import type { BoardStyle } from '@/lib/render/edition-part-styles';
 import { partStyleOf } from '@/lib/render/style';
 import { PLAYFAIR, SPARTAN, type Theme } from '@/lib/render/themes';
-import { mm } from '@/lib/render/units';
 
 import { usesCaps } from './caps';
-import { useRender } from './sheet';
+import { useRender, Svg } from './sheet';
 
 /**
  * The look of the spaces and corners of the board in the style the edition chose for the board (B268), on top of
@@ -142,42 +139,6 @@ export const TILE_RADIUS = 2.6;
 
 /** The inset of the double rule of Vintage. */
 export const RULE_INSET = 1.3;
-
-export const Svg = ({
-    x,
-    y,
-    w,
-    h,
-    slot,
-    clip = false,
-    children,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    slot: string;
-    clip?: boolean;
-    children: ReactNode;
-}) => {
-    return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: mm(x),
-                top: mm(y),
-                width: mm(w),
-                height: mm(h),
-                overflow: clip ? 'hidden' : 'visible',
-            }}
-            viewBox={`0 0 ${String(w)} ${String(h)}`}
-            aria-hidden="true"
-            data-slot={slot}
-        >
-            {children}
-        </svg>
-    );
-};
 
 /** A quarter disc in the outer corner of a corner space, the flat colour block of Modern. */
 export const QuarterDisc = ({

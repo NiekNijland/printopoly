@@ -1,7 +1,9 @@
 import { ellipsePath } from '@/lib/render/banknote-guilloche';
+import type { Rect } from '@/types/print';
 
-import { Svg, diamondPath } from './card-look';
+import { diamondPath } from './card-look';
 import { Ornament, type OrnamentItem } from './card-look-ornament';
+import { Svg } from './sheet';
 
 /**
  * A wave along a straight line from (x1, y1) to (x2, y2): half waves of about `half` mm, `amplitude` to either side,
@@ -239,14 +241,7 @@ export const ovalItems = ({
     h,
     color,
     fill,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    color: string;
-    fill: string;
-}): OrnamentItem[] => {
+}: Rect & { color: string; fill: string }): OrnamentItem[] => {
     const cx = x + w / 2;
     const cy = y + h / 2;
 

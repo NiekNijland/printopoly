@@ -3,10 +3,10 @@ import type { DeedStyle } from '@/lib/render/edition-part-styles';
 import { PLAYFAIR } from '@/lib/render/themes';
 
 import { Hatch } from './board-look-vintage';
-import { Svg, creamed, diamondPath, engraving } from './card-look';
+import { creamed, diamondPath, engraving } from './card-look';
 import { Awning, WobblyTile, scallopDepth } from './card-look-playful';
 import { FitText } from './fit-text';
-import { Abs, useRender } from './sheet';
+import { Abs, useRender, Svg } from './sheet';
 import { deedLookOf } from './title-deed-styles';
 
 type HeaderProps = {

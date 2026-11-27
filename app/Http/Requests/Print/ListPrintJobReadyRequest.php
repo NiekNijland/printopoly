@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Print;
 
+use App\Support\CapabilityToken;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -20,7 +21,7 @@ final class ListPrintJobReadyRequest extends FormRequest
     {
         return [
             'tokens' => ['present', 'array', 'max:' . self::MAX_TOKENS],
-            'tokens.*' => ['string', 'regex:/^[A-Za-z0-9]{40}$/'],
+            'tokens.*' => ['string', 'regex:' . CapabilityToken::pattern()],
         ];
     }
 

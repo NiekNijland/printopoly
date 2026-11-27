@@ -8,7 +8,7 @@ import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 import type { Locale } from '@/types/generated';
 
-import { Board, type BoardProps } from './board';
+import { ScaledBoard, type BoardProps } from './board';
 import { FitText } from './fit-text';
 import { InkBar } from './ink-bar';
 import { PhotoSlot } from './photo-slot';
@@ -158,9 +158,8 @@ const InvitationBoard = ({
     boardProps: BoardProps | undefined;
     editionName: string;
 }) => {
-    const { theme, locale, currency, words, style } = useRender();
+    const { theme } = useRender();
     const { w } = INVITATION;
-    const scale = board / boardProfile.outer;
 
     return (
         <div
@@ -175,29 +174,12 @@ const InvitationBoard = ({
                 overflow: 'hidden',
             }}
         >
-            <div
-                style={{
-                    position: 'absolute',
-                    left: 0,
-                    top: 0,
-                    width: mm(boardProfile.outer),
-                    height: mm(boardProfile.outer),
-                    transform: `scale(${String(scale)})`,
-                    transformOrigin: 'top left',
-                }}
-            >
-                <Board
-                    theme={theme.id}
-                    locale={locale}
-                    currency={currency}
-                    words={words}
-                    {...(style === undefined ? {} : { style })}
-                    editionName={editionName}
-                    {...boardProps}
-                    profile={boardProfile}
-                    bleedMm={0}
-                />
-            </div>
+            <ScaledBoard
+                size={board}
+                profile={boardProfile}
+                board={boardProps}
+                editionName={editionName}
+            />
         </div>
     );
 };

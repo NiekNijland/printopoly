@@ -15,7 +15,7 @@ import type { CornerContentProps } from './corner-content';
 import { Turned, edgeMargin } from './corner-diagonal';
 import { FitText } from './fit-text';
 import { PhotoSlot } from './photo-slot';
-import { Abs, Frame, useRender } from './sheet';
+import { Abs, Frame, useRender, BoxSvg } from './sheet';
 import { SpaceIconArt } from './space-icon';
 
 type BoardLook = ReturnType<typeof useBoardLook>;
@@ -45,18 +45,7 @@ const JailBars = ({ s, barW }: { s: number; barW: number }) => {
     const barCount = 4;
 
     return (
-        <svg
-            style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                width: mm(s),
-                height: mm(s),
-            }}
-            viewBox={`0 0 ${String(s)} ${String(s)}`}
-            aria-hidden="true"
-            data-slot="bars"
-        >
+        <BoxSvg w={s} h={s} data-slot="bars">
             {Array.from({ length: barCount }, (_, index) => {
                 const x = (s / (barCount + 1)) * (index + 1);
 
@@ -86,7 +75,7 @@ const JailBars = ({ s, barW }: { s: number; barW: number }) => {
                 height={barW}
                 fill={theme.ink}
             />
-        </svg>
+        </BoxSvg>
     );
 };
 

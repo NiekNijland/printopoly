@@ -1,4 +1,7 @@
-import { RULE_INSET, Svg } from './board-look';
+import type { Rect } from '@/types/print';
+
+import { RULE_INSET } from './board-look';
+import { Svg } from './sheet';
 
 /**
  * The double rule of Vintage: a line and a hairline inside it, like the frame of an engraved banknote, with a
@@ -105,14 +108,7 @@ export const Cartouche = ({
     h,
     color,
     fill,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    color: string;
-    fill: string;
-}) => {
+}: Rect & { color: string; fill: string }) => {
     const cut = Math.min(1.4, h / 3);
     const path = (i: number) => {
         const c = cut;
