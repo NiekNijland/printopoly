@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { now as clockNow } from '@/lib/clock';
+
 type Throttle = { until: number; retry: () => void };
 
 type PrintThrottle = {
@@ -12,7 +14,7 @@ type PrintThrottle = {
 /** "Too many requests": the countdown next to the button; at zero the page tries again by itself (bug 4 of test round 3). */
 export const usePrintThrottle = (): PrintThrottle => {
     const [throttle, setThrottle] = useState<Throttle | null>(null);
-    const [now, setNow] = useState(() => Date.now());
+    const [now, setNow] = useState(clockNow);
 
     useEffect(() => {
         if (throttle === null) {
@@ -20,7 +22,7 @@ export const usePrintThrottle = (): PrintThrottle => {
         }
 
         const tick = () => {
-            const at = Date.now();
+            const at = clockNow();
 
             if (at >= throttle.until) {
                 setThrottle(null);
@@ -32,7 +34,7 @@ export const usePrintThrottle = (): PrintThrottle => {
         };
         const timer = window.setInterval(tick, 1000);
         const due =
-            throttle.until <= Date.now() ? window.setTimeout(tick, 0) : 0;
+            throttle.until <= clockNow() ? window.setTimeout(tick, 0) : 0;
 
         return () => {
             window.clearInterval(timer);
@@ -41,8 +43,8 @@ export const usePrintThrottle = (): PrintThrottle => {
     }, [throttle]);
 
     const hold = useCallback((seconds: number, retry: () => void) => {
-        setThrottle({ until: Date.now() + seconds * 1000, retry });
-        setNow(Date.now());
+        setThrottle({ until: clockNow() + seconds * 1000, retry });
+        setNow(clockNow());
     }, []);
 
     const retryNow = (): void => {
