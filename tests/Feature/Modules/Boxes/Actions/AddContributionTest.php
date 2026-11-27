@@ -11,6 +11,7 @@ use App\Modules\Boxes\Events\BoxActivityEvent;
 use Carbon\CarbonImmutable;
 use Closure;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Exceptions;
@@ -183,6 +184,38 @@ final class AddContributionTest extends TestCase
         self::assertSame(['Bram', 'Thomas'], BoxContribution::query()->orderBy('first_name')->pluck('first_name')->all());
     }
 
+    public function test_two_friends_who_take_the_last_place_at_once_leave_one_contribution(): void
+    {
+        self::assertSame(0, Artisan::call('migrate'));
+        config(['printopoly.boxes.max_contributions' => 1]);
+        CollectionBox::factory()->createOne(['token' => 'box-token-race']);
+        $add = resolve(AddContribution::class);
+        $this->raceOnce(static fn (): BoxContribution => $add->handle('box-token-race', 'space.01', 'Thomas', 'Dorpsstraat', null, null, '10.0.0.2'));
+
+        $rejected = $this->rejection(static fn (): BoxContribution => $add->handle('box-token-race', 'space.01', 'Sanne', 'Kerkstraat', null, null, '10.0.0.1'));
+
+        self::assertSame(409, $rejected->status);
+        self::assertSame(['box'], array_keys($rejected->errors()));
+        self::assertSame(['Thomas'], BoxContribution::query()->pluck('first_name')->all());
+    }
+
+    public function test_two_photos_for_the_last_photo_place_at_once_keep_one_photo_and_its_files(): void
+    {
+        self::assertSame(0, Artisan::call('migrate'));
+        config(['printopoly.boxes.max_photos' => 1]);
+        CollectionBox::factory()->createOne(['token' => 'box-token-foto-race']);
+        $add = resolve(AddContribution::class);
+        $this->raceOnce(static fn (): BoxContribution => $add->handle('box-token-foto-race', 'space.01', 'Thomas', '', null, BoxScenario::photo(), '10.0.0.2'));
+
+        $rejected = $this->rejection(static fn (): BoxContribution => $add->handle('box-token-foto-race', 'space.01', 'Sanne', '', null, BoxScenario::photo(), '10.0.0.1'));
+        $kept = BoxContribution::query()->sole();
+
+        self::assertSame(409, $rejected->status);
+        self::assertSame(['photo'], array_keys($rejected->errors()));
+        self::assertSame('Thomas', $kept->first_name);
+        self::assertEqualsCanonicalizing([$kept->preview_path, $kept->print_path], Storage::disk('local')->allFiles());
+    }
+
     public function test_a_file_that_is_no_photo_is_refused_on_the_photo_field(): void
     {
         CollectionBox::factory()->createOne(['token' => 'box-token-tekst']);
@@ -211,6 +244,21 @@ final class AddContributionTest extends TestCase
     /**
      * @param Closure(): BoxContribution $add
      */
+    /**
+     * The other request runs between this one's read of the free places and its insert.
+     */
+    private function raceOnce(Closure $other): void
+    {
+        $raced = false;
+
+        BoxContribution::creating(static function () use ($other, &$raced): void {
+            if (! $raced) {
+                $raced = true;
+                $other();
+            }
+        });
+    }
+
     private function rejection(Closure $add): ValidationException
     {
         try {
