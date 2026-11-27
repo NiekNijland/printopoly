@@ -5,7 +5,6 @@ import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 
 import {
     centerZones,
-    clampLayer,
     moveLayer,
     newPhotoLayer,
     newTextLayer,
@@ -60,7 +59,9 @@ describe('free layers', () => {
     });
 
     it('clamps a layer larger than the area', () => {
-        expect(clampLayer({ ...text, w: 900, h: 900 }, area)).toMatchObject({
+        expect(
+            moveLayer({ ...text, w: 900, h: 900 }, 0, 0, area),
+        ).toMatchObject({
             w: 360,
             h: 360,
         });
