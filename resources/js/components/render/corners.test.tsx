@@ -1,8 +1,8 @@
 import { render, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
+import { THEME_IDS } from '@/lib/render/edition-types';
 import { spaceAt } from '@/lib/render/standard-edition';
-import { THEME_IDS } from '@/lib/render/themes';
 
 import { Board } from './board';
 import { BoardSpace } from './board-space';

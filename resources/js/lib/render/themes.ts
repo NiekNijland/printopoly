@@ -2,13 +2,6 @@ import type { DeckId } from '@/types/game';
 
 export type ThemeId = 'classic' | 'riso' | 'strak' | 'gala';
 
-export const THEME_IDS: readonly ThemeId[] = [
-    'classic',
-    'riso',
-    'strak',
-    'gala',
-];
-
 /** How an element uses its photo. */
 export type Layout = 'framed' | 'text';
 

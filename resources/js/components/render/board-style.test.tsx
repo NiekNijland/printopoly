@@ -2,9 +2,9 @@ import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import type { BoardStyle } from '@/lib/render/edition-part-styles';
+import { THEME_IDS } from '@/lib/render/edition-types';
 import type { PhotoSource } from '@/lib/render/photo';
 import { spaceAt } from '@/lib/render/standard-edition';
-import { THEME_IDS } from '@/lib/render/themes';
 
 import { Board } from './board';
 import { wobblyRect } from './board-look-playful';

@@ -1,8 +1,9 @@
 import { render } from '@testing-library/react';
 
 import type { TitleStyle } from '@/lib/render/edition-types';
+import { THEME_IDS } from '@/lib/render/edition-types';
 import type { PhotoSource } from '@/lib/render/photo';
-import { THEMES, THEME_IDS } from '@/lib/render/themes';
+import { THEMES } from '@/lib/render/themes';
 import { css } from '@/testing/render-dom';
 
 import {

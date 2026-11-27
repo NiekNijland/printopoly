@@ -2,9 +2,9 @@ import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import type { BoxLidStyle, PawnStyle } from '@/lib/render/edition-part-styles';
+import { THEME_IDS } from '@/lib/render/edition-types';
 import type { PhotoSource } from '@/lib/render/photo';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
-import { THEME_IDS } from '@/lib/render/themes';
 
 import { BoxLid } from './box-lid';
 import { PawnSheetItem } from './pawn';

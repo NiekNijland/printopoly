@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { RasterNotePattern } from '@/components/render/banknote-parts';
 import type { MoneyStyle } from '@/lib/render/edition-part-styles';
+import { THEME_IDS } from '@/lib/render/edition-types';
 import type { PhotoSource } from '@/lib/render/photo';
-import { THEME_IDS } from '@/lib/render/themes';
 
 import { Banknote } from './banknote';
 
