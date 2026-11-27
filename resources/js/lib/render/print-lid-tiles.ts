@@ -6,7 +6,7 @@ const BLEED = 3;
 /** White room around the art on the A4 sheet, for the crop marks and printers that do not print to the edge. */
 export const LID_MARGIN = 10;
 /** The strip a piece keeps past its edge, so the next piece lies on it and no seam of white shows. */
-export const LID_OVERLAP = 10;
+const LID_OVERLAP = 10;
 
 /** One piece of the box lid on its own A4 sheet. */
 type LidTile = {

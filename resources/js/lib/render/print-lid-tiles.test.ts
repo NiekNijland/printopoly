@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { LID_OVERLAP, lidTiles } from './print-lid-tiles';
+import { lidTiles } from './print-lid-tiles';
 
 describe('the box lid on A4 at home (R5-29)', () => {
     it('cuts the standard lid in two pieces that overlap, with a dashed line where the second lies', () => {
@@ -14,13 +14,13 @@ describe('the box lid on A4 at home (R5-29)', () => {
         expect(left?.visible).toEqual({
             x: -3,
             y: -3,
-            w: 136.5 + LID_OVERLAP,
+            w: 136.5 + 10,
             h: 273,
         });
         expect(left?.cut).toEqual({
             x: 0,
             y: 0,
-            w: 133.5 + LID_OVERLAP,
+            w: 133.5 + 10,
             h: 267,
         });
         expect(left?.guides).toEqual([
