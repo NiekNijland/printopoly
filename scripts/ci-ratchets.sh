@@ -107,7 +107,8 @@ strict-types-missing                   max  without @SOURCE_PATHS,@TEST_PATHS  (
 loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS,:(exclude)tests/Guards,:(exclude)tests/Support/Architecture  (^|[^=!<>])(==|!=|<>)([^=]|$)
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
-mixed-outside-json-entry               max  grep   @SOURCE_PATHS,:(exclude)app/Support/JsonShape.php,:(exclude)app/Modules/Editions/Support,:(exclude)app/Http/Requests  (\(|,)[[:space:]]*mixed[[:space:]]+(&[[:space:]]*)?\$|\)[[:space:]]*:[[:space:]]*mixed([^A-Za-z0-9_]|$)|(readonly|public|private|protected|static)[[:space:]]+mixed[[:space:]]
+mixed-outside-json-entry               max  grep   @SOURCE_PATHS,:(exclude)app/Support/JsonShape.php,:(exclude)app/Modules/Editions/Support/BoardProfileParser.php,:(exclude)app/Modules/Editions/Support/CardFieldParser.php,:(exclude)app/Modules/Editions/Support/EditionSettingsParser.php,:(exclude)app/Modules/Editions/Support/EditionValidator.php,:(exclude)app/Modules/Editions/Support/ElementFieldParser.php,:(exclude)app/Modules/Editions/Support/ElementMigration.php,:(exclude)app/Modules/Editions/Support/ElementOverrideParser.php,:(exclude)app/Modules/Editions/Support/ElementRepairer.php,:(exclude)app/Modules/Editions/Support/ElementsParser.php,:(exclude)app/Modules/Editions/Support/JsonValue.php,:(exclude)app/Modules/Editions/Support/LayerParser.php,:(exclude)app/Modules/Editions/Support/PartStyles.php,:(exclude)app/Modules/Editions/Support/PhotoParser.php,:(exclude)app/Modules/Editions/Support/PrintSelection.php,:(exclude)app/Modules/Editions/Support/SpaceFieldParser.php  (\(|,)[[:space:]]*mixed[[:space:]]+(&[[:space:]]*)?\$|\)[[:space:]]*:[[:space:]]*mixed([^A-Za-z0-9_]|$)|(readonly|public|private|protected|static)[[:space:]]+mixed[[:space:]]
+json-entry-mixed                       max  grep   app/Modules/Editions/Support  (\(|,)[[:space:]]*mixed[[:space:]]+(&[[:space:]]*)?\$|\)[[:space:]]*:[[:space:]]*mixed([^A-Za-z0-9_]|$)|(readonly|public|private|protected|static)[[:space:]]+mixed[[:space:]]
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(For)?\([[:space:]]*(\[[[:space:]]*\])?[[:space:]]*(\)|$)
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
@@ -884,6 +885,30 @@ strict-types-missing@x.php 1 <?php~NL~final class A {}
 strict-types-missing@x.php 0 <?php~NL~declare(strict_types=1);~NL~final class A {}
 strict-types-missing@page.blade.php 0 <div></div>
 strict-types-missing@\303\234ni.php 1 <?php
+mixed-outside-json-entry 1     public function parse(mixed $value): ?array
+mixed-outside-json-entry 1     public function amount(string $key, mixed &$value): int
+mixed-outside-json-entry 1     public static function migrate(): mixed
+mixed-outside-json-entry 1     private readonly mixed $value;
+mixed-outside-json-entry 1     public mixed $value;
+mixed-outside-json-entry 1     private mixed $value;
+mixed-outside-json-entry 1     protected mixed $value;
+mixed-outside-json-entry 1     static mixed $value;
+mixed-outside-json-entry 2     $read = static fn (mixed $value): mixed => $value;
+mixed-outside-json-entry 0     /** @param array<string, mixed> $data */
+mixed-outside-json-entry 0     public function mixedUp(): mixedValue
+mixed-outside-json-entry 0     $mixed = $value;
+json-entry-mixed 1     public function parse(mixed $value): ?array
+json-entry-mixed 1     public function amount(string $key, mixed &$value): int
+json-entry-mixed 1     public static function migrate(): mixed
+json-entry-mixed 1     private readonly mixed $value;
+json-entry-mixed 1     public mixed $value;
+json-entry-mixed 1     private mixed $value;
+json-entry-mixed 1     protected mixed $value;
+json-entry-mixed 1     static mixed $value;
+json-entry-mixed 2     $read = static fn (mixed $value): mixed => $value;
+json-entry-mixed 0     /** @param array<string, mixed> $data */
+json-entry-mixed 0     public function mixedUp(): mixedValue
+json-entry-mixed 0     $mixed = $value;
 loose-comparisons 1 if ($a == $b) {
 loose-comparisons 1 $x = $a != $b;
 loose-comparisons 1 $x = $a <> $b;
