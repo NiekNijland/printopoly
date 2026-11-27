@@ -9,14 +9,12 @@ import type { FreeLayer } from '@/lib/render/edition-types';
 import { PhotoCache } from '@/lib/render/editor-photo-cache';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
 import { setPage } from '@/testing/inertia';
+import { fakeIngest } from '@/testing/ingest';
 import { fakePage } from '@/testing/page-props';
 
 import nl from '../../../../../lang/nl.json';
 
 import { useLayerActions } from './use-layer-actions';
-
-const ingest = vi.hoisted(() => vi.fn());
-vi.mock('@/features/edition/editor/ingest', () => ({ ingestPhoto: ingest }));
 
 const Dutch = ({ children }: { children: ReactNode }) => (
     <LaravelReactI18nProvider
@@ -125,9 +123,16 @@ describe('useLayerActions', () => {
 
     it('adds a photo layer, and says when a photo did not fit', async () => {
         const { result, layersOf } = await setup('box_lid');
-        ingest.mockResolvedValueOnce({
+        fakeIngest.ingestPhoto.mockResolvedValueOnce({
             ok: true,
-            record: { id: 'p5', width: 400, height: 300, blob: new Blob() },
+            record: {
+                id: 'p5',
+                editionId: 'e1',
+                width: 400,
+                height: 300,
+                blob: new Blob(),
+                createdAt: 0,
+            },
         });
 
         await act(() =>
@@ -138,7 +143,7 @@ describe('useLayerActions', () => {
 
         expect(layersOf()).toMatchObject([{ kind: 'photo' }]);
 
-        ingest.mockResolvedValueOnce({
+        fakeIngest.ingestPhoto.mockResolvedValueOnce({
             ok: false,
             storageFull: true,
             fileName: 'kat.jpg',
