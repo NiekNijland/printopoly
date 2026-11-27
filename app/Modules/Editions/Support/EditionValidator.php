@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Editions\Support;
 
+use App\Support\JsonShape;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -214,7 +215,7 @@ final readonly class EditionValidator
             'revision' => $revision,
             'createdAt' => (int) $createdAt,
             'updatedAt' => (int) $updatedAt,
-            ...$this->choices($input['template'] ?? null, $settings),
+            ...$this->choices(JsonShape::optionalString($input['template'] ?? null), $settings),
         ];
     }
 
@@ -224,11 +225,11 @@ final readonly class EditionValidator
      * @param Settings $settings
      * @return array{template?: string, moneyAmount?: string, printSelection?: Selection}
      */
-    private function choices(mixed $template, array $settings): array
+    private function choices(?string $template, array $settings): array
     {
         $choices = [];
 
-        if (is_string($template) && in_array($template, self::TEMPLATES, true)) {
+        if ($template !== null && in_array($template, self::TEMPLATES, true)) {
             $choices['template'] = $template;
         }
 
