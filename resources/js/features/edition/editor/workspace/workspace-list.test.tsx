@@ -8,7 +8,6 @@ import { setPage } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
-
 beforeEach(() => {
     setPage(fakePage({ auth: { googleLoginEnabled: true } }));
 });

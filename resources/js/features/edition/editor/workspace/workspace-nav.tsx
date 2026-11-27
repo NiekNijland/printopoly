@@ -76,7 +76,7 @@ const PartTabs = ({
     );
 };
 
-export type MiniBoardProps = {
+type MiniBoardProps = {
     edition: Edition;
     locale: Locale;
     selected: string;
@@ -180,7 +180,7 @@ type NavHeadProps = {
     onOpenFriends: () => void;
 };
 
-export const NavHead = (props: NavHeadProps) => (
+const NavHead = (props: NavHeadProps) => (
     // A low screen (a phone or tablet on its side) puts Editie, as its stamp, beside the tabs, so the list keeps
     // most of the height (designcheck ronde 5).
     <div

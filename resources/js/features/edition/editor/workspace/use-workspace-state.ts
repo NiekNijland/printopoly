@@ -11,7 +11,7 @@ import { useBackCloses } from '@/hooks/use-back-closes';
 import { useShortScreen, useWideScreen } from '@/hooks/use-media-query';
 import type { EditorTab } from '@/lib/render/editor-catalogue';
 
-export const useBoardFold = () => {
+const useBoardFold = () => {
     // The small board folds to one line on a screen lower than 900 px (vindbaarheid point 16), until opened.
     const shortScreen = useShortScreen();
     const [boardChoice, setBoardChoice] = useState<boolean | null>(null);
@@ -97,5 +97,3 @@ export const useWorkspaceState = (session: EditionSession) => {
         ...flash,
     };
 };
-
-export type WorkspaceState = ReturnType<typeof useWorkspaceState>;

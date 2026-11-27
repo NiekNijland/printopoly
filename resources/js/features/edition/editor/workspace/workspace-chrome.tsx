@@ -33,7 +33,7 @@ const BACK_LABEL: Record<EditorTab, string> = {
 export type WorkspaceMenu = NonNullable<EditorHeaderProps['menu']>;
 
 // A tick in front of "Opgeslagen" that people can trust (UX 10, B92); while saving only the word.
-export const SaveStatusLine = ({
+const SaveStatusLine = ({
     saved,
     message,
     login,

@@ -35,19 +35,8 @@ type CheckProbeProps = {
     onProbes: (probes: Probes) => void;
 };
 
-/**
- * Draws every customised element out of sight, at true size, and reports where the photo
- * frames are and whether the texts fit. The Controle list and the warnings next to the fields
- * come from that, so they agree with what the renderers do (B94).
- */
-const CheckProbe = ({
-    edition,
-    resolved,
-    photos,
-    onProbes,
-}: CheckProbeProps) => {
+const useProbeReader = (onProbes: (probes: Probes) => void) => {
     const root = useRef<HTMLDivElement>(null);
-    const keys = probeKeys(edition);
     const last = useRef('');
 
     const report = useRef(onProbes);
@@ -94,6 +83,23 @@ const CheckProbe = ({
         // `read` only touches refs, so one observer for the life of the probe is enough.
         return () => observer.disconnect();
     }, []);
+
+    return root;
+};
+
+/**
+ * Draws every customised element out of sight, at true size, and reports where the photo
+ * frames are and whether the texts fit. The Controle list and the warnings next to the fields
+ * come from that, so they agree with what the renderers do (B94).
+ */
+const CheckProbe = ({
+    edition,
+    resolved,
+    photos,
+    onProbes,
+}: CheckProbeProps) => {
+    const root = useProbeReader(onProbes);
+    const keys = probeKeys(edition);
 
     return (
         <div

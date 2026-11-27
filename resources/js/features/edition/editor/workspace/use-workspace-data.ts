@@ -111,5 +111,3 @@ export const useWorkspaceData = (session: EditionSession) => {
         warned,
     };
 };
-
-export type WorkspaceData = ReturnType<typeof useWorkspaceData>;
