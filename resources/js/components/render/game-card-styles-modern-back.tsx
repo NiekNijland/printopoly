@@ -97,7 +97,7 @@ export const ModernBack = ({
                 h={1.2}
                 style={{ background: on }}
             />
-            {hasText(edition) && (
+            {edition !== undefined && hasText(edition) && (
                 <FitText
                     text={edition}
                     x={8}
@@ -171,7 +171,7 @@ export const ModernArtPlate = ({
                 color={on}
                 slot="title"
             />
-            {hasText(edition) && (
+            {edition !== undefined && hasText(edition) && (
                 <FitText
                     text={edition}
                     x={24}

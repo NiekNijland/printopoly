@@ -71,6 +71,6 @@ export type ArtPlateProps = {
     bleed: number;
 };
 
-export const hasText = (text: string | undefined): text is string => {
+export const hasText = (text: string | undefined): boolean => {
     return text !== undefined && text.trim() !== '';
 };
