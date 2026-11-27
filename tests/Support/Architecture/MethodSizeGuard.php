@@ -13,6 +13,7 @@ final readonly class MethodSizeGuard
 {
     /**
      * @param string $source the folder of the application code, relative to the root
+     * @param string $tests the folder of the tests, relative to the root; a test method has the limit of a method
      * @param string $guide the guide that holds the sentence with the two limits, relative to the root
      * @param string $controllerFolder the folder name that marks a controller; a public method of a class in it is an action
      */
@@ -20,6 +21,7 @@ final readonly class MethodSizeGuard
         private PhpFileInspector $inspector,
         private string $root,
         private string $source,
+        private string $tests,
         private string $guide,
         private string $controllerFolder,
     ) {
@@ -46,30 +48,7 @@ final readonly class MethodSizeGuard
             return ['guide ' . $this->guide];
         }
 
-        $findings = [];
-
-        foreach ($this->inspector->phpFiles($this->root . '/' . $this->source) as $file) {
-            $path = mb_substr($file, mb_strlen($this->root) + 1);
-
-            try {
-                $statements = $this->inspector->statements($file);
-            } catch (Error $error) {
-                $findings[] = 'unreadable ' . $path . ': ' . $error->getMessage();
-
-                continue;
-            }
-
-            foreach (new NodeFinder()->findInstanceOf($statements, ClassLike::class) as $class) {
-                foreach ($class->getMethods() as $method) {
-                    $lines = $method->getEndLine() - $method->name->getStartLine() + 1;
-
-                    if ($lines > $this->limitOf($path, $method, $limits)) {
-                        $findings[] = $path . '::' . ($class->name?->toString() ?? 'class@anonymous') . '::' . $method->name->toString() . '::' . $lines;
-                    }
-                }
-            }
-        }
-
+        $findings = array_merge(...array_map(fn (string $folder): array => $this->findingsIn($folder, $limits), [$this->source, $this->tests]));
         sort($findings, SORT_STRING);
 
         return $findings;
@@ -100,10 +79,43 @@ final readonly class MethodSizeGuard
 
     /**
      * @param array{int, int} $limits
+     * @return list<string>
+     */
+    private function findingsIn(string $folder, array $limits): array
+    {
+        $findings = [];
+
+        foreach ($this->inspector->phpFiles($this->root . '/' . $folder) as $file) {
+            $path = mb_substr($file, mb_strlen($this->root) + 1);
+
+            try {
+                $statements = $this->inspector->statements($file);
+            } catch (Error $error) {
+                $findings[] = 'unreadable ' . $path . ': ' . $error->getMessage();
+
+                continue;
+            }
+
+            foreach (new NodeFinder()->findInstanceOf($statements, ClassLike::class) as $class) {
+                foreach ($class->getMethods() as $method) {
+                    $lines = $method->getEndLine() - $method->name->getStartLine() + 1;
+
+                    if ($lines > $this->limitOf($path, $method, $limits)) {
+                        $findings[] = $path . '::' . ($class->name?->toString() ?? 'class@anonymous') . '::' . $method->name->toString() . '::' . $lines;
+                    }
+                }
+            }
+        }
+
+        return $findings;
+    }
+
+    /**
+     * @param array{int, int} $limits
      */
     private function limitOf(string $path, ClassMethod $method, array $limits): int
     {
-        $action = in_array($this->controllerFolder, explode('/', dirname($path)), true) && $method->isPublic() && $method->name->toString() !== '__construct';
+        $action = str_starts_with($path, $this->source . '/') && in_array($this->controllerFolder, explode('/', dirname($path)), true) && $method->isPublic() && $method->name->toString() !== '__construct';
 
         return $action ? $limits[1] : $limits[0];
     }
