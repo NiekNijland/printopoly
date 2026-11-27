@@ -52,7 +52,6 @@ const partStatusData: Parser<PrintPartStatusData> = record({
     imageUrl: nullable(string),
 });
 
-/** The status of a print job as the server sends it. */
 export const jobStatus: Parser<PrintJobStatusData> = record({
     busy: boolean,
     printerZipUrl: string,
@@ -63,7 +62,6 @@ export const jobStatus: Parser<PrintJobStatusData> = record({
     parts: array(partStatusData),
 });
 
-/** The secret links of a new job. */
 export const uploadResult = record({
     token: string,
     url: string,
@@ -78,5 +76,4 @@ const jobReady: Parser<PrintJobReadyData> = record({
     homeOutdated: boolean,
 });
 
-/** What is ready per job. */
 export const jobsReady = record({ jobs: array(jobReady) });
