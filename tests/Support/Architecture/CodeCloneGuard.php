@@ -55,9 +55,6 @@ final readonly class CodeCloneGuard
     }
 
     /**
-     * The lines that count: trimmed, with runs of white space made one space. A line without a letter or digit (a brace, a
-     * bracket), the PHP open tag, a comment line, an import, a re-export and a closing JSX tag do not count.
-     *
      * @return list<array{int, string}> the line number and the normalized text of each line that counts
      */
     public static function normalizedLines(string $source): array
@@ -67,7 +64,7 @@ final readonly class CodeCloneGuard
         foreach (explode("\n", $source) as $index => $line) {
             $text = (string) preg_replace('/\s+/', ' ', mb_trim($line));
 
-            if (preg_match('/[A-Za-z0-9]/', $text) === 1 && preg_match('~^(//|/\*|\*|#(?!\[)|<\?php|import |use |namespace |declare\(|export (type )?\{|</[\w.]*>$)~', $text) !== 1) {
+            if (preg_match('/[A-Za-z0-9]/', $text) === 1 && preg_match('~^(\/\/|/\*|\*|#(?!\[)|<\?php|import |use |namespace |declare\(|export (type )?\{|</[\w.]*>$)~', $text) !== 1) {
                 $lines[] = [$index + 1, $text];
             }
         }
