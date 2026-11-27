@@ -14,10 +14,9 @@ use App\Modules\Editions\Support\QuotaSlots;
 use Illuminate\Support\Facades\Config;
 
 /**
- * Puts a new edition in an account, with the id, revision and times the
- * browser gave it, so the local copy and the account copy stay comparable
- * (B81). It never replaces an existing edition: the same id answers with a
- * conflict, and a full account with a limit error (B70).
+ * Puts a new edition in an account, with the id, revision and times the browser gave it, so the local copy and the
+ * account copy stay comparable (B81). It never replaces an existing edition: the same id answers with a conflict, and a
+ * full account with a limit error (B70) that holds under parallel requests (QuotaSlots).
  *
  * @phpstan-import-type EditionInput from EditionValidator
  */
