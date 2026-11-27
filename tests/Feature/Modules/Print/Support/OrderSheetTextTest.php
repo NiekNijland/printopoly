@@ -33,7 +33,7 @@ final class OrderSheetTextTest extends TestCase
             'choices' => ['printer' => ['skipped' => ['money']]],
         ]);
 
-        $text = resolve(OrderSheetText::class)->text($job, PrintSet::Printer, Locale::Dutch);
+        $text = resolve(OrderSheetText::class)->text($job, PrintSet::PRINTER, Locale::DUTCH);
 
         self::assertStringStartsWith("---\ntitle: Bestelblad\n", $text);
         self::assertStringContainsString("# Bestelblad: Zaterdagclub\n", $text);
@@ -58,7 +58,7 @@ final class OrderSheetTextTest extends TestCase
             'locale' => 'en',
         ]);
 
-        $text = resolve(OrderSheetText::class)->text($job, PrintSet::Home, Locale::English);
+        $text = resolve(OrderSheetText::class)->text($job, PrintSet::HOME, Locale::ENGLISH);
 
         self::assertStringContainsString("# Order sheet: Zaterdagclub\n", $text);
         self::assertStringContainsString("\nNumber of sets: 3. The cards and the play money already hold every set in their PDF", $text);
@@ -71,7 +71,7 @@ final class OrderSheetTextTest extends TestCase
     {
         $job = PrintJob::factory()->create(['edition' => PrintScenario::editionArray('  '), 'states' => []]);
 
-        $text = resolve(OrderSheetText::class)->text($job, PrintSet::Home, Locale::Dutch);
+        $text = resolve(OrderSheetText::class)->text($job, PrintSet::HOME, Locale::DUTCH);
 
         self::assertStringContainsString("# Bestelblad: Printopoly\n", $text);
         self::assertSame([], $this->partHeadings($text));
@@ -86,7 +86,7 @@ final class OrderSheetTextTest extends TestCase
         $this->expectException(PrintFailedException::class);
         $this->expectExceptionMessage('Order sheet text not found: ' . sys_get_temp_dir() . '/resources/content/nl/instructies/bestelblad-drukkerij.md');
 
-        $sheet->text($job, PrintSet::Printer, Locale::Dutch);
+        $sheet->text($job, PrintSet::PRINTER, Locale::DUTCH);
     }
 
     /**

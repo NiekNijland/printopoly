@@ -21,7 +21,7 @@ final class EditionPrintJobsTest extends TestCase
         $user = User::factory()->createOne();
         $edition = Edition::factory()->createOne(['user_id' => $user->publicId(), 'edition_id' => 'zaterdagclub']);
 
-        $job = resolve(EditionPrintJobs::class)->forEdition($user, $edition, Locale::English);
+        $job = resolve(EditionPrintJobs::class)->forEdition($user, $edition, Locale::ENGLISH);
 
         $stored = PrintJob::query()->whereKey($job->getKey())->firstOrFail();
         self::assertSame($user->publicId(), $stored->user_id);
@@ -37,9 +37,9 @@ final class EditionPrintJobsTest extends TestCase
         $user = User::factory()->createOne();
         $edition = Edition::factory()->createOne(['user_id' => $user->publicId(), 'edition_id' => 'zaterdagclub']);
         $jobs = resolve(EditionPrintJobs::class);
-        $first = $jobs->forEdition($user, $edition, Locale::Dutch);
+        $first = $jobs->forEdition($user, $edition, Locale::DUTCH);
 
-        $second = $jobs->forEdition($user, $edition, Locale::English);
+        $second = $jobs->forEdition($user, $edition, Locale::ENGLISH);
 
         self::assertSame($first->getKey(), $second->getKey());
         self::assertSame($first->token, $second->token);
@@ -53,7 +53,7 @@ final class EditionPrintJobsTest extends TestCase
         $edition = Edition::factory()->createOne(['user_id' => $user->publicId(), 'edition_id' => 'zaterdagclub']);
         $busy = PrintJob::factory()->createOne(['user_id' => $user->publicId(), 'edition_id' => 'zaterdagclub', 'locale' => 'nl', 'active_at' => now()]);
 
-        $job = resolve(EditionPrintJobs::class)->forEdition($user, $edition, Locale::English);
+        $job = resolve(EditionPrintJobs::class)->forEdition($user, $edition, Locale::ENGLISH);
 
         self::assertSame($busy->getKey(), $job->getKey());
         self::assertSame('nl', $busy->refresh()->locale);
@@ -68,9 +68,9 @@ final class EditionPrintJobsTest extends TestCase
         $bobsEdition = Edition::factory()->createOne(['user_id' => $bob->publicId(), 'edition_id' => 'molenweg']);
         $jobs = resolve(EditionPrintJobs::class);
 
-        $first = $jobs->forEdition($anna, $annasEdition, Locale::Dutch);
-        $other = $jobs->forEdition($anna, $annasOther, Locale::Dutch);
-        $bobs = $jobs->forEdition($bob, $bobsEdition, Locale::Dutch);
+        $first = $jobs->forEdition($anna, $annasEdition, Locale::DUTCH);
+        $other = $jobs->forEdition($anna, $annasOther, Locale::DUTCH);
+        $bobs = $jobs->forEdition($bob, $bobsEdition, Locale::DUTCH);
 
         self::assertNotSame($first->getKey(), $other->getKey());
         self::assertNotSame($first->getKey(), $bobs->getKey());

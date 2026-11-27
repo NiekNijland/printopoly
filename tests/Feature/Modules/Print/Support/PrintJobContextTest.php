@@ -61,7 +61,7 @@ final class PrintJobContextTest extends TestCase
             self::fail('The edition should be missing.');
         } catch (PrintFailedException $printFailedException) {
             self::assertSame('The edition of this print job no longer exists.', $printFailedException->getMessage());
-            self::assertSame(FailureReason::Edition, $printFailedException->reason);
+            self::assertSame(FailureReason::EDITION, $printFailedException->reason);
         }
     }
 
@@ -74,7 +74,7 @@ final class PrintJobContextTest extends TestCase
             self::fail('The edition should be refused.');
         } catch (PrintFailedException $printFailedException) {
             self::assertSame('An edition has elements as an object.', $printFailedException->getMessage());
-            self::assertSame(FailureReason::Edition, $printFailedException->reason);
+            self::assertSame(FailureReason::EDITION, $printFailedException->reason);
             self::assertNotNull($printFailedException->getPrevious());
         }
     }
@@ -87,12 +87,12 @@ final class PrintJobContextTest extends TestCase
             'photo_targets' => ['printer' => ['space.01#photo' => ['w' => 50, 'h' => 80]], 'home' => []],
         ]);
 
-        $edition = resolve(PrintJobContext::class)->edition($job, PrintSet::Printer);
+        $edition = resolve(PrintJobContext::class)->edition($job, PrintSet::PRINTER);
 
-        self::assertSame(MoneyAmount::Eight, $edition->moneyAmount);
+        self::assertSame(MoneyAmount::EIGHT, $edition->moneyAmount);
         self::assertTrue($edition->moneyLeftOut);
         self::assertSame(3, $edition->sets);
-        self::assertSame(BoardForm::Whole, $edition->boardForm);
+        self::assertSame(BoardForm::WHOLE, $edition->boardForm);
         self::assertSame(24, $edition->invitations);
         self::assertTrue($edition->targetsDeclared);
         self::assertSame(['space.01#photo' => [50.0, 80.0]], $this->targets($edition->placements()));
@@ -102,9 +102,9 @@ final class PrintJobContextTest extends TestCase
     {
         $job = PrintJob::factory()->create(['edition' => PrintScenario::editionArray(), 'photo_targets' => null]);
 
-        $edition = resolve(PrintJobContext::class)->edition($job, PrintSet::Home);
+        $edition = resolve(PrintJobContext::class)->edition($job, PrintSet::HOME);
 
-        self::assertSame(MoneyAmount::defaultFor(PrintSet::Home), $edition->moneyAmount);
+        self::assertSame(MoneyAmount::defaultFor(PrintSet::HOME), $edition->moneyAmount);
         self::assertFalse($edition->moneyLeftOut);
         self::assertFalse($edition->targetsDeclared);
         self::assertSame(['deed.01#photo', 'space.01#photo'], array_keys($this->targets($edition->placements())));
@@ -177,7 +177,7 @@ final class PrintJobContextTest extends TestCase
             self::fail('The photo of another edition should not count.');
         } catch (PrintFailedException $printFailedException) {
             self::assertSame('A photo in the edition is missing: ' . PrintScenario::PHOTO_REF, $printFailedException->getMessage());
-            self::assertSame(FailureReason::Photos, $printFailedException->reason);
+            self::assertSame(FailureReason::PHOTOS, $printFailedException->reason);
         }
 
         $own = Asset::factory()->create(['ref' => PrintScenario::PHOTO_REF, 'user_id' => $user->publicId(), 'edition_id' => 'e-zaterdag']);

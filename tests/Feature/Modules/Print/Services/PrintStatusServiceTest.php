@@ -49,11 +49,11 @@ final class PrintStatusServiceTest extends TestCase
         self::assertFalse($status->printerZipReady);
         self::assertFalse($status->homeZipReady);
         self::assertFalse($status->zipPreparing);
-        self::assertSame(route('print.zip', ['printJob' => $job, 'set' => PrintSet::Home]), $status->homeZipUrl);
-        self::assertSame(route('print.zip', ['printJob' => $job, 'set' => PrintSet::Printer]), $status->printerZipUrl);
-        $calibration = array_values(array_filter($status->parts, static fn (PrintPartStatusData $row): bool => $row->part === PrintPart::Calibration));
+        self::assertSame(route('print.zip', ['printJob' => $job, 'set' => PrintSet::HOME]), $status->homeZipUrl);
+        self::assertSame(route('print.zip', ['printJob' => $job, 'set' => PrintSet::PRINTER]), $status->printerZipUrl);
+        $calibration = array_values(array_filter($status->parts, static fn (PrintPartStatusData $row): bool => $row->part === PrintPart::CALIBRATION));
         self::assertCount(1, $calibration);
-        self::assertSame(PrintSet::Home, $calibration[0]->set);
+        self::assertSame(PrintSet::HOME, $calibration[0]->set);
         self::assertCount(2 * count(PrintPart::cases()) - 1, $status->parts);
     }
 

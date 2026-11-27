@@ -35,7 +35,7 @@ final class PrintZipBuilderTest extends TestCase
             'states' => ['printer_board' => ['status' => 'done'], 'printer_cards' => ['status' => 'done'], 'printer_invitation' => ['status' => 'done']],
             'choices' => ['printer' => ['skipped' => ['money']]],
         ]);
-        resolve(InstructionPdfBuilder::class)->ensureOrderSheet($job, PrintSet::Printer, Locale::Dutch);
+        resolve(InstructionPdfBuilder::class)->ensureOrderSheet($job, PrintSet::PRINTER, Locale::DUTCH);
         $this->stored($job, PrintFile::KIND_PART, 'invitation', 'printer', 'uitnodiging');
         $this->stored($job, PrintFile::KIND_PART, 'cards', 'printer', 'kaarten');
         $this->stored($job, PrintFile::KIND_PART, 'board', 'printer', 'bord');
@@ -47,7 +47,7 @@ final class PrintZipBuilderTest extends TestCase
         $this->stored($job, PrintFile::KIND_INSTRUCTIONS, 'cards', 'printer', 'uitleg kaarten');
         $this->stored($job, PrintFile::KIND_INSTRUCTIONS, 'money', 'printer', 'uitleg geld');
 
-        $entries = $this->entries($this->build($job, PrintSet::Printer));
+        $entries = $this->entries($this->build($job, PrintSet::PRINTER));
 
         self::assertSame([
             'zaterdagclub-00-bestelblad.pdf',
@@ -66,12 +66,12 @@ final class PrintZipBuilderTest extends TestCase
     {
         $this->fakeDisk();
         $job = PrintJob::factory()->create(['edition' => PrintScenario::editionArray(), 'locale' => 'en', 'states' => ['home_board' => ['status' => 'done'], 'home_cards' => ['status' => 'done']]]);
-        resolve(InstructionPdfBuilder::class)->ensureOrderSheet($job, PrintSet::Home, Locale::English);
+        resolve(InstructionPdfBuilder::class)->ensureOrderSheet($job, PrintSet::HOME, Locale::ENGLISH);
         $this->stored($job, PrintFile::KIND_PART, 'board', 'home', 'board');
         $job->choices = ['home' => ['skipped' => ['cards']]];
         $job->save();
 
-        self::assertSame(['zaterdagclub-01-board.pdf'], array_keys($this->entries($this->build($job, PrintSet::Home))));
+        self::assertSame(['zaterdagclub-01-board.pdf'], array_keys($this->entries($this->build($job, PrintSet::HOME))));
     }
 
     public function test_a_set_without_finished_pdfs_has_nothing_to_zip(): void
@@ -84,7 +84,7 @@ final class PrintZipBuilderTest extends TestCase
         $this->expectException(PrintFailedException::class);
         $this->expectExceptionMessage('There is nothing to put in the ZIP.');
 
-        $this->build($job, PrintSet::Home);
+        $this->build($job, PrintSet::HOME);
     }
 
     public function test_a_pdf_that_is_gone_from_the_disk_fails_the_zip_and_leaves_no_file(): void
@@ -96,7 +96,7 @@ final class PrintZipBuilderTest extends TestCase
         $before = $this->temporaryZips();
 
         try {
-            $this->build($job, PrintSet::Home);
+            $this->build($job, PrintSet::HOME);
             self::fail('The ZIP should fail.');
         } catch (PrintFailedException $printFailedException) {
             self::assertSame('A PDF for the ZIP is missing.', $printFailedException->getMessage());

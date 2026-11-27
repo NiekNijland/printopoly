@@ -25,9 +25,9 @@ final class PrintProgressTest extends TestCase
     {
         $job = PrintScenario::createAnonymousJob($this);
         $progress = resolve(PrintProgress::class);
-        $progress->record($job, PrintSet::Printer, PrintPart::Board, PartStatus::Done, cacheKey: 'sleutel-bord');
+        $progress->record($job, PrintSet::PRINTER, PrintPart::BOARD, PartStatus::DONE, cacheKey: 'sleutel-bord');
 
-        $progress->record($job, PrintSet::Printer, PrintPart::Cards, PartStatus::Failed, error: 'photos', after: PrintPart::Board);
+        $progress->record($job, PrintSet::PRINTER, PrintPart::CARDS, PartStatus::FAILED, error: 'photos', after: PrintPart::BOARD);
 
         $states = $job->refresh()->states;
         self::assertSame(['status' => 'done', 'cache_key' => 'sleutel-bord', 'error' => null, 'after' => null], $states['printer_board']);
@@ -41,7 +41,7 @@ final class PrintProgressTest extends TestCase
         $progress = resolve(PrintProgress::class);
         $progress->setActive($job, true);
 
-        $progress->record($job, PrintSet::Home, PrintPart::Money, PartStatus::Waiting);
+        $progress->record($job, PrintSet::HOME, PrintPart::MONEY, PartStatus::WAITING);
 
         Event::assertDispatchedTimes(PrintStatusUpdatedEvent::class, 1);
         Event::assertDispatched(PrintStatusUpdatedEvent::class, static function (PrintStatusUpdatedEvent $event) use ($job): bool {

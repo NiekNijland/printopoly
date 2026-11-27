@@ -21,8 +21,8 @@ final class PrintHtmlBuilderTest extends TestCase
         $edition = resolve(PrintEditionReader::class)->fromArray(PrintScenario::editionArray());
 
         $html = resolve(PrintHtmlBuilder::class)->build(
-            PrintPart::Board,
-            PrintSet::Home,
+            PrintPart::BOARD,
+            PrintSet::HOME,
             $edition,
             ['space.01#photo' => 'http://render.test/print/render/crop/molenweg.jpg'],
             new ExpectedPdf(pages: 7, widthMm: 210.0, heightMm: 296.95),
@@ -50,7 +50,7 @@ final class PrintHtmlBuilderTest extends TestCase
         config(['printopoly.print.render_base_url' => 'http://render.test']);
         $edition = resolve(PrintEditionReader::class)->fromArray(PrintScenario::editionArray());
 
-        $html = resolve(PrintHtmlBuilder::class)->build(PrintPart::Cards, PrintSet::Printer, $edition, [], new ExpectedPdf(pages: null, widthMm: 69.0, heightMm: 94.0));
+        $html = resolve(PrintHtmlBuilder::class)->build(PrintPart::CARDS, PrintSet::PRINTER, $edition, [], new ExpectedPdf(pages: null, widthMm: 69.0, heightMm: 94.0));
 
         self::assertSame(1, preg_match('/<script nonce="([A-Za-z0-9]{32})">/', $html, $match));
         $nonce = $match[1] ?? '';
@@ -66,7 +66,7 @@ final class PrintHtmlBuilderTest extends TestCase
     {
         $edition = resolve(PrintEditionReader::class)->fromArray([...PrintScenario::editionArray(name: '   '), 'language' => 'en']);
 
-        $html = resolve(PrintHtmlBuilder::class)->build(PrintPart::Money, PrintSet::Home, $edition, [], new ExpectedPdf(pages: 2, widthMm: 210.0, heightMm: 297.0));
+        $html = resolve(PrintHtmlBuilder::class)->build(PrintPart::MONEY, PrintSet::HOME, $edition, [], new ExpectedPdf(pages: 2, widthMm: 210.0, heightMm: 297.0));
 
         self::assertStringContainsString('<html lang="en">', $html);
         self::assertStringContainsString('<title>Printopoly</title>', $html);

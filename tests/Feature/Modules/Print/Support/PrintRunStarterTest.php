@@ -28,7 +28,7 @@ final class PrintRunStarterTest extends TestCase
         Queue::fake([GeneratePrintJob::class]);
         $job = PrintScenario::createAnonymousJob($this);
 
-        resolve(PrintRunStarter::class)->start($job, PrintSet::Printer, [PrintPart::Money, PrintPart::Calibration, PrintPart::Board]);
+        resolve(PrintRunStarter::class)->start($job, PrintSet::PRINTER, [PrintPart::MONEY, PrintPart::CALIBRATION, PrintPart::BOARD]);
 
         $stored = $job->refresh();
         self::assertSame(now()->toDateTimeString(), $stored->active_at?->toDateTimeString());
@@ -48,7 +48,7 @@ final class PrintRunStarterTest extends TestCase
         $job = PrintScenario::createAnonymousJob($this);
         $targets = ['printer' => ['space.01#photo' => ['w' => 46.0, 'h' => 76.0]]];
 
-        resolve(PrintRunStarter::class)->start($job, PrintSet::Printer, [PrintPart::Board], $targets);
+        resolve(PrintRunStarter::class)->start($job, PrintSet::PRINTER, [PrintPart::BOARD], $targets);
 
         self::assertSame($targets, $job->refresh()->photo_targets);
     }
@@ -58,11 +58,11 @@ final class PrintRunStarterTest extends TestCase
         Queue::fake([GeneratePrintJob::class]);
         $job = PrintScenario::createAnonymousJob($this);
 
-        resolve(PrintRunStarter::class)->start($job, PrintSet::Home, []);
+        resolve(PrintRunStarter::class)->start($job, PrintSet::HOME, []);
 
         $stored = $job->refresh();
         self::assertNull($stored->active_at);
-        self::assertSame(PartStatus::Idle, $stored->recordedState(PrintSet::Home, PrintPart::Cards)['status']);
+        self::assertSame(PartStatus::IDLE, $stored->recordedState(PrintSet::HOME, PrintPart::CARDS)['status']);
         Queue::assertNotPushed(GeneratePrintJob::class);
     }
 
@@ -72,7 +72,7 @@ final class PrintRunStarterTest extends TestCase
         $job = PrintJob::factory()->createOne(['active_at' => now()->subMinutes(2)]);
 
         try {
-            resolve(PrintRunStarter::class)->start($job, PrintSet::Home, [PrintPart::Cards]);
+            resolve(PrintRunStarter::class)->start($job, PrintSet::HOME, [PrintPart::CARDS]);
             self::fail('A busy job started a second run.');
         } catch (HttpException $httpException) {
             self::assertSame(409, $httpException->getStatusCode());
@@ -91,7 +91,7 @@ final class PrintRunStarterTest extends TestCase
         $starter = resolve(PrintRunStarter::class);
 
         try {
-            $starter->start($job, PrintSet::Home, [PrintPart::Cards]);
+            $starter->start($job, PrintSet::HOME, [PrintPart::CARDS]);
             self::fail('A second job of the same user started a run.');
         } catch (HttpException $httpException) {
             self::assertSame(409, $httpException->getStatusCode());
@@ -109,7 +109,7 @@ final class PrintRunStarterTest extends TestCase
         PrintJob::factory()->createOne(['user_id' => 'user-bob', 'edition_id' => 'e1', 'active_at' => now()]);
         PrintJob::factory()->createOne(['user_id' => $anna->publicId(), 'edition_id' => 'e-oud', 'active_at' => now()->subMinutes(11)]);
 
-        resolve(PrintRunStarter::class)->start($job, PrintSet::Home, [PrintPart::Cards]);
+        resolve(PrintRunStarter::class)->start($job, PrintSet::HOME, [PrintPart::CARDS]);
 
         Queue::assertPushed(GeneratePrintJob::class, 1);
     }

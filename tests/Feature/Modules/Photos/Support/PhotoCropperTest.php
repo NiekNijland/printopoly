@@ -82,7 +82,7 @@ final class PhotoCropperTest extends TestCase
             resolve(PhotoCropper::class)->crop($this->asset('assets/molen/print.jpg', 400, 200), $placement);
             self::fail('The crop did not fail.');
         } catch (PrintFailedException $printFailedException) {
-            self::assertSame(FailureReason::Photos, $printFailedException->reason);
+            self::assertSame(FailureReason::PHOTOS, $printFailedException->reason);
             self::assertStringContainsString('space.01', $printFailedException->getMessage());
         }
     }

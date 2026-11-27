@@ -102,8 +102,8 @@ final class ContentLibraryTest extends TestCase
     {
         $library = resolve(ContentLibrary::class);
 
-        $faq = $library->faq(Locale::Dutch);
-        $home = $library->homeFaq(Locale::Dutch);
+        $faq = $library->faq(Locale::DUTCH);
+        $home = $library->homeFaq(Locale::DUTCH);
 
         self::assertCount(13, $faq);
         self::assertSame('Wat kost het?', $faq[0]->question);
@@ -112,20 +112,20 @@ final class ContentLibraryTest extends TestCase
             [$faq[0]->question, $faq[1]->question, $faq[2]->question, $faq[5]->question, $faq[11]->question],
             array_map(static fn (FaqItemData $item): string => $item->question, $home),
         );
-        self::assertSame(count($faq), count($library->faq(Locale::English)));
+        self::assertSame(count($faq), count($library->faq(Locale::ENGLISH)));
     }
 
     public function test_the_landing_texts_are_the_strings_of_the_json_file(): void
     {
-        $landing = resolve(ContentLibrary::class)->landing(Locale::English);
+        $landing = resolve(ContentLibrary::class)->landing(Locale::ENGLISH);
 
         self::assertNotSame([], $landing);
-        self::assertSame(array_keys($landing), array_keys(resolve(ContentLibrary::class)->landing(Locale::Dutch)));
+        self::assertSame(array_keys($landing), array_keys(resolve(ContentLibrary::class)->landing(Locale::DUTCH)));
     }
 
     public function test_a_named_page_is_read_from_the_folder_of_its_language(): void
     {
-        $page = resolve(ContentLibrary::class)->page('privacy', Locale::English);
+        $page = resolve(ContentLibrary::class)->page('privacy', Locale::ENGLISH);
 
         self::assertNotSame('', $page->title);
         self::assertNotSame([], $page->sections);
@@ -136,6 +136,6 @@ final class ContentLibraryTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Content file not found: nl/bestaat-niet.md');
 
-        resolve(ContentLibrary::class)->page('bestaat-niet', Locale::Dutch);
+        resolve(ContentLibrary::class)->page('bestaat-niet', Locale::DUTCH);
     }
 }

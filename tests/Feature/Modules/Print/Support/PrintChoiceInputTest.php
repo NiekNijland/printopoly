@@ -53,20 +53,20 @@ final class PrintChoiceInputTest extends TestCase
 
     public function test_a_field_that_is_not_sent_keeps_what_the_job_had(): void
     {
-        $current = new PrintSetChoiceData(skipped: [PrintPart::Money], moneyAmount: MoneyAmount::Eight, copies: 3, boardForm: BoardForm::Whole, invitations: 12);
+        $current = new PrintSetChoiceData(skipped: [PrintPart::MONEY], moneyAmount: MoneyAmount::EIGHT, copies: 3, boardForm: BoardForm::WHOLE, invitations: 12);
 
         $merged = PrintChoiceInput::merge([], $current);
 
-        self::assertSame([PrintPart::Money], $merged->skipped);
-        self::assertSame(MoneyAmount::Eight, $merged->moneyAmount);
+        self::assertSame([PrintPart::MONEY], $merged->skipped);
+        self::assertSame(MoneyAmount::EIGHT, $merged->moneyAmount);
         self::assertSame(3, $merged->copies);
-        self::assertSame(BoardForm::Whole, $merged->boardForm);
+        self::assertSame(BoardForm::WHOLE, $merged->boardForm);
         self::assertSame(12, $merged->invitations);
     }
 
     public function test_sent_fields_replace_the_choice_and_the_board_and_doubles_are_left_out(): void
     {
-        $current = new PrintSetChoiceData(skipped: [PrintPart::Money], moneyAmount: MoneyAmount::Eight, copies: 3);
+        $current = new PrintSetChoiceData(skipped: [PrintPart::MONEY], moneyAmount: MoneyAmount::EIGHT, copies: 3);
 
         $merged = PrintChoiceInput::merge([
             'skipped' => ['tokens', 'board', 'tokens', 'invitation', 7],
@@ -76,18 +76,18 @@ final class PrintChoiceInputTest extends TestCase
             'invitations' => 30,
         ], $current);
 
-        self::assertSame([PrintPart::Tokens, PrintPart::Invitation], $merged->skipped);
-        self::assertSame(MoneyAmount::Full, $merged->moneyAmount);
+        self::assertSame([PrintPart::TOKENS, PrintPart::INVITATION], $merged->skipped);
+        self::assertSame(MoneyAmount::FULL, $merged->moneyAmount);
         self::assertSame(2, $merged->copies);
-        self::assertSame(BoardForm::Whole, $merged->boardForm);
+        self::assertSame(BoardForm::WHOLE, $merged->boardForm);
         self::assertSame(30, $merged->invitations);
     }
 
     public function test_a_sent_empty_amount_of_money_goes_back_to_the_default(): void
     {
-        $current = new PrintSetChoiceData(skipped: [], moneyAmount: MoneyAmount::Four, copies: 1);
+        $current = new PrintSetChoiceData(skipped: [], moneyAmount: MoneyAmount::FOUR, copies: 1);
 
         self::assertNull(PrintChoiceInput::merge(['moneyAmount' => null], $current)->moneyAmount);
-        self::assertSame([], PrintChoiceInput::merge(['skipped' => []], new PrintSetChoiceData(skipped: [PrintPart::Cards], moneyAmount: null, copies: 1))->skipped);
+        self::assertSame([], PrintChoiceInput::merge(['skipped' => []], new PrintSetChoiceData(skipped: [PrintPart::CARDS], moneyAmount: null, copies: 1))->skipped);
     }
 }

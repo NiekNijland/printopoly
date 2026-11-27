@@ -26,8 +26,8 @@ final class PrintPartBuilderTest extends TestCase
         $job = PrintScenario::createAnonymousJob($this);
         $builder = resolve(PrintPartBuilder::class);
 
-        $file = $builder->build($job, PrintSet::Printer, PrintPart::Board);
-        $again = $builder->build($job, PrintSet::Printer, PrintPart::Board);
+        $file = $builder->build($job, PrintSet::PRINTER, PrintPart::BOARD);
+        $again = $builder->build($job, PrintSet::PRINTER, PrintPart::BOARD);
 
         self::assertSame(PrintFile::KIND_PART, $file->kind);
         self::assertSame(['board', 'printer', 'bord-printer.pdf', 4], [$file->part, $file->set, $file->filename, $file->pages]);
@@ -46,7 +46,7 @@ final class PrintPartBuilderTest extends TestCase
         $job = PrintScenario::createAnonymousJob($this);
         self::assertNotNull($job->expires_at);
 
-        $file = resolve(PrintPartBuilder::class)->build($job, PrintSet::Home, PrintPart::Tokens);
+        $file = resolve(PrintPartBuilder::class)->build($job, PrintSet::HOME, PrintPart::TOKENS);
 
         self::assertSame($job->expires_at->toIso8601String(), $file->expires_at->toIso8601String());
     }
@@ -55,15 +55,15 @@ final class PrintPartBuilderTest extends TestCase
     {
         $job = PrintScenario::createAnonymousJob($this);
         $builder = resolve(PrintPartBuilder::class);
-        $first = $builder->build($job, PrintSet::Home, PrintPart::Tokens);
+        $first = $builder->build($job, PrintSet::HOME, PrintPart::TOKENS);
 
         Storage::disk('local')->delete($first->path);
-        $second = $builder->build($job, PrintSet::Home, PrintPart::Tokens);
+        $second = $builder->build($job, PrintSet::HOME, PrintPart::TOKENS);
         $this->travelTo(now()->addDays(8));
         $job->expires_at = now()->addDays(7);
         $job->save();
 
-        $third = $builder->build($job, PrintSet::Home, PrintPart::Tokens);
+        $third = $builder->build($job, PrintSet::HOME, PrintPart::TOKENS);
 
         self::assertSame(3, PrintScenario::renderer()->calls);
         self::assertSame([$third->getKey()], PrintFile::query()->where('print_job_id', $job->publicId())->pluck('id')->all());
@@ -76,7 +76,7 @@ final class PrintPartBuilderTest extends TestCase
         $job->locale = 'en';
         $job->save();
 
-        $file = resolve(PrintPartBuilder::class)->build($job, PrintSet::Home, PrintPart::Invitation);
+        $file = resolve(PrintPartBuilder::class)->build($job, PrintSet::HOME, PrintPart::INVITATION);
 
         self::assertSame('invitation-home.pdf', $file->filename);
         $image = PrintFile::query()->where('print_job_id', $job->publicId())->where('kind', PrintFile::KIND_IMAGE)->firstOrFail();
@@ -90,12 +90,12 @@ final class PrintPartBuilderTest extends TestCase
     {
         $old = PrintScenario::createAnonymousJob($this);
         $builder = resolve(PrintPartBuilder::class);
-        $oldFile = $builder->build($old, PrintSet::Home, PrintPart::Invitation);
+        $oldFile = $builder->build($old, PrintSet::HOME, PrintPart::INVITATION);
         $new = PrintScenario::createAnonymousJob($this);
         $new->previous_job_id = $old->publicId();
         $new->save();
 
-        $file = $builder->build($new, PrintSet::Home, PrintPart::Invitation);
+        $file = $builder->build($new, PrintSet::HOME, PrintPart::INVITATION);
 
         self::assertSame(1, PrintScenario::renderer()->calls);
         self::assertSame([$oldFile->cache_key, $oldFile->filename, $oldFile->pages, $oldFile->bytes], [$file->cache_key, $file->filename, $file->pages, $file->bytes]);
@@ -108,8 +108,8 @@ final class PrintPartBuilderTest extends TestCase
     {
         $old = PrintScenario::createAnonymousJob($this);
         $builder = resolve(PrintPartBuilder::class);
-        $oldBoard = $builder->build($old, PrintSet::Home, PrintPart::Tokens);
-        $oldMoney = $builder->build($old, PrintSet::Home, PrintPart::BoxLid);
+        $oldBoard = $builder->build($old, PrintSet::HOME, PrintPart::TOKENS);
+        $oldMoney = $builder->build($old, PrintSet::HOME, PrintPart::BOX_LID);
         $oldBoard->expires_at = now()->subMinute();
         $oldBoard->save();
         Storage::disk('local')->delete($oldMoney->path);
@@ -117,8 +117,8 @@ final class PrintPartBuilderTest extends TestCase
         $new->previous_job_id = $old->publicId();
         $new->save();
 
-        $builder->build($new, PrintSet::Home, PrintPart::Tokens);
-        $builder->build($new, PrintSet::Home, PrintPart::BoxLid);
+        $builder->build($new, PrintSet::HOME, PrintPart::TOKENS);
+        $builder->build($new, PrintSet::HOME, PrintPart::BOX_LID);
 
         self::assertSame(4, PrintScenario::renderer()->calls);
     }
@@ -129,7 +129,7 @@ final class PrintPartBuilderTest extends TestCase
         PrintScenario::renderer()->mode = 'crash';
 
         try {
-            resolve(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Board);
+            resolve(PrintPartBuilder::class)->build($job, PrintSet::PRINTER, PrintPart::BOARD);
             self::fail('The build should fail.');
         } catch (RuntimeException $runtimeException) {
             self::assertSame('Chrome crashed.', $runtimeException->getMessage());
@@ -147,7 +147,7 @@ final class PrintPartBuilderTest extends TestCase
         $this->expectException(PrintFailedException::class);
 
         try {
-            resolve(PrintPartBuilder::class)->build($job, PrintSet::Home, PrintPart::Tokens);
+            resolve(PrintPartBuilder::class)->build($job, PrintSet::HOME, PrintPart::TOKENS);
         } finally {
             self::assertSame(0, PrintFile::query()->count());
             self::assertSame([], Storage::disk('local')->allFiles('print/' . $job->publicId()));

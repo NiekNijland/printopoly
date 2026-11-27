@@ -33,7 +33,7 @@ final class InstructionPdfBuilderTest extends TestCase
         config(['printopoly.print_files.retention_days' => 5]);
         $job = PrintJob::factory()->create(['edition' => PrintScenario::editionArray()]);
 
-        $file = resolve(InstructionPdfBuilder::class)->ensure($job, PrintPart::Board, Locale::Dutch);
+        $file = resolve(InstructionPdfBuilder::class)->ensure($job, PrintPart::BOARD, Locale::DUTCH);
 
         self::assertSame(PrintFile::KIND_INSTRUCTIONS, $file->kind);
         self::assertSame('board', $file->part);
@@ -61,8 +61,8 @@ final class InstructionPdfBuilderTest extends TestCase
         $job = PrintJob::factory()->create(['edition' => PrintScenario::editionArray()]);
         $builder = resolve(InstructionPdfBuilder::class);
 
-        $first = $builder->ensure($job, PrintPart::Board, Locale::English, PrintSet::Home);
-        $again = $builder->ensure($job, PrintPart::Board, Locale::English, PrintSet::Home);
+        $first = $builder->ensure($job, PrintPart::BOARD, Locale::ENGLISH, PrintSet::HOME);
+        $again = $builder->ensure($job, PrintPart::BOARD, Locale::ENGLISH, PrintSet::HOME);
 
         self::assertSame($first->getKey(), $again->getKey());
         self::assertSame('instructions-board.pdf', $first->filename);
@@ -71,7 +71,7 @@ final class InstructionPdfBuilderTest extends TestCase
         $job->choices = ['home' => ['copies' => 2]];
         $job->save();
 
-        $changed = $builder->ensure($job, PrintPart::Board, Locale::English, PrintSet::Home);
+        $changed = $builder->ensure($job, PrintPart::BOARD, Locale::ENGLISH, PrintSet::HOME);
 
         self::assertNotSame($first->getKey(), $changed->getKey());
         self::assertCount(2, $renderer->calls);
@@ -85,15 +85,15 @@ final class InstructionPdfBuilderTest extends TestCase
         $job = PrintJob::factory()->create(['edition' => PrintScenario::editionArray()]);
         $builder = resolve(InstructionPdfBuilder::class);
 
-        $first = $builder->ensure($job, PrintPart::Tokens, Locale::Dutch);
+        $first = $builder->ensure($job, PrintPart::TOKENS, Locale::DUTCH);
         Storage::disk('local')->delete($first->path);
-        $remade = $builder->ensure($job, PrintPart::Tokens, Locale::Dutch);
+        $remade = $builder->ensure($job, PrintPart::TOKENS, Locale::DUTCH);
 
         self::assertNotSame($first->getKey(), $remade->getKey());
         self::assertSame($first->cache_key, $remade->cache_key);
 
         config(['printopoly.print.release' => 'volgende-versie']);
-        $released = $builder->ensure($job, PrintPart::Tokens, Locale::Dutch);
+        $released = $builder->ensure($job, PrintPart::TOKENS, Locale::DUTCH);
 
         self::assertNotSame($remade->cache_key, $released->cache_key);
         self::assertCount(3, $renderer->calls);
@@ -111,7 +111,7 @@ final class InstructionPdfBuilderTest extends TestCase
         $job = PrintJob::factory()->create(['edition' => PrintScenario::editionArray()]);
 
         try {
-            resolve(InstructionPdfBuilder::class)->ensure($job, PrintPart::Board, Locale::Dutch);
+            resolve(InstructionPdfBuilder::class)->ensure($job, PrintPart::BOARD, Locale::DUTCH);
             self::fail('A PDF that is not A4 should be refused.');
         } catch (PrintFailedException $printFailedException) {
             self::assertSame('Page 1 is 220.50 x 297.00 mm, A4 expected.', $printFailedException->getMessage());
@@ -125,7 +125,7 @@ final class InstructionPdfBuilderTest extends TestCase
     {
         $job = PrintJob::factory()->create(['edition' => ['name' => 'Kapot', 'elements' => 'geen lijst']]);
 
-        $text = resolve(InstructionPdfBuilder::class)->text($job, PrintPart::Calibration, Locale::Dutch);
+        $text = resolve(InstructionPdfBuilder::class)->text($job, PrintPart::CALIBRATION, Locale::DUTCH);
 
         self::assertStringContainsString("# Proefvel\n", $text);
         self::assertStringNotContainsString('## Bestelblad', $text);
@@ -135,7 +135,7 @@ final class InstructionPdfBuilderTest extends TestCase
     {
         $job = PrintJob::factory()->create(['edition' => PrintScenario::editionArray(), 'choices' => ['printer' => ['copies' => 3]]]);
 
-        $text = resolve(InstructionPdfBuilder::class)->text($job, PrintPart::Board, Locale::Dutch);
+        $text = resolve(InstructionPdfBuilder::class)->text($job, PrintPart::BOARD, Locale::DUTCH);
 
         self::assertStringContainsString('Je maakt 3 sets.', $text);
         self::assertStringContainsString('Aantal: 4 stuks, elk 248 × 248 mm.', $text);
@@ -150,7 +150,7 @@ final class InstructionPdfBuilderTest extends TestCase
             'states' => ['home_board' => ['status' => 'done'], 'home_calibration' => ['status' => 'done'], 'home_cards' => ['status' => 'failed'], 'printer_money' => ['status' => 'done']],
         ]);
 
-        resolve(InstructionPdfBuilder::class)->refreshSet($job, PrintSet::Home, Locale::Dutch);
+        resolve(InstructionPdfBuilder::class)->refreshSet($job, PrintSet::HOME, Locale::DUTCH);
 
         $files = PrintFile::query()->where('print_job_id', $job->publicId())->orderBy('part')->get();
         self::assertSame(
@@ -165,7 +165,7 @@ final class InstructionPdfBuilderTest extends TestCase
         $this->recordingChrome();
         $job = PrintJob::factory()->create(['edition' => PrintScenario::editionArray(), 'states' => ['home_calibration' => ['status' => 'done']]]);
 
-        resolve(InstructionPdfBuilder::class)->refreshSet($job, PrintSet::Home, Locale::Dutch);
+        resolve(InstructionPdfBuilder::class)->refreshSet($job, PrintSet::HOME, Locale::DUTCH);
 
         self::assertSame(['calibration'], PrintFile::query()->where('print_job_id', $job->publicId())->pluck('part')->all());
     }
@@ -178,7 +178,7 @@ final class InstructionPdfBuilderTest extends TestCase
 
         $job = PrintJob::factory()->create(['edition' => PrintScenario::editionArray(), 'states' => ['printer_board' => ['status' => 'done']]]);
 
-        resolve(InstructionPdfBuilder::class)->refreshSet($job, PrintSet::Printer, Locale::Dutch);
+        resolve(InstructionPdfBuilder::class)->refreshSet($job, PrintSet::PRINTER, Locale::DUTCH);
 
         Exceptions::assertReportedCount(2);
         Exceptions::assertReported(static fn (RuntimeException $exception): bool => $exception->getMessage() === 'Chrome crashed.');
@@ -191,20 +191,20 @@ final class InstructionPdfBuilderTest extends TestCase
         $job = PrintJob::factory()->create(['edition' => PrintScenario::editionArray(), 'locale' => 'en', 'states' => ['printer_board' => ['status' => 'done'], 'printer_cards' => ['status' => 'done']]]);
         $builder = resolve(InstructionPdfBuilder::class);
 
-        self::assertNull($builder->currentOrderSheet($job, PrintSet::Printer, Locale::English));
+        self::assertNull($builder->currentOrderSheet($job, PrintSet::PRINTER, Locale::ENGLISH));
 
-        $sheet = $builder->ensureOrderSheet($job, PrintSet::Printer, Locale::English);
+        $sheet = $builder->ensureOrderSheet($job, PrintSet::PRINTER, Locale::ENGLISH);
 
         self::assertSame('order-sheet.pdf', $sheet->filename);
         self::assertSame(PrintFile::KIND_ORDER_SHEET, $sheet->kind);
-        $current = resolve(InstructionPdfBuilder::class)->currentOrderSheet($job, PrintSet::Printer, Locale::English);
+        $current = resolve(InstructionPdfBuilder::class)->currentOrderSheet($job, PrintSet::PRINTER, Locale::ENGLISH);
         self::assertInstanceOf(PrintFile::class, $current);
         self::assertSame($sheet->getKey(), $current->getKey());
 
         $job->choices = ['printer' => ['skipped' => ['cards']]];
         $job->save();
 
-        self::assertNull($builder->currentOrderSheet($job, PrintSet::Printer, Locale::English));
+        self::assertNull($builder->currentOrderSheet($job, PrintSet::PRINTER, Locale::ENGLISH));
     }
 
     public function test_an_order_sheet_whose_file_is_gone_or_whose_edition_is_gone_is_not_current(): void
@@ -212,14 +212,14 @@ final class InstructionPdfBuilderTest extends TestCase
         $this->recordingChrome();
         $job = PrintJob::factory()->create(['edition' => PrintScenario::editionArray(), 'states' => ['home_board' => ['status' => 'done']]]);
         $builder = resolve(InstructionPdfBuilder::class);
-        $sheet = $builder->ensureOrderSheet($job, PrintSet::Home, Locale::Dutch);
+        $sheet = $builder->ensureOrderSheet($job, PrintSet::HOME, Locale::DUTCH);
 
         Storage::disk('local')->delete($sheet->path);
-        self::assertNull($builder->currentOrderSheet($job, PrintSet::Home, Locale::Dutch));
+        self::assertNull($builder->currentOrderSheet($job, PrintSet::HOME, Locale::DUTCH));
 
         $job->edition = ['name' => 'Kapot', 'elements' => 'geen lijst'];
         $job->save();
-        self::assertNull($builder->currentOrderSheet($job, PrintSet::Home, Locale::Dutch));
+        self::assertNull($builder->currentOrderSheet($job, PrintSet::HOME, Locale::DUTCH));
     }
 
     private function recordingChrome(): RecordingPdfRenderer

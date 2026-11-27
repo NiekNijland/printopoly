@@ -33,7 +33,7 @@ final class RefreshPrintTextsJobTest extends TestCase
         $job = PrintScenario::createAnonymousJob($this);
         PrintScenario::generate($this, $job, 'home', ['cards'])->assertOk();
         PrintFile::query()->where('print_job_id', $job->publicId())->where('kind', 'order_sheet')->delete();
-        Cache::put(RefreshPrintTextsJob::failedKey($job, PrintSet::Home), true);
+        Cache::put(RefreshPrintTextsJob::failedKey($job, PrintSet::HOME), true);
         Event::fake([PrintStatusUpdatedEvent::class]);
 
         app()->call([new RefreshPrintTextsJob($job->publicId(), 'home'), 'handle']);
@@ -50,7 +50,7 @@ final class RefreshPrintTextsJobTest extends TestCase
 
         app()->call([new RefreshPrintTextsJob($job->publicId(), 'printer'), 'handle']);
 
-        $key = RefreshPrintTextsJob::failedKey($job, PrintSet::Printer);
+        $key = RefreshPrintTextsJob::failedKey($job, PrintSet::PRINTER);
         self::assertSame('print-order-sheet-failed:' . $job->publicId() . ':printer', $key);
         self::assertTrue(Cache::get($key));
         Event::assertDispatchedTimes(PrintStatusUpdatedEvent::class, 1);

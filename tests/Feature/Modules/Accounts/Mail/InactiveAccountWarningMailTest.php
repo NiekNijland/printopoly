@@ -16,7 +16,7 @@ final class InactiveAccountWarningMailTest extends TestCase
     {
         $user = User::factory()->makeOne(['name' => 'Anna']);
 
-        $mail = new InactiveAccountWarningMail($user, CarbonImmutable::parse('2027-03-05'), Locale::Dutch);
+        $mail = new InactiveAccountWarningMail($user, CarbonImmutable::parse('2027-03-05'), Locale::DUTCH);
         $html = $mail->render();
 
         self::assertSame('nl', $mail->locale);
@@ -31,7 +31,7 @@ final class InactiveAccountWarningMailTest extends TestCase
     {
         $user = User::factory()->makeOne(['name' => 'Bob']);
 
-        $mail = new InactiveAccountWarningMail($user, CarbonImmutable::parse('2027-03-05'), Locale::English);
+        $mail = new InactiveAccountWarningMail($user, CarbonImmutable::parse('2027-03-05'), Locale::ENGLISH);
         $html = $mail->render();
 
         self::assertSame('en', $mail->locale);

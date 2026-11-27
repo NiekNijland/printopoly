@@ -16,7 +16,7 @@ final class StructuredDataTest extends TestCase
     {
         config(['app.url' => 'https://printopoly.test/', 'printopoly.contact_email' => 'hallo@printopoly.test', 'seo.logo' => '/logo.png']);
 
-        $graph = $this->graph(PublicPage::Privacy, Locale::Dutch);
+        $graph = $this->graph(PublicPage::PRIVACY, Locale::DUTCH);
 
         self::assertSame('Organization', $graph[0]['@type']);
         self::assertSame('https://printopoly.test/#organization', $graph[0]['@id']);
@@ -30,9 +30,9 @@ final class StructuredDataTest extends TestCase
     public function test_a_content_page_has_its_seo_title_a_breadcrumb_and_its_last_change(): void
     {
         config(['app.url' => 'https://printopoly.test', 'seo.lastmod' => ['privacy' => '2026-03-01']]);
-        $content = resolve(ContentLibrary::class)->page('privacy', Locale::English);
+        $content = resolve(ContentLibrary::class)->page('privacy', Locale::ENGLISH);
 
-        $graph = $this->graph(PublicPage::Privacy, Locale::English);
+        $graph = $this->graph(PublicPage::PRIVACY, Locale::ENGLISH);
 
         self::assertCount(4, $graph);
         self::assertSame('WebPage', $graph[2]['@type']);
@@ -53,15 +53,15 @@ final class StructuredDataTest extends TestCase
     {
         config(['seo.lastmod' => []]);
 
-        self::assertSame(now()->toDateString(), $this->graph(PublicPage::Terms, Locale::Dutch)[2]['dateModified']);
+        self::assertSame(now()->toDateString(), $this->graph(PublicPage::TERMS, Locale::DUTCH)[2]['dateModified']);
     }
 
     public function test_the_home_page_is_about_the_free_app_and_answers_the_home_questions(): void
     {
         config(['app.url' => 'https://printopoly.test']);
-        $landing = resolve(ContentLibrary::class)->landing(Locale::Dutch);
+        $landing = resolve(ContentLibrary::class)->landing(Locale::DUTCH);
 
-        $graph = $this->graph(PublicPage::Home, Locale::Dutch);
+        $graph = $this->graph(PublicPage::HOME, Locale::DUTCH);
 
         self::assertCount(5, $graph);
         self::assertSame($landing['meta.title'] ?? 'Printopoly', $graph[2]['name']);
@@ -77,9 +77,9 @@ final class StructuredDataTest extends TestCase
 
     public function test_the_faq_page_lists_every_question_with_its_answer(): void
     {
-        $faq = resolve(ContentLibrary::class)->faq(Locale::English);
+        $faq = resolve(ContentLibrary::class)->faq(Locale::ENGLISH);
 
-        $graph = $this->graph(PublicPage::Faq, Locale::English);
+        $graph = $this->graph(PublicPage::FAQ, Locale::ENGLISH);
 
         self::assertSame('FAQPage', $graph[4]['@type']);
         self::assertIsArray($graph[4]['mainEntity']);
@@ -95,8 +95,8 @@ final class StructuredDataTest extends TestCase
     {
         config(['app.url' => 'https://printopoly.test']);
 
-        $guide = $this->graph(PublicPage::PrintGuide, Locale::Dutch);
-        $contact = $this->graph(PublicPage::Contact, Locale::English);
+        $guide = $this->graph(PublicPage::PRINT_GUIDE, Locale::DUTCH);
+        $contact = $this->graph(PublicPage::CONTACT, Locale::ENGLISH);
 
         self::assertSame('Article', $guide[4]['@type']);
         self::assertSame('https://printopoly.test/nl/printgids#article', $guide[4]['@id']);

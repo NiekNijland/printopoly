@@ -41,10 +41,10 @@ final class GeneratePrintJobTest extends TestCase
 
         $stored = $job->refresh();
         self::assertNull($stored->active_at);
-        self::assertSame(PartStatus::Done, $stored->recordedState(PrintSet::Printer, PrintPart::Cards)['status']);
-        self::assertSame(PartStatus::Done, $stored->recordedState(PrintSet::Printer, PrintPart::Money)['status']);
+        self::assertSame(PartStatus::DONE, $stored->recordedState(PrintSet::PRINTER, PrintPart::CARDS)['status']);
+        self::assertSame(PartStatus::DONE, $stored->recordedState(PrintSet::PRINTER, PrintPart::MONEY)['status']);
         $cards = PrintFile::query()->where('print_job_id', $job->publicId())->where('kind', 'part')->where('part', 'cards')->firstOrFail();
-        self::assertSame($cards->cache_key, $stored->recordedState(PrintSet::Printer, PrintPart::Cards)['cache_key']);
+        self::assertSame($cards->cache_key, $stored->recordedState(PrintSet::PRINTER, PrintPart::CARDS)['cache_key']);
         self::assertSame(2, PrintFile::query()->where('print_job_id', $job->publicId())->where('kind', 'instructions')->count());
         self::assertSame(1, PrintFile::query()->where('print_job_id', $job->publicId())->where('kind', 'order_sheet')->where('set', 'printer')->count());
         self::assertSame(1, $this->featureCount('print_cards'));
@@ -59,7 +59,7 @@ final class GeneratePrintJobTest extends TestCase
 
         $stored = $job->refresh();
         self::assertArrayNotHasKey('home_dice', $stored->states);
-        self::assertSame(PartStatus::Done, $stored->recordedState(PrintSet::Home, PrintPart::Cards)['status']);
+        self::assertSame(PartStatus::DONE, $stored->recordedState(PrintSet::HOME, PrintPart::CARDS)['status']);
     }
 
     public function test_a_crashing_part_fails_with_its_reason_and_the_next_part_is_still_made(): void
@@ -74,8 +74,8 @@ final class GeneratePrintJobTest extends TestCase
         $this->handle($job->publicId(), [['printer', 'money']]);
 
         $stored = $job->refresh();
-        self::assertSame(['status' => PartStatus::Failed, 'cache_key' => null, 'error' => 'other'], $stored->recordedState(PrintSet::Printer, PrintPart::Cards));
-        self::assertSame(PartStatus::Done, $stored->recordedState(PrintSet::Printer, PrintPart::Money)['status']);
+        self::assertSame(['status' => PartStatus::FAILED, 'cache_key' => null, 'error' => 'other'], $stored->recordedState(PrintSet::PRINTER, PrintPart::CARDS));
+        self::assertSame(PartStatus::DONE, $stored->recordedState(PrintSet::PRINTER, PrintPart::MONEY)['status']);
         self::assertNull($stored->active_at);
         Exceptions::assertReported(static fn (RuntimeException $exception): bool => $exception->getMessage() === 'Chrome crashed.');
         self::assertSame(0, $this->featureCount('print_cards'));
@@ -94,17 +94,17 @@ final class GeneratePrintJobTest extends TestCase
         $job = PrintScenario::createAnonymousJob($this);
         $progress = resolve(PrintProgress::class);
         $progress->setActive($job, true);
-        $progress->record($job, PrintSet::Home, PrintPart::Cards, PartStatus::Done, cacheKey: 'sleutel-kaarten');
-        $progress->record($job, PrintSet::Home, PrintPart::Money, PartStatus::Running);
-        $progress->record($job, PrintSet::Home, PrintPart::Tokens, PartStatus::Waiting, after: PrintPart::Money);
+        $progress->record($job, PrintSet::HOME, PrintPart::CARDS, PartStatus::DONE, cacheKey: 'sleutel-kaarten');
+        $progress->record($job, PrintSet::HOME, PrintPart::MONEY, PartStatus::RUNNING);
+        $progress->record($job, PrintSet::HOME, PrintPart::TOKENS, PartStatus::WAITING, after: PrintPart::MONEY);
 
         new GeneratePrintJob($job->publicId(), [['home', 'cards'], ['home', 'money'], ['home', 'tokens'], ['home', 'dice']])->failed(new RuntimeException('Worker killed.'));
 
         $stored = $job->refresh();
         self::assertNull($stored->active_at);
-        self::assertSame(['status' => PartStatus::Done, 'cache_key' => 'sleutel-kaarten', 'error' => null], $stored->recordedState(PrintSet::Home, PrintPart::Cards));
-        self::assertSame(['status' => PartStatus::Failed, 'cache_key' => null, 'error' => 'timeout'], $stored->recordedState(PrintSet::Home, PrintPart::Money));
-        self::assertSame(['status' => PartStatus::Failed, 'cache_key' => null, 'error' => 'timeout'], $stored->recordedState(PrintSet::Home, PrintPart::Tokens));
+        self::assertSame(['status' => PartStatus::DONE, 'cache_key' => 'sleutel-kaarten', 'error' => null], $stored->recordedState(PrintSet::HOME, PrintPart::CARDS));
+        self::assertSame(['status' => PartStatus::FAILED, 'cache_key' => null, 'error' => 'timeout'], $stored->recordedState(PrintSet::HOME, PrintPart::MONEY));
+        self::assertSame(['status' => PartStatus::FAILED, 'cache_key' => null, 'error' => 'timeout'], $stored->recordedState(PrintSet::HOME, PrintPart::TOKENS));
     }
 
     public function test_a_dead_worker_of_a_job_that_is_gone_changes_nothing(): void

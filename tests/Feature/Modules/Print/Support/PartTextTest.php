@@ -21,8 +21,8 @@ final class PartTextTest extends TestCase
     {
         $parts = resolve(PartText::class);
 
-        $dutch = $parts->markdown(PrintPart::Cards, Locale::Dutch);
-        $english = $parts->markdown(PrintPart::Cards, Locale::English);
+        $dutch = $parts->markdown(PrintPart::CARDS, Locale::DUTCH);
+        $english = $parts->markdown(PrintPart::CARDS, Locale::ENGLISH);
 
         self::assertStringStartsWith("---\n", $dutch);
         self::assertSame('Kaarten en eigendomsbewijzen', $parts->title($dutch));
@@ -37,19 +37,19 @@ final class PartTextTest extends TestCase
         $this->expectException(PrintFailedException::class);
         $this->expectExceptionMessage('Instruction text not found: ' . sys_get_temp_dir() . '/resources/content/nl/instructies/bord.md');
 
-        $parts->markdown(PrintPart::Board, Locale::Dutch);
+        $parts->markdown(PrintPart::BOARD, Locale::DUTCH);
     }
 
     public function test_the_print_shop_text_leaves_out_the_home_section_and_the_order_sheets(): void
     {
-        $text = resolve(PartText::class)->forSet(self::DUTCH, PrintSet::Printer);
+        $text = resolve(PartText::class)->forSet(self::DUTCH, PrintSet::PRINTER);
 
         self::assertSame("---\ntitle: Bord\n---\n\n# Bord\n\nIntro over {panels} panelen.\n\n## Drukkerij-set\n\nBestel bij de drukkerij.\n\n## Voor beide\n\nLaat de lijm drogen.\n\n", $text);
     }
 
     public function test_the_home_text_leaves_out_the_print_shop_section_in_english_too(): void
     {
-        $text = resolve(PartText::class)->forSet(self::ENGLISH, PrintSet::Home);
+        $text = resolve(PartText::class)->forSet(self::ENGLISH, PrintSet::HOME);
 
         self::assertSame("# Board\n\nIntro.\n\n## Home-print set\n\nPrint at home.\n\n", $text);
     }
@@ -58,17 +58,17 @@ final class PartTextTest extends TestCase
     {
         $parts = resolve(PartText::class);
 
-        self::assertSame("| Product | Bord |\n", $parts->orderSheet(self::DUTCH, PrintSet::Printer));
-        self::assertSame("| Papier | 120 g/m² |\n", $parts->orderSheet(self::DUTCH, PrintSet::Home));
-        self::assertSame("| Product | Board |\n", $parts->orderSheet(self::ENGLISH, PrintSet::Printer));
+        self::assertSame("| Product | Bord |\n", $parts->orderSheet(self::DUTCH, PrintSet::PRINTER));
+        self::assertSame("| Papier | 120 g/m² |\n", $parts->orderSheet(self::DUTCH, PrintSet::HOME));
+        self::assertSame("| Product | Board |\n", $parts->orderSheet(self::ENGLISH, PrintSet::PRINTER));
     }
 
     public function test_a_part_without_specs_for_a_set_has_an_empty_order_sheet(): void
     {
         $parts = resolve(PartText::class);
 
-        self::assertSame('', $parts->orderSheet(self::ENGLISH, PrintSet::Home));
-        self::assertSame('', $parts->orderSheet("# Proefvel\n\nPrint dit vel eerst.\n", PrintSet::Printer));
+        self::assertSame('', $parts->orderSheet(self::ENGLISH, PrintSet::HOME));
+        self::assertSame('', $parts->orderSheet("# Proefvel\n\nPrint dit vel eerst.\n", PrintSet::PRINTER));
     }
 
     public function test_a_text_without_a_title_has_an_empty_title(): void
@@ -79,10 +79,10 @@ final class PartTextTest extends TestCase
     public function test_in_the_guide_the_part_is_a_section_with_an_anchor_and_every_set_is_filled_for_itself(): void
     {
         $seen = [];
-        $guide = resolve(PartText::class)->forGuide(self::DUTCH, PrintPart::Board, static function (string $section, PrintSet $set) use (&$seen): string {
+        $guide = resolve(PartText::class)->forGuide(self::DUTCH, PrintPart::BOARD, static function (string $section, PrintSet $set) use (&$seen): string {
             $seen[] = $set->value;
 
-            return str_replace('{panels}', $set === PrintSet::Printer ? '4' : '8', $section);
+            return str_replace('{panels}', $set === PrintSet::PRINTER ? '4' : '8', $section);
         });
 
         self::assertSame(['home', 'printer', 'home', 'home'], $seen);

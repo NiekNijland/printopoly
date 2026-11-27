@@ -14,7 +14,7 @@ final class PrintGuideTest extends TestCase
 {
     public function test_the_parts_line_becomes_a_section_per_part_in_guide_order(): void
     {
-        $markdown = resolve(PrintGuide::class)->markdown(Locale::Dutch);
+        $markdown = resolve(PrintGuide::class)->markdown(Locale::DUTCH);
 
         self::assertStringNotContainsString('{parts}', $markdown);
         $positions = [];
@@ -43,7 +43,7 @@ final class PrintGuideTest extends TestCase
 
     public function test_the_placeholders_of_the_part_texts_are_filled(): void
     {
-        $markdown = resolve(PrintGuide::class)->markdown(Locale::English);
+        $markdown = resolve(PrintGuide::class)->markdown(Locale::ENGLISH);
 
         self::assertSame(0, preg_match('/\{[a-z_]+\}/', $markdown));
     }

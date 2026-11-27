@@ -22,9 +22,9 @@ final class FeatureCounterTest extends TestCase
         $counter = resolve(FeatureCounter::class);
         $this->travelTo(CarbonImmutable::parse('2026-11-22 23:30:00', 'Europe/Amsterdam'));
 
-        $counter->count(FeatureEvent::BoxCreated);
-        $counter->count(FeatureEvent::BoxCreated, 3);
-        $counter->count(FeatureEvent::PhotoAdded);
+        $counter->count(FeatureEvent::BOX_CREATED);
+        $counter->count(FeatureEvent::BOX_CREATED, 3);
+        $counter->count(FeatureEvent::PHOTO_ADDED);
 
         self::assertSame([
             ['event' => 'box_created', 'day' => '2026-11-22', 'count' => 4],
@@ -36,8 +36,8 @@ final class FeatureCounterTest extends TestCase
     {
         $counter = resolve(FeatureCounter::class);
 
-        $counter->count(FeatureEvent::BoxCreated, 0);
-        $counter->count(FeatureEvent::BoxCreated, -2);
+        $counter->count(FeatureEvent::BOX_CREATED, 0);
+        $counter->count(FeatureEvent::BOX_CREATED, -2);
 
         self::assertSame([], $this->rows());
     }
@@ -48,7 +48,7 @@ final class FeatureCounterTest extends TestCase
         config(['database.connections.mongodb' => ['driver' => 'mongodb']]);
         DB::purge('mongodb');
 
-        resolve(FeatureCounter::class)->count(FeatureEvent::BoxCreated);
+        resolve(FeatureCounter::class)->count(FeatureEvent::BOX_CREATED);
 
         Exceptions::assertReported(InvalidArgumentException::class);
     }
