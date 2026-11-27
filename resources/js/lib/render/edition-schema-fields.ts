@@ -1,3 +1,4 @@
+import { is, oneOf } from '@/lib/parse';
 import { isPatternId } from '@/lib/render/patterns';
 import { standardEdition } from '@/lib/render/standard-edition';
 import {
@@ -35,13 +36,10 @@ import {
 import {
     CENTER_MODES,
     TITLE_STYLES,
-    type CenterMode,
     type ElementField,
     type ElementOverride,
     type FreeLayer,
     type PhotoPlacement,
-    type PhotoStyle,
-    type TitleStyle,
 } from './edition-types';
 import {
     CORNER_POSITIONS,
@@ -65,14 +63,11 @@ type Parser<V> = (value: unknown, context: FieldContext) => V | undefined;
 
 type FieldParser<F extends ElementField> = Parser<FieldValues[F]>;
 
-const isPhotoStyle = (value: unknown): value is PhotoStyle =>
-    value === 'framed' || value === 'full';
+const isPhotoStyle = (value: unknown) => value === 'framed' || value === 'full';
 
-const isCenterMode = (value: unknown): value is CenterMode =>
-    CENTER_MODES.some((mode) => mode === value);
+const centerMode = oneOf(CENTER_MODES);
 
-const isTitleStyle = (value: unknown): value is TitleStyle =>
-    TITLE_STYLES.some((style) => style === value);
+const titleStyle = oneOf(TITLE_STYLES);
 
 /** The standard card behind a key like `card.chance.07`. */
 const standardCardOf = (key: string) => {
@@ -267,7 +262,7 @@ const FIELD_PARSERS: { readonly [F in ElementField]: FieldParser<F> } = {
         return value === true ? true : fail(context, 'must be true');
     },
     centerMode: (value, context) =>
-        isCenterMode(value)
+        is(centerMode, value)
             ? value
             : fail(context, 'must be "name", "photo" or "logo"'),
     subtitle: text(() => MAX_NAME_LENGTH),
@@ -290,7 +285,7 @@ const FIELD_PARSERS: { readonly [F in ElementField]: FieldParser<F> } = {
     titleBand: flag,
     logoTilt: flag,
     titleStyle: (value, context) =>
-        isTitleStyle(value)
+        is(titleStyle, value)
             ? value
             : fail(context, `must be one of ${TITLE_STYLES.join(', ')}`),
     style: (value, context) => {
