@@ -29,7 +29,7 @@ export const outClass = (base: ListBase, part: PartId) =>
 
 // A part that is not in the set: lighter, with a word that says why (vindbaarheid point 1, B198).
 // A tap on it goes to the row of the part on the print page, where you put it in the set (R6 Kees).
-export const OutTag = ({ base, part }: { base: ListBase; part: PartId }) => {
+const OutTag = ({ base, part }: { base: ListBase; part: PartId }) => {
     const t = useTranslation();
     const { edition, interfaceLanguage } = base;
     if (!isOut(base, part)) {
