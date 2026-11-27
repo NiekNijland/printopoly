@@ -376,3 +376,18 @@ Ontwerp nodig (voorstel: apart besluit):
 10. ESLint-eigen regels zonder falend voorbeeld: 8 regels, 17 selectors, 0 `RuleTester`-tests; `eslint.config.js` is 1425 regels.
 11. Dubbele logica: 42 groepen van 8+ regels (vooral `components/render`), de print-CSP op twee plekken, tokenlengte 40 op 5 plekken.
 12. Laden-alles en N+1: 6 collectiebrede `get()` in de opruimklassen, een N+1 in `EditionPrintReadinessService`; 26 `get()` zonder limiet. Tellen-dan-invoegen zonder lock: 3 plekken.
+
+## After-zero backlog, third audit (2026-11-27, kit 425621c, main 32801f8f)
+Twee verse auditors vonden geen teller van een soort uit de definitie van schoon die niet op nul staat: `debt-dashboard.sh --final` slaagt met 72 rijen op doel of vastgehouden. Zij vonden wel andere soorten; die staan hier met telling en gaan als vraag naar de eigenaar.
+
+Goedkoop en mechanisch:
+1. Frontend leest de klok en toeval buiten een deur: 23 aanroepen van `Date.now`, `new Date()` en `Math.random` in 12 niet-testbestanden; zes testbestanden gebruiken de echte klok zonder nepklok. Een deur `lib/clock` in `eslint-rules/doors.js`.
+2. Frontend-testdubbels zijn niet geteld: 34 `vi.mock` (32 niet-Inertia), 53 `vi.spyOn`, 54 `vi.stubGlobal`; dezelfde nep van `echo` en `ingest` staat in elk 9 bestanden. Een krimp-rij en gedeelde fakes in `resources/js/testing/`.
+3. PHPUnit laat risky en notice door: 5 runs zonder `--fail-on-risky` en `--fail-on-notice`, ook `phpunit.xml` zonder `failOnRisky`; vitest zonder `expect.requireAssertions`.
+4. Nederlandse validatieteksten ontbreken: geen `lang/nl/validation.php`; standaardtaal is `nl`, dus een regel zonder eigen tekst geeft de ruwe sleutel (16 regels in 28 bestanden). Een test dat elke gebruikte regel een vertaling heeft.
+5. Pint ziet verkeerde inspringing niet: 77 methodes in 32 testbestanden staan op 8 spaties. Een rij of een formatterregel.
+6. De padguard leest alleen de AGENTS-bestanden: `docs/voortgang.md` noemt 17 oude paden, `docs/plan.md:58` zegt "PHPStan level 8" (is 10), en twee besluiten delen nummer 0003. De guard breder, of de bestanden bijwerken.
+7. De lokale stack is niet vastgezet: `compose.yaml` gebruikt `mongodb-atlas-local:latest` en `redis:alpine` tegen `mongo:8` in CI; `docker/8.5/Dockerfile` heeft 6 niet-vastgezette installs; Chrome 131 staat op twee plekken zonder koppeling.
+8. `.env.example` mist `PRINTOPOLY_CONTACT_EMAIL` (voor de eigen configbestanden).
+
+Oordeel zonder guard: 7 controllers lezen met `::query()`; 28 array-index React-keys.
