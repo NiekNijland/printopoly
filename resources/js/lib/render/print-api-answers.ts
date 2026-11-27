@@ -1,3 +1,14 @@
+import {
+    array,
+    boolean,
+    keyOf,
+    nullable,
+    number,
+    oneOf,
+    record,
+    string,
+    type Parser,
+} from '@/lib/parse';
 import type {
     PartStatus,
     PrintJobReadyData,
@@ -5,7 +16,6 @@ import type {
     PrintPart,
     PrintPartStatusData,
 } from '@/types/generated';
-import { isObject } from './edition-schema-values';
 
 const PRINT_PARTS: Readonly<Record<PrintPart, true>> = {
     board: true,
@@ -27,62 +37,46 @@ const PART_STATUSES: Readonly<Record<PartStatus, true>> = {
     outdated: true,
 };
 
-const isPrintPart = (value: unknown): value is PrintPart =>
-    typeof value === 'string' && Object.hasOwn(PRINT_PARTS, value);
+const printPart = keyOf(PRINT_PARTS);
 
-const isPartStatus = (value: unknown): value is PartStatus =>
-    typeof value === 'string' && Object.hasOwn(PART_STATUSES, value);
+const partStatusData: Parser<PrintPartStatusData> = record({
+    set: oneOf(['printer', 'home']),
+    part: printPart,
+    status: keyOf(PART_STATUSES),
+    waitingFor: nullable(printPart),
+    pages: nullable(number),
+    bytes: nullable(number),
+    downloadUrl: nullable(string),
+    instructionsUrl: nullable(string),
+    reason: nullable(string),
+    imageUrl: nullable(string),
+});
 
-const isNumberOrNull = (value: unknown): value is number | null =>
-    value === null || typeof value === 'number';
+/** The status of a print job as the server sends it. */
+export const jobStatus: Parser<PrintJobStatusData> = record({
+    busy: boolean,
+    printerZipUrl: string,
+    homeZipUrl: string,
+    printerZipReady: boolean,
+    homeZipReady: boolean,
+    zipPreparing: boolean,
+    parts: array(partStatusData),
+});
 
-const isStringOrNull = (value: unknown): value is string | null =>
-    value === null || typeof value === 'string';
+/** The secret links of a new job. */
+export const uploadResult = record({
+    token: string,
+    url: string,
+    statusUrl: string,
+});
 
-const isPartStatusData = (value: unknown): value is PrintPartStatusData =>
-    isObject(value) &&
-    (value.set === 'printer' || value.set === 'home') &&
-    isPrintPart(value.part) &&
-    isPartStatus(value.status) &&
-    (value.waitingFor === null || isPrintPart(value.waitingFor)) &&
-    isNumberOrNull(value.pages) &&
-    isNumberOrNull(value.bytes) &&
-    isStringOrNull(value.downloadUrl) &&
-    isStringOrNull(value.instructionsUrl) &&
-    isStringOrNull(value.reason) &&
-    isStringOrNull(value.imageUrl);
+const jobReady: Parser<PrintJobReadyData> = record({
+    token: string,
+    printerReadyUntil: nullable(number),
+    printerOutdated: boolean,
+    homeReadyUntil: nullable(number),
+    homeOutdated: boolean,
+});
 
-/** Whether an answer is the status of a print job as the server sends it. */
-export const isJobStatus = (body: unknown): body is PrintJobStatusData =>
-    isObject(body) &&
-    typeof body.busy === 'boolean' &&
-    typeof body.printerZipUrl === 'string' &&
-    typeof body.homeZipUrl === 'string' &&
-    typeof body.printerZipReady === 'boolean' &&
-    typeof body.homeZipReady === 'boolean' &&
-    typeof body.zipPreparing === 'boolean' &&
-    Array.isArray(body.parts) &&
-    body.parts.every(isPartStatusData);
-
-/** Whether an answer holds the secret links of a new job. */
-export const isUploadResult = (
-    body: unknown,
-): body is { token: string; url: string; statusUrl: string } =>
-    isObject(body) &&
-    typeof body.token === 'string' &&
-    typeof body.url === 'string' &&
-    typeof body.statusUrl === 'string';
-
-const isJobReady = (value: unknown): value is PrintJobReadyData =>
-    isObject(value) &&
-    typeof value.token === 'string' &&
-    isNumberOrNull(value.printerReadyUntil) &&
-    typeof value.printerOutdated === 'boolean' &&
-    isNumberOrNull(value.homeReadyUntil) &&
-    typeof value.homeOutdated === 'boolean';
-
-/** Whether an answer lists what is ready per job. */
-export const isJobsReady = (
-    body: unknown,
-): body is { jobs: PrintJobReadyData[] } =>
-    isObject(body) && Array.isArray(body.jobs) && body.jobs.every(isJobReady);
+/** What is ready per job. */
+export const jobsReady = record({ jobs: array(jobReady) });

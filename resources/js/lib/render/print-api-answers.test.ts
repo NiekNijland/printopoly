@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { isJobStatus, isJobsReady, isUploadResult } from './print-api-answers';
+import { is } from '@/lib/parse';
+
+import { jobStatus, jobsReady, uploadResult } from './print-api-answers';
+
+const isJobStatus = (value: unknown) => is(jobStatus, value);
+const isUploadResult = (value: unknown) => is(uploadResult, value);
+const isJobsReady = (value: unknown) => is(jobsReady, value);
 
 const part = {
     set: 'printer',
@@ -38,6 +44,10 @@ describe('print-api-answers', () => {
             isJobStatus({ ...status, parts: [{ ...part, set: 'shop' }] }),
         ).toBe(false);
         expect(isJobStatus({ ...status, busy: 'no' })).toBe(false);
+        expect(
+            isJobStatus({ ...status, parts: [{ ...part, waitingFor: 'x' }] }),
+        ).toBe(false);
+        expect(isJobStatus({ ...status, extra: 1 })).toBe(true);
         expect(isJobStatus(null)).toBe(false);
     });
 
