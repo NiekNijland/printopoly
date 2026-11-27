@@ -2,7 +2,6 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, configure } from '@testing-library/react';
 import { afterEach, beforeEach, vi } from 'vitest';
 
-import { clearStored } from '@/lib/browser-storage';
 import { setPage, visit } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
 
@@ -24,6 +23,8 @@ vi.mock('@inertiajs/react/server', async () => {
 beforeEach(() => {
     setPage(fakePage());
     visit.mockReset();
+    // What one test keeps in this browser (such as the last chosen currency) must not change the next one.
+    vi.stubGlobal('localStorage', new Storage());
     // No test reads the day it runs: only Date is faked, from the same moment in every test, and it runs on from there.
     vi.useFakeTimers({
         toFake: ['Date'],
@@ -35,8 +36,6 @@ beforeEach(() => {
 afterEach(() => {
     vi.useRealTimers();
     cleanup();
-    // What one test keeps in this browser (such as the last chosen currency) must not change the next one.
-    clearStored();
 });
 
 // A test never reaches the network: a request that no test mocked fails here, with the address, instead of waiting for a

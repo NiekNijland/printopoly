@@ -49,34 +49,3 @@ export const writeStored = (
         return blocked(error, false);
     }
 };
-
-export const removeStored = (
-    key: string,
-    area: StorageArea = 'local',
-): boolean => {
-    const storage = storageOf(area);
-    if (storage === null) {
-        return false;
-    }
-    try {
-        storage.removeItem(key);
-
-        return true;
-    } catch (error) {
-        return blocked(error, false);
-    }
-};
-
-export const clearStored = (area: StorageArea = 'local'): boolean => {
-    const storage = storageOf(area);
-    if (storage === null) {
-        return false;
-    }
-    try {
-        storage.clear();
-
-        return true;
-    } catch (error) {
-        return blocked(error, false);
-    }
-};
