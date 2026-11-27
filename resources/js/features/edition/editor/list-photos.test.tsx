@@ -8,14 +8,12 @@ import { MemoryEditionStorage } from '@/lib/render/edition-storage';
 import { elementLabel } from '@/lib/render/editor-catalogue';
 import { PhotoCache } from '@/lib/render/editor-photo-cache';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
+import { fakeIngest } from '@/testing/ingest';
 import { renderWithI18n } from '@/testing/render';
 
 import { ListPhotosButton } from './list-photos';
 import { PlacedList } from './panel/placed-list';
 import { usePhotoUpload } from './panel/use-photo-upload';
-
-const ingest = vi.hoisted(() => vi.fn());
-vi.mock('@/features/edition/editor/ingest', () => ({ ingestPhoto: ingest }));
 
 /** The photo button and its summary as the board list has them (B237). */
 const Harness = ({ session }: { session: EditionSession }) => {
@@ -68,7 +66,7 @@ describe('photos by name from the board list (B237)', () => {
             debounceMs: 1000,
         });
         let n = 0;
-        ingest.mockImplementation(() =>
+        fakeIngest.ingestPhoto.mockImplementation(() =>
             Promise.resolve({
                 ok: true,
                 record: {
