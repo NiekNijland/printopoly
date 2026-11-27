@@ -6,7 +6,7 @@ import { setElement } from './edition-changes';
 import { wordKey } from './edition-keys';
 import { resolveEdition } from './edition-resolve';
 import type { Edition } from './edition-types';
-import { cornerKey, renderWords, resolveWords } from './edition-words';
+import { renderWords, resolveWords } from './edition-words';
 
 const withWords = (
     edition: Edition,
@@ -186,7 +186,7 @@ describe('the words in the resolved edition', () => {
 
     it('follows a renamed Start in the card texts', () => {
         const edition = withWords(makeEdition(), {
-            [cornerKey('start')]: { name: 'Begin' },
+            'space.00': { name: 'Begin' },
         });
 
         expect(resolveEdition(edition).decks?.chance[0]?.text).toBe(
@@ -226,8 +226,8 @@ describe('the words in the resolved edition', () => {
 
     it('resolves the short text of a corner, and only for corners', () => {
         const edition = withWords(makeEdition(), {
-            [cornerKey('start')]: { text: 'Pak 200 pegels bij de molen' },
-            [cornerKey('jail')]: { text: '   ' },
+            'space.00': { text: 'Pak 200 pegels bij de molen' },
+            'space.10': { text: '   ' },
         });
         const { spaces } = resolveEdition(edition);
 
