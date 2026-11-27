@@ -1,10 +1,9 @@
 import { act, renderHook } from '@testing-library/react';
 
 import { usePrintJob } from '@/features/print/use-print-job';
+import { defined } from '@/testing/defined';
 import { stubFetch } from '@/testing/fetch';
 import type { PrintJobData, PrintJobStatusData } from '@/types/generated';
-
-type Listener = (payload: PrintJobStatusData) => void;
 
 const echo = vi.hoisted(() => {
     const listeners: Record<string, (payload: unknown) => void> = {};
@@ -106,7 +105,7 @@ describe('usePrintJob', () => {
         );
 
         act(() => {
-            (echo.listeners['.print.status'] as Listener)(status(false, true));
+            defined(echo.listeners['.print.status'])(status(false, true));
         });
         expect(result.current.status.printerZipReady).toBe(true);
 
