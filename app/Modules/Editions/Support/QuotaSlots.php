@@ -10,11 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 use RuntimeException;
 
 /**
- * Keeps a limit on how many documents a group holds (the editions of an account, the contributions and photos of a
- * box) when two requests add at the same time. Each document takes a slot: a number below the limit that no other
- * document of the group holds. A unique index on the group and the slot field refuses the second document that
- * takes the same slot, and then the slots are read again. Counting first and inserting after cannot do this: both
- * requests count the same number.
+ * A limit per group that holds under parallel requests: a document takes the lowest free slot below the limit, and a
+ * unique index on the group and the slot refuses a slot taken twice (docs/guards/queries.md, `quota-slot`).
  */
 final readonly class QuotaSlots
 {
@@ -23,12 +20,10 @@ final readonly class QuotaSlots
     private const int ATTEMPTS = 5;
 
     /**
-     * The first quota that is full, without taking a slot: a refusal before costly work, such as storing a photo.
-     *
      * @template TModel of Model
      *
      * @param array<string, array{Builder<TModel>, int}> $quotas per slot field: the documents of the group that count, and the limit
-     * @return string|null the slot field of the first full quota
+     * @return string|null the slot field of the first full quota, read without taking a slot (a refusal before costly work)
      */
     public function full(array $quotas): ?string
     {
@@ -42,8 +37,6 @@ final readonly class QuotaSlots
     }
 
     /**
-     * Saves a document in a free slot of every quota.
-     *
      * @template TModel of Model
      *
      * @param array<string, array{Builder<TModel>, int}> $quotas per slot field: the documents of the group that count, and the limit
@@ -80,9 +73,6 @@ final readonly class QuotaSlots
     }
 
     /**
-     * The lowest slot below the limit that no document of the group holds, read in one query; null when the group
-     * holds the limit or more.
-     *
      * @template TModel of Model
      *
      * @param Builder<TModel> $holders
