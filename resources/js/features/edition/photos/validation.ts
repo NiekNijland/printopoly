@@ -3,7 +3,7 @@ import type { PhotoFormat } from '../../../types/photos';
 import { detectFormat, readDimensions } from './format';
 
 /** B70. */
-export const MAX_FILE_BYTES = 25 * 1024 * 1024;
+const MAX_FILE_BYTES = 25 * 1024 * 1024;
 /** B69. */
 export const MAX_PIXELS = 60_000_000;
 /** How much of the file `validatePhoto` needs: enough for the header behind large EXIF blocks. */

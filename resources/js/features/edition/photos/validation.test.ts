@@ -7,7 +7,9 @@ import {
     svgHeader,
     tiffHeader,
 } from '../../../testing/photos-test-fixtures';
-import { formatPhotoError, MAX_FILE_BYTES, validatePhoto } from './validation';
+import { formatPhotoError, validatePhoto } from './validation';
+
+const MAX_FILE_BYTES = 25 * 1024 * 1024;
 
 const file = (name: string, size = 1_000_000) => ({ name, size });
 
