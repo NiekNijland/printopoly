@@ -3,6 +3,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { EditionBus } from '@/features/edition/bus';
 import type * as Services from '@/features/edition/editor/services';
 import { EditionSession } from '@/features/edition/session';
+import { now } from '@/lib/clock';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
 import { setPage } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
@@ -32,7 +33,7 @@ const open = async () => {
     return new EditionSession(edition, {
         storage: services.storage,
         bus: new EditionBus(null, 'w'),
-        now: () => Date.now(),
+        now,
         debounceMs: 5,
     });
 };

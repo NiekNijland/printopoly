@@ -85,6 +85,7 @@ lint-max-function-lines                max  number eslint-rules/limits.js  ^expo
 lint-suppressions                      max  json   @LINT_BASELINE  value *.*.count
 frontend-functions-over-limit          max  json   @LINT_BASELINE  value *.max-lines-per-function.count
 frontend-inertia-mocks                 max  grep   @FRONTEND_PATHS,:(exclude)*.md,:(exclude)resources/js/testing/setup.ts  vi\.(mock|doMock)\([[:space:]]*["'`]@inertiajs/
+frontend-test-doubles                  max  grep   resources/js,:(exclude)*.md  vi\.(mock|doMock)\([[:space:]]*["'`](@/|\.)|vi\.(spyOn|stubGlobal)\(
 unused-ignore                          max  json   knip.json  count? ignoreDependencies
 ts-suppressions                        max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  @ts-(expect-error|ignore|nocheck)
 frontend-test-skip                     max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  (^|[^A-Za-z0-9_$.:>]|[^:]:|[^-]>)(((it|test|describe)(\.(concurrent|sequential|describe|parallel|serial))*\.(skip|todo|only|skipIf|runIf|fails|fixme)[(.])|((x|f)(it|test|describe)[(]))
@@ -833,6 +834,20 @@ frontend-test-skip 0 $this->fit(1);
 frontend-test-skip 1 const f = () =>fit('x', () => {
 frontend-test-skip 1 const c = a ? b : fit('x', () => {
 frontend-test-skip 1 export const t = {fit:fit('x', () => {
+frontend-test-doubles 1 vi.mock('@/lib/echo', () => ({ getEcho }));
+frontend-test-doubles 1 vi.mock('./friend-photo', () => ({
+frontend-test-doubles 1 vi.mock('../ingest');
+frontend-test-doubles 1 vi.doMock("@/features/edition/editor/ingest");
+frontend-test-doubles 1 vi.mock( `@/lib/http`);
+frontend-test-doubles 1 const parse = vi.spyOn(JSON, 'parse');
+frontend-test-doubles 1     vi.stubGlobal('fetch', fake);
+frontend-test-doubles 2 vi.spyOn(a, 'b'); vi.stubGlobal('c', d);
+frontend-test-doubles 0 vi.mock('heic-to', () => heic);
+frontend-test-doubles 0 vi.mock('@bugsnag/js', () => ({ default: { start } }));
+frontend-test-doubles 0 vi.mock('@inertiajs/react');
+frontend-test-doubles 0 const fake = vi.fn();
+frontend-test-doubles 0 vi.mocked(getEcho).mockReturnValue(null);
+frontend-test-doubles 0 vi.unstubAllGlobals();
 comments 1 // note
 comments 1 $a = 1; // note
 comments 1 # note

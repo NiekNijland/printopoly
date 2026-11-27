@@ -12,6 +12,7 @@ import { usePageText } from '@/features/print/set-part-row';
 import type { ShareFile } from '@/features/print/share-set-button';
 import { useCanShareFiles } from '@/features/print/use-can-share-files';
 import type { PrintPage } from '@/features/print/use-print-page';
+import { now } from '@/lib/clock';
 import { listIssues } from '@/lib/render/checks-summary';
 import type { CheckIssue } from '@/lib/render/checks-types';
 import { banknoteTotal } from '@/lib/render/print-money';
@@ -187,7 +188,7 @@ const usePrintedMark = (
     useEffect(() => {
         if (printedId !== null) {
             markPrinted(printedId, {
-                at: Date.now(),
+                at: now(),
                 revision: printedRevision,
             });
         }

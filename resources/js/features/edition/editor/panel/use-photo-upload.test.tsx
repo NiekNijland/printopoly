@@ -3,16 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
 import { setup } from '@/features/edition/editor/testing/element-panel-setup';
+import { fakeIngest } from '@/testing/ingest';
 import { renderWithI18n } from '@/testing/render';
 
 import { ElementPanel } from '../element-panel';
 
-const ingest = vi.hoisted(() => vi.fn());
-vi.mock('@/features/edition/editor/ingest', () => ({ ingestPhoto: ingest }));
-
 describe('UsePhotoUpload', () => {
-    beforeEach(() => ingest.mockReset());
-
     it('puts a chosen photo in the element', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('space.01');
@@ -25,7 +21,7 @@ describe('UsePhotoUpload', () => {
             createdAt: 1,
         };
 
-        ingest.mockResolvedValue({ ok: true, record });
+        fakeIngest.ingestPhoto.mockResolvedValue({ ok: true, record });
         renderWithI18n(<ElementPanel {...props} />);
         const input = screen.getByTestId('photo-input');
         await user.upload(
@@ -46,7 +42,7 @@ describe('UsePhotoUpload', () => {
     it('puts a pasted image on the chosen element and says so when the clipboard has none', async () => {
         const { props, session } = await setup('space.01');
 
-        ingest.mockImplementation(() =>
+        fakeIngest.ingestPhoto.mockImplementation(() =>
             Promise.resolve({
                 ok: true,
                 record: {
@@ -103,7 +99,7 @@ describe('UsePhotoUpload', () => {
         const user = userEvent.setup({ applyAccept: false });
         const { props } = await setup('space.01');
 
-        ingest.mockResolvedValue({
+        fakeIngest.ingestPhoto.mockResolvedValue({
             ok: false,
             error: {
                 code: 'unsupported-type',
@@ -133,7 +129,7 @@ describe('UsePhotoUpload', () => {
         const user = userEvent.setup();
         const { props } = await setup('space.01');
 
-        ingest.mockResolvedValue({
+        fakeIngest.ingestPhoto.mockResolvedValue({
             ok: false,
             storageFull: true,
             fileName: 'strand.jpg',
@@ -154,7 +150,7 @@ describe('UsePhotoUpload', () => {
         const user = userEvent.setup({ applyAccept: false });
         const { props } = await setup('space.01');
 
-        ingest.mockResolvedValueOnce({
+        fakeIngest.ingestPhoto.mockResolvedValueOnce({
             ok: false,
             error: {
                 code: 'unsupported-type',

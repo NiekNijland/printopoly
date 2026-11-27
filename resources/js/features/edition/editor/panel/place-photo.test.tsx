@@ -4,22 +4,18 @@ import userEvent from '@testing-library/user-event';
 import { setup } from '@/features/edition/editor/testing/element-panel-setup';
 import { setElement } from '@/lib/render/edition-changes';
 import { photo } from '@/testing/edition-test-utils';
+import { fakeIngest } from '@/testing/ingest';
 import { renderWithI18n } from '@/testing/render';
 
 import { ElementPanel } from '../element-panel';
 
-const ingest = vi.hoisted(() => vi.fn());
-vi.mock('@/features/edition/editor/ingest', () => ({ ingestPhoto: ingest }));
-
 describe('PlacePhoto', () => {
-    beforeEach(() => ingest.mockReset());
-
     it('gives several chosen photos to the next elements', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('space.01');
         let n = 0;
 
-        ingest.mockImplementation(() =>
+        fakeIngest.ingestPhoto.mockImplementation(() =>
             Promise.resolve({
                 ok: true,
                 record: {
@@ -60,7 +56,7 @@ describe('PlacePhoto', () => {
             session.apply([change]);
         }
 
-        ingest.mockImplementation(() =>
+        fakeIngest.ingestPhoto.mockImplementation(() =>
             Promise.resolve({
                 ok: true,
                 record: {
@@ -128,7 +124,7 @@ describe('PlacePhoto', () => {
         const { props, session } = await setup('space.01');
         let n = 0;
 
-        ingest.mockImplementation(() =>
+        fakeIngest.ingestPhoto.mockImplementation(() =>
             Promise.resolve({
                 ok: true,
                 record: {
@@ -174,7 +170,7 @@ describe('PlacePhoto', () => {
         const user = userEvent.setup();
         const { props, session } = await setup('invitation');
 
-        ingest.mockImplementation(() =>
+        fakeIngest.ingestPhoto.mockImplementation(() =>
             Promise.resolve({
                 ok: true,
                 record: {
@@ -205,7 +201,7 @@ describe('PlacePhoto', () => {
         const { props, session } = await setup('space.01');
         let n = 0;
 
-        ingest.mockImplementation(() =>
+        fakeIngest.ingestPhoto.mockImplementation(() =>
             Promise.resolve({
                 ok: true,
                 record: {
@@ -242,7 +238,7 @@ describe('PlacePhoto', () => {
         const { props, session } = await setup('space.01');
         let n = 0;
 
-        ingest.mockImplementation(() =>
+        fakeIngest.ingestPhoto.mockImplementation(() =>
             Promise.resolve({
                 ok: true,
                 record: {
@@ -279,7 +275,7 @@ describe('PlacePhoto', () => {
         const user = userEvent.setup();
         const { props, session } = await setup('pawn.01');
 
-        ingest.mockResolvedValue({
+        fakeIngest.ingestPhoto.mockResolvedValue({
             ok: true,
             record: {
                 id: 'portrait',

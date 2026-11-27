@@ -1,6 +1,7 @@
 import { EditionBus } from '@/features/edition/bus';
 import { EditionRepository } from '@/features/edition/repository';
 import { EditionSession } from '@/features/edition/session';
+import { now } from '@/lib/clock';
 import { MemoryEditionStorage } from '@/lib/render/edition-storage';
 import type { Edition } from '@/lib/render/edition-types';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
@@ -122,7 +123,7 @@ describe('applyContribution with parts (B175)', () => {
         return new EditionSession(edition, {
             storage: services.storage,
             bus: new EditionBus(null, 'w'),
-            now: () => Date.now(),
+            now,
             debounceMs: 5,
         });
     };
@@ -132,7 +133,7 @@ describe('applyContribution with parts (B175)', () => {
         repository: new EditionRepository({
             storage: new MemoryEditionStorage(),
             bus: new EditionBus(null, 'w'),
-            now: () => Date.now(),
+            now,
             newId: () => 'unused',
         }),
         fetchPhoto: () => Promise.reject(new Error('no photo here')),

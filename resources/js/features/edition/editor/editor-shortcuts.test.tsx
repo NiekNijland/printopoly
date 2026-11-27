@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import { EditionBus } from '@/features/edition/bus';
 import { EditionSession } from '@/features/edition/session';
+import { now } from '@/lib/clock';
 import type { CheckIssue } from '@/lib/render/checks-types';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
 import { setPage } from '@/testing/inertia';
@@ -44,7 +45,7 @@ const open = async () => {
     return new EditionSession(edition, {
         storage: services.storage,
         bus: new EditionBus(null, 'w'),
-        now: () => Date.now(),
+        now,
         debounceMs: 5,
     });
 };

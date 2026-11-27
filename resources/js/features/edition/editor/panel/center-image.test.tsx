@@ -7,16 +7,12 @@ import {
 } from '@/features/edition/editor/testing/element-panel-setup';
 import { startingPlacement } from '@/lib/render/editor-placements';
 import { photo } from '@/testing/edition-test-utils';
+import { fakeIngest } from '@/testing/ingest';
 import { renderWithI18n } from '@/testing/render';
 
 import { ElementPanel } from '../element-panel';
 
-const ingest = vi.hoisted(() => vi.fn());
-vi.mock('@/features/edition/editor/ingest', () => ({ ingestPhoto: ingest }));
-
 describe('CenterImage', () => {
-    beforeEach(() => ingest.mockReset());
-
     it('opens the files right away when you choose Logo without a logo, and not when there is one (B179)', async () => {
         const user = userEvent.setup();
         const click = vi
@@ -115,7 +111,7 @@ describe('CenterImage', () => {
         const { props, session } = await setup('board_center', {
             elements: { board_center: { centerMode: 'logo' } },
         });
-        ingest.mockResolvedValue({
+        fakeIngest.ingestPhoto.mockResolvedValue({
             ok: true,
             record: {
                 id: 'logo-1',
@@ -183,7 +179,7 @@ describe('CenterImage', () => {
             .spyOn(HTMLInputElement.prototype, 'click')
             .mockImplementation(() => undefined);
         const { props, session } = await setup('board_center');
-        ingest.mockImplementation(() =>
+        fakeIngest.ingestPhoto.mockImplementation(() =>
             Promise.resolve({
                 ok: true,
                 record: {

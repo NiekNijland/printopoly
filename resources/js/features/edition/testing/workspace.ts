@@ -1,5 +1,6 @@
 import { EditionBus } from '@/features/edition/bus';
 import { EditionSession } from '@/features/edition/session';
+import { now } from '@/lib/clock';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
 import { mediaQueryList } from '@/testing/media-query';
 
@@ -20,7 +21,7 @@ export const openWorkspace = async (
     const session = new EditionSession(edition, {
         storage: services.storage,
         bus: new EditionBus(null, 'w'),
-        now: () => Date.now(),
+        now,
         debounceMs: 5,
     });
 

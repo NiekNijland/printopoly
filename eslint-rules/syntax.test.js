@@ -64,6 +64,9 @@ run(
         `type Mine = 'a' | 'not-a-generated-value';`,
         "it('works', () => {});",
         'expect(value).toBe(1);',
+        'const day = new Date(now());',
+        "const day = new Date('2026-03-14');",
+        'const time = Date.UTC(2026, 2, 14);',
     ],
     [
         ['function Card() { return <p />; }', 'A component is a const arrow'],
@@ -90,6 +93,8 @@ run(
             'Debounce with the one debounce hook',
         ],
         [`type Mine = ${values};`, `Use the generated ${union}`],
+        ['const day = new Date();', 'Read the time through now in lib/clock'],
+        ['const day = Date();', 'Read the time through now in lib/clock'],
         ...runner.map((name) => [
             `${name}.only('x', () => {});`,
             'No focused, skipped',

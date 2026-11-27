@@ -7,8 +7,6 @@ import { partRow, printJob, printPageEdition } from '@/testing/print-job';
 import { renderWithI18n } from '@/testing/render';
 import type { PrintPart } from '@/types/generated';
 
-vi.mock('@/lib/echo', () => ({ getEcho: () => null }));
-
 const row = partRow;
 const job = printJob;
 const edition = printPageEdition;

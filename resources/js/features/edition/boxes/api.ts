@@ -1,5 +1,6 @@
 import { isJsonObject } from '@/features/edition/remote/client';
 import { reportAndReturn } from '@/lib/bugsnag';
+import { now } from '@/lib/clock';
 import { sendRequest } from '@/lib/http';
 import type { HttpMethod } from '@/lib/http';
 import { parseJson } from '@/lib/json';
@@ -293,9 +294,9 @@ export const makeShareImage = async (
         readJobId,
     );
     const pollMs = options.pollMs ?? SHARE_IMAGE_POLL_MS;
-    const deadline = Date.now() + (options.waitMs ?? SHARE_IMAGE_WAIT_MS);
+    const deadline = now() + (options.waitMs ?? SHARE_IMAGE_WAIT_MS);
 
-    while (Date.now() < deadline) {
+    while (now() < deadline) {
         await pause(pollMs);
         options.signal?.throwIfAborted();
         const response = await send(`/api/share-image/${id}`, {});
