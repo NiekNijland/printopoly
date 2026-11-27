@@ -20,7 +20,7 @@ const partsWhere = (on: (part: PartId) => boolean): Parts => {
 };
 
 /** The parts the editor shows: always all of them (B198), except the ones that left the editor. */
-export const EDITOR_PARTS: Readonly<Parts> = partsWhere(
+const EDITOR_PARTS: Readonly<Parts> = partsWhere(
     (part) => !NOT_IN_EDITOR.has(part),
 );
 
@@ -46,11 +46,6 @@ export const partsInSet = (edition: Edition): ReadonlySet<PartId> => {
             PART_IDS.some((id) => id === part),
         ),
     );
-};
-
-/** Whether a part is in the last chosen set; the board always is. */
-export const inSet = (edition: Edition, part: PartId): boolean => {
-    return part === 'board' || partsInSet(edition).has(part);
 };
 
 /**
