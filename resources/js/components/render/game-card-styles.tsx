@@ -5,7 +5,8 @@ import { PLAYFAIR, SPARTAN, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 import type { DeckId } from '@/types/game';
 
-import { Cartouche, Pill } from './board-look';
+import { Pill } from './board-look-playful';
+import { Cartouche } from './board-look-vintage';
 import {
     ConfettiField,
     Flourish,

@@ -6,7 +6,7 @@ import type { Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
 import { RasterNotePattern } from './banknote-parts';
-import { wobblyRect } from './board-look';
+import { wobblyRect } from './board-look-playful';
 
 /**
  * Drawing pieces shared by the styles of the cards and the title deeds (B269): the same family as the board styles

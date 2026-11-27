@@ -15,13 +15,8 @@ import type { Layout } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 import type { CornerSpace } from '@/types/game';
 
-import {
-    Confetti,
-    QuarterDisc,
-    RULE_INSET,
-    TILE_GAP,
-    useBoardLook,
-} from './board-look';
+import { QuarterDisc, RULE_INSET, TILE_GAP, useBoardLook } from './board-look';
+import { Confetti } from './board-look-playful';
 import { FitText } from './fit-text';
 import { PhotoSlot } from './photo-slot';
 import { Abs, Frame, useRender } from './sheet';

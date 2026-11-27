@@ -5,7 +5,8 @@ import type { BoxLidStyle, PawnStyle } from '@/lib/render/edition-part-styles';
 import { PLAYFAIR, SPARTAN, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
-import { CREAM, seeded } from './board-look';
+import { CREAM } from './board-look';
+import { seeded } from './board-look-playful';
 
 /**
  * The drawing parts of the pawn and box lid styles (B268, B271): the same three styles as the board, so a set in

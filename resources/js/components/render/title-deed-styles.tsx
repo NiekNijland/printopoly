@@ -5,7 +5,7 @@ import type { DeedStyle } from '@/lib/render/edition-part-styles';
 import { PLAYFAIR, SPARTAN, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
-import { Hatch } from './board-look';
+import { Hatch } from './board-look-vintage';
 import {
     Awning,
     EngravedBorder,

@@ -6,7 +6,8 @@ import { partStyleOf } from '@/lib/render/style';
 import { THEMES, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
-import { ruleColor, wobblyRect } from './board-look';
+import { ruleColor } from './board-look';
+import { wobblyRect } from './board-look-playful';
 import { FitText } from './fit-text';
 import { BAND_OPACITY, PhotoSlot, isFullPhoto } from './photo-slot';
 import {
