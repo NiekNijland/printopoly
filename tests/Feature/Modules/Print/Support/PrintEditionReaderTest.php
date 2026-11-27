@@ -36,12 +36,12 @@ final class PrintEditionReaderTest extends TestCase
         self::assertNull($edition->boardProfile);
         self::assertSame([], $edition->elements);
         self::assertSame(['money' => false], $edition->parts);
-        self::assertSame(MoneyAmount::Eight, $edition->moneyAmount);
+        self::assertSame(MoneyAmount::EIGHT, $edition->moneyAmount);
         self::assertSame(1, $edition->sets);
         self::assertSame(4, $edition->invitations);
-        self::assertSame(BoardForm::Panels, $edition->boardForm);
+        self::assertSame(BoardForm::PANELS, $edition->boardForm);
         self::assertFalse($edition->targetsDeclared);
         self::assertSame(Locale::default(), $edition->locale());
-        self::assertSame(Locale::English, resolve(PrintEditionReader::class)->fromArray(['language' => 'en', 'elements' => []])->locale());
+        self::assertSame(Locale::ENGLISH, resolve(PrintEditionReader::class)->fromArray(['language' => 'en', 'elements' => []])->locale());
     }
 }

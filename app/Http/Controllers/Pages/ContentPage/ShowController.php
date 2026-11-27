@@ -23,16 +23,16 @@ final readonly class ShowController
     public function __invoke(Request $request, ContentLibrary $content, PrintGuide $guide): Response
     {
         $page = $request->route('page');
-        $page = is_string($page) ? PublicPage::from($page) : PublicPage::Home;
+        $page = is_string($page) ? PublicPage::from($page) : PublicPage::HOME;
 
         $locale = Locale::from(App::getLocale());
 
         return match ($page) {
             // The print guide puts its parts together from the texts per part (B205).
-            PublicPage::PrintGuide => Inertia::render('print-guide', ['document' => $guide->page($locale)]),
-            PublicPage::Faq => Inertia::render('faq', ['document' => $content->page('faq', $locale)]),
-            PublicPage::Privacy => Inertia::render('document', ['document' => $content->page('privacy', $locale), 'variant' => 'privacy']),
-            PublicPage::Terms => Inertia::render('document', ['document' => $content->page('voorwaarden', $locale), 'variant' => 'terms']),
+            PublicPage::PRINT_GUIDE => Inertia::render('print-guide', ['document' => $guide->page($locale)]),
+            PublicPage::FAQ => Inertia::render('faq', ['document' => $content->page('faq', $locale)]),
+            PublicPage::PRIVACY => Inertia::render('document', ['document' => $content->page('privacy', $locale), 'variant' => 'privacy']),
+            PublicPage::TERMS => Inertia::render('document', ['document' => $content->page('voorwaarden', $locale), 'variant' => 'terms']),
             default => throw new NotFoundHttpException(),
         };
     }

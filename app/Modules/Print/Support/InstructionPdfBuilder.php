@@ -41,10 +41,10 @@ final readonly class InstructionPdfBuilder
     /**
      * @throws PrintFailedException
      */
-    public function ensure(PrintJob $job, PrintPart $part, Locale $locale, PrintSet $set = PrintSet::Printer): PrintFile
+    public function ensure(PrintJob $job, PrintPart $part, Locale $locale, PrintSet $set = PrintSet::PRINTER): PrintFile
     {
         $markdown = $this->text($job, $part, $locale, $set);
-        $filename = ($locale === Locale::English ? 'instructions-' : 'instructies-') . $part->fileName($locale) . '.pdf';
+        $filename = ($locale === Locale::ENGLISH ? 'instructions-' : 'instructies-') . $part->fileName($locale) . '.pdf';
 
         return $this->stored($job, PrintFile::KIND_INSTRUCTIONS, $part->value, $set, $locale, $markdown, $filename);
     }
@@ -59,11 +59,11 @@ final readonly class InstructionPdfBuilder
         $made = false;
 
         foreach (PrintPart::cases() as $part) {
-            if ($job->recordedState($set, $part)['status'] !== PartStatus::Done) {
+            if ($job->recordedState($set, $part)['status'] !== PartStatus::DONE) {
                 continue;
             }
 
-            $made = $made || $part !== PrintPart::Calibration;
+            $made = $made || $part !== PrintPart::CALIBRATION;
 
             try {
                 $this->ensure($job, $part, $locale, $set);
@@ -93,7 +93,7 @@ final readonly class InstructionPdfBuilder
     {
         $markdown = $this->orderSheet->text($job, $set, $locale);
 
-        return $this->stored($job, PrintFile::KIND_ORDER_SHEET, self::ORDER_SHEET, $set, $locale, $markdown, ($locale === Locale::English ? 'order-sheet' : 'bestelblad') . '.pdf');
+        return $this->stored($job, PrintFile::KIND_ORDER_SHEET, self::ORDER_SHEET, $set, $locale, $markdown, ($locale === Locale::ENGLISH ? 'order-sheet' : 'bestelblad') . '.pdf');
     }
 
     /**
@@ -192,12 +192,12 @@ final readonly class InstructionPdfBuilder
      *
      * @throws PrintFailedException
      */
-    public function text(PrintJob $job, PrintPart $part, Locale $locale, PrintSet $set = PrintSet::Printer): string
+    public function text(PrintJob $job, PrintPart $part, Locale $locale, PrintSet $set = PrintSet::PRINTER): string
     {
         $markdown = $this->parts->forSet($this->parts->markdown($part, $locale), $set);
 
         // The test sheet is the same for everyone and for one set; the rest follows the edition and the set.
-        if ($part === PrintPart::Calibration) {
+        if ($part === PrintPart::CALIBRATION) {
             return $markdown;
         }
 

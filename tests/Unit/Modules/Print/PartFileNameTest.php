@@ -15,8 +15,8 @@ final class PartFileNameTest extends TestCase
      */
     public function test_it_names_the_pawns_file_after_the_pawns(): void
     {
-        self::assertSame('pawns', PrintPart::Tokens->fileName(Locale::English));
-        self::assertSame('pionnen', PrintPart::Tokens->fileName(Locale::Dutch));
-        self::assertSame('test-sheet', PrintPart::Calibration->fileName(Locale::English));
+        self::assertSame('pawns', PrintPart::TOKENS->fileName(Locale::ENGLISH));
+        self::assertSame('pionnen', PrintPart::TOKENS->fileName(Locale::DUTCH));
+        self::assertSame('test-sheet', PrintPart::CALIBRATION->fileName(Locale::ENGLISH));
     }
 }

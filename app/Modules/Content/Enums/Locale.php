@@ -9,12 +9,12 @@ namespace App\Modules\Content\Enums;
  */
 enum Locale: string
 {
-    case Dutch = 'nl';
-    case English = 'en';
+    case DUTCH = 'nl';
+    case ENGLISH = 'en';
 
     public static function default(): self
     {
-        return self::Dutch;
+        return self::DUTCH;
     }
 
     /**
@@ -46,7 +46,7 @@ enum Locale: string
             }
         }
 
-        return $found[self::Dutch->value] ?? $found[self::English->value] ?? null;
+        return $found[self::DUTCH->value] ?? $found[self::ENGLISH->value] ?? null;
     }
 
     /**
@@ -55,8 +55,8 @@ enum Locale: string
     public function openGraphLocale(): string
     {
         return match ($this) {
-            self::Dutch => 'nl_NL',
-            self::English => 'en_GB',
+            self::DUTCH => 'nl_NL',
+            self::ENGLISH => 'en_GB',
         };
     }
 }

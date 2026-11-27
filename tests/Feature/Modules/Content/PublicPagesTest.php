@@ -55,17 +55,17 @@ final class PublicPagesTest extends TestCase
     {
         $content = $this->app->make(ContentLibrary::class);
 
-        self::assertSame('Maak het handelsspel met jullie eigen straten.', $content->landing(Locale::Dutch)['hero.title'] ?? null);
-        self::assertSame('New edition', $content->landing(Locale::English)['hero.cta.primary'] ?? null);
+        self::assertSame('Maak het handelsspel met jullie eigen straten.', $content->landing(Locale::DUTCH)['hero.title'] ?? null);
+        self::assertSame('New edition', $content->landing(Locale::ENGLISH)['hero.cta.primary'] ?? null);
 
         $this->get('/nl')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
-            ->where('strings', $content->landing(Locale::Dutch))
+            ->where('strings', $content->landing(Locale::DUTCH))
             ->has('faq', 5)
             ->where('faq.0.question', 'Wat kost het?')
             ->where('faq.4.question', 'Hoort Printopoly bij Hasbro?'));
 
         $this->get('/en')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
-            ->where('strings', $content->landing(Locale::English))
+            ->where('strings', $content->landing(Locale::ENGLISH))
             ->has('faq', 5));
     }
 
@@ -104,7 +104,7 @@ final class PublicPagesTest extends TestCase
     public function test_the_print_guide_and_the_instruction_in_the_zip_say_the_same(): void
     {
         // B205: one text per part. The guide shows it with the numbers of the standard edition.
-        $guide = resolve(PrintGuide::class)->markdown(Locale::Dutch);
+        $guide = resolve(PrintGuide::class)->markdown(Locale::DUTCH);
         $board = (string) file_get_contents(resource_path('content/nl/instructies/bord.md'));
 
         self::assertStringContainsString('Maak het bord vetvrij en pas elk paneel eerst droog.', $guide);
@@ -129,7 +129,7 @@ final class PublicPagesTest extends TestCase
     public function test_raw_html_in_content_is_stripped(): void
     {
         $html = $this->app->make(ContentLibrary::class)
-            ->page('printgids', Locale::Dutch)
+            ->page('printgids', Locale::DUTCH)
             ->introHtml;
 
         self::assertStringNotContainsString('<script', $html);

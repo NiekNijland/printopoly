@@ -37,7 +37,7 @@ final readonly class InstructionText
     /**
      * @param array<string, int|string> $extra More facts, such as the sizes on the order sheet.
      */
-    public function fill(string $markdown, PrintPart $part, PrintEdition $edition, Locale $locale, PrintSet $set = PrintSet::Printer, int $copies = 1, array $extra = []): string
+    public function fill(string $markdown, PrintPart $part, PrintEdition $edition, Locale $locale, PrintSet $set = PrintSet::PRINTER, int $copies = 1, array $extra = []): string
     {
         $facts = [...$this->words($edition, $locale), ...$this->partFacts($part, $set, $edition, $locale), ...$extra];
 
@@ -61,7 +61,7 @@ final readonly class InstructionText
 
             // More than one set (a class or a club): right under the title, what all sets take together. The number of
             // invitations is a choice of its own (B244).
-            if ($copies > 1 && $part !== PrintPart::Invitation && str_starts_with($line, '# ')) {
+            if ($copies > 1 && $part !== PrintPart::INVITATION && str_starts_with($line, '# ')) {
                 $lines[] = '';
                 $lines[] = $this->copiesLine($part, $set, $edition, $locale, $copies);
             }
@@ -116,11 +116,11 @@ final readonly class InstructionText
     private function partFacts(PrintPart $part, PrintSet $set, PrintEdition $edition, Locale $locale): array
     {
         return match ($part) {
-            PrintPart::Cards => $this->cardFacts($edition, $locale),
-            PrintPart::Board => $this->boardFacts($edition, $locale),
-            PrintPart::Money => $this->moneyFacts($set, $edition, $locale),
-            PrintPart::BoxLid => $this->lidFacts($edition, $locale),
-            PrintPart::Invitation => $this->invitationFacts($edition),
+            PrintPart::CARDS => $this->cardFacts($edition, $locale),
+            PrintPart::BOARD => $this->boardFacts($edition, $locale),
+            PrintPart::MONEY => $this->moneyFacts($set, $edition, $locale),
+            PrintPart::BOX_LID => $this->lidFacts($edition, $locale),
+            PrintPart::INVITATION => $this->invitationFacts($edition),
             default => [],
         };
     }
@@ -145,7 +145,7 @@ final readonly class InstructionText
      */
     private function lidFacts(PrintEdition $edition, Locale $locale): array
     {
-        $sheets = PrintLayout::expect(PrintPart::BoxLid, PrintSet::Home, $edition)->pages ?? 1;
+        $sheets = PrintLayout::expect(PrintPart::BOX_LID, PrintSet::HOME, $edition)->pages ?? 1;
 
         return [
             'lid_w' => $this->mm(BoardProfile::of($edition)['boxLidWidth'], $locale),
@@ -166,7 +166,7 @@ final readonly class InstructionText
         $panel = PrintLayout::panelTrim($profile);
         $bleed = Config::float('printopoly.print.bleed_mm');
 
-        $whole = $edition->boardForm === BoardForm::Whole;
+        $whole = $edition->boardForm === BoardForm::WHOLE;
 
         return [
             // Which form the print shop delivers (B243); the guide shows both.
@@ -179,7 +179,7 @@ final readonly class InstructionText
             'bleed_w' => $this->mm($panel['w'] + 2 * $bleed, $locale),
             'bleed_h' => $this->mm($panel['h'] + 2 * $bleed, $locale),
             'outer' => $this->mm($profile['outer'], $locale),
-            'sheets' => PrintLayout::expect(PrintPart::Board, PrintSet::Home, $edition)->pages ?? 0,
+            'sheets' => PrintLayout::expect(PrintPart::BOARD, PrintSet::HOME, $edition)->pages ?? 0,
         ];
     }
 
@@ -198,7 +198,7 @@ final readonly class InstructionText
         }
 
         $last = array_pop($split);
-        $and = $locale === Locale::English ? ' and ' : ' en ';
+        $and = $locale === Locale::ENGLISH ? ' and ' : ' en ';
 
         return [
             'notes' => $amount->total(),
@@ -206,7 +206,7 @@ final readonly class InstructionText
             'per_set' => $this->perSet($edition),
             'players' => $this->players($amount, $locale),
             'split' => implode(', ', $split) . $and . $last,
-            'sheets' => PrintLayout::expect(PrintPart::Money, $set, $edition)->pages ?? 0,
+            'sheets' => PrintLayout::expect(PrintPart::MONEY, $set, $edition)->pages ?? 0,
             'start_money' => $this->money(1500, $edition, $locale),
         ];
     }
@@ -216,7 +216,7 @@ final readonly class InstructionText
      */
     private function money(int $amount, PrintEdition $edition, Locale $locale): string
     {
-        $currency = $edition->currency ?? ($locale === Locale::English ? 'gbp' : 'eur');
+        $currency = $edition->currency ?? ($locale === Locale::ENGLISH ? 'gbp' : 'eur');
         $formatted = $this->standard->formatMoney($amount, $currency, $locale->value);
         $own = $edition->elements['words.currency']['text'] ?? null;
 
@@ -233,12 +233,12 @@ final readonly class InstructionText
 
         $number = ltrim(mb_substr($formatted, mb_strlen($standardSymbol)));
 
-        return trim($own) . ($locale === Locale::English ? '' : "\u{00A0}") . $number;
+        return trim($own) . ($locale === Locale::ENGLISH ? '' : "\u{00A0}") . $number;
     }
 
     private function players(MoneyAmount $amount, Locale $locale): string
     {
-        return ($locale === Locale::English ? '2 to ' : '2 tot ') . $amount->maxPlayers();
+        return ($locale === Locale::ENGLISH ? '2 to ' : '2 tot ') . $amount->maxPlayers();
     }
 
     /**
@@ -261,7 +261,7 @@ final readonly class InstructionText
 
         $chance = $standard + $extra['chance'];
         $chest = $standardChest + $extra['chest'];
-        $home = $edition->cardCount() > 0 ? PrintLayout::expect(PrintPart::Cards, PrintSet::Home, $edition)->pages ?? 0 : 0;
+        $home = $edition->cardCount() > 0 ? PrintLayout::expect(PrintPart::CARDS, PrintSet::HOME, $edition)->pages ?? 0 : 0;
 
         return [
             'cards' => $edition->cardCount(),
@@ -292,7 +292,7 @@ final readonly class InstructionText
 
     private function split(int $standard, int $extra, Locale $locale): string
     {
-        return $locale === Locale::English
+        return $locale === Locale::ENGLISH
             ? ' (' . $standard . ' standard and ' . $extra . ' extra)'
             : ' (' . $standard . ' standaard en ' . $extra . ' extra)';
     }
@@ -310,12 +310,12 @@ final readonly class InstructionText
         }
 
         // The money also says how many notes that is in all (UX 3 of test round 4: Hans made ten sets).
-        if ($part === PrintPart::Money) {
+        if ($part === PrintPart::MONEY) {
             $notes = $edition->moneyAmountFor($set)->total() * $copies;
-            $total .= $locale === Locale::English ? ", {$notes} notes" : ", {$notes} biljetten";
+            $total .= $locale === Locale::ENGLISH ? ", {$notes} notes" : ", {$notes} biljetten";
         }
 
-        return $locale === Locale::English
+        return $locale === Locale::ENGLISH
             ? "You are making {$copies} sets. The quantities below are for one set, so print or order everything {$copies} times: {$total} in all."
             : "Je maakt {$copies} sets. De aantallen hieronder zijn voor één set, dus print of bestel alles {$copies} keer: samen {$total}.";
     }
@@ -327,15 +327,15 @@ final readonly class InstructionText
     {
         $expected = PrintLayout::expect($part, $set, $edition);
         $pages = $expected->pages ?? 0;
-        $english = $locale === Locale::English;
+        $english = $locale === Locale::ENGLISH;
 
-        if ($part === PrintPart::Money) {
+        if ($part === PrintPart::MONEY) {
             $notes = $edition->moneyAmountFor($set)->total() * $copies;
             $what = $english ? "{$pages} sheets, {$notes} notes" : "{$pages} vellen, {$notes} biljetten";
             $where = $english ? 'every note' : 'elk biljet';
         } else {
             $cards = $edition->cardCount() * $copies;
-            $what = $set === PrintSet::Home
+            $what = $set === PrintSet::HOME
                 ? ($english ? "{$pages} pages, {$cards} cards" : "{$pages} pagina's, {$cards} kaarten")
                 : ($english ? "{$cards} cards, {$pages} pages" : "{$cards} kaarten, {$pages} pagina's");
             $where = $english ? 'the back of every card and deed' : 'de achterkant van elke kaart en elk eigendomsbewijs';
@@ -359,6 +359,6 @@ final readonly class InstructionText
         $rounded = round($value, 1);
         $text = floor($rounded) === $rounded ? (string) (int) $rounded : (string) $rounded;
 
-        return $locale === Locale::English ? $text : str_replace('.', ',', $text);
+        return $locale === Locale::ENGLISH ? $text : str_replace('.', ',', $text);
     }
 }

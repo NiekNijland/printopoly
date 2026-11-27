@@ -46,7 +46,7 @@ final class ChromeRenderTextTest extends TestCase
         ]);
         $job->save();
 
-        $file = resolve(PrintPartBuilder::class)->build($job, PrintSet::Home, PrintPart::Calibration);
+        $file = resolve(PrintPartBuilder::class)->build($job, PrintSet::HOME, PrintPart::CALIBRATION);
         $path = ChromeRender::localPath($file);
 
         $text = (string) shell_exec('pdftotext ' . escapeshellarg($path) . ' - 2>/dev/null');
@@ -83,16 +83,16 @@ final class ChromeRenderTextTest extends TestCase
 
         $builder = resolve(PrintPartBuilder::class);
         $text = fn (PrintPart $part): string => (string) preg_replace('/\s+/', ' ', (string) shell_exec(
-            'pdftotext -raw ' . escapeshellarg(ChromeRender::localPath($builder->build($job, PrintSet::Printer, $part))) . ' - 2>/dev/null',
+            'pdftotext -raw ' . escapeshellarg(ChromeRender::localPath($builder->build($job, PrintSet::PRINTER, $part))) . ' - 2>/dev/null',
         ));
 
-        $cards = $text(PrintPart::Cards);
+        $cards = $text(PrintPart::CARDS);
         self::assertStringContainsString('Huur met 1 huis dk 36', $cards);
         self::assertStringContainsString('Huur met hotel dk 600', $cards);
         self::assertStringContainsString('Een storm! Betaal dk 50 voor de reparatie.', $cards);
         self::assertStringContainsString('Je krijgt dk 240 van de bank', $cards);
 
-        $booklet = $text(PrintPart::RulesBooklet);
+        $booklet = $text(PrintPart::RULES_BOOKLET);
         self::assertStringContainsString('dk 240', $booklet);
         self::assertStringContainsString('dk 180', $booklet);
         self::assertStringContainsString('320', $booklet);
@@ -129,12 +129,12 @@ final class ChromeRenderTextTest extends TestCase
         $builder = resolve(PrintPartBuilder::class);
         // Card texts wrap over lines; compare on one line.
         $text = fn (PrintPart $part): string => (string) preg_replace('/\s+/', ' ', (string) shell_exec(
-            'pdftotext -raw ' . escapeshellarg(ChromeRender::localPath($builder->build($job, PrintSet::Printer, $part))) . ' - 2>/dev/null',
+            'pdftotext -raw ' . escapeshellarg(ChromeRender::localPath($builder->build($job, PrintSet::PRINTER, $part))) . ' - 2>/dev/null',
         ));
 
         // The board writes names in capitals and the corners on the diagonal (B266), where pdftotext reads letter by
         // letter: compare without case and spaces.
-        $board = mb_strtolower((string) preg_replace('/\s+/', '', $text(PrintPart::Board)));
+        $board = mb_strtolower((string) preg_replace('/\s+/', '', $text(PrintPart::BOARD)));
         $has = fn (string $needle): bool => str_contains($board, mb_strtolower((string) preg_replace('/\s+/', '', $needle)));
         self::assertTrue($has('Roddel'));
         self::assertTrue($has('Dorpskas'));
@@ -146,7 +146,7 @@ final class ChromeRenderTextTest extends TestCase
         self::assertFalse($has('Algemeen Fonds'));
         self::assertFalse($has('€'));
 
-        $cards = $text(PrintPart::Cards);
+        $cards = $text(PrintPart::CARDS);
         self::assertStringContainsString('Huur met 3 Schuurtjes', $cards);
         self::assertStringContainsString('Huur met Boerderij', $cards);
         self::assertStringContainsString('Kosten Schuurtje RP 50 per stuk', $cards);
@@ -158,7 +158,7 @@ final class ChromeRenderTextTest extends TestCase
         self::assertStringNotContainsString('Kans', $cards);
         self::assertStringNotContainsString('huizen', $cards);
 
-        $money = $text(PrintPart::Money);
+        $money = $text(PrintPart::MONEY);
         self::assertStringContainsString('RP 50', $money);
         // The bank on the note still says it is play money (B85); the own currency names the notes (B172).
         self::assertStringContainsStringIgnoringCase('speelgeld', $money);

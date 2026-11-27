@@ -29,7 +29,7 @@ final readonly class StoreController
         $images->waiting($id, $input);
         dispatch(new RenderShareImageJob($id));
         // Anonymous: only that a share image was asked for today (B206).
-        $counter->count(FeatureEvent::ShareImageMade);
+        $counter->count(FeatureEvent::SHARE_IMAGE_MADE);
 
         $response = new ShareImageRequestData(id: $id, status: 'waiting')->toResponse($request)->setStatusCode(Response::HTTP_ACCEPTED);
         $response->headers->set('Cache-Control', 'private, no-store');

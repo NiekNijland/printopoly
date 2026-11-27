@@ -99,7 +99,7 @@ final readonly class PrintPartBuilder
             'cache_key' => $cacheKey,
             'disk' => $disk,
             'path' => $path,
-            'filename' => $part->fileName($job->locale === 'en' ? Locale::English : Locale::Dutch) . '-' . $set->value . '.pdf',
+            'filename' => $part->fileName($job->locale === 'en' ? Locale::ENGLISH : Locale::DUTCH) . '-' . $set->value . '.pdf',
             'bytes' => mb_strlen($bytes, encoding: '8bit'),
             'pages' => $pages,
             'expires_at' => $this->expiry($job),
@@ -173,7 +173,7 @@ final readonly class PrintPartBuilder
 
             $pages = $this->inspector->assertMatches($temporary, $expected);
 
-            if ($part !== PrintPart::Invitation) {
+            if ($part !== PrintPart::INVITATION) {
                 return [$pages, null];
             }
 
@@ -200,7 +200,7 @@ final readonly class PrintPartBuilder
             $file->delete();
         }
 
-        $locale = $job->locale === 'en' ? Locale::English : Locale::Dutch;
+        $locale = $job->locale === 'en' ? Locale::ENGLISH : Locale::DUTCH;
         $path = 'print/' . $job->publicId() . '/' . mb_substr($cacheKey, 0, 12) . '-' . $set->value . '-' . $part->value . '.png';
         Storage::disk($disk)->put($path, $png);
 

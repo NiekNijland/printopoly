@@ -45,7 +45,7 @@ final readonly class PrintEdition
         public ?MoneyAmount $moneyAmount = null,
         public bool $moneyLeftOut = false,
         public int $sets = 1,
-        public BoardForm $boardForm = BoardForm::Panels,
+        public BoardForm $boardForm = BoardForm::PANELS,
     ) {
     }
 
@@ -60,14 +60,14 @@ final readonly class PrintEdition
         ?MoneyAmount $chosen,
         bool $moneyLeftOut = false,
         int $sets = 1,
-        BoardForm $boardForm = BoardForm::Panels,
+        BoardForm $boardForm = BoardForm::PANELS,
         ?int $invitations = null,
     ): self {
         return $this->copy(
             moneyAmount: $chosen ?? $this->moneyAmount ?? MoneyAmount::defaultFor($set),
             moneyLeftOut: $moneyLeftOut,
             sets: max(1, $sets),
-            boardForm: $set === PrintSet::Printer ? $boardForm : BoardForm::Panels,
+            boardForm: $set === PrintSet::PRINTER ? $boardForm : BoardForm::PANELS,
             invitations: max(1, $invitations ?? $this->invitations),
         );
     }
@@ -78,7 +78,7 @@ final readonly class PrintEdition
      */
     public static function hasSetMarks(PrintPart $part): bool
     {
-        return in_array($part, [PrintPart::Cards, PrintPart::Money], true);
+        return in_array($part, [PrintPart::CARDS, PrintPart::MONEY], true);
     }
 
     /**
@@ -148,7 +148,7 @@ final readonly class PrintEdition
     public function onlyFor(PrintPart $part): self
     {
         // Only the money and the booklet (which says how much money is in the box) change with the amount.
-        $keepsAmount = in_array($part, [PrintPart::Money, PrintPart::RulesBooklet], true);
+        $keepsAmount = in_array($part, [PrintPart::MONEY, PrintPart::RULES_BOOKLET], true);
 
         // Only the booklet says whether the money is in the box (bug 34 of ronde 4): taking the money out of the set
         // leaves the other parts as they are.
@@ -156,9 +156,9 @@ final readonly class PrintEdition
         return $this->copy(
             elements: $this->elementsFor($part),
             moneyAmount: $keepsAmount ? null : false,
-            moneyLeftOut: $part === PrintPart::RulesBooklet && $this->moneyLeftOut,
+            moneyLeftOut: $part === PrintPart::RULES_BOOKLET && $this->moneyLeftOut,
             sets: self::hasSetMarks($part) ? $this->sets : 1,
-            boardForm: $part === PrintPart::Board ? $this->boardForm : BoardForm::Panels,
+            boardForm: $part === PrintPart::BOARD ? $this->boardForm : BoardForm::PANELS,
         );
     }
 
@@ -176,7 +176,7 @@ final readonly class PrintEdition
 
         // The test sheet shows the start corner and the first space as they print (R5-26), with their own name,
         // amounts and photo: a print shop judges colour and sharpness on it before a large order (B253, Ingrid).
-        if ($part === PrintPart::Calibration) {
+        if ($part === PrintPart::CALIBRATION) {
             foreach (['space.00', 'space.01'] as $key) {
                 $space = $this->elements[$key] ?? [];
                 $kept = array_intersect_key($space, array_flip(['name', 'amounts', 'photo', 'photoStyle']));
@@ -190,12 +190,12 @@ final readonly class PrintEdition
         }
 
         // The booklet's price list carries the space names too.
-        if (! in_array($part, [PrintPart::Cards, PrintPart::RulesBooklet], true)) {
+        if (! in_array($part, [PrintPart::CARDS, PrintPart::RULES_BOOKLET], true)) {
             return $elements;
         }
 
         // The booklet counts the cards in the box, the added ones too (B254, Sara and Aisha: it said 16 for 17).
-        if ($part === PrintPart::RulesBooklet) {
+        if ($part === PrintPart::RULES_BOOKLET) {
             foreach ($this->extraCardKeys() as $key) {
                 $elements[$key] = ['added' => true];
             }
@@ -213,7 +213,7 @@ final readonly class PrintEdition
             }
 
             // The deed of a station or a utility and the standard back of a deck show the icon of the space (B136).
-            if ($named && $part === PrintPart::Cards && is_array($element['icon'] ?? null)) {
+            if ($named && $part === PrintPart::CARDS && is_array($element['icon'] ?? null)) {
                 $elements[$key] = [...$elements[$key] ?? [], 'icon' => $element['icon']];
             }
         }
@@ -237,11 +237,11 @@ final readonly class PrintEdition
     {
         return array_values(array_filter(
             PrintPart::production(),
-            fn (PrintPart $part): bool => $part === PrintPart::Board || ($part === PrintPart::Cards && $this->hasHouseRules()) || $this->isOn(match ($part) {
-                PrintPart::Cards => ['deeds', 'cards'],
-                PrintPart::Money => ['money'],
-                PrintPart::Tokens => ['pawns'],
-                PrintPart::BoxLid => ['boxLid'],
+            fn (PrintPart $part): bool => $part === PrintPart::BOARD || ($part === PrintPart::CARDS && $this->hasHouseRules()) || $this->isOn(match ($part) {
+                PrintPart::CARDS => ['deeds', 'cards'],
+                PrintPart::MONEY => ['money'],
+                PrintPart::TOKENS => ['pawns'],
+                PrintPart::BOX_LID => ['boxLid'],
                 default => [],
             }) || $this->isExtraOn($part),
         ));
@@ -337,7 +337,7 @@ final readonly class PrintEdition
             ...($this->moneyLeftOut ? ['moneyLeftOut' => true] : []),
             // Only when not the default, so a PDF made before B242 and B243 stays current.
             ...($this->sets > 1 ? ['sets' => $this->sets] : []),
-            ...($this->boardForm === BoardForm::Whole ? ['boardForm' => $this->boardForm->value] : []),
+            ...($this->boardForm === BoardForm::WHOLE ? ['boardForm' => $this->boardForm->value] : []),
         ];
     }
 
@@ -347,8 +347,8 @@ final readonly class PrintEdition
     private function isExtraOn(PrintPart $part): bool
     {
         return match ($part) {
-            PrintPart::RulesBooklet => ($this->parts['rulesBooklet'] ?? false) === true,
-            PrintPart::Invitation => ($this->parts['invitation'] ?? false) === true,
+            PrintPart::RULES_BOOKLET => ($this->parts['rulesBooklet'] ?? false) === true,
+            PrintPart::INVITATION => ($this->parts['invitation'] ?? false) === true,
             default => false,
         };
     }

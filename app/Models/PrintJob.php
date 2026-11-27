@@ -119,7 +119,7 @@ final class PrintJob extends Model
         foreach ($entry['skipped'] ?? [] as $value) {
             $part = PrintPart::tryFrom($value);
 
-            if ($part instanceof PrintPart && $part !== PrintPart::Board && ! in_array($part, $skipped, true)) {
+            if ($part instanceof PrintPart && $part !== PrintPart::BOARD && ! in_array($part, $skipped, true)) {
                 $skipped[] = $part;
             }
         }
@@ -131,14 +131,14 @@ final class PrintJob extends Model
             skipped: $skipped,
             moneyAmount: MoneyAmount::tryFrom($entry['moneyAmount'] ?? ''),
             copies: max(1, min(self::MAX_COPIES, $copies)),
-            boardForm: BoardForm::tryFrom($entry['boardForm'] ?? '') ?? BoardForm::Panels,
+            boardForm: BoardForm::tryFrom($entry['boardForm'] ?? '') ?? BoardForm::PANELS,
             invitations: max(1, min(self::MAX_INVITATIONS, $invitations)),
         );
     }
 
     public function choicesData(): PrintChoicesData
     {
-        return new PrintChoicesData(printer: $this->choiceFor(PrintSet::Printer), home: $this->choiceFor(PrintSet::Home));
+        return new PrintChoicesData(printer: $this->choiceFor(PrintSet::PRINTER), home: $this->choiceFor(PrintSet::HOME));
     }
 
     public function rememberChoice(PrintSet $set, PrintSetChoiceData $choice): void
@@ -171,11 +171,11 @@ final class PrintJob extends Model
         $entry = ($this->states ?? [])[self::stateKey($set, $part)] ?? null;
 
         if ($entry === null) {
-            return ['status' => PartStatus::Idle, 'cache_key' => null, 'error' => null];
+            return ['status' => PartStatus::IDLE, 'cache_key' => null, 'error' => null];
         }
 
         return [
-            'status' => PartStatus::tryFrom($entry['status']) ?? PartStatus::Idle,
+            'status' => PartStatus::tryFrom($entry['status']) ?? PartStatus::IDLE,
             'cache_key' => $entry['cache_key'] ?? null,
             'error' => $entry['error'] ?? null,
         ];

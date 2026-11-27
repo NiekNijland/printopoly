@@ -23,7 +23,7 @@ final class CardsKeepSpaceNamesTest extends TestCase
 
     public function test_the_cards_part_gets_the_names_of_the_spaces_for_its_deeds(): void
     {
-        $elements = $this->edition()->onlyFor(PrintPart::Cards)->elements;
+        $elements = $this->edition()->onlyFor(PrintPart::CARDS)->elements;
 
         self::assertSame(['name' => 'Raalterwetering'], $elements['space.01']);
         self::assertArrayNotHasKey('space.03', $elements);
@@ -32,13 +32,13 @@ final class CardsKeepSpaceNamesTest extends TestCase
 
     public function test_the_board_and_the_cards_both_get_the_town_of_a_colour_group(): void
     {
-        self::assertSame(['town' => 'Zwolle'], $this->edition()->onlyFor(PrintPart::Board)->elements['group.brown']);
-        self::assertSame(['town' => 'Zwolle'], $this->edition()->onlyFor(PrintPart::Cards)->elements['group.brown']);
-        self::assertArrayNotHasKey('group.brown', $this->edition()->onlyFor(PrintPart::Money)->elements);
+        self::assertSame(['town' => 'Zwolle'], $this->edition()->onlyFor(PrintPart::BOARD)->elements['group.brown']);
+        self::assertSame(['town' => 'Zwolle'], $this->edition()->onlyFor(PrintPart::CARDS)->elements['group.brown']);
+        self::assertArrayNotHasKey('group.brown', $this->edition()->onlyFor(PrintPart::MONEY)->elements);
     }
 
     public function test_the_other_parts_do_not_get_them(): void
     {
-        self::assertArrayNotHasKey('space.01', $this->edition()->onlyFor(PrintPart::Money)->elements);
+        self::assertArrayNotHasKey('space.01', $this->edition()->onlyFor(PrintPart::MONEY)->elements);
     }
 }

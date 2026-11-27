@@ -14,21 +14,21 @@ use App\Modules\Editions\Support\StandardEdition;
  */
 enum ElementKind: string
 {
-    case Space = 'space';
-    case Deed = 'deed';
-    case Card = 'card';
-    case Note = 'note';
-    case Pawn = 'pawn';
-    case CardBack = 'cardBack';
-    case BoxLid = 'boxLid';
-    case BoardCenter = 'boardCenter';
-    case HouseRules = 'houseRules';
-    case RulesBooklet = 'rulesBooklet';
-    case Invitation = 'invitation';
-    case Group = 'group';
-    case Words = 'words';
-    case ThemeAccent = 'themeAccent';
-    case PartStyle = 'partStyle';
+    case SPACE = 'space';
+    case DEED = 'deed';
+    case CARD = 'card';
+    case NOTE = 'note';
+    case PAWN = 'pawn';
+    case CARD_BACK = 'cardBack';
+    case BOX_LID = 'boxLid';
+    case BOARD_CENTER = 'boardCenter';
+    case HOUSE_RULES = 'houseRules';
+    case RULES_BOOKLET = 'rulesBooklet';
+    case INVITATION = 'invitation';
+    case GROUP = 'group';
+    case WORDS = 'words';
+    case THEME_ACCENT = 'themeAccent';
+    case PART_STYLE = 'partStyle';
 
     /** The built-in patterns of card backs; mirrors resources/js/lib/render/patterns.ts. */
     public const array PATTERNS = ['dots', 'stripes', 'checks', 'waves', 'diamonds', 'grid', 'rings', 'confetti'];
@@ -97,24 +97,24 @@ enum ElementKind: string
         $count = count($parts);
 
         return match ($head) {
-            'space' => $count === 2 && self::twoDigits($second, 0, count($standard->spaces()) - 1) ? self::Space : null,
-            'deed' => $count === 2 && self::twoDigits($second, 1, $standard->components()['titleDeeds']) ? self::Deed : null,
+            'space' => $count === 2 && self::twoDigits($second, 0, count($standard->spaces()) - 1) ? self::SPACE : null,
+            'deed' => $count === 2 && self::twoDigits($second, 1, $standard->components()['titleDeeds']) ? self::DEED : null,
             'card' => $count === 3
                 && ($second === 'chance' || $second === 'chest')
-                && self::twoDigits($third, 1, self::MAX_DECK_SIZE) ? self::Card : null,
-            'note' => $count === 2 && self::isNoteValue($second, $standard) ? self::Note : null,
-            'pawn' => $count === 2 && self::twoDigits($second, 1, self::PAWN_COUNT) ? self::Pawn : null,
-            'card_back' => $count === 2 && in_array($second, ['chance', 'chest', 'deed'], true) ? self::CardBack : null,
-            'box_lid' => $count === 1 ? self::BoxLid : null,
-            'board_center' => $count === 1 ? self::BoardCenter : null,
-            'house_rules' => $count === 1 ? self::HouseRules : null,
-            'rules_booklet' => $count === 1 ? self::RulesBooklet : null,
-            'invitation' => $count === 1 ? self::Invitation : null,
-            'theme_accent' => $count === 1 ? self::ThemeAccent : null,
+                && self::twoDigits($third, 1, self::MAX_DECK_SIZE) ? self::CARD : null,
+            'note' => $count === 2 && self::isNoteValue($second, $standard) ? self::NOTE : null,
+            'pawn' => $count === 2 && self::twoDigits($second, 1, self::PAWN_COUNT) ? self::PAWN : null,
+            'card_back' => $count === 2 && in_array($second, ['chance', 'chest', 'deed'], true) ? self::CARD_BACK : null,
+            'box_lid' => $count === 1 ? self::BOX_LID : null,
+            'board_center' => $count === 1 ? self::BOARD_CENTER : null,
+            'house_rules' => $count === 1 ? self::HOUSE_RULES : null,
+            'rules_booklet' => $count === 1 ? self::RULES_BOOKLET : null,
+            'invitation' => $count === 1 ? self::INVITATION : null,
+            'theme_accent' => $count === 1 ? self::THEME_ACCENT : null,
             // The style of a part (B268): `style.board`, … `style.box_lid`.
-            'style' => PartStyles::partOfKey($key) !== null ? self::PartStyle : null,
-            'group' => $count === 2 && self::isGroup($second, $standard) ? self::Group : null,
-            'words' => $count === 2 && in_array($second, self::WORD_IDS, true) ? self::Words : null,
+            'style' => PartStyles::partOfKey($key) !== null ? self::PART_STYLE : null,
+            'group' => $count === 2 && self::isGroup($second, $standard) ? self::GROUP : null,
+            'words' => $count === 2 && in_array($second, self::WORD_IDS, true) ? self::WORDS : null,
             default => null,
         };
     }
@@ -125,21 +125,21 @@ enum ElementKind: string
     public function allowedFields(): array
     {
         return match ($this) {
-            self::Space => ['name', 'text', 'amounts', 'photo', 'photoStyle', 'icon', 'deedPhoto'],
-            self::Deed => ['name', 'text', 'photo', 'photoStyle'],
-            self::Card => ['text', 'amount', 'purpose', 'photo', 'photoStyle', 'added'],
-            self::Note => ['photo', 'photoStyle', 'color'],
-            self::Pawn => ['name', 'photo', 'photoStyle', 'hidden'],
-            self::CardBack => ['photo', 'layers', 'pattern'],
-            self::BoxLid => ['name', 'subtitle', 'text', 'photo', 'photoStyle', 'layers', 'titleOffset', 'titleBand', 'titleStyle'],
-            self::BoardCenter => ['name', 'photo', 'layers', 'centerMode', 'subtitle', 'photoAspect', 'photoFrame', 'background', 'titleOffset', 'titleScale', 'titleHidden', 'centerPlace', 'logoTilt', 'titleStyle'],
-            self::HouseRules => ['text', 'photo'],
-            self::Invitation => ['name', 'subtitle', 'text', 'photo'],
-            self::RulesBooklet => ['photo'],
-            self::Group => ['town', 'color'],
-            self::Words => ['name', 'text'],
-            self::ThemeAccent => ['color'],
-            self::PartStyle => ['style'],
+            self::SPACE => ['name', 'text', 'amounts', 'photo', 'photoStyle', 'icon', 'deedPhoto'],
+            self::DEED => ['name', 'text', 'photo', 'photoStyle'],
+            self::CARD => ['text', 'amount', 'purpose', 'photo', 'photoStyle', 'added'],
+            self::NOTE => ['photo', 'photoStyle', 'color'],
+            self::PAWN => ['name', 'photo', 'photoStyle', 'hidden'],
+            self::CARD_BACK => ['photo', 'layers', 'pattern'],
+            self::BOX_LID => ['name', 'subtitle', 'text', 'photo', 'photoStyle', 'layers', 'titleOffset', 'titleBand', 'titleStyle'],
+            self::BOARD_CENTER => ['name', 'photo', 'layers', 'centerMode', 'subtitle', 'photoAspect', 'photoFrame', 'background', 'titleOffset', 'titleScale', 'titleHidden', 'centerPlace', 'logoTilt', 'titleStyle'],
+            self::HOUSE_RULES => ['text', 'photo'],
+            self::INVITATION => ['name', 'subtitle', 'text', 'photo'],
+            self::RULES_BOOKLET => ['photo'],
+            self::GROUP => ['town', 'color'],
+            self::WORDS => ['name', 'text'],
+            self::THEME_ACCENT => ['color'],
+            self::PART_STYLE => ['style'],
         };
     }
 
@@ -148,7 +148,7 @@ enum ElementKind: string
      */
     public static function isExtraCard(string $key, StandardEdition $standard): bool
     {
-        if (self::fromKey($key, $standard) !== self::Card) {
+        if (self::fromKey($key, $standard) !== self::CARD) {
             return false;
         }
 

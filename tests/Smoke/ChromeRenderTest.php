@@ -60,7 +60,7 @@ final class ChromeRenderTest extends TestCase
 
         // 60 cards, a front and a back each: 120 pages of 81 x 106 mm (63 x 88 plus 3 mm bleed and 6 mm for the
         // crop marks, B160), with a TrimBox on the card and a BleedBox on the bleed.
-        $cards = $builder->build($job, PrintSet::Printer, PrintPart::Cards);
+        $cards = $builder->build($job, PrintSet::PRINTER, PrintPart::CARDS);
         self::assertSame(120, $cards->pages);
         ChromeRender::assertPdf($cards, 120, 81.0, 106.0);
         $boxes = Process::run(['pdfinfo', '-box', '-f', '1', '-l', '1', ChromeRender::localPath($cards)])->output();
@@ -79,11 +79,11 @@ final class ChromeRenderTest extends TestCase
         self::assertEqualsWithDelta(195.59, $bleedRight - $bleedLeft, 0.02);
 
         // The home sheets (B134): the alignment test, then 7 A4 portrait sheets of 9 cards, fronts and mirrored backs.
-        $home = $builder->build($job, PrintSet::Home, PrintPart::Cards);
+        $home = $builder->build($job, PrintSet::HOME, PrintPart::CARDS);
         ChromeRender::assertPdf($home, 16, 210.0, 297.0);
 
         // The test sheet on A4 portrait.
-        $calibration = $builder->build($job, PrintSet::Home, PrintPart::Calibration);
+        $calibration = $builder->build($job, PrintSet::HOME, PrintPart::CALIBRATION);
         ChromeRender::assertPdf($calibration, 1, 210.0, 297.0);
 
         // The instruction PDF text reaches the PDF.
@@ -100,7 +100,7 @@ final class ChromeRenderTest extends TestCase
         ]);
         $job->save();
 
-        $file = resolve(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Board);
+        $file = resolve(PrintPartBuilder::class)->build($job, PrintSet::PRINTER, PrintPart::BOARD);
         ChromeRender::assertPdf($file, 4, 266.0, 266.0);
         $path = ChromeRender::localPath($file);
 
@@ -139,17 +139,17 @@ final class ChromeRenderTest extends TestCase
 
         $builder = resolve(PrintPartBuilder::class);
 
-        ChromeRender::assertPdf($builder->build($job, PrintSet::Printer, PrintPart::RulesBooklet), 16, 166.0, 228.0);
-        ChromeRender::assertPdf($builder->build($job, PrintSet::Home, PrintPart::RulesBooklet), 8, 297.0, 210.0);
+        ChromeRender::assertPdf($builder->build($job, PrintSet::PRINTER, PrintPart::RULES_BOOKLET), 16, 166.0, 228.0);
+        ChromeRender::assertPdf($builder->build($job, PrintSet::HOME, PrintPart::RULES_BOOKLET), 8, 297.0, 210.0);
 
-        $invitation = $builder->build($job, PrintSet::Printer, PrintPart::Invitation);
+        $invitation = $builder->build($job, PrintSet::PRINTER, PrintPart::INVITATION);
         ChromeRender::assertPdf($invitation, 1, 123.0, 166.0);
-        ChromeRender::assertPdf($builder->build($job, PrintSet::Home, PrintPart::Invitation), 1, 210.0, 297.0);
+        ChromeRender::assertPdf($builder->build($job, PrintSet::HOME, PrintPart::INVITATION), 1, 210.0, 297.0);
 
         $image = PrintFile::query()
             ->where('print_job_id', $job->publicId())
             ->where('kind', PrintFile::KIND_IMAGE)
-            ->where('set', PrintSet::Printer->value)
+            ->where('set', PrintSet::PRINTER->value)
             ->first();
         self::assertInstanceOf(PrintFile::class, $image);
         $size = getimagesize(ChromeRender::localPath($image));

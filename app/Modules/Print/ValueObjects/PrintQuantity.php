@@ -36,24 +36,24 @@ final readonly class PrintQuantity
         $expected = PrintLayout::expect($part, $set, $edition->oneSet());
         $pages = $expected->pages ?? 1;
 
-        if ($part === PrintPart::Invitation) {
-            return $set === PrintSet::Home
+        if ($part === PrintPart::INVITATION) {
+            return $set === PrintSet::HOME
                 ? new self((int) ceil($edition->invitations / self::INVITATIONS_PER_SHEET), 'sheet', 'A4')
                 : new self($edition->invitations, 'invitation', null);
         }
 
-        if ($set === PrintSet::Home) {
+        if ($set === PrintSet::HOME) {
             // Cards and the booklet are printed on both sides: two pages of the PDF are one sheet.
-            $duplex = in_array($part, [PrintPart::Cards, PrintPart::RulesBooklet], true);
+            $duplex = in_array($part, [PrintPart::CARDS, PrintPart::RULES_BOOKLET], true);
 
             return new self($duplex ? (int) ceil($pages / 2) : $pages, 'sheet', self::paper($expected->widthMm, $expected->heightMm));
         }
 
         return match ($part) {
-            PrintPart::Board => $edition->boardForm === BoardForm::Whole ? new self(1, 'board', null) : new self($pages, 'panel', null),
-            PrintPart::Cards => new self(intdiv($pages, 2), 'card', null),
-            PrintPart::RulesBooklet => new self(1, 'booklet', null),
-            PrintPart::BoxLid => new self(1, 'piece', null),
+            PrintPart::BOARD => $edition->boardForm === BoardForm::WHOLE ? new self(1, 'board', null) : new self($pages, 'panel', null),
+            PrintPart::CARDS => new self(intdiv($pages, 2), 'card', null),
+            PrintPart::RULES_BOOKLET => new self(1, 'booklet', null),
+            PrintPart::BOX_LID => new self(1, 'piece', null),
             default => new self($pages, 'sheet', self::paper($expected->widthMm, $expected->heightMm)),
         };
     }
@@ -66,7 +66,7 @@ final readonly class PrintQuantity
     public function label(Locale $locale): string
     {
         $one = $this->count === 1;
-        $word = $locale === Locale::English
+        $word = $locale === Locale::ENGLISH
             ? match ($this->unit) {
                 'sheet' => $one ? 'sheet' : 'sheets',
                 'panel' => $one ? 'panel' : 'panels',

@@ -16,20 +16,20 @@ enum FailureReason: string
     /**
      * Chrome or a helper did not finish in time, for example a sheet with many photos.
      */
-    case Timeout = 'timeout';
+    case TIMEOUT = 'timeout';
     /**
      * A photo is missing, could not be read or did not load while rendering.
      */
-    case Photos = 'photos';
+    case PHOTOS = 'photos';
     /**
      * The PDF does not match the page plan.
      */
-    case Layout = 'layout';
+    case LAYOUT = 'layout';
     /**
      * The edition is gone or cannot be read.
      */
-    case Edition = 'edition';
-    case Other = 'other';
+    case EDITION = 'edition';
+    case OTHER = 'other';
 
     public static function fromThrowable(Throwable $exception): self
     {
@@ -38,9 +38,9 @@ enum FailureReason: string
         }
 
         if (preg_match('/timeout|timedout/i', $exception::class) === 1 || mb_stripos($exception->getMessage(), 'timed out') !== false) {
-            return self::Timeout;
+            return self::TIMEOUT;
         }
 
-        return self::Other;
+        return self::OTHER;
     }
 }
