@@ -106,7 +106,7 @@ frontend-coverage-floor                min  number vitest.config.ts  ^[[:space:]
 frontend-logic-coverage-floor          min  number vitest.config.ts  ^[[:space:]]{20}lines:[[:space:]]*([0-9]+),$
 mutation-floor                         min  number scripts/mutation-floor.txt  ^threshold: ([0-9]+)$
 strict-types-missing                   max  without @SOURCE_PATHS,@TEST_PATHS  (^|/)[^/.]+\.php$ ^declare\(strict_types=1\);
-loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^=!<>])(==|!=|<>)([^=]|$)
+loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS,:(exclude)tests/Guards,:(exclude)tests/Support/Architecture  (^|[^=!<>])(==|!=|<>)([^=]|$)
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
@@ -667,7 +667,7 @@ uncovered() {
 extra_rows() {
     cat <<'EXTRA'
 strict-types-missing                   max  without  @SOURCE_PATHS,@TEST_PATHS  (^|/)[^/.]+\.php$ ^declare\(strict_types=1\);
-loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^=!<>])(==|!=|<>)([^=]|$)
+loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS,:(exclude)tests/Guards,:(exclude)tests/Support/Architecture  (^|[^=!<>])(==|!=|<>)([^=]|$)
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
@@ -680,7 +680,8 @@ EXTRA
 
 # The fixture of --self-test: one line per case, "<row>[@<file name>] <expected count> <text>". The text is one line of the file
 # (~NL~ is a line break); the count is what the row must report for that file: 0 for a spelling it must not count. A file name
-# may hold octal escapes (\303\234 is a letter outside ASCII). The cases are the spellings of a PHP backend with a TypeScript
+# may hold octal escapes (\303\234 is a letter outside ASCII). A file name with a folder is written at that path and counted with
+# the exclude pathspecs of its row. The cases are the spellings of a PHP backend with a TypeScript
 # frontend: a project that changes an expression changes its cases here, or passes its own file as the second argument.
 selftest_cases() {
     cat <<'CASES'
@@ -926,6 +927,9 @@ loose-comparisons 0 $x = $a !== $b;
 loose-comparisons 0 $x = $a <= $b;
 loose-comparisons 0 $x = $a <=> $b;
 loose-comparisons 0 $f = fn () => 1;
+loose-comparisons@tests/Feature/WorkflowTest.php 1 if ($a == $b) {
+loose-comparisons@tests/Guards/WorkflowTest.php 0 yield ['if: github.event_name == x'];
+loose-comparisons@tests/Support/Architecture/WorkflowRules.php 0 $rule = "github.event_name != x";
 mutable-dates 1 $d = new DateTime();
 mutable-dates 1 $d = new DateTime;
 mutable-dates 1 $d = new Carbon;
@@ -1147,7 +1151,8 @@ alt_mutants() {
 selftest() {
     local extra="${1:-}" NL cases line row rest want text file n=0 skipped=0 index=0 ran=0
     local name method spec got status dir path covered="" witness member mutated base alt_missing=0 alt_total=0 done_rows=""
-    local -a rows=() wants=() paths=() texts=() methods=() specs=() states=() extras=()
+    local -a rows=() wants=() paths=() texts=() methods=() specs=() states=() extras=() filters=() row_items=()
+    local row_paths item
     local from_extra=0 tool_skipped=0
     NL=$'\n'
     SELFTEST_FAILED=0
@@ -1189,7 +1194,10 @@ selftest() {
         text="${text//~PL~/+}"
         index=$((index + 1))
         dir="cases/$row/$index"
+        # A file name with a folder is written at that path from the root, so the exclude pathspecs of the row apply to it.
+        case "$file" in */*) dir="$(dirname "$file")" file="$(basename "$file")" ;; esac
         mkdir -p "$dir"
+        [ ! -e "$dir/$file" ] || selftest_fail "two cases write $dir/$file: give each case with a folder its own file name"
         printf '%s\n' "$text" > "$dir/$file"
         printf '%s\n' "$text" >> "$witness/$row.txt"
         rows+=("$row")
@@ -1217,7 +1225,12 @@ selftest() {
             index=$((index + 1))
             continue
         fi
-        read -r name _ method _ spec <<< "$line"
+        read -r name _ method row_paths spec <<< "$line"
+        filters=()
+        IFS=, read -ra row_items <<< "$(expand "$row_paths" -)"
+        for item in ${row_items[@]+"${row_items[@]}"}; do
+            [ "${item#:}" = "$item" ] || filters+=("$item")
+        done
         spec=$(resolve_spec "$spec" -) || {
             selftest_fail "$row: its expression cannot be resolved"
             index=$((index + 1))
@@ -1234,7 +1247,7 @@ selftest() {
         path="${paths[$index]}"
         [ "$method" != "without" ] || path="$(dirname "$path")"
         status=0
-        got=$(count HEAD "$method" "$spec" "$path" 2> /dev/null) || status=$?
+        got=$(count HEAD "$method" "$spec" "$path" ${filters[@]+"${filters[@]}"} 2> /dev/null) || status=$?
         case "$covered" in *" $row "*) ;; *) covered="$covered $row " ;; esac
         if [ "$status" -eq 4 ]; then
             skipped=$((skipped + 1))
