@@ -85,7 +85,7 @@ const templateBaseline = (id: TemplateId, locale: Locale): Baseline | null => {
  * template's names, card texts and house rules are still there word for word: no edition that started blank
  * has that, and a template edition only drops below it after nearly everything was rewritten.
  */
-export const INFER_MIN_MATCHES = 8;
+const INFER_MIN_MATCHES = 8;
 
 const inferred = new WeakMap<Elements, TemplateId | null>();
 
@@ -108,7 +108,7 @@ const matches = (own: Elements, base: Readonly<Elements>): number => {
 };
 
 /** The template an older edition most likely started from, or `null` when it did not clearly start from one. */
-export const inferTemplate = (
+const inferTemplate = (
     edition: Pick<Edition, 'elements'>,
 ): TemplateId | null => {
     const known = inferred.get(edition.elements);

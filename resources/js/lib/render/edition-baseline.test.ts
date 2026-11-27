@@ -9,8 +9,6 @@ import {
     baselineOf,
     differsFromBaseline,
     fieldDiffers,
-    inferTemplate,
-    INFER_MIN_MATCHES,
     templateOf,
 } from './edition-baseline';
 import { setElement, updateElement } from './edition-changes';
@@ -113,7 +111,7 @@ describe('baseline (B152)', () => {
                 id: 'w1',
             });
 
-            expect(inferTemplate(edition)).toBe('village');
+            expect(templateOf(edition)).toBe('village');
             expect(templateOf(english)).toBe('wedding');
             expect(differsFromBaseline(edition, 'card.chance.05')).toBe(false);
         });
@@ -138,7 +136,7 @@ describe('baseline (B152)', () => {
             let edition = makeEdition();
             const names = Object.entries(template.elements)
                 .filter(([key]) => key.startsWith('space.'))
-                .slice(0, INFER_MIN_MATCHES - 1);
+                .slice(0, 7);
             for (const [key, override] of names) {
                 edition = setElement(edition, key, override).edition;
             }
