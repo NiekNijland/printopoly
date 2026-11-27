@@ -13,7 +13,7 @@ De gidsen zijn de root-`AGENTS.md`, `app/AGENTS.md`, `tests/AGENTS.md`, `resourc
 | `guide-tense` | een zin die een overgang beschrijft | schrijf de eindtoestand in de tegenwoordige tijd |
 | `guide-rules` | faalt op een gids die de woorden van een rij kwijt is | zet de zin terug, of pas de rij en de guard samen aan |
 
-`DocumentedPathGuard` leest elk pad in backticks, in een `<code>`-element en in een linkdoel, ook met een `:regel`-achtervoegsel. Een pad onder een bekende map bestaat; een relatief pad met een extensie is het einde van een bestand in de boom. Blinde vlek: een relatief pad zonder extensie (`hooks/use-x`).
+`DocumentedPathGuard` leest de gidsen, de README en de bestanden direct in `docs`, behalve `docs/beslissingen.md`: die lijst groeit alleen. Van de mappen onder `docs` leest hij alleen `docs/decisions/0001-one-pattern.md`; de rest is geschiedenis, feedback en ontwerp. Hij leest elk pad in backticks, in een `<code>`-element en in een linkdoel, ook met een `:regel`-achtervoegsel. Een pad onder een bekende map bestaat; een relatief pad met een extensie is het einde van een bestand in de boom. Blinde vlek: een relatief pad zonder extensie (`hooks/use-x`).
 
 `OnePatternTableGuard` leest de tabel One pattern en de lijst Guards van de root-`AGENTS.md`. Een rij noemt een guard van de lijst; haar voorbeeld bestaat en staat in geen lijst, baseline of suppressie (de mappen lists en baselines in de root, de map lists in `tests/Guards` en in `tests/Support/Architecture`, en `eslint-suppressions.json`); "lands with" staat alleen in de kolom Kopieer.
 

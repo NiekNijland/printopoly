@@ -76,9 +76,31 @@ final class DocumentedPathArchitectureTest extends TestCase
         self::assertStringStartsWith('AGENTS.md:1: `app/Support/Gone.php` does not exist', $violations[0]);
     }
 
+    public function test_it_reads_the_readme_and_the_docs_of_today_but_not_the_product_decisions_or_the_history(): void
+    {
+        $root = SourceSandbox::create([
+            'README.md' => "Bouw met `scripts/gone.sh`.\n",
+            'docs/voortgang.md' => "Zie `app/Game/Gone.php`.\n",
+            'docs/beslissingen.md' => "Toen: `app/Game/Old.php`.\n",
+        ]);
+
+        try {
+            $violations = new DocumentedPathGuard($root, self::ROOTS, ['README.md', 'docs/voortgang.md'], 'AGENTS.md')->violations();
+        } finally {
+            SourceSandbox::remove($root);
+        }
+
+        self::assertCount(2, $violations);
+        self::assertStringStartsWith('README.md:1: `scripts/gone.sh` does not exist', $violations[0]);
+        self::assertStringStartsWith('docs/voortgang.md:1: `app/Game/Gone.php` does not exist', $violations[1]);
+        self::assertContains('README.md', $this->docsFiles());
+        self::assertContains('docs/voortgang.md', $this->docsFiles());
+        self::assertNotContains('docs/beslissingen.md', $this->docsFiles());
+    }
+
     public function test_it_finds_only_paths_that_exist_in_every_guide(): void
     {
-        $guard = new DocumentedPathGuard(dirname(__DIR__, 2), self::ROOTS, [...self::GUIDES, ...$this->rowsFiles()], 'AGENTS.md');
+        $guard = new DocumentedPathGuard(dirname(__DIR__, 2), self::ROOTS, array_values(array_unique([...self::GUIDES, ...$this->rowsFiles(), ...$this->docsFiles()])), 'AGENTS.md');
 
         self::assertNotSame([], $guard->pathsInGuide('AGENTS.md'));
         self::assertSame([], $guard->violations());
@@ -97,6 +119,18 @@ final class DocumentedPathArchitectureTest extends TestCase
         } finally {
             SourceSandbox::remove($root);
         }
+    }
+
+    /**
+     * @return list<string> the README and the docs of today, without the append-only product decisions and the folders below docs
+     */
+    private function docsFiles(): array
+    {
+        $root = dirname(__DIR__, 2);
+        $files = glob($root . '/docs/*.md');
+        $docs = array_map(static fn (string $file): string => mb_substr($file, mb_strlen($root) + 1), $files === false ? [] : $files);
+
+        return ['README.md', ...array_values(array_diff($docs, ['docs/beslissingen.md']))];
     }
 
     /**
