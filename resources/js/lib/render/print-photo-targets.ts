@@ -29,7 +29,7 @@ export type PhotoTarget = {
 /** Per set, `element#photo` to the frame the photo is cropped to, in mm and with bleed. */
 export type PhotoTargets = Record<PrintSet, Record<string, PhotoTarget>>;
 
-export const PRINT_SETS: readonly PrintSet[] = ['printer', 'home'];
+const PRINT_SETS: readonly PrintSet[] = ['printer', 'home'];
 
 const FILLED = /data-photo="filled" data-w="([\d.]+)" data-h="([\d.]+)"/;
 const ICON_FILLED =
