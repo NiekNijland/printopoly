@@ -37,3 +37,8 @@ export const reportUnlessOffline = (error: unknown): void => {
         reportError(error);
     }
 };
+
+/** A repair the user never sees, for a developer reading the console; the one place that writes to it. */
+export const logWarning = (message: string): void => {
+    console.warn(message);
+};

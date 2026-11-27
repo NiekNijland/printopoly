@@ -1,4 +1,6 @@
 import { isJsonObject } from '@/features/edition/remote/client';
+import { sendRequest } from '@/lib/http';
+import type { HttpMethod } from '@/lib/http';
 
 import {
     readAccountBox,
@@ -48,7 +50,7 @@ const failure = async (response: Response): Promise<BoxApiError> => {
 };
 
 type RequestOptions = {
-    method?: string;
+    method?: HttpMethod;
     secret?: string | null;
     json?: unknown;
     body?: FormData;
@@ -68,10 +70,9 @@ const send = async (
     if (options.json !== undefined) {
         headers['Content-Type'] = 'application/json';
     }
-    const response = await fetch(url, {
-        method: options.method ?? 'GET',
+    const response = await sendRequest(url, {
+        method: options.method,
         headers,
-        credentials: 'same-origin',
         body:
             options.body ??
             (options.json === undefined

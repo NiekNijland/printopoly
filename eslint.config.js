@@ -515,7 +515,7 @@ const doors = {
     sessionStorage: 'lib/browser-storage',
     matchMedia:
         'lib/media-query (useMediaQuery in hooks/use-media-query for a component)',
-    fetch: 'lib/render/print-api.ts or features/edition/remote; any other request is the Inertia HTTP hook',
+    fetch: 'lib/http (or the typed doors lib/render/print-api.ts and features/edition/remote; lib/feature-count only counts); a page request is the Inertia HTTP hook',
     XMLHttpRequest: 'features/edition/remote',
 };
 const doorMessage = (door) =>
@@ -1328,6 +1328,8 @@ export default [
     })),
     {
         files: [
+            `${SOURCE}/lib/http.ts`,
+            `${SOURCE}/lib/feature-count.ts`,
             `${SOURCE}/lib/render/print-api.ts`,
             `${SOURCE}/features/edition/remote/*.ts`,
         ],
@@ -1342,6 +1344,11 @@ export default [
                 reflectApplyRule,
             ],
         },
+    },
+    // The one door to the console: a warning a developer reads, never an error that Bugsnag should get.
+    {
+        files: [`${SOURCE}/lib/bugsnag.ts`],
+        rules: { 'no-console': ['error', { allow: ['warn'] }] },
     },
     // Tests stub storage and the router and assert on the fakes, so they get no doors; they never reach the network.
     {
