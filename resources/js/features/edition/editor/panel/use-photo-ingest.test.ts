@@ -3,11 +3,9 @@ import { act, renderHook } from '@testing-library/react';
 import type { IngestResult } from '@/features/edition/editor/ingest';
 import { PhotoCache } from '@/lib/render/editor-photo-cache';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
+import { fakeIngest } from '@/testing/ingest';
 
 import { usePhotoIngest } from './use-photo-ingest';
-
-const ingest = vi.hoisted(() => vi.fn());
-vi.mock('@/features/edition/editor/ingest', () => ({ ingestPhoto: ingest }));
 
 const record = {
     id: 'photo-1',
@@ -31,21 +29,16 @@ const mount = () => {
 
 describe('usePhotoIngest', () => {
     beforeEach(() => {
-        ingest.mockReset();
+        fakeIngest.ingestPhoto.mockReset();
     });
 
     it('shows the stage of a file while it is read, and puts the photo in the cache', async () => {
         let finish: (result: IngestResult) => void = () => undefined;
-        ingest.mockImplementation(
-            (
-                _file: File,
-                _repository: unknown,
-                _edition: string,
-                onStage: (stage: 'converting' | 'resizing') => void,
-            ) =>
+        fakeIngest.ingestPhoto.mockImplementation(
+            (_file, _repository, _edition, onStage) =>
                 new Promise<IngestResult>((resolve) => {
-                    onStage('converting');
-                    onStage('resizing');
+                    onStage?.('converting');
+                    onStage?.('resizing');
                     finish = resolve;
                 }),
         );
@@ -75,7 +68,7 @@ describe('usePhotoIngest', () => {
             fileName: 'kapot.jpg',
             rest: { nl: 'is niet te lezen.', en: 'cannot be read.' },
         };
-        ingest
+        fakeIngest.ingestPhoto
             .mockResolvedValueOnce({ ok: false, error })
             .mockResolvedValueOnce({
                 ok: false,
