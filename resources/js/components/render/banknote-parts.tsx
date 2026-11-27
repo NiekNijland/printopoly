@@ -188,11 +188,11 @@ const VALUE_WORDS: Record<Locale, Record<number, string>> = {
     },
 };
 
-export const valueInWords = (value: number, locale: Locale): string => {
+const valueInWords = (value: number, locale: Locale): string => {
     return VALUE_WORDS[locale][value] ?? '';
 };
 
-export const capitalize = (text: string): string => {
+const capitalize = (text: string): string => {
     return text.charAt(0).toUpperCase() + text.slice(1);
 };
 

@@ -1,34 +1,4 @@
 {
-  "resources/js/components/render/banknote-parts.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/components/render/banknote-styles.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 3
-    }
-  },
-  "resources/js/components/render/banknote.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    }
-  },
   "resources/js/components/render/board-look.tsx": {
     "max-lines": {
       "count": 1
@@ -160,17 +130,6 @@
       "count": 1
     }
   },
-  "resources/js/components/render/money-style.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 5
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "resources/js/components/render/pattern-fill.tsx": {
     "max-lines-per-function": {
       "count": 1
@@ -284,26 +243,6 @@
       "count": 2
     },
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "resources/js/components/seo.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
-  "resources/js/components/seo.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/components/ui/slider.tsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "resources/js/components/ui/toggle-group.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     }
   },
@@ -2162,11 +2101,6 @@
       "count": 1
     }
   },
-  "resources/js/features/landing/step-art.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/features/print/calibration-art.tsx": {
     "max-lines-per-function": {
       "count": 1
@@ -2241,53 +2175,9 @@
       "count": 1
     }
   },
-  "resources/js/hooks/use-back-closes.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "resources/js/hooks/use-visual-viewport.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "resources/js/layouts/app-header.test.tsx": {
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 6
-    }
-  },
-  "resources/js/layouts/app-header.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/echo.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "resources/js/lib/feature-count.ts": {
     "no-restricted-globals": {
       "count": 2
-    }
-  },
-  "resources/js/lib/public-config.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/banknote-pattern.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 3
-    },
-    "max-lines": {
-      "count": 1
     }
   },
   "resources/js/lib/render/checks.test.ts": {
@@ -2309,64 +2199,12 @@
       "count": 1
     }
   },
-  "resources/js/lib/render/color-names.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
-    }
-  },
-  "resources/js/lib/render/corners.ts": {
-    "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/deed-rows.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
-    }
-  },
-  "resources/js/lib/render/edition-amounts.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 4
-    },
-    "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
-  "resources/js/lib/render/edition-baseline.test.ts": {
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/edition-baseline.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
   "resources/js/lib/render/edition-card-text.ts": {
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 1
-    }
-  },
-  "resources/js/lib/render/edition-keys.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 3
-    },
-    "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/edition-part-styles.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 3
     }
   },
   "resources/js/lib/render/edition-resolve.test.ts": {
@@ -2391,35 +2229,6 @@
       "count": 1
     }
   },
-  "resources/js/lib/render/edition-schema.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
-    },
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/edition-schema.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 31
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/edition-settings.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/edition-storage.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
   "resources/js/lib/render/edition-templates.test.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 11
@@ -2428,25 +2237,9 @@
       "count": 1
     }
   },
-  "resources/js/lib/render/edition-types.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 3
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "resources/js/lib/render/edition-words.test.ts": {
     "max-lines": {
       "count": 1
-    }
-  },
-  "resources/js/lib/render/edition-words.ts": {
-    "@typescript-eslint/prefer-nullish-coalescing": {
-      "count": 4
     }
   },
   "resources/js/lib/render/editor-catalogue.ts": {
@@ -2527,26 +2320,6 @@
   "resources/js/lib/render/editor-print-selection.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 5
-    }
-  },
-  "resources/js/lib/render/gamut.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
-    }
-  },
-  "resources/js/lib/render/patterns.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/photos-resolution.ts": {
-    "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/photos-transform.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
     }
   },
   "resources/js/lib/render/print-api.test.ts": {
@@ -2656,19 +2429,6 @@
       "count": 2
     }
   },
-  "resources/js/lib/render/space-icons.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/space-icons.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 3
-    },
-    "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 2
-    }
-  },
   "resources/js/lib/render/standard-edition.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 2
@@ -2677,19 +2437,9 @@
       "count": 1
     }
   },
-  "resources/js/lib/render/style.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
   "resources/js/lib/render/use-fit-text.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 4
-    }
-  },
-  "resources/js/lib/ssr-release-build.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
     }
   },
   "resources/js/pages/boxes/show.test.tsx": {
@@ -2745,16 +2495,6 @@
       "count": 1
     }
   },
-  "resources/js/pages/home.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
-    }
-  },
-  "resources/js/pages/home.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/pages/print/show.test.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 2
@@ -2778,36 +2518,6 @@
     },
     "max-lines-per-function": {
       "count": 2
-    }
-  },
-  "resources/js/ssr.tsx": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "resources/js/testing/edition-storage-contract.ts": {
-    "max-lines-per-function": {
-      "count": 2
-    }
-  },
-  "resources/js/testing/edition-test-utils.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
-  "resources/js/testing/render.tsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "resources/js/types/game.ts": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "resources/js/types/print.ts": {
-    "no-restricted-syntax": {
-      "count": 1
     }
   }
 }
