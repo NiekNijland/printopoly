@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+    useSyncExternalStore,
+} from 'react';
 
 import type { PrintPart, PrintSet } from '@/types/generated';
 
@@ -24,18 +30,103 @@ type PrintQueue = {
 const same = (entry: QueuedPart, set: PrintSet, part: PrintPart): boolean =>
     entry.part === part && (part === 'calibration' || entry.set === set);
 
+type QueueState = {
+    queue: QueuedPart[];
+    holding: boolean;
+    starting: boolean;
+};
+
+type Start = (set: PrintSet, parts: PrintPart[]) => Promise<StartOutcome>;
+
+const createQueueStore = () => {
+    let state: QueueState = { queue: [], holding: false, starting: false };
+    const listeners = new Set<() => void>();
+    const update = (next: Partial<QueueState>): void => {
+        state = { ...state, ...next };
+        listeners.forEach((listener) => {
+            listener();
+        });
+    };
+
+    return {
+        subscribe: (listener: () => void): (() => void) => {
+            listeners.add(listener);
+
+            return () => {
+                listeners.delete(listener);
+            };
+        },
+        snapshot: (): QueueState => state,
+        enqueue: (set: PrintSet, parts: PrintPart[]): void => {
+            update({
+                queue: [
+                    ...state.queue,
+                    ...parts
+                        .filter(
+                            (part) =>
+                                !state.queue.some((entry) =>
+                                    same(entry, set, part),
+                                ),
+                        )
+                        .map((part) => ({ set, part })),
+                ],
+            });
+        },
+        remove: (set: PrintSet, part: PrintPart): void => {
+            update({
+                queue: state.queue.filter((entry) => !same(entry, set, part)),
+            });
+        },
+        release: (): void => {
+            update({ holding: false });
+        },
+        startNext: (start: Start): void => {
+            const first = state.queue[0];
+
+            if (state.holding || state.starting || first === undefined) {
+                return;
+            }
+
+            // One run takes every part waiting for the set of the first in line.
+            const set = first.set;
+            const taken = state.queue.filter((entry) => entry.set === set);
+            update({
+                starting: true,
+                queue: state.queue.filter((entry) => entry.set !== set),
+            });
+
+            void start(
+                set,
+                taken.map((entry) => entry.part),
+            )
+                .then((outcome) => {
+                    if (outcome === 'busy') {
+                        update({
+                            queue: [...taken, ...state.queue],
+                            holding: true,
+                        });
+                    }
+                })
+                .finally(() => {
+                    update({ starting: false });
+                });
+        },
+    };
+};
+
 /**
  * The parts the user asked for while a run is going. The server makes one run at a time per job (B70), so
  * the browser keeps the rest and starts it as soon as the run before it is done. A server that still says
  * busy (409) gets asked again after a few seconds, with the parts still in line.
  */
-export const usePrintQueue = (
-    ready: boolean,
-    start: (set: PrintSet, parts: PrintPart[]) => Promise<StartOutcome>,
-): PrintQueue => {
-    const [queue, setQueue] = useState<QueuedPart[]>([]);
-    const [holding, setHolding] = useState(false);
-    const [starting, setStarting] = useState(false);
+export const usePrintQueue = (ready: boolean, start: Start): PrintQueue => {
+    const [store] = useState(createQueueStore);
+    const state = useSyncExternalStore(
+        store.subscribe,
+        store.snapshot,
+        store.snapshot,
+    );
+    const { queue, holding } = state;
     const startRef = useRef(start);
 
     useEffect(() => {
@@ -43,48 +134,22 @@ export const usePrintQueue = (
     }, [start]);
 
     useEffect(() => {
-        const first = queue[0];
-
-        if (!ready || holding || starting || first === undefined) {
-            return;
+        if (ready) {
+            store.startNext(startRef.current);
         }
-
-        // One run takes every part waiting for the set of the first in line.
-        const set = first.set;
-        const taken = queue.filter((entry) => entry.set === set);
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- the line moves on when the server is free, which only an effect sees
-        setStarting(true);
-        setQueue((current) => current.filter((entry) => entry.set !== set));
-
-        void startRef
-            .current(
-                set,
-                taken.map((entry) => entry.part),
-            )
-            .then((outcome) => {
-                if (outcome === 'busy') {
-                    setQueue((current) => [...taken, ...current]);
-                    setHolding(true);
-                }
-            })
-            .finally(() => {
-                setStarting(false);
-            });
-    }, [ready, holding, starting, queue]);
+    }, [ready, store, state]);
 
     useEffect(() => {
         if (!holding) {
             return;
         }
 
-        const timer = window.setTimeout(() => {
-            setHolding(false);
-        }, QUEUE_RETRY_MS);
+        const timer = window.setTimeout(store.release, QUEUE_RETRY_MS);
 
         return () => {
             window.clearTimeout(timer);
         };
-    }, [holding]);
+    }, [holding, store]);
 
     const isQueued = useCallback(
         (set: PrintSet, part: PrintPart) =>
@@ -92,22 +157,5 @@ export const usePrintQueue = (
         [queue],
     );
 
-    const enqueue = useCallback((set: PrintSet, parts: PrintPart[]) => {
-        setQueue((current) => [
-            ...current,
-            ...parts
-                .filter(
-                    (part) => !current.some((entry) => same(entry, set, part)),
-                )
-                .map((part) => ({ set, part })),
-        ]);
-    }, []);
-
-    const remove = useCallback((set: PrintSet, part: PrintPart) => {
-        setQueue((current) =>
-            current.filter((entry) => !same(entry, set, part)),
-        );
-    }, []);
-
-    return { queue, isQueued, enqueue, remove };
+    return { queue, isQueued, enqueue: store.enqueue, remove: store.remove };
 };
