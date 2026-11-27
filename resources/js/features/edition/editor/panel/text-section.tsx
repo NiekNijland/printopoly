@@ -13,30 +13,17 @@ import {
 } from '@/features/edition/editor/panel/text-fields';
 import type { EditionSession } from '@/features/edition/session';
 import { useTranslation } from '@/hooks/use-translation';
-import type { CheckIssue } from '@/lib/render/checks-types';
 import { templateOf } from '@/lib/render/edition-baseline';
-import { BOARD_CENTER_KEY, type ElementKind } from '@/lib/render/edition-keys';
-import type {
-    ResolvedCard,
-    ResolvedEdition,
-} from '@/lib/render/edition-resolve';
+import { BOARD_CENTER_KEY } from '@/lib/render/edition-keys';
+import type { ResolvedEdition } from '@/lib/render/edition-resolve';
 import { MAX_LID_LINES_LENGTH } from '@/lib/render/edition-schema-limits';
 import { lidExample } from '@/lib/render/edition-templates';
 import type { Edition } from '@/lib/render/edition-types';
 import { deckLabel } from '@/lib/render/editor-catalogue';
 import { STRINGS } from '@/lib/render/strings';
-import type { Space } from '@/types/game';
+import type { AmountSectionProps } from './amount-section';
 
-type TextSectionProps = {
-    session: EditionSession;
-    edition: Edition;
-    resolved: ResolvedEdition;
-    editKey: string;
-    kind: ElementKind;
-    /** The space of a space or a title deed. */
-    space: Space | undefined;
-    card: ResolvedCard | undefined;
-    issues: readonly CheckIssue[];
+type TextSectionProps = AmountSectionProps & {
     /** Opens the words of the edition, where the names of the decks live. */
     onOpenWords?: () => void;
 };

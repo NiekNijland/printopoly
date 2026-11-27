@@ -1,4 +1,3 @@
-0e6ac49a739a resources/js/features/edition/editor/panel/amount-section.tsx resources/js/features/edition/editor/panel/text-section.tsx
 1869dbc8c866 resources/js/components/render/game-card-styles-modern-front.tsx resources/js/components/render/game-card-styles-playful-front.tsx resources/js/components/render/game-card-styles-vintage-front.tsx
 209d917cc9f9 resources/js/components/render/board-space-full.tsx resources/js/components/render/board-space-property.tsx
 30bdb734b38c resources/js/lib/render/rules-booklet-en.ts resources/js/lib/render/rules-booklet-nl.ts

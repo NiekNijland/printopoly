@@ -27,7 +27,7 @@ import type { Locale, Space } from '@/types/game';
 
 import { ChoiceRow } from './panel-parts';
 
-type AmountSectionProps = {
+export type AmountSectionProps = {
     session: EditionSession;
     edition: Edition;
     resolved: ResolvedEdition;
