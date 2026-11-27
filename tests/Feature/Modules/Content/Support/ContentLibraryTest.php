@@ -14,21 +14,21 @@ final class ContentLibraryTest extends TestCase
 {
     public function test_a_page_takes_its_title_from_the_heading_and_its_seo_from_the_front_matter(): void
     {
-        $page = resolve(ContentLibrary::class)->pageFrom(<<<'MD'
-            ---
-            title: Voorpagina
-            seo_title: "Vragen over Printopoly"
-            description: Alles over het spel
-            ---
-
-            # Vragen
-
-            Een **korte** inleiding.
-
-            ## Wat kost het?
-
-            Niets.
-            MD);
+        $page = resolve(ContentLibrary::class)->pageFrom(implode("\n", [
+            '---',
+            'title: Voorpagina',
+            'seo_title: "Vragen over Printopoly"',
+            'description: Alles over het spel',
+            '---',
+            '',
+            '# Vragen',
+            '',
+            'Een **korte** inleiding.',
+            '',
+            '## Wat kost het?',
+            '',
+            'Niets.',
+        ]));
 
         self::assertSame('Vragen', $page->title);
         self::assertSame('Vragen over Printopoly', $page->seoTitle);
@@ -55,26 +55,26 @@ final class ContentLibraryTest extends TestCase
 
     public function test_a_section_can_fix_its_own_id_and_holds_blocks_with_a_spec_and_steps(): void
     {
-        $page = resolve(ContentLibrary::class)->pageFrom(<<<'MD'
-            # Printgids
-
-            ## Het bord {#part-board}
-
-            Over het bord.
-
-            ### Wat je nodig hebt
-
-            `A3, 200 gram`
-
-            1. Print de vellen.
-            2. Snijd **langs** de lijn.
-
-            ### Als het misgaat
-
-            Kijk de schaal na.
-
-            1. Een lijst in een tekst.
-            MD);
+        $page = resolve(ContentLibrary::class)->pageFrom(implode("\n", [
+            '# Printgids',
+            '',
+            '## Het bord {#part-board}',
+            '',
+            'Over het bord.',
+            '',
+            '### Wat je nodig hebt',
+            '',
+            '`A3, 200 gram`',
+            '',
+            '1. Print de vellen.',
+            '2. Snijd **langs** de lijn.',
+            '',
+            '### Als het misgaat',
+            '',
+            'Kijk de schaal na.',
+            '',
+            '1. Een lijst in een tekst.',
+        ]));
 
         $section = $page->sections[0];
         self::assertSame('part-board', $section->id);

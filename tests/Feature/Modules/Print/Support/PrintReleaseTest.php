@@ -34,7 +34,7 @@ final class PrintReleaseTest extends TestCase
         File::ensureDirectoryExists($public . '/build');
         File::put($public . '/build/manifest.json', '{"app.ts":"eerste"}');
 
-        self::assertSame(substr(hash('sha256', '{"app.ts":"eerste"}'), 0, 16), PrintRelease::current());
+        self::assertSame(mb_substr(hash('sha256', '{"app.ts":"eerste"}'), 0, 16), PrintRelease::current());
 
         File::deleteDirectory($public);
     }
@@ -57,7 +57,7 @@ final class PrintReleaseTest extends TestCase
 
         File::put($manifest, '{"app.ts":"langer"}');
         clearstatcache();
-        self::assertSame(substr(hash('sha256', '{"app.ts":"langer"}'), 0, 16), PrintRelease::current());
+        self::assertSame(mb_substr(hash('sha256', '{"app.ts":"langer"}'), 0, 16), PrintRelease::current());
 
         File::deleteDirectory($public);
     }

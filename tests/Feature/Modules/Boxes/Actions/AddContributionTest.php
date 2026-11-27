@@ -44,7 +44,7 @@ final class AddContributionTest extends TestCase
         self::assertSame('Kerk straat', $stored->value);
         self::assertNull($stored->amount);
         self::assertNull($stored->print_path);
-        self::assertSame(32, strlen($stored->receipt));
+        self::assertSame(32, mb_strlen($stored->receipt, '8bit'));
         self::assertSame(hash_hmac('sha256', '10.0.0.7', Config::string('app.key')), $stored->ip_hash);
         $box->refresh();
         self::assertSame('2026-11-22 09:30:00', $box->last_activity_at->toDateTimeString());

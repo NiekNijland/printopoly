@@ -28,7 +28,7 @@ final class EditionPrintJobsTest extends TestCase
         self::assertSame('zaterdagclub', $stored->edition_id);
         self::assertNull($stored->edition);
         self::assertSame('en', $stored->locale);
-        self::assertSame(40, strlen($stored->token));
+        self::assertSame(40, mb_strlen($stored->token, '8bit'));
         self::assertNull($stored->active_at);
     }
 

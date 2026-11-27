@@ -42,7 +42,7 @@ final class PhotoStoreTest extends TestCase
         self::assertSame(dirname($stored->preview_path) . '/print.jpg', $stored->print_path);
         self::assertSame([800, 600, 800, 600], [$stored->width, $stored->height, $stored->original_width, $stored->original_height]);
         self::assertSame(hash('sha256', $print), $stored->checksum);
-        self::assertSame(strlen((string) $disk->get($stored->preview_path)) + strlen($print), $stored->bytes);
+        self::assertSame(mb_strlen((string) $disk->get($stored->preview_path), '8bit') + mb_strlen($print, '8bit'), $stored->bytes);
     }
 
     public function test_a_transparent_photo_keeps_a_png_print_source(): void

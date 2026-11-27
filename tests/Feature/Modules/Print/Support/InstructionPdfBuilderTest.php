@@ -44,7 +44,7 @@ final class InstructionPdfBuilderTest extends TestCase
         self::assertSame(1, preg_match('#^print/' . $job->publicId() . '/[0-9a-f]{12}-instructions-printer-board\.pdf$#', $file->path));
         self::assertSame(now()->addDays(5)->toIso8601String(), $file->expires_at->toIso8601String());
         Storage::disk('local')->assertExists($file->path);
-        self::assertSame(strlen((string) Storage::disk('local')->get($file->path)), $file->bytes);
+        self::assertSame(mb_strlen((string) Storage::disk('local')->get($file->path), '8bit'), $file->bytes);
 
         self::assertCount(1, $renderer->calls);
         [$html, $width, $height, $waits] = $renderer->calls[0];

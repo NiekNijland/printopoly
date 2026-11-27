@@ -30,7 +30,7 @@ final class BoxPhotosTest extends TestCase
         self::assertMatchesRegularExpression('#^box-photos/' . $box->publicId() . '/[0-9A-Z]{26}/preview\.webp$#', $stored['preview_path']);
         self::assertSame(dirname($stored['preview_path']) . '/print.jpg', $stored['print_path']);
         self::assertSame([800, 600], [$stored['width'], $stored['height']]);
-        self::assertSame(strlen((string) $disk->get($stored['preview_path'])) + strlen((string) $disk->get($stored['print_path'])), $stored['bytes']);
+        self::assertSame(mb_strlen((string) $disk->get($stored['preview_path']), '8bit') + mb_strlen((string) $disk->get($stored['print_path']), '8bit'), $stored['bytes']);
         self::assertCount(2, $disk->allFiles('box-photos'));
     }
 

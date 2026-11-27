@@ -33,7 +33,7 @@ final class PrintPartBuilderTest extends TestCase
         self::assertSame(['board', 'printer', 'bord-printer.pdf', 4], [$file->part, $file->set, $file->filename, $file->pages]);
         self::assertSame(1, preg_match('#^print/' . $job->publicId() . '/[0-9a-f]{12}-printer-board\.pdf$#', $file->path));
         Storage::disk('local')->assertExists($file->path);
-        self::assertSame(strlen((string) Storage::disk('local')->get($file->path)), $file->bytes);
+        self::assertSame(mb_strlen((string) Storage::disk('local')->get($file->path), '8bit'), $file->bytes);
         self::assertSame($file->getKey(), $again->getKey());
         self::assertSame(1, PrintScenario::renderer()->calls);
         self::assertSame([], Storage::disk('local')->allFiles('print-work'));

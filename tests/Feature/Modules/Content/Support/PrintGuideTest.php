@@ -20,7 +20,7 @@ final class PrintGuideTest extends TestCase
         $positions = [];
 
         foreach (PartText::GUIDE_ORDER as $part) {
-            $position = strpos($markdown, '{#part-' . $part->value . '}');
+            $position = mb_strpos($markdown, '{#part-' . $part->value . '}');
             self::assertNotFalse($position, 'no section for ' . $part->value);
             $positions[] = $position;
         }
