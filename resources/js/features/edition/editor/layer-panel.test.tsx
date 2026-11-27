@@ -10,12 +10,10 @@ import type { FreeLayer } from '@/lib/render/edition-types';
 import { PhotoCache } from '@/lib/render/editor-photo-cache';
 import { photo } from '@/testing/edition-test-utils';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
+import { fakeIngest } from '@/testing/ingest';
 import { renderWithI18n } from '@/testing/render';
 
 import { LayerPanel } from './layer-panel';
-
-const ingest = vi.hoisted(() => vi.fn());
-vi.mock('@/features/edition/editor/ingest', () => ({ ingestPhoto: ingest }));
 
 const text: FreeLayer = {
     id: 'layer-1',
@@ -128,13 +126,15 @@ describe('LayerPanel', () => {
 
     it('chooses a layer, removes it, and adds a photo layer', async () => {
         const { layersOf } = await setup();
-        ingest.mockResolvedValueOnce({
+        fakeIngest.ingestPhoto.mockResolvedValueOnce({
             ok: true,
             record: {
                 id: 'p5',
+                editionId: 'e1',
                 width: 400,
                 height: 300,
                 blob: new Blob(['x']),
+                createdAt: 0,
             },
         });
 
@@ -161,7 +161,7 @@ describe('LayerPanel', () => {
 
     it('says why a photo did not fit or could not be read', async () => {
         await setup();
-        ingest.mockResolvedValueOnce({
+        fakeIngest.ingestPhoto.mockResolvedValueOnce({
             ok: false,
             storageFull: true,
             fileName: 'kat.jpg',
@@ -176,9 +176,10 @@ describe('LayerPanel', () => {
             'kat.jpg past niet meer in de opslag',
         );
 
-        ingest.mockResolvedValueOnce({
+        fakeIngest.ingestPhoto.mockResolvedValueOnce({
             ok: false,
             error: {
+                code: 'unsupported-type',
                 fileName: 'hond.jpg',
                 rest: { nl: 'is geen foto.', en: 'is no photo.' },
             },
