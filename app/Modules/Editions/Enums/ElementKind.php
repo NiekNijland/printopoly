@@ -45,7 +45,7 @@ enum ElementKind: string
     public const int MAX_DECK_SIZE = 32;
 
     /** The words of the game an edition can rename (`words.house`, ...); the bank name is one too (B148). The same as WORD_IDS in keys.ts. */
-    public const array WORDS = ['house', 'hotel', 'jail', 'currency', 'chance', 'chest', 'bank', 'station', 'utility'];
+    public const array WORD_IDS = ['house', 'hotel', 'jail', 'currency', 'chance', 'chest', 'bank', 'station', 'utility'];
 
     /** Keys older editions still carry, with the key they moved to (B148). The same as LEGACY_KEYS in keys.ts. */
     public const array LEGACY_KEYS = ['bank' => 'words.bank'];
@@ -114,7 +114,7 @@ enum ElementKind: string
             // The style of a part (B268): `style.board`, … `style.box_lid`.
             'style' => PartStyles::partOfKey($key) !== null ? self::PartStyle : null,
             'group' => $count === 2 && self::isGroup($second, $standard) ? self::Group : null,
-            'words' => $count === 2 && in_array($second, self::WORDS, true) ? self::Words : null,
+            'words' => $count === 2 && in_array($second, self::WORD_IDS, true) ? self::Words : null,
             default => null,
         };
     }
