@@ -2,21 +2,28 @@ import { renderHook, waitFor } from '@testing-library/react';
 
 import { fetchBox, findAccountBox } from '@/features/edition/boxes/api';
 import type { OwnerBox } from '@/features/edition/boxes/types';
+import { isJsonObject } from '@/features/edition/remote/client';
 import { MemoryEditionStorage } from '@/lib/render/edition-storage';
 import type {
     EditionSummary,
     PrintJobRecord,
 } from '@/lib/render/edition-types';
-import { jsonOf, requestOf, stubFetch, type FetchFake } from '@/testing/fetch';
+import {
+    jsonOf,
+    requestOf,
+    requestsOf,
+    stubFetch,
+    type FetchFake,
+} from '@/testing/fetch';
 
-import { localSetStatus, useEditionStatus } from './use-edition-status';
+import { useEditionStatus } from './use-edition-status';
 
 vi.mock('@/features/edition/boxes/api', () => ({
     fetchBox: vi.fn(),
     findAccountBox: vi.fn(),
 }));
 
-const summary = (id: string): EditionSummary => {
+const summary = (id: string, revision = 4): EditionSummary => {
     return {
         id,
         name: id,
@@ -27,7 +34,7 @@ const summary = (id: string): EditionSummary => {
         customizedSpaces: 0,
         customizedElements: 0,
         customizedPercent: 0,
-        revision: 4,
+        revision,
     };
 };
 
@@ -250,50 +257,141 @@ describe('useEditionStatus', () => {
     });
 });
 
-describe('localSetStatus', () => {
-    const job = (
-        token: string,
-        revision: number,
-        createdAt: number,
-    ): PrintJobRecord => ({ token, editionId: 'e', revision, createdAt });
+describe('useEditionStatus with the jobs of this browser', () => {
     const answer = (
         token: string,
         printer: number | null,
         home: number | null,
-    ) =>
-        [
-            token,
-            {
-                token,
-                printerReadyUntil: printer,
-                printerOutdated: false,
-                homeReadyUntil: home,
-                homeOutdated: false,
-            },
-        ] as const;
+    ) => ({
+        token,
+        printerReadyUntil: printer,
+        printerOutdated: false,
+        homeReadyUntil: home,
+        homeOutdated: false,
+    });
+    const keep = (storage: MemoryEditionStorage, jobs: PrintJobRecord[]) =>
+        Promise.all(jobs.map((job) => storage.addPrintJob(job)));
 
-    it('takes the newest job that has the set, and calls it outdated after a change', () => {
-        const jobs = [job('old', 2, 1), job('new', 3, 2)];
-        const ready = new Map([
-            answer('old', 100, 300),
-            answer('new', 200, null),
-        ]);
+    beforeEach(() => {
+        localStorage.clear();
+        vi.mocked(fetchBox).mockReset();
+        fetchMock = stubFetch();
+    });
 
-        expect(localSetStatus('printer', 3, jobs, ready)).toEqual({
-            readyUntil: 200,
-            outdated: false,
+    it('takes the newest job that has the set, and calls it outdated after a change', async () => {
+        const storage = new MemoryEditionStorage();
+        await keep(
+            storage,
+            ['edition-aaaa', 'edition-bbbb', 'edition-cccc'].flatMap((id) => [
+                {
+                    token: `${id}-old`,
+                    editionId: id,
+                    revision: 2,
+                    createdAt: 1,
+                },
+                {
+                    token: `${id}-new`,
+                    editionId: id,
+                    revision: 3,
+                    createdAt: 2,
+                },
+            ]),
+        );
+        fetchMock.mockResolvedValue(
+            new Response(
+                JSON.stringify({
+                    jobs: ['edition-aaaa', 'edition-bbbb'].flatMap((id) => [
+                        answer(`${id}-old`, 100, 300),
+                        answer(`${id}-new`, 200, null),
+                    ]),
+                }),
+            ),
+        );
+
+        const { result } = renderHook(() =>
+            useEditionStatus(
+                [
+                    summary('edition-aaaa', 3),
+                    summary('edition-bbbb', 2),
+                    summary('edition-cccc', 3),
+                ],
+                false,
+                null,
+                storage,
+            ),
+        );
+
+        await waitFor(() =>
+            expect(result.current['edition-aaaa']?.printer.readyUntil).toBe(
+                200,
+            ),
+        );
+        expect(result.current['edition-aaaa']).toMatchObject({
+            printer: { readyUntil: 200, outdated: false },
+            home: { readyUntil: null, outdated: true },
         });
-        expect(localSetStatus('home', 3, jobs, ready)).toEqual({
-            readyUntil: null,
-            outdated: true,
-        });
-        expect(localSetStatus('home', 2, jobs, ready)).toEqual({
+        expect(result.current['edition-bbbb']?.home).toEqual({
             readyUntil: 300,
             outdated: false,
         });
-        expect(localSetStatus('printer', 3, jobs, new Map())).toEqual({
-            readyUntil: null,
-            outdated: false,
+        expect(result.current['edition-cccc']).toMatchObject({
+            printer: { readyUntil: null, outdated: false },
+            home: { readyUntil: null, outdated: false },
         });
+    });
+
+    it("never sends more tokens in one request than the server's MAX_TOKENS of 50", async () => {
+        const storage = new MemoryEditionStorage();
+        const tokens = Array.from(
+            { length: 101 },
+            (_, index) => `token-${String(index).padStart(3, '0')}`,
+        );
+        await keep(
+            storage,
+            tokens.map((token, index) => ({
+                token,
+                editionId: `edition-${token}`,
+                revision: 4,
+                createdAt: index,
+            })),
+        );
+        const tokensOf = (init: RequestInit): string[] => {
+            const body = jsonOf(init);
+
+            return isJsonObject(body) && Array.isArray(body.tokens)
+                ? body.tokens.filter((token) => typeof token === 'string')
+                : [];
+        };
+        const fake = stubFetch(
+            (_url, init) =>
+                new Response(
+                    JSON.stringify({
+                        jobs: tokensOf(init).map((token) =>
+                            answer(token, 7000, null),
+                        ),
+                    }),
+                ),
+        );
+
+        const { result } = renderHook(() =>
+            useEditionStatus(
+                [summary('edition-token-000'), summary('edition-token-100')],
+                false,
+                null,
+                storage,
+            ),
+        );
+
+        await waitFor(() =>
+            expect(
+                result.current['edition-token-100']?.printer.readyUntil,
+            ).toBe(7000),
+        );
+        expect(result.current['edition-token-000']?.printer.readyUntil).toBe(
+            7000,
+        );
+        const sent = requestsOf(fake).map(({ init }) => tokensOf(init));
+        expect(sent.map((batch) => batch.length)).toEqual([50, 50, 1]);
+        expect(sent.flat().toSorted()).toEqual(tokens);
     });
 });
