@@ -87,7 +87,7 @@ final class MigrationRollbackTest extends TestCase
 
         $migration->down();
 
-        self::assertEquals($before, DB::connection('mongodb')->table('editions')->where('edition_id', 'e-1')->first());
+        self::assertSame(json_encode($before, JSON_THROW_ON_ERROR), json_encode(DB::connection('mongodb')->table('editions')->where('edition_id', 'e-1')->first(), JSON_THROW_ON_ERROR));
         self::assertSame(1, DB::connection('mongodb')->table('editions')->count());
     }
 
