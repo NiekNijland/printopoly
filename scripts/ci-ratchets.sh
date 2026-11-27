@@ -8,9 +8,9 @@ SOURCE_PATHS="app,bootstrap,config,database,routes,lang?,resources/views?"
 TEST_PATHS="tests"
 # The test folders whose tests are written in the backend's test framework: the row test-skip counts there.
 TEST_SKIP_PATHS="tests"
-FRONTEND_PATHS="resources/js,vite.config.ts?,vitest.setup.ts?"
+FRONTEND_PATHS="resources/js,vite.config.ts?,vitest.setup.ts?,eslint.config.js?,eslint-rules?"
 # Codemods live in tools/codemods and project scripts written in a source language (scripts/<name>.mjs) are named here: no row counts them.
-UNCOUNTED_PATHS="public?,eslint.config.js?,eslint-rules?,rector.php?,tools/codemods?,vitest.config.ts?,scripts/check-ssr-self-contained.mjs?,scripts/ssr-release.mjs?,scripts/ssr-release.d.mts?,docs/design"
+UNCOUNTED_PATHS="public?,rector.php?,tools/codemods?,vitest.config.ts?,scripts/check-ssr-self-contained.mjs?,scripts/ssr-release.mjs?,scripts/ssr-release.d.mts?,docs/design"
 SOURCE_EXTENSIONS="php,js,jsx,mjs,cjs,ts,tsx,mts,cts,vue"
 ANALYSER_CONFIGS="phpstan.neon,phpstan-tests.neon"
 ANALYSER_BASELINE="phpstan-baseline.neon?"
