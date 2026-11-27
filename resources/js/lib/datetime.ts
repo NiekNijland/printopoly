@@ -1,7 +1,7 @@
 // The one door to Intl.DateTimeFormat: one formatter per locale and options, kept.
 const formatters = new Map<string, Intl.DateTimeFormat>();
 
-export const dateTimeFormatter = (
+const dateTimeFormatter = (
     locale: string,
     options: Intl.DateTimeFormatOptions = {},
 ): Intl.DateTimeFormat => {
