@@ -6,6 +6,7 @@ namespace App\Modules\Content\Data;
 
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Content\Enums\PublicPage;
+use Illuminate\Support\Facades\Config;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\LiteralTypeScriptType;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -67,8 +68,6 @@ final class SeoData extends Data
 
     private static function dimension(string $side): int
     {
-        $value = config('seo.og_image.' . $side);
-
-        return is_int($value) ? $value : 0;
+        return Config::integer('seo.og_image.' . $side, 0);
     }
 }

@@ -8,7 +8,6 @@ use App\Modules\Content\Enums\Locale;
 use App\Modules\Print\Enums\BoardForm;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
-use App\Modules\Print\Support\PrintEditionData;
 use App\Modules\Print\Support\PrintLayout;
 
 /**
@@ -32,7 +31,7 @@ final readonly class PrintQuantity
     /** Invitations on one A4 sheet at home. */
     public const int INVITATIONS_PER_SHEET = 4;
 
-    public static function of(PrintPart $part, PrintSet $set, PrintEditionData $edition): self
+    public static function of(PrintPart $part, PrintSet $set, PrintEdition $edition): self
     {
         $expected = PrintLayout::expect($part, $set, $edition->oneSet());
         $pages = $expected->pages ?? 1;

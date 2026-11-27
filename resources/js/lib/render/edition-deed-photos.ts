@@ -106,7 +106,7 @@ export function deedPhotoOf(
 /**
  * The edition with the photo of each space written onto its title deed where the deed shows it (B157). The print
  * job crops a photo per element, so the deed needs a placement of its own; the server does the same in
- * `PrintEditionData::fromArray` for an edition that comes without them. With the sizes of the photos the deed
+ * `PrintEditionReader::fromArray` for an edition that comes without them. With the sizes of the photos the deed
  * gets the crop of its own frame (B177), so the print matches the editor. Deeds with their own photo and spaces
  * that keep theirs off are left alone.
  */

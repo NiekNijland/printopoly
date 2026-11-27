@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\EmptyCatchGuard;
 use Tests\Support\Architecture\LogMessageGuard;
-use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
 
 final class ErrorHandlingArchitectureTest extends TestCase
@@ -103,11 +102,11 @@ final class ErrorHandlingArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Print/Renderer.php:9: the log message', $logs[0]);
     }
 
-        public function test_it_holds_the_real_tree_to_its_counted_list_and_finds_no_log_line_built_from_an_error(): void
+        public function test_it_finds_no_swallowed_catch_and_no_log_line_built_from_an_error(): void
         {
         $root = dirname(__DIR__, 2);
 
-        self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/swallowed-catches.txt')->differences(new EmptyCatchGuard(new CallInspector(), $root, ['app'])->violations()));
+        self::assertSame([], new EmptyCatchGuard(new CallInspector(), $root, ['app'])->violations());
         self::assertSame([], new LogMessageGuard(new CallInspector(), $root, 'app')->violations());
     }
 }

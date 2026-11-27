@@ -8,8 +8,8 @@ use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Modules\Print\Enums\BoardForm;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
-use App\Modules\Print\Support\PrintEditionData;
 use App\Modules\Print\Support\PrintLayout;
+use App\Modules\Print\ValueObjects\PrintEdition;
 use Override;
 use RuntimeException;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
@@ -30,7 +30,7 @@ final class FakePdfRenderer implements PdfRenderer
     /** 'ok', 'wrong_size', 'wrong_count', 'crash' or 'timeout' */
     public string $mode = 'ok';
 
-    public function __construct(private readonly PrintEditionData $edition)
+    public function __construct(private readonly PrintEdition $edition)
     {
     }
 

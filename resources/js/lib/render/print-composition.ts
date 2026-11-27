@@ -173,7 +173,7 @@ export function cardKeys(edition: PrintEdition): string[] {
 /**
  * The house rules card prints with the cards when it has a rule on it (B210): the editor always shows it (B198), so
  * the old switch `parts.houseRules` no longer counts. An empty card is left out of the set (bug 20 of test round 3).
- * `PrintEditionData::hasHouseRules` counts the same way.
+ * `PrintEdition::hasHouseRules` counts the same way.
  */
 export function hasHouseRulesCard(edition: {
     elements: Readonly<Record<string, object | undefined>>;

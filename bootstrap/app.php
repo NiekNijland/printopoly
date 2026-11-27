@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Analytics\Feature\CountController;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RedirectTrailingSlash;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetSecurityHeaders;
 use App\Http\Middleware\SetSeoHeaders;
+use App\Http\Middleware\TokenCapability;
 use App\Http\Middleware\TrackActivity;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,7 +15,6 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Routing\Route;
-use Illuminate\Support\Facades\Route as RouteFacade;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -29,15 +28,13 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__ . '/../routes/console.php',
         channels: __DIR__ . '/../routes/channels.php',
         health: '/up',
-        // The anonymous feature counter (B206) runs outside the web group: no session, no cookies, no CSRF.
         then: static function (): void {
-            RouteFacade::post('api/count', CountController::class)
-                ->middleware('throttle:feature-count')
-                ->name('feature.count');
+            require __DIR__ . '/../routes/count.php';
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        $middleware->alias(['capability' => TokenCapability::class]);
         // One URL per page (B66): /nl/vragen/ redirects to /nl/vragen, and every response carries the security headers.
         $middleware->prepend(RedirectTrailingSlash::class);
         $middleware->append(SetSecurityHeaders::class);

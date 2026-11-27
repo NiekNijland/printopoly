@@ -7,7 +7,6 @@ namespace Tests\Feature\Http;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
-use Tests\Support\CountedList;
 use Tests\Support\Feature\AppRoutes;
 use Tests\TestCase;
 
@@ -31,7 +30,7 @@ final class RouteRateLimitCoverageTest extends TestCase
             }
         }
 
-        self::assertSame([], new CountedList(base_path('tests/Support/Architecture/lists/route-rate-limits.txt'))->differences($problems));
+        self::assertSame([], $problems);
     }
 
         public function test_it_names_the_problem_of_a_route(): void

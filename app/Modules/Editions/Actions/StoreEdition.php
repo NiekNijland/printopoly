@@ -6,10 +6,11 @@ namespace App\Modules\Editions\Actions;
 
 use App\Models\Edition;
 use App\Models\User;
+use App\Modules\Editions\Exceptions\EditionConflictException;
 use App\Modules\Editions\Exceptions\EditionLimitReachedException;
-use App\Modules\Editions\Support\EditionConflict;
 use App\Modules\Editions\Support\EditionPayload;
 use App\Modules\Editions\Support\EditionValidator;
+use Illuminate\Support\Facades\Config;
 
 /**
  * Puts a new edition in an account, with the id, revision and times the
@@ -21,10 +22,14 @@ use App\Modules\Editions\Support\EditionValidator;
  */
 final readonly class StoreEdition
 {
+    public function __construct(private EditionPayload $payload)
+    {
+    }
+
     /**
      * @param EditionInput $input
      *
-     * @throws EditionConflict
+     * @throws EditionConflictException
      * @throws EditionLimitReachedException
      */
     public function handle(User $user, array $input): Edition
@@ -33,7 +38,9 @@ final readonly class StoreEdition
 
         $existing = Edition::query()->where('user_id', $userId)->where('edition_id', $input['id'])->first();
 
-        throw_if($existing instanceof Edition, EditionConflict::class, $existing);
+        if ($existing instanceof Edition) {
+            throw new EditionConflictException($this->payload->data($existing));
+        }
 
         $limit = self::limit();
 
@@ -65,8 +72,6 @@ final readonly class StoreEdition
 
     public static function limit(): int
     {
-        $limit = config('printopoly.limits.editions_per_account');
-
-        return is_int($limit) ? $limit : 20;
+        return Config::integer('printopoly.limits.editions_per_account', 20);
     }
 }

@@ -8,7 +8,7 @@ use App\Modules\Print\Enums\PrintSet;
 
 /**
  * The frame size in mm of every visible photo, as the browser measured it from the renderers (per set,
- * `element#photo` to `{w, h}`). Only the shape is checked here; `PrintEditionData::withTargets` holds the
+ * `element#photo` to `{w, h}`). Only the shape is checked here; `PrintEdition::withTargets` holds the
  * sizes to sane limits.
  */
 final class PhotoTargets

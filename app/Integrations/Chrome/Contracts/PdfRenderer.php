@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Integrations\Chrome\Contracts;
 
+use App\Integrations\Chrome\ChromePdfRenderer;
+use Illuminate\Container\Attributes\Bind;
+
 /**
  * Turns an HTML page into PDF bytes. The real one drives headless Chrome;
  * tests bind a fake that writes a PDF of a known size.
  */
+#[Bind(ChromePdfRenderer::class)]
 interface PdfRenderer
 {
     /**

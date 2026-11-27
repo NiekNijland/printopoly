@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Boxes\ShareImage;
 
-use App\Http\Controllers\Controller;
+use App\Modules\Boxes\Data\ShareImageStatusData;
 use App\Modules\Boxes\Support\ShareImages;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * The browser asks for the picture it requested (B174). While the job works the answer is 202 with `waiting`; then
  * the PNG itself, or `failed` with a sentence. An unknown or expired id is a 404.
  */
-final class ShowController extends Controller
+final readonly class ShowController
 {
-    public function __invoke(string $id, ShareImages $images): JsonResponse|Response
+    public function __invoke(Request $request, string $id, ShareImages $images): Response
     {
-        $entry = $images->find($id);
-
-        abort_if($entry === null, 404);
+        $entry = $images->find($id) ?? throw new NotFoundHttpException();
 
         if ($entry['status'] === 'done') {
             return response($entry['png'], 200, [
@@ -30,10 +29,11 @@ final class ShowController extends Controller
         }
 
         $waiting = $entry['status'] === 'waiting';
+        $status = $waiting ? new ShareImageStatusData('waiting') : new ShareImageStatusData('failed', __('boxes.share_image_failed'));
 
-        return response()->json(
-            $waiting ? ['status' => 'waiting'] : ['status' => 'failed', 'message' => __('boxes.share_image_failed')],
-            $waiting ? 202 : 200,
-        )->header('Cache-Control', 'private, no-store');
+        $response = $status->toResponse($request)->setStatusCode($waiting ? 202 : 200);
+        $response->headers->set('Cache-Control', 'private, no-store');
+
+        return $response;
     }
 }

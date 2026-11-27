@@ -9,7 +9,7 @@ use App\Modules\Content\Enums\Locale;
 use App\Modules\Editions\Support\EditionValidator;
 use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Support\TemporaryFile;
-use ErrorException;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Vite;
@@ -102,7 +102,7 @@ final readonly class ShareImageRenderer
      */
     private function html(array $input, Locale $locale): string
     {
-        $base = rtrim(config()->string('printopoly.print.render_base_url'), '/');
+        $base = rtrim(Config::string('printopoly.print.render_base_url'), '/');
         $nonce = Str::random(32);
 
         Vite::createAssetPathsUsing(static fn (string $path): string => $base . '/print-assets/' . ltrim($path, '/'));
@@ -131,7 +131,7 @@ final readonly class ShareImageRenderer
                     'part' => 'share',
                     'set' => 'printer',
                     'assetBase' => $base,
-                    'pageShaveMm' => config()->float('printopoly.print.page_height_shave_mm'),
+                    'pageShaveMm' => Config::float('printopoly.print.page_height_shave_mm'),
                     'labels' => [
                         'kicker' => __('editor.share_board_kicker', [], $locale->value),
                         'footer' => 'printopoly.nl',
@@ -168,12 +168,12 @@ final readonly class ShareImageRenderer
             return null;
         }
 
-        try {
-            $size = getimagesizefromstring($bytes);
-        } catch (ErrorException) {
-            // Not an image at all: PHP warns, and Laravel makes that an exception.
+        // Only bytes that start like the declared format reach getimagesizefromstring(), which warns on anything else.
+        if (! str_starts_with($bytes, $match[1] === 'png' ? "\x89PNG\r\n\x1a\n" : "\xFF\xD8\xFF")) {
             return null;
         }
+
+        $size = getimagesizefromstring($bytes);
 
         if ($size === false || $size[2] !== ($match[1] === 'png' ? IMAGETYPE_PNG : IMAGETYPE_JPEG) || $size[0] < 1 || $size[1] < 1) {
             return null;

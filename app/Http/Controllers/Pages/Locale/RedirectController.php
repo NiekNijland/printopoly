@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Pages\Locale;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\Pages\RedirectLocaleRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 /**
  * The bare domain sends you to the home page in your browser's language (B46).
  */
-final class RedirectController extends Controller
+final readonly class RedirectController
 {
-    public function __invoke(Request $request): RedirectResponse
+    public function __invoke(RedirectLocaleRequest $request): RedirectResponse
     {
         return to_route('home', [
-            ...$request->query(),
+            ...$request->forwardedQuery(),
             'locale' => app()->getLocale(),
         ], 302)->header('Vary', 'Accept-Language');
     }

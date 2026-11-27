@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Models\Edition;
-use App\Modules\Editions\Support\EditionPayload;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use MongoDB\Laravel\Connection;
 
 /**
  * The bank name moved from its own element `bank` into the words of the edition, `words.bank` (B148). Stored
@@ -15,14 +15,29 @@ return new class() extends Migration
 {
     public function up(): void
     {
-        Edition::query()
-            ->where('elements.bank', 'exists', true)
-            ->each(function (Edition $edition): void {
-                Edition::query()
-                    ->where('_id', $edition->getKey())
-                    ->where('revision', $edition->revision)
-                    ->update(['elements' => EditionPayload::asObject(EditionPayload::migrated($edition->elements))]);
-            });
+        $connection = DB::connection('mongodb');
+        throw_unless($connection instanceof Connection, LogicException::class, 'The mongodb connection must use the MongoDB Laravel driver.');
+        $editions = $connection->getDatabase()->selectCollection('editions');
+        $documents = $editions->find(
+            ['elements.bank' => ['$exists' => true]],
+            ['typeMap' => ['root' => 'array', 'document' => 'array', 'array' => 'array']],
+        );
+
+        foreach ($documents as $edition) {
+            if (! is_array($edition) || ! is_array($edition['elements'] ?? null)) {
+                continue;
+            }
+
+            $elements = $edition['elements'];
+            unset($elements['fold_models'], $elements['dice']);
+            $elements['words.bank'] ??= $elements['bank'];
+            unset($elements['bank']);
+
+            $editions->updateOne(
+                ['_id' => $edition['_id'], 'revision' => $edition['revision'] ?? null],
+                ['$set' => ['elements' => $elements]],
+            );
+        }
     }
 
     public function down(): void
