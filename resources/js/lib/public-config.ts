@@ -1,4 +1,5 @@
 import { parseJson } from './json';
+import { is, object } from './parse';
 
 export type PublicConfig = {
     reverb: {
@@ -10,15 +11,10 @@ export type PublicConfig = {
     bugsnag: { apiKey: string | null; releaseStage: string | null };
 };
 
-type JsonObject = Record<string, unknown>;
+const section = (value: unknown, key: string): Record<string, unknown> => {
+    const member = is(object, value) ? value[key] : undefined;
 
-const isJsonObject = (value: unknown): value is JsonObject =>
-    typeof value === 'object' && value !== null;
-
-const section = (value: unknown, key: string): JsonObject => {
-    const member = isJsonObject(value) ? value[key] : undefined;
-
-    return isJsonObject(member) ? member : {};
+    return is(object, member) ? member : {};
 };
 
 const text = (value: unknown): string | null =>
