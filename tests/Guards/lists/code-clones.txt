@@ -13,7 +13,6 @@
 88bb146f6282 resources/js/components/render/corner-art.tsx resources/js/components/render/title-deed-styles.tsx
 97e369048daa resources/js/components/render/game-card-styles-modern-back.tsx resources/js/components/render/game-card-styles-playful-back.tsx resources/js/components/render/game-card-styles-vintage-back.tsx
 a15df850648d resources/js/components/render/edition-title-plain.tsx resources/js/components/render/edition-title-script.tsx
-baac6cff32e7 resources/js/components/render/game-card-back.tsx resources/js/components/render/house-rules.tsx
 bb9e05e0b00a resources/js/components/render/game-card-front.tsx resources/js/components/render/game-card-styles-modern-front.tsx resources/js/components/render/game-card-styles-vintage-front.tsx
 c0ec81c2b550 resources/js/components/render/banknote-plain.tsx resources/js/components/render/banknote-styles-modern.tsx
 c8298263256a resources/js/components/render/game-card-styles-vintage-back.tsx resources/js/components/render/game-card-styles-vintage-front.tsx

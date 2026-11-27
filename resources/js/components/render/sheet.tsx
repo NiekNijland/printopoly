@@ -317,3 +317,20 @@ export const Frame = ({
         </BoxSvg>
     );
 };
+
+export const CardFrame = ({ w, h }: { w: number; h: number }) => {
+    const { theme } = useRender();
+
+    return (
+        <Frame
+            ornate
+            x={3}
+            y={3}
+            w={w - 6}
+            h={h - 6}
+            color={theme.ink}
+            strokeMm={theme.frameMm}
+            radiusMm={Math.max(0, theme.cardRadiusMm - 2)}
+        />
+    );
+};

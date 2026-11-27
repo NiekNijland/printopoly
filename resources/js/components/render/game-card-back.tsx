@@ -8,7 +8,7 @@ import { StyledArtPlate, StyledCardBack } from './game-card-styles';
 import { Icon } from './icons';
 import { PatternFill } from './pattern-fill';
 import { PhotoSlot } from './photo-slot';
-import { Abs, Frame, useRender } from './sheet';
+import { CardFrame, Abs, Frame, useRender } from './sheet';
 import { SpaceIconArt, type SpaceIconSource } from './space-icon';
 
 type ArtBackProps = {
@@ -199,16 +199,7 @@ const ThemeCardBack = ({
 
     return (
         <>
-            <Frame
-                ornate
-                x={3}
-                y={3}
-                w={w - 6}
-                h={h - 6}
-                color={theme.ink}
-                strokeMm={theme.frameMm}
-                radiusMm={Math.max(0, theme.cardRadiusMm - 2)}
-            />
+            <CardFrame w={w} h={h} />
             {stacked && (
                 <SpaceIconArt
                     icon={icon}

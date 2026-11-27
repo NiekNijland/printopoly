@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { Abs, BoxSvg, Frame, Sheet, Svg, useRender } from './sheet';
+import { Abs, BoxSvg, CardFrame, Frame, Sheet, Svg, useRender } from './sheet';
 
 const Probe = () => {
     const { theme, locale, currency, money, words, style } = useRender();
@@ -315,5 +315,16 @@ describe('Abs with data attributes', () => {
         expect(box?.getAttribute('data-title-style')).toBe('stamp');
         expect(box?.style.transform).toBe('rotate(-2deg)');
         expect(box?.style.left).toBe('1mm');
+    });
+});
+
+describe('CardFrame', () => {
+    it('draws the ornate frame of a card 3 mm inside its edge', () => {
+        const { container } = render(<CardFrame w={60} h={90} />);
+        const svg = container.querySelector<SVGElement>('svg[data-frame]');
+
+        expect(svg?.style.left).toBe('3mm');
+        expect(svg?.style.width).toBe('54mm');
+        expect(svg?.style.height).toBe('84mm');
     });
 });
