@@ -271,47 +271,14 @@
       "count": 1
     }
   },
-  "resources/js/features/print/calibration-art.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/features/print/estimate.ts": {
     "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 1
-    }
-  },
-  "resources/js/features/print/invitation-count.tsx": {
-    "max-lines-per-function": {
       "count": 1
     }
   },
   "resources/js/features/print/labels.test.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 4
-    }
-  },
-  "resources/js/features/print/money-choice.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/print/part-row.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/print/part-thumb.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/print/print-bar.tsx": {
-    "max-lines-per-function": {
-      "count": 1
     }
   },
   "resources/js/features/print/print-document.test.tsx": {
@@ -322,21 +289,8 @@
       "count": 1
     }
   },
-  "resources/js/features/print/review-list.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/features/print/share-image.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/print/share-set-button.tsx": {
-    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -500,9 +454,6 @@
   "resources/js/lib/render/print-api.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
-    },
-    "max-lines": {
-      "count": 1
     }
   },
   "resources/js/lib/render/print-board.test.ts": {
@@ -532,9 +483,6 @@
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     },
-    "max-lines": {
-      "count": 1
-    },
     "no-restricted-syntax": {
       "count": 2
     }
@@ -549,11 +497,6 @@
   },
   "resources/js/lib/render/print-home-stickers.test.ts": {
     "@typescript-eslint/no-non-null-assertion": {
-      "count": 1
-    }
-  },
-  "resources/js/lib/render/print-home-stickers.ts": {
-    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -623,17 +566,6 @@
     },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    }
-  },
-  "resources/js/pages/editions/create.tsx": {
-    "max-lines-per-function": {
-      "count": 1
     }
   },
   "resources/js/pages/editions/editions-flow.test.tsx": {
@@ -646,14 +578,6 @@
       "count": 1
     },
     "layers/no-sibling-import": {
-      "count": 2
-    },
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/pages/editions/index.tsx": {
-    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -666,27 +590,12 @@
     }
   },
   "resources/js/pages/print/show.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
-    },
     "@typescript-eslint/no-non-null-assertion": {
       "count": 2
-    },
-    "max-lines": {
-      "count": 1
     }
   },
   "resources/js/pages/print/show.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
-    },
-    "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
       "count": 2
     }
   }
