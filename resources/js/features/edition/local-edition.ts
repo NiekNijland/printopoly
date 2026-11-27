@@ -1,5 +1,6 @@
 import { getServices } from '@/features/edition/editor/services';
 import { reportError } from '@/lib/bugsnag';
+import { now as clockNow } from '@/lib/clock';
 import { withDeedPhotos } from '@/lib/render/edition-deed-photos';
 import { isQuotaError } from '@/lib/render/edition-storage';
 import type { EditionStorage } from '@/lib/render/edition-storage';
@@ -150,7 +151,7 @@ export const rememberPrintJob = async (
     edition: Edition,
     token: string,
     storage: EditionStorage,
-    now: number = Date.now(),
+    now: number = clockNow(),
 ): Promise<void> => {
     try {
         await storage.addPrintJob({
