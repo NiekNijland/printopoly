@@ -10,7 +10,7 @@ TEST_PATHS="tests"
 TEST_SKIP_PATHS="tests"
 FRONTEND_PATHS="resources/js,vite.config.ts?,vitest.setup.ts?"
 # Codemods live in tools/codemods and project scripts written in a source language (scripts/<name>.mjs) are named here: no row counts them.
-UNCOUNTED_PATHS="public?,eslint.config.js?,rector.php?,tools/codemods?,vitest.config.ts?,scripts/check-ssr-self-contained.mjs?,scripts/ssr-release.mjs?,scripts/ssr-release.d.mts?,docs/design"
+UNCOUNTED_PATHS="public?,eslint.config.js?,eslint-rules?,rector.php?,tools/codemods?,vitest.config.ts?,scripts/check-ssr-self-contained.mjs?,scripts/ssr-release.mjs?,scripts/ssr-release.d.mts?,docs/design"
 SOURCE_EXTENSIONS="php,js,jsx,mjs,cjs,ts,tsx,mts,cts,vue"
 ANALYSER_CONFIGS="phpstan.neon,phpstan-tests.neon"
 ANALYSER_BASELINE="phpstan-baseline.neon?"
